@@ -1,0 +1,14 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.cowave.commons.framework.filter.RequestIdFilter,\
+com.cowave.commons.framework.filter.page.PageFilter,\
+com.cowave.commons.framework.configuration.ApplicationConfiguration,\
+com.cowave.commons.framework.support.datasource.DynamicDataSourceConfiguration,\
+com.cowave.commons.framework.support.datasource.druid.DruidDynamicDataSourceConfiguration,\
+com.cowave.commons.framework.support.redis.RedisAutoConfiguration,\
+com.cowave.commons.framework.support.redis.MultiRedisAutoConfiguration
+
+org.springframework.context.ApplicationContextInitializer=\
+com.cowave.commons.framework.configuration.ApplicationConfiguration
+
+org.springframework.boot.SpringApplicationRunListener=\
+com.cowave.commons.framework.configuration.CowaveBrannerListener

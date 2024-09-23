@@ -1,0 +1,42 @@
+package com.cowave.commons.framework.support.excel;
+
+import com.alibaba.excel.converters.Converter;
+import com.alibaba.excel.converters.WriteConverterContext;
+import com.alibaba.excel.metadata.GlobalConfiguration;
+import com.alibaba.excel.metadata.data.ReadCellData;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.alibaba.excel.metadata.property.ExcelContentProperty;
+
+/**
+ *
+ * @author shanhuiming
+ *
+ */
+public class YesNoConverter implements Converter<Integer> {
+
+	@Override
+	public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
+		String value = "";
+		Integer status = context.getValue();
+		if(status != null) {
+			if(status == 1) {
+				value = "是";
+			}else if(status == 0) {
+				value = "否";
+			}
+		}
+		return new WriteCellData<>(value);
+	}
+
+	@Override
+	public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+		String stringValue = cellData.getStringValue();
+		if("是".equals(stringValue) || "Yes".equalsIgnoreCase(stringValue)){
+			return 1;
+		}
+		if("否".equals(stringValue) || "No".equalsIgnoreCase(stringValue)){
+			return 0;
+		}
+		return null;
+	}
+}

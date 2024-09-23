@@ -20,8 +20,9 @@
 
     <modules>
         <module>commons-dependencies</module>
-        <module>commons-parent</module>
+        <module>commons-framework</module>
         <module>commons-tools</module>
+        <module>commons-parent</module>
     </modules>
 
     <distributionManagement>
