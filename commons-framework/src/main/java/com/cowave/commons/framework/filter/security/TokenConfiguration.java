@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.filter.security;
 
 import java.util.ArrayList;
@@ -34,19 +42,14 @@ public class TokenConfiguration {
     private boolean conflict = false;
 
     /**
-     * 应用令牌认证超时[单位秒]
+     * accessToken超时
      */
-    private int appExpire = 60;
+    private int accessExpire = 3600;
 
     /**
-     * 客户端超时[单位秒]
+     * refreshToken超时
      */
-    private int clientExpire = 3600;
-
-    /**
-     * 服务端超时[单位秒]
-     */
-    private int serverExpire = 36000;
+    private int refreshExpire = 3600 * 24 * 7;
 
     /**
      * 忽略鉴权的url

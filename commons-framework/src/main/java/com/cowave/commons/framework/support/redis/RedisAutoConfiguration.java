@@ -1,25 +1,32 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.support.redis;
 
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import com.cowave.commons.framework.support.redis.connection.JedisAutoConfiguration;
-import com.cowave.commons.framework.support.redis.connection.LettuceAutoConfiguration;
 
 /**
  *
  * @author shanhuiming
  *
  */
+@AutoConfigureBefore(org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration.class)
 @ConditionalOnClass(RedisOperations.class)
-@Import({ JedisAutoConfiguration.class, LettuceAutoConfiguration.class })
 public class RedisAutoConfiguration {
 
 	@ConditionalOnMissingBean(RedisTemplate.class)
@@ -29,7 +36,7 @@ public class RedisAutoConfiguration {
         RedisTemplate<Object, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
-        RedisJsonSerializer<?> serializer = new RedisJsonSerializer<>(Object.class);
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(serializer);
 
@@ -42,7 +49,7 @@ public class RedisAutoConfiguration {
 	@ConditionalOnMissingBean(RedisHelper.class)
     @Primary
     @Bean
-    public RedisHelper redisHelper(RedisTemplate<Object, Object> redisTemplate){
-        return RedisHelper.newRedisHelper(redisTemplate);
+    public RedisHelper redisHelper(RedisTemplate<Object, Object> redisTemplate, StringRedisTemplate stringRedisTemplate){
+        return RedisHelper.newRedisHelper(redisTemplate, stringRedisTemplate);
     }
 }

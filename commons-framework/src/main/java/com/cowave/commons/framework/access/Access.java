@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.access;
 
 import java.net.URLDecoder;
@@ -11,6 +19,7 @@ import com.cowave.commons.framework.filter.security.AccessToken;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -139,7 +148,7 @@ public class Access {
         return new Date(access.requestTime);
     }
 
-    public static AccessToken accessToken() {
+    public static AccessToken token() {
         Access access = get();
         if(access == null) {
             return null;
@@ -147,22 +156,60 @@ public class Access {
         return access.accessToken;
     }
 
-    public static String token() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+    public static String accessToken() {
+        AccessToken token = token();
+        if(token == null) {
             return null;
         }
-        return accessToken.getToken();
+        return token.getAccessToken();
+    }
+
+    public static String refreshToken() {
+        AccessToken token = token();
+        if(token == null) {
+            return null;
+        }
+        return token.getRefreshToken();
     }
 
     public static String tokenType() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken token = token();
+        if(token == null) {
             return null;
         }
-        return accessToken.getType();
+        return token.getType();
+    }
+
+    public static Long userId() {
+        AccessToken token = token();
+        if(token == null) {
+            return null;
+        }
+        return token.getUserId();
+    }
+
+    public static String userCode() {
+        AccessToken token = token();
+        if(token == null) {
+            return null;
+        }
+        return token.getUserCode();
+    }
+
+    public static String userAccount() {
+        AccessToken token = token();
+        if(token == null) {
+            return null;
+        }
+        return token.getUsername();
+    }
+
+    public static String userName() {
+        AccessToken token = token();
+        if(token == null) {
+            return null;
+        }
+        return token.getUserNick();
     }
 
     public static AccessUser user(){
@@ -173,42 +220,6 @@ public class Access {
         accessUser.setAccessDeptId(deptId());
         accessUser.setAccessDeptName(deptName());
         return accessUser;
-    }
-
-    public static Long userId() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
-            return null;
-        }
-        return accessToken.getUserId();
-    }
-
-    public static String userCode() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
-            return null;
-        }
-        return accessToken.getUserCode();
-    }
-
-    public static String userAccount() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
-            return null;
-        }
-        return accessToken.getUsername();
-    }
-
-    public static String userName() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
-            return null;
-        }
-        return accessToken.getUserNick();
     }
 
     public static boolean isAdmin(){
@@ -365,6 +376,20 @@ public class Access {
                     Objects.requireNonNull(httpResponse()).addCookie(cookie);
                 }
             }
+        }
+    }
+
+    public static void setResponseStatus(HttpStatus httpStatus){
+        HttpServletResponse response = httpResponse();
+        if(response != null){
+            response.setStatus(httpStatus.value());
+        }
+    }
+
+    public static void setResponseHeader(String name, String value){
+        HttpServletResponse response = httpResponse();
+        if(response != null){
+            response.setHeader(name, value);
         }
     }
 }

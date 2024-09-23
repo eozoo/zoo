@@ -3557,6 +3557,12 @@
       "type": "java.lang.Boolean",
       "defaultValue": false,
       "description": "国际化开关."
+    },
+    {
+      "name": "logging.sql-enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否打印sql",
+      "defaultValue": false
     }
   ],
   "hints": []

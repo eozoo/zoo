@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.helper.geospatial;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -34,7 +42,7 @@ public class GeometryHelper {
     /**
      * 设置坐标系
      */
-    private static final org.locationtech.jts.geom.GeometryFactory GEOMETRY_FACTORY = new org.locationtech.jts.geom.GeometryFactory(PRECISION_MODEL, COORDINATE_SYSTEM_CODE);
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(PRECISION_MODEL, COORDINATE_SYSTEM_CODE);
 
     /**
      * 联合区域

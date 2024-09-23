@@ -1,23 +1,31 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.support.feign.interceptor;
 
-import com.alibaba.excel.util.StringUtils;
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.filter.security.TokenService;
 import com.cowave.commons.framework.configuration.ApplicationConfiguration;
 import com.cowave.commons.framework.configuration.ClusterInfo;
 import com.cowave.commons.framework.filter.security.AccessToken;
+import com.cowave.commons.framework.filter.security.TokenService;
 import com.cowave.commons.framework.util.IdGenerator;
 import com.cowave.commons.framework.util.SpringContext;
-
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import io.seata.core.context.RootContext;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author shanhuiming
  *
  */
-public class FeignInterceptor implements RequestInterceptor {
+public class TransactionIdInterceptor implements RequestInterceptor {
 
     private static final IdGenerator GENERATOR = new IdGenerator();
 
@@ -29,7 +37,7 @@ public class FeignInterceptor implements RequestInterceptor {
 
     private final String port;
 
-    public FeignInterceptor(ApplicationConfiguration applicationConfiguration, TokenService tokenService, ClusterInfo clusterInfo) {
+    public TransactionIdInterceptor(ApplicationConfiguration applicationConfiguration, TokenService tokenService, ClusterInfo clusterInfo) {
         this.applicationConfiguration = applicationConfiguration;
         this.tokenService = tokenService;
         this.clusterInfo = clusterInfo;
@@ -39,7 +47,7 @@ public class FeignInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
         String requestId = Access.id();
-        String authorization = Access.token();
+        String authorization = Access.accessToken();
         if(StringUtils.isBlank(requestId)) {
             requestId = requestId();
         }
@@ -48,6 +56,10 @@ public class FeignInterceptor implements RequestInterceptor {
         }
         requestTemplate.header("requestId", requestId);
         requestTemplate.header("Authorization", authorization);
+        String xid = RootContext.getXID();
+        if(StringUtils.isNotBlank(xid)){
+            requestTemplate.header(RootContext.KEY_XID, xid);
+        }
     }
 
     private String requestId() {
@@ -65,6 +77,6 @@ public class FeignInterceptor implements RequestInterceptor {
         appToken.setClusterId(clusterInfo.getId());
         appToken.setClusterName(clusterInfo.getName());
         appToken.setClusterLevel(clusterInfo.getLevel());
-        return tokenService.newToken(appToken);
+        return tokenService.createAccessToken(appToken, 300);
     }
 }

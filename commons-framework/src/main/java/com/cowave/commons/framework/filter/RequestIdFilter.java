@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.filter;
 
 import java.io.IOException;
@@ -44,8 +52,7 @@ public class RequestIdFilter implements Filter {
             requestId = getRequestId();
             setRequestId(req, requestId);
         }
-        Thread.currentThread().setName(requestId);
-        MDC.put("tid", String.valueOf(Thread.currentThread().getId()));
+        MDC.put("rid", requestId);
 
         String language = req.getHeader("Accept-Language");
         String requestIp = Utils.getRequestIp(req);

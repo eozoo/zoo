@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.helper.operation;
 
 import java.util.ArrayList;
@@ -45,7 +53,7 @@ public class OperationAspect implements ApplicationContextAware {
 	private static final ThreadLocal<OperationLog> OPERATION = new ThreadLocal<>();
 
 	@Nullable
-	private final OperationAccepter<? super OperationLog> operationAccepter;
+	private final OperationAccepter operationAccepter;
 
 	private ApplicationContext applicationContext;
 

@@ -1,13 +1,19 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.configuration.executor;
 
-import java.util.concurrent.Executor;
-
+import org.dromara.dynamictp.core.support.DynamicTp;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
-import org.springframework.boot.autoconfigure.task.TaskExecutionProperties.Shutdown;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +21,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import com.alibaba.ttl.threadpool.TtlExecutors;
-
 import lombok.RequiredArgsConstructor;
+
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  *
@@ -35,17 +41,10 @@ public class ApplicationAsyncConfiguration implements AsyncConfigurer {
 
     @Bean(name = { "applicationExecutor" })
     @Primary
+    @DynamicTp
     @Override
-    public Executor getAsyncExecutor() {
-        TaskExecutionProperties.Pool pool = taskExecutionProperties.getPool();
-        Shutdown shutdown = taskExecutionProperties.getShutdown();
-        ApplicationTaskExecutor taskExecutor = new ApplicationTaskExecutor(new ApplicationThreadPool(pool));
-        taskExecutor.setAllowCoreThreadTimeOut(pool.isAllowCoreThreadTimeout());
-        taskExecutor.setWaitForTasksToCompleteOnShutdown(shutdown.isAwaitTermination());
-        if(shutdown.isAwaitTermination()) {
-            taskExecutor.setAwaitTerminationMillis(shutdown.getAwaitTerminationPeriod().toMillis());
-        }
-        return TtlExecutors.getTtlExecutor(taskExecutor);
+    public ThreadPoolExecutor getAsyncExecutor() {
+        return new ApplicationThreadPool(taskExecutionProperties.getPool());
     }
 
     @Override

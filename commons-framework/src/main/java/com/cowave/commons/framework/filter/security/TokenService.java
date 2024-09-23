@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.filter.security;
 
 import java.io.IOException;
@@ -63,14 +71,95 @@ public class TokenService {
     @Nullable
     private final RedisHelper redis;
 
-    public void setToken(AccessToken accessToken) {
-        accessToken.setToken(newToken(accessToken));
-        String key = AccessToken.KEY + accessToken.getType() + ":" + accessToken.getUsername();
-        redis.putExpireValue(key, accessToken, configuration.getServerExpire(), TimeUnit.SECONDS);
+    /**
+     * 赋值Token
+     */
+    public void assignToken(AccessToken token) {
+        String accessToken = Jwts.builder()
+                .claim(CLAIM_USER_ID,       String.valueOf(token.getUserId())) // Long取出来是Integer，干脆用String处理
+                .claim(CLAIM_USER_CODE,     token.getUserCode())
+                .claim(CLAIM_USER_NAME,     token.getUserNick())
+                .claim(CLAIM_USER_ACCOUNT,  token.getUsername())
+                .claim(CLAIM_DEPT_ID,       String.valueOf(token.getDeptId()))
+                .claim(CLAIM_DEPT_CODE,     token.getDeptCode())
+                .claim(CLAIM_DEPT_NAME,     token.getDeptName())
+                .claim(CLAIM_CLUSTER_ID,    token.getClusterId())
+                .claim(CLAIM_CLUSTER_LEVEL, token.getClusterLevel())
+                .claim(CLAIM_CLUSTER_NAME,  token.getClusterName())
+                .claim(CLAIM_USER_ROLE,     token.getRoles())
+                .claim(CLAIM_USER_PERM,     token.getPermissions())
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
+                .setExpiration(new Date(System.currentTimeMillis() + configuration.getAccessExpire() * 1000L))
+                .compact();
+        token.setAccessToken(accessToken);
+
+        String refreshToken = Jwts.builder()
+                .claim(CLAIM_ID,      token.getId())
+                .claim(CLAIM_TYPE,       token.getType())
+                .claim(CLAIM_USER_ACCOUNT,  token.getUsername())
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
+                .compact();
+        token.setRefreshToken(refreshToken);
+
+        assert redis != null;
+        String key = AccessToken.KEY + token.getType() + ":" + token.getUsername();
+        redis.putExpireValue(key, token, configuration.getRefreshExpire(), TimeUnit.SECONDS);
+
         Access access = Access.get();
-        access.setAccessToken(accessToken);
+        if(access != null){
+            access.setAccessToken(token);
+        }
     }
 
+    /**
+     * 刷新Token
+     */
+    public void refreshToken(HttpServletResponse response, String refreshToken) throws Exception {
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(ResponseCode.OK.getCode());
+        Claims claims;
+        try {
+            claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(refreshToken).getBody();
+        } catch(Exception e) {
+            response.getWriter().write(JSON.toJSONString(
+                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.invalid"))));
+            return;
+        }
+
+        // 获取服务保存的Token
+        assert redis != null;
+        String userAccount = (String)claims.get(CLAIM_USER_ACCOUNT);
+        AccessToken accessToken = redis.getValue(getKey(claims) + userAccount);
+        if(accessToken == null) {
+            response.getWriter().write(JSON.toJSONString(
+                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.notexist"))));
+            return;
+        }
+
+        // 比对id，判断Token是否已经被刷新过
+        String tokenId = (String)claims.get(CLAIM_ID);
+        if(configuration.isConflict() && !tokenId.equals(accessToken.getId())) {
+            response.getWriter().write(JSON.toJSONString(
+                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.conflict"))));
+            return;
+        }
+
+        // 更新Token信息
+        accessToken.setId(IdUtil.fastSimpleUUID());
+        accessToken.setAccessTime(Access.time());
+        accessToken.setAccessIp(Access.ip());
+
+        // 刷新Token并返回
+        assignToken(accessToken);
+        response.getWriter().write(JSON.toJSONString(Response.success(accessToken)));
+    }
+
+    /**
+     * 解析Token
+     */
     public AccessToken parseToken(HttpServletRequest request) {
         String jwt = getJwt(request);
         if(jwt == null) {
@@ -92,28 +181,24 @@ public class TokenService {
 
     @SuppressWarnings("unchecked")
     public AccessToken parseJwt(String jwt) {
-        Access access = Access.get();
         Claims claims;
         try {
             claims =  Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(jwt).getBody();
         }catch(ExpiredJwtException e) {
-            AccessToken expiredToken = new AccessToken(498, message.msg("frame.auth.expired"), jwt);
-            access.setAccessToken(expiredToken);
-            return expiredToken;
+            return new AccessToken(498, message.msg("frame.auth.expired"));
         }catch(Exception e) {
             return new AccessToken(401, message.msg("frame.auth.invalid"));
         }
 
+        // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
         if(configuration.isConflict() && !Objects.equals(Access.ip(), userIp)) {
-            AccessToken changedToken = new AccessToken(498, message.msg("frame.auth.ipchanged"), jwt);
-            access.setAccessToken(changedToken);
-            return changedToken;
+            return new AccessToken(498, message.msg("frame.auth.ipchanged"));
         }
 
         AccessToken accessToken = new AccessToken();
         // token
-        accessToken.setToken(jwt);
+        accessToken.setAccessToken(jwt);
         accessToken.setId((String)claims.get(CLAIM_ID));
         accessToken.setType((String)claims.get(CLAIM_TYPE));
 
@@ -144,17 +229,23 @@ public class TokenService {
         // permits
         accessToken.setPermissions((List<String>)claims.get(CLAIM_USER_PERM));
 
-        access.setAccessToken(accessToken);
+        Access access = Access.get();
+        if(access != null){
+            access.setAccessToken(accessToken);
+        }
         return accessToken;
     }
 
-    public void refreshToken(HttpServletResponse response, String jwt) throws Exception {
+    /**
+     * 删除Token
+     */
+    public void deleteToken(HttpServletResponse response, String accessToken) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.setStatus(ResponseCode.OK.getCode());
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(jwt).getBody();
+            claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(accessToken).getBody();
         }catch(ExpiredJwtException e) {
             claims = e.getClaims();
         }catch(Exception e) {
@@ -163,46 +254,7 @@ public class TokenService {
             return;
         }
 
-        String userAccount = (String)claims.get(CLAIM_USER_ACCOUNT);
-        AccessToken accessToken = redis.getValue(getKey(claims) + userAccount);
-        if(accessToken == null) {
-            response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.notexist"))));
-            return;
-        }
-
-        String tokenId = (String)claims.get(CLAIM_ID);
-        if(configuration.isConflict() && !tokenId.equals(accessToken.getId())) {
-            response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.conflict"))));
-            return;
-        }
-
-        accessToken.setId(IdUtil.fastSimpleUUID());
-        accessToken.setAccessTime(Access.time());
-        accessToken.setAccessIp(Access.ip());
-        accessToken.setToken(newToken(accessToken));
-        redis.putExpireValue(getKey(claims) + userAccount, accessToken, configuration.getServerExpire(), TimeUnit.SECONDS);
-
-        Access access = Access.get();
-        access.setAccessToken(accessToken);
-        response.getWriter().write(JSON.toJSONString(Response.success(accessToken.getToken())));
-    }
-
-    public void deleteToken(HttpServletResponse response, String jwt) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(ResponseCode.OK.getCode());
-        Claims claims;
-        try {
-            claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(jwt).getBody();
-        }catch(ExpiredJwtException e) {
-            claims = e.getClaims();
-        }catch(Exception e) {
-            response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.invalid"))));
-            return;
-        }
+        assert redis != null;
         String userAccount = (String)claims.get(CLAIM_USER_ACCOUNT);
         redis.delete((getKey(claims) + userAccount));
     }
@@ -212,44 +264,41 @@ public class TokenService {
         return AccessToken.KEY + tokenType + ":";
     }
 
-    public String newToken(AccessToken accessToken) {
-        int expireSec = accessToken.getExpire(configuration);
-        return Jwts.builder()
-                .claim(CLAIM_ID,           accessToken.getId())
-                .claim(CLAIM_TYPE,         accessToken.getType())
-                .claim(CLAIM_USER_IP,      accessToken.getAccessIp())
-                .claim(CLAIM_USER_ID, String.valueOf(accessToken.getUserId())) // Long取出来是Integer，干脆用String处理
-                .claim(CLAIM_USER_CODE,    accessToken.getUserCode())
-                .claim(CLAIM_USER_NAME,    accessToken.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT, accessToken.getUsername())
-                .claim(CLAIM_DEPT_ID, String.valueOf(accessToken.getDeptId()))
-                .claim(CLAIM_DEPT_CODE,    accessToken.getDeptCode())
-                .claim(CLAIM_DEPT_NAME,    accessToken.getDeptName())
-                .claim(CLAIM_CLUSTER_ID,   accessToken.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, accessToken.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME,  accessToken.getClusterName())
-                .claim(CLAIM_USER_ROLE,    accessToken.getRoles())
-                .claim(CLAIM_USER_PERM,    accessToken.getPermissions())
-                .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
-                .setExpiration(new Date(System.currentTimeMillis() + expireSec * 1000L))
-                .compact();
-    }
-
-    public boolean validAuthorization(String authorization) {
-        if(StringUtils.isBlank(authorization)) {
+    public boolean validAccessToken(String accessToken) {
+        if(StringUtils.isBlank(accessToken)) {
             return false;
         }
-        if(authorization.startsWith("Bearer ")) {
-            authorization = authorization.replace("Bearer ", "");
+        if(accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.replace("Bearer ", "");
         }
         try {
-            Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(authorization).getBody();
-        }catch(ExpiredJwtException e) {
-            return true;
+            Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(accessToken).getBody();
         }catch(Exception e) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 创建AccessToken
+     */
+    public String createAccessToken(AccessToken token, int accessExpire) {
+        return Jwts.builder()
+                .claim(CLAIM_USER_ID,       String.valueOf(token.getUserId())) // Long取出来是Integer，干脆用String处理
+                .claim(CLAIM_USER_CODE,     token.getUserCode())
+                .claim(CLAIM_USER_NAME,     token.getUserNick())
+                .claim(CLAIM_USER_ACCOUNT,  token.getUsername())
+                .claim(CLAIM_DEPT_ID,       String.valueOf(token.getDeptId()))
+                .claim(CLAIM_DEPT_CODE,     token.getDeptCode())
+                .claim(CLAIM_DEPT_NAME,     token.getDeptName())
+                .claim(CLAIM_CLUSTER_ID,    token.getClusterId())
+                .claim(CLAIM_CLUSTER_LEVEL, token.getClusterLevel())
+                .claim(CLAIM_CLUSTER_NAME,  token.getClusterName())
+                .claim(CLAIM_USER_ROLE,     token.getRoles())
+                .claim(CLAIM_USER_PERM,     token.getPermissions())
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
+                .compact();
     }
 }

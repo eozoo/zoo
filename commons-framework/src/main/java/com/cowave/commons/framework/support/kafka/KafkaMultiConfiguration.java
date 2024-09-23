@@ -1,5 +1,14 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.support.kafka;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -35,6 +44,7 @@ public class KafkaMultiConfiguration {
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> privateKafkaListenerContainerFactory(Environment environment) {
         KafkaProperties properties = Binder.get(environment).bind("spring.kafka.private", KafkaProperties.class).get();
+        checkAuthProperties(properties);
         ConsumerFactory<String, Object> consumerFactory = new DefaultKafkaConsumerFactory<>(properties.buildConsumerProperties());
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
@@ -46,6 +56,7 @@ public class KafkaMultiConfiguration {
     @Bean
     public KafkaTemplate<?, ?> privateKafkaTemplate(Environment environment) {
         KafkaProperties properties = Binder.get(environment).bind("spring.kafka.private", KafkaProperties.class).get();
+        checkAuthProperties(properties);
         ProducerFactory<?, ?> producerFactory = new DefaultKafkaProducerFactory<>(properties.buildProducerProperties());
         return new KafkaTemplate<>(producerFactory);
     }
@@ -55,6 +66,7 @@ public class KafkaMultiConfiguration {
     @Bean
     public KafkaAdmin privateKafkaAdmin(Environment environment){
         KafkaProperties properties = Binder.get(environment).bind("spring.kafka.private", KafkaProperties.class).get();
+        checkAuthProperties(properties);
         KafkaAdmin kafkaAdmin = new KafkaAdmin(properties.buildAdminProperties());
         kafkaAdmin.setFatalIfBrokerNotAvailable(properties.getAdmin().isFailFast());
         return kafkaAdmin;
@@ -64,6 +76,7 @@ public class KafkaMultiConfiguration {
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> publicKafkaListenerContainerFactory(Environment environment) {
         KafkaProperties properties = Binder.get(environment).bind("spring.kafka.public", KafkaProperties.class).get();
+        checkAuthProperties(properties);
         ConsumerFactory<String, Object> consumerFactory = new DefaultKafkaConsumerFactory<>(properties.buildConsumerProperties());
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
@@ -74,6 +87,7 @@ public class KafkaMultiConfiguration {
     @Bean
     public KafkaTemplate<?, ?> publicKafkaTemplate(Environment environment) {
         KafkaProperties properties = Binder.get(environment).bind("spring.kafka.public", KafkaProperties.class).get();
+        checkAuthProperties(properties);
         ProducerFactory<?, ?> producerFactory = new DefaultKafkaProducerFactory<>(properties.buildProducerProperties());
         return new KafkaTemplate<>(producerFactory);
     }
@@ -82,8 +96,16 @@ public class KafkaMultiConfiguration {
     @Bean
     public KafkaAdmin publicKafkaAdmin(Environment environment){
         KafkaProperties properties = Binder.get(environment).bind("spring.kafka.public", KafkaProperties.class).get();
+        checkAuthProperties(properties);
         KafkaAdmin kafkaAdmin = new KafkaAdmin(properties.buildAdminProperties());
         kafkaAdmin.setFatalIfBrokerNotAvailable(properties.getAdmin().isFailFast());
         return kafkaAdmin;
+    }
+
+    private void checkAuthProperties(KafkaProperties properties){
+        String userName = properties.getProperties().get("username");
+        if(StringUtils.isBlank(userName)){
+            properties.getProperties().clear();
+        }
     }
 }

@@ -1,11 +1,17 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.support.datasource.druid;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.servlet.*;
 import javax.sql.DataSource;
 
 import com.alibaba.druid.pool.DruidDataSource;
@@ -13,17 +19,14 @@ import com.alibaba.druid.spring.boot.autoconfigure.stat.DruidFilterConfiguration
 import com.alibaba.druid.spring.boot.autoconfigure.stat.DruidSpringAopConfiguration;
 import com.alibaba.druid.spring.boot.autoconfigure.stat.DruidStatViewServletConfiguration;
 import com.alibaba.druid.spring.boot.autoconfigure.stat.DruidWebStatFilterConfiguration;
-import com.alibaba.druid.util.Utils;
 import com.cowave.commons.framework.support.datasource.DynamicDataSource;
 import com.cowave.commons.framework.support.datasource.DynamicDataSourceProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -36,7 +39,7 @@ import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatPropertie
  * @author shanhuiming
  *
  */
-@ConditionalOnClass(DruidDataSource.class)
+@ConditionalOnClass(DruidSpringAopConfiguration.class)
 @Import({DruidSpringAopConfiguration.class, DruidStatViewServletConfiguration.class,
 		DruidWebStatFilterConfiguration.class, DruidFilterConfiguration.class})
 @EnableConfigurationProperties({DataSourceProperties.class, DynamicDataSourceProperties.class, DruidStatProperties.class})

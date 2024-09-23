@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.support.kafka.health;
 
 import lombok.Data;
@@ -28,11 +36,11 @@ public class KafkaHealthIndicator extends AbstractHealthIndicator {
     protected void doHealthCheck(Health.Builder builder) {
         List<String> nodes = new ArrayList<>();
         try(AdminClient adminClient = AdminClient.create(kafkaAdmin.getConfigurationProperties())){
-            Collection<Node> nodeCollection =  adminClient.describeCluster().nodes().get();
+            Collection<Node> nodeCollection =  adminClient.describeCluster().nodes().get(5, TimeUnit.SECONDS);
             nodeCollection.forEach(node -> nodes.add(node.host() + ":" + node.port()));
 
-            List<String> groups = adminClient.listConsumerGroups()
-                    .valid().get(5, TimeUnit.SECONDS).stream().map(ConsumerGroupListing::groupId).toList();
+            List<String> groups = adminClient.listConsumerGroups().valid()
+                    .get(5, TimeUnit.SECONDS).stream().map(ConsumerGroupListing::groupId).toList();
             Map<String, ConsumerGroupDescription> groupDetails =
                     adminClient.describeConsumerGroups(groups).all().get(5, TimeUnit.SECONDS);
 

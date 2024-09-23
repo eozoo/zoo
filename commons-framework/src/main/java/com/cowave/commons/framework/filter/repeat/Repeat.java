@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.filter.repeat;
 
 import java.lang.annotation.Documented;
@@ -12,11 +20,11 @@ import java.lang.annotation.Target;
  * @author shanhuiming
  *
  */
+@Documented
 @Inherited
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface RepeatLimit{
+public @interface Repeat {
 
     /**
      * 间隔时间(ms)
@@ -26,5 +34,5 @@ public @interface RepeatLimit{
     /**
      * 提示消息
      */
-    String message() default "repeated request";
+    String message() default "frame.advice.repeat";
 }

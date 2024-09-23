@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.filter.security;
 
 import cn.hutool.core.util.IdUtil;
@@ -38,17 +46,22 @@ public class AccessToken implements UserDetails {
 	public static final String TYPE_OAUTH = "oauth";
 
 	/**
-	 * Token
+	 * accessToken
 	 */
-	private String token;
+	private String accessToken;
 
 	/**
-	 * Token id
+	 * refreshToken
+	 */
+	private String refreshToken;
+
+	/**
+	 * id 每次Refresh后的id不一样，可以根据id来判断Token是否已被refresh过
 	 */
 	private String id;
 
 	/**
-	 * Token type
+	 * type
 	 */
 	private String type;
 
@@ -164,12 +177,6 @@ public class AccessToken implements UserDetails {
 		this.validDesc = validDesc;
 	}
 
-	public AccessToken(int validCode, String validDesc, String token) {
-		this.validCode = validCode;
-		this.validDesc = validDesc;
-		this.token = token;
-	}
-
 	@JsonIgnore
 	@Override
 	public String getPassword() {
@@ -214,16 +221,6 @@ public class AccessToken implements UserDetails {
 			return list;
 		}
 		return new ArrayList<>();
-	}
-
-	public int getExpire(TokenConfiguration configuration){
-		if(TYPE_USER.equals(type) || TYPE_LDAP.equals(type) || TYPE_OAUTH.equals(type)){
-			return configuration.getClientExpire();
-		}else if(TYPE_APP.equals(type)){
-			return configuration.getAppExpire();
-		}else{
-			return 0;
-		}
 	}
 
 	public static AccessToken newToken(){

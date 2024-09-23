@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ *
+ * For licensing information, please contact: https://www.cowave.com.
+ *
+ * This code is proprietary and confidential.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ */
 package com.cowave.commons.framework.access;
 
 import java.util.List;
@@ -16,6 +24,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.feign.codec.HttpResponse;
 import org.springframework.feign.codec.RemoteChain;
 import org.springframework.feign.codec.Response;
 import org.springframework.stereotype.Component;
@@ -42,6 +51,9 @@ public class AccessLogger {
 	@Nullable
 	private final AccessUserParser accessUserParser;
 
+	@Nullable
+	private final TransactionAdvice transactionAdvice;
+
 	@Pointcut("execution(public * *..*Controller.*(..)) "
 			+ "&& !execution(public * de.codecentric.boot..*Controller.*(..)) "
 			+ "&& !execution(public * com.cowave.commons.framework.access.AccessErrorController.*(..)) ")
@@ -55,8 +67,12 @@ public class AccessLogger {
 		HttpServletRequest request = attributes.getRequest();
 		String url = request.getRequestURI();
 		String remote = request.getRemoteAddr();
-		String requestId = request.getHeader("requestId");
-		Thread.currentThread().setName(requestId);
+
+		// seata事务标识
+		String xid = request.getHeader("xid");
+		if(transactionAdvice != null && xid != null){
+			transactionAdvice.setXid(xid);
+		}
 
 		TreeMap<String, Object> map = new TreeMap<>();
 		MethodSignature signature = (MethodSignature)point.getSignature();
@@ -68,8 +84,7 @@ public class AccessLogger {
 					map.put(paramNames[i], null);
 				}else{
 					Class<?> clazz = args[i].getClass();
-					if ("requestId".equals(paramNames[i])
-							|| MultipartFile[].class.isAssignableFrom(clazz)
+					if (MultipartFile[].class.isAssignableFrom(clazz)
 							|| MultipartFile.class.isAssignableFrom(clazz)
 							|| HttpServletRequest.class.isAssignableFrom(clazz)
 							|| HttpServletResponse.class.isAssignableFrom(clazz)
@@ -99,16 +114,23 @@ public class AccessLogger {
 		String msg = null;
 		Object data = null;
 		List<RemoteChain> chains = null;
-		if (resp != null && Response.class.isAssignableFrom(resp.getClass())) {
-			Response<?> rsp = (Response<?>) resp;
-			rsp.setRequestId(access.getRequestId());
-			code = rsp.getCode();
-			msg = rsp.getMsg();
-			data = rsp.getData();
-			chains = rsp.getChains();
+		if (resp != null) {
+			if(Response.class.isAssignableFrom(resp.getClass())){
+				Response<?> rsp = (Response<?>) resp;
+				rsp.setRequestId(access.getRequestId());
+				code = rsp.getCode();
+				msg = rsp.getMsg();
+				data = rsp.getData();
+				chains = rsp.getChains();
+			}else if(HttpResponse.class.isAssignableFrom(resp.getClass())){
+				HttpResponse rsp = (HttpResponse) resp;
+				rsp.setRequestId(access.getRequestId());
+				code = rsp.getStatus();
+				msg = rsp.getReason();
+				data = rsp.getData();
+			}
 		}
 
-		String url = access.getRequestUrl();
 		long cost = 0L;
 		if(access.getRequestTime() != null){
 			cost = System.currentTimeMillis() - access.getRequestTime();
@@ -118,24 +140,24 @@ public class AccessLogger {
 			if(chains != null){
 				StringBuilder builder = new StringBuilder();
 				RemoteChain.buildeTree("", chains, builder);
-				LOGGER.info("<< response {} {}ms {} {}\n{}", code, cost, url, msg, builder);
+				LOGGER.info("<< response {} {}ms {}\n{}", code, cost, msg, builder);
 			}else{
 				if(code != null) {
-					LOGGER.info("<< response {} {}ms {} {}", code, cost, url, msg);
+					LOGGER.info("<< response {} {}ms {}", code, cost, msg);
 				}else {
-					LOGGER.info("<< response {}ms {}", cost, url);
+					LOGGER.info("<< response {}ms", cost);
 				}
 			}
 		}else{
 			if(chains != null){
 				StringBuilder builder = new StringBuilder();
 				RemoteChain.buildeTree("", chains, builder);
-				LOGGER.debug("<< response {} {}ms {} {} {}\n{}", code, cost, url, msg, JSON.toJSONString(data), builder);
+				LOGGER.debug("<< response {} {}ms {} {}\n{}", code, cost, msg, JSON.toJSONString(data), builder);
 			}else{
 				if(code != null) {
-					LOGGER.debug("<< response {} {}ms {} {} {}", code, cost, url, msg, JSON.toJSONString(data));
+					LOGGER.debug("<< response {} {}ms {} {}", code, cost, msg, JSON.toJSONString(data));
 				}else {
-					LOGGER.debug("<< response {}ms {} {}", cost, url, JSON.toJSONString(resp));
+					LOGGER.debug("<< response {}ms {}", cost, JSON.toJSONString(resp));
 				}
 			}
 		}
