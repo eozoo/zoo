@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.cowave.java</groupId>
+    <artifactId>commons</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>commons</name>
+    <url>https://www.cowave.com/</url>
+    <description>控维-Java</description>
+
+    <scm>
+        <tag>HEAD</tag>
+        <url>https://gitlab.cowave.com/java/commons</url>
+        <connection>scm:git:https://gitlab.cowave.com/java/commons.git</connection>
+        <developerConnection>scm:git:https://gitlab.cowave.com/java/commons.git</developerConnection>
+    </scm>
+
+    <modules>
+        <module>commons-dependencies</module>
+    </modules>
+
+    <distributionManagement>
+        <repository>
+            <id>cowave</id>
+            <name>releases</name>
+            <url>http://10.64.4.74:8081/repository/maven-releases/</url>
+            <uniqueVersion>true</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>cowave</id>
+            <name>snapshots</name>
+            <url>http://10.64.4.74:8081/repository/maven-snapshots/</url>
+            <uniqueVersion>true</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

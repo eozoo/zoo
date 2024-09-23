@@ -1,0 +1,18 @@
+### eclipse
+.settings/
+.project
+.classpath
+
+### idea
+.idea/
+*.iml
+
+.checkstyle
+target/
+log/
+logs/
+
+
+
+
+
