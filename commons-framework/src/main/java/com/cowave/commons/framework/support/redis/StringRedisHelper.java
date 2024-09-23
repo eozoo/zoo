@@ -185,9 +185,9 @@ public class StringRedisHelper {
         setOperation.add(toStringValue(value));
     }
 
-    public void putSet(final String key, final Set<Object> dataSet){
+    public <T> void putSet(final String key, final Set<T> dataSet){
         BoundSetOperations<String, String> setOperation = stringRedisTemplate.boundSetOps(key);
-        for (Object data : dataSet) {
+        for (T data : dataSet) {
             setOperation.add(toStringValue(data));
         }
     }
