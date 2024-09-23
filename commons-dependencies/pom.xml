@@ -3,7 +3,7 @@
 
 	<groupId>com.cowave.commons</groupId>
 	<artifactId>commons-dependencies</artifactId>
-	<version>1.0.0</version>
+	<version>2.7.0</version>
 	<packaging>pom</packaging>
 
 	<name>commons-dependencies</name>
@@ -40,12 +40,10 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<spring.boot.version>2.7.0</spring.boot.version>
 		<spring.cloud.version>3.1.5</spring.cloud.version>
-		<spring.starter.druid.version>1.2.9</spring.starter.druid.version>
-		<spring.starter.activiti.version>7.1.0.M4</spring.starter.activiti.version>
-		<apache.xmlgraphics.version>1.7</apache.xmlgraphics.version>
 		<grpc.version>1.48.0</grpc.version>
 		<proto.java.version>3.21.2</proto.java.version>
 		<proto.java.util.version>3.21.2</proto.java.util.version>
+		<spring.starter.druid.version>1.2.9</spring.starter.druid.version>
 		<spring.starter.grpc.version>2.13.1.RELEASE</spring.starter.grpc.version>
 		<flowable.version>6.8.0</flowable.version>
 	</properties>
@@ -73,6 +71,124 @@
 			</extension>
 		</extensions>
 		<plugins>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>4.3</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>remove</goal>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<quiet>true</quiet>
+					<strictCheck>true</strictCheck>
+					<includes>
+						<include>**/src/main/java/**</include>
+						<include>**/src/test/java/**</include>
+					</includes>
+					<inlineHeader>
+<![CDATA[
+Copyright (c) 2017～2099 Cowave All Rights Reserved.
+
+For licensing information, please contact: https://www.cowave.com.
+
+This code is proprietary and confidential.
+Unauthorized copying of this file, via any medium is strictly prohibited.
+]]>
+					</inlineHeader>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>se.bjurr.gitchangelog</groupId>
+				<artifactId>git-changelog-maven-plugin</artifactId>
+				<version>2.1.0</version>
+				<executions>
+					<execution>
+						<id>changelog</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>git-changelog</goal>
+						</goals>
+						<configuration>
+							<file>changelog.md</file>
+							<ignoreCommitsOlderThan>2023-03-10 00:00:00</ignoreCommitsOlderThan>
+							<templateContent>
+								<![CDATA[
+{{#tags}}
+{{#ifReleaseTag .}}
+## [{{name}}](https://gitlab.cowave.com/{{ownerName}}/{{repoName}}/-/tags/{{name}}) ({{tagDate .}})
+
+  {{#ifContainsBreaking commits}}
+    ### Breaking changes
+
+    {{#commits}}
+      {{#ifCommitBreaking .}}
+  - {{#eachCommitScope .}} [<font style="font-family: monospace;">[{{hash}}](https://gitlab.cowave.com/{{ownerName}}/{{repoName}}/commit/{{hash}})</font>] (**{{.}}**)  {{/eachCommitScope}} {{{commitDescription .}}}
+      {{/ifCommitBreaking}}
+    {{/commits}}
+  {{/ifContainsBreaking}}
+
+
+  {{#ifContainsType commits type='feat'}}
+    ### Features
+
+    {{#commits}}
+      {{#ifCommitType . type='feat'}}
+  - {{#eachCommitScope .}} [<font style="font-family: monospace;">[{{hash}}](https://gitlab.cowave.com/{{ownerName}}/{{repoName}}/commit/{{hash}})</font>] (**{{.}}**)  {{/eachCommitScope}} {{{commitDescription .}}}
+      {{/ifCommitType}}
+    {{/commits}}
+  {{/ifContainsType}}
+
+
+  {{#ifContainsType commits type='fix'}}
+    ### Bug Fixes
+
+    {{#commits}}
+      {{#ifCommitType . type='fix'}}
+  - {{#eachCommitScope .}} [<font style="font-family: monospace;">[{{hash}}](https://gitlab.cowave.com/{{ownerName}}/{{repoName}}/commit/{{hash}})</font>] (**{{.}}**)  {{/eachCommitScope}} {{{commitDescription .}}}
+      {{/ifCommitType}}
+    {{/commits}}
+  {{/ifContainsType}}
+
+{{/ifReleaseTag}}
+{{/tags}}
+]]>
+							</templateContent>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.11</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<phase>test-compile</phase>
+					</execution>
+					<execution>
+						<id>report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<phase>test</phase>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -133,7 +249,7 @@
 					<failurePriority>2</failurePriority>
 					<failOnViolation>true</failOnViolation>
 					<printFailingErrors>true</printFailingErrors>
-					<verbose>true</verbose>
+					<verbose>false</verbose>
 					<rulesets>
 						<ruleset>rulesets/java/ali-comment.xml</ruleset>
 						<ruleset>rulesets/java/ali-concurrent.xml</ruleset>
@@ -175,7 +291,7 @@
 				<version>3.0.0</version>
 				<configuration>
 					<useReleaseProfile>false</useReleaseProfile>
-					<arguments>-Dmaven.javadoc.skip=true</arguments>
+					<arguments>-Dmaven.javadoc.skip=true -Dmaven.test.skipTests=true -Dmaven.test.skip=true</arguments>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -187,6 +303,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -254,6 +371,14 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- testcontainers -->
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>1.19.7</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- spring-cloud -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -292,11 +417,23 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
+			<!-- oauth2 -->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-oauth2-authorization-server</artifactId>
+				<version>0.2.3</version>
+			</dependency>
 			<!-- nacos -->
 			<dependency>
 				<groupId>com.alibaba.cloud</groupId>
 				<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
 				<version>2021.0.5.0</version>
+			</dependency>
+			<!-- seata -->
+			<dependency>
+				<groupId>io.seata</groupId>
+				<artifactId>seata-spring-boot-starter</artifactId>
+				<version>2.0.0</version>
 			</dependency>
 			<!-- gateway -->
 			<dependency>
@@ -358,19 +495,19 @@
 			<dependency>
 				<groupId>org.mybatis.spring.boot</groupId>
 				<artifactId>mybatis-spring-boot-starter</artifactId>
-				<version>2.3.0</version>
+				<version>2.3.2</version>
 			</dependency>
 			<!-- pagehelper -->
 			<dependency>
 				<groupId>com.github.pagehelper</groupId>
 				<artifactId>pagehelper-spring-boot-starter</artifactId>
-				<version>1.4.6</version>
+				<version>2.1.0</version>
 			</dependency>
 			<!-- mybatis-plus -->
 			<dependency>
 				<groupId>com.baomidou</groupId>
 				<artifactId>mybatis-plus-boot-starter</artifactId>
-				<version>3.5.2</version>
+				<version>3.5.4.1</version>
 			</dependency>
 			<!-- mongodb -->
 			<dependency>
@@ -382,7 +519,7 @@
 			<dependency>
 				<groupId>org.dromara.easy-es</groupId>
 				<artifactId>easy-es-boot-starter</artifactId>
-				<version>2.0.0-beta5</version>
+				<version>2.0.0-cm</version>
 			</dependency>
 			<!-- flowable -->
 			<dependency>
@@ -393,6 +530,16 @@
 			<dependency>
 				<groupId>org.flowable</groupId>
 				<artifactId>flowable-spring-boot-starter-rest</artifactId>
+				<version>${flowable.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.flowable</groupId>
+				<artifactId>flowable-json-converter</artifactId>
+				<version>${flowable.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.flowable</groupId>
+				<artifactId>flowable-bpmn-layout</artifactId>
 				<version>${flowable.version}</version>
 			</dependency>
 			<dependency>
@@ -524,6 +671,11 @@
 			</dependency>
 			<!-- other -->
 			<dependency>
+				<groupId>com.github.penggle</groupId>
+				<artifactId>kaptcha</artifactId>
+				<version>2.3.2</version>
+			</dependency>
+			<dependency>
 				<groupId>org.locationtech.jts</groupId>
 				<artifactId>jts-core</artifactId>
 				<version>1.19.0</version>
@@ -597,6 +749,11 @@
 				<groupId>dom4j</groupId>
 				<artifactId>dom4j</artifactId>
 				<version>1.6.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.redisson</groupId>
+				<artifactId>redisson-spring-boot-starter</artifactId>
+				<version>3.15.6</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
