@@ -22,20 +22,9 @@
         <developerConnection>scm:git:https://gitlab.cowave.com/java/commons.git</developerConnection>
     </scm>
 
-    <distributionManagement>
-        <repository>
-            <id>cowave</id>
-            <name>releases</name>
-            <url>http://10.64.4.74:8081/repository/maven-releases/</url>
-            <uniqueVersion>true</uniqueVersion>
-        </repository>
-        <snapshotRepository>
-            <id>cowave</id>
-            <name>snapshots</name>
-            <url>http://10.64.4.74:8081/repository/maven-snapshots/</url>
-            <uniqueVersion>true</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
+    <properties>
+        <skip.pmd>true</skip.pmd>
+    </properties>
 
     <build>
         <resources>
