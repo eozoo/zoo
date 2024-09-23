@@ -13,7 +13,7 @@
 
 	<name>commons-parent</name>
 	<url>https://www.cowave.com/</url>
-	<description>maven工程-parent</description>
+	<description>maven-parent</description>
 
 	<scm>
 		<tag>HEAD</tag>

@@ -21,6 +21,7 @@
     <modules>
         <module>commons-dependencies</module>
         <module>commons-parent</module>
+        <module>commons-tools</module>
     </modules>
 
     <distributionManagement>

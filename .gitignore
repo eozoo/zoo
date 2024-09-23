@@ -1,11 +1,17 @@
-### eclipse
+### Eclipse
 .settings/
 .project
 .classpath
 
-### idea
+### Idea
 .idea/
 *.iml
+
+### VsCode
+.vscode/
+
+### MacOS
+.DS_Store
 
 .checkstyle
 target/
