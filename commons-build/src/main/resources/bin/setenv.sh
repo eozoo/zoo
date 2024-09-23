@@ -2,10 +2,10 @@
 
 ## 应用名称
 export app_name=""
-## 应用目录
-export app_home="/opt/cowave/$app_name"
 ## 应用版本
 export app_version=""
+## 应用目录
+export app_home="/opt/cowave/$app_name"
 ## 代码版本
 export code_version=""
 ## 打包时间
@@ -76,7 +76,7 @@ setenv(){
     while read -r line
     do
          key=$(echo "$line" | awk -F "=" '{print $1}')
-         if [ -z "$key" ]; then
+         if [ -z "$key" ] || [ "$key" = "app_name" ] || [ "$key" = "app_version" ] || [ "$key" = "app_home" ]; then
             continue
          fi
 

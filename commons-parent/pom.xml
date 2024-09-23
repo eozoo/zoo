@@ -65,7 +65,7 @@
 								<artifactItem>
 									<groupId>com.cowave.commons</groupId>
 									<artifactId>commons-build</artifactId>
-									<version>2.8.2</version>
+									<version>${cowave.commons.version}</version>
 									<type>jar</type>
 									<includes>**/*.*</includes>
 									<outputDirectory>${project.build.directory}</outputDirectory>
@@ -185,10 +185,12 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
+									<failOnError>true</failOnError>
 									<target>
-										<exec executable="sh" dir="${project.build.directory}">
+										<exec executable="bash" dir="${project.build.directory}">
 											<arg value="${project.build.directory}/ant.sh"/>
 											<arg value="prepare"/>
+											<arg value="tar"/>
 										</exec>
 									</target>
 								</configuration>
@@ -200,8 +202,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
+									<failOnError>true</failOnError>
 									<target>
-										<exec executable="sh" dir="${project.build.directory}">
+										<exec executable="bash" dir="${project.build.directory}">
 											<arg value="${project.build.directory}/ant.sh"/>
 											<arg value="tar"/>
 										</exec>
@@ -263,10 +266,12 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
+									<failOnError>true</failOnError>
 									<target>
-										<exec executable="sh" dir="${project.build.directory}">
+										<exec executable="bash" dir="${project.build.directory}">
 											<arg value="${project.build.directory}/ant.sh"/>
 											<arg value="prepare"/>
+											<arg value="docker"/>
 										</exec>
 									</target>
 								</configuration>
@@ -278,8 +283,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
+									<failOnError>true</failOnError>
 									<target>
-										<exec executable="sh" dir="${project.build.directory}">
+										<exec executable="bash" dir="${project.build.directory}">
 											<arg value="${project.build.directory}/ant.sh"/>
 											<arg value="docker"/>
 										</exec>
@@ -341,10 +347,12 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
+									<failOnError>true</failOnError>
 									<target>
-										<exec executable="sh" dir="${project.build.directory}">
+										<exec executable="bash" dir="${project.build.directory}">
 											<arg value="${project.build.directory}/ant.sh"/>
 											<arg value="prepare"/>
+											<arg value="deb"/>
 										</exec>
 									</target>
 								</configuration>
@@ -356,8 +364,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
+									<failOnError>true</failOnError>
 									<target>
-										<exec executable="sh" dir="${project.build.directory}">
+										<exec executable="bash" dir="${project.build.directory}">
 											<arg value="${project.build.directory}/ant.sh"/>
 											<arg value="deb"/>
 										</exec>
@@ -371,11 +380,13 @@
 		</profile>
 	</profiles>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.cowave.commons</groupId>
-			<artifactId>commons-framework</artifactId>
-			<version>2.8.2</version>
-		</dependency>
-	</dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.cowave.commons</groupId>
+        <artifactId>commons-framework</artifactId>
+        <version>${cowave.commons.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

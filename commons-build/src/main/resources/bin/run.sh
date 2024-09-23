@@ -102,7 +102,7 @@ start_wait(){
     declare -i max_counter=40 # 80s
     declare -i total_time=0
 
-    SERVER_URL="http://localhost:$server_port"
+    SERVER_URL="http://localhost:$app_port"
 
     printf "waiting for %s startup..." "$app_name"
     until [[ (( counter -ge max_counter )) || "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head "$SERVER_URL" | grep "HTTP")" != "" ]];
