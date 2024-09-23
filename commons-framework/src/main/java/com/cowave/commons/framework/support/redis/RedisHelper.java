@@ -105,7 +105,7 @@ public class RedisHelper{
 		redisTemplate.opsForHash().putAll(key, dataMap);
 	}
 
-	public <T> void putSet(final String key, final T value){
+	public <T> void offerSet(final String key, final T value){
 		Asserts.notNull(value, "redis value can't be bull");
 		BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
 		setOperation.add(value);

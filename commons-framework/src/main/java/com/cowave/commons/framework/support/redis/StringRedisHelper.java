@@ -180,7 +180,7 @@ public class StringRedisHelper {
         stringRedisTemplate.opsForHash().putAll(key, stringMap);
     }
 
-    public void putSet(final String key, final Object value){
+    public void offerSet(final String key, final Object value){
         BoundSetOperations<String, String> setOperation = stringRedisTemplate.boundSetOps(key);
         setOperation.add(toStringValue(value));
     }
