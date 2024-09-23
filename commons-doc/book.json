@@ -1,0 +1,58 @@
+{
+  "author": "shanhuiming",
+  "description": "This is a sample book created by gitbook",
+  "extension": null,
+  "language" : "zh-hans",
+  "generator": "site",
+  "links": {
+    "sharing": {
+      "all": null,
+      "facebook": null,
+      "google": null,
+      "twitter": null,
+      "weibo": null
+    },
+    "sidebar": {
+      "Home": "http://192.168.141.74:8083/commons/commons-doc"
+    }
+  },
+  "output": null,
+  "pdf": {
+    "fontSize": 12,
+    "footerTemplate": null,
+    "headerTemplate": null,
+    "margin": {
+      "bottom": 36,
+      "left": 62,
+      "right": 62,
+      "top": 36
+    },
+    "pageNumbers": false,
+    "paperSize": "a4"
+  },
+  "plugins": ["favicon", "-sharing", "-highlight", "katex", "prism", "code", "chapter-fold", "expandable-chapters", "hide-element", "splitter", "anchor-navigation-ex", "tbfed-pagefooter"],
+  "pluginsConfig": {
+    "tbfed-pagefooter": {
+      "copyright": "Copyright &copy;2017-2024 cowave",
+      "modify_label": "修订: ",
+      "modify_format": "YYYY/MM/DD HH:mm:ss"
+    },
+    "hide-element": {
+      "elements": [".gitbook-link"]
+    },
+    "anchor-navigation-ex": {
+      "showLevel": false
+    },
+    "prism": {
+      "css": [
+        "prismjs/themes/prism-solarizedlight.css"
+      ]
+    },
+    "favicon": {
+      "shortcut": "images/favicon.ico",
+      "bookmark": "images/favicon.ico"
+    }
+  },
+  "title": "Sample GitBook",
+  "variables": {}
+}

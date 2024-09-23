@@ -1,0 +1,17 @@
+image: node:13.14.0
+
+before_script:
+  - npm install gitbook-cli -g
+  - gitbook install
+
+pages:
+  stage: deploy
+  script:
+    - gitbook build .
+    - mv _book public
+    - cp -rf images public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
