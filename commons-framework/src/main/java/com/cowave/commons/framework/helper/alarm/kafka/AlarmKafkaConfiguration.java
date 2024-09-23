@@ -9,8 +9,8 @@
 package com.cowave.commons.framework.helper.alarm.kafka;
 
 import com.cowave.commons.framework.helper.alarm.Alarm;
-import com.cowave.commons.framework.helper.alarm.AlarmAccepter;
-import com.cowave.commons.framework.helper.alarm.AlarmAccepterConfiguration;
+import com.cowave.commons.framework.helper.alarm.AlarmHandler;
+import com.cowave.commons.framework.helper.alarm.AlarmHandlerConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,10 +28,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class AlarmKafkaConfiguration {
 
     @ConditionalOnProperty(name = "spring.application.alarm.kafka-enable", matchIfMissing = true)
-    @ConditionalOnMissingBean(AlarmAccepter.class)
+    @ConditionalOnMissingBean(AlarmHandler.class)
     @Bean
-    public AlarmAccepter<? super Alarm> alarmService(
-            KafkaTemplate<String, Object> kafkaTemplate, AlarmAccepterConfiguration accepterConfiguration){
-        return new AlarmKafkaAccepter<>(kafkaTemplate, accepterConfiguration);
+    public AlarmHandler<? super Alarm> alarmService(
+            KafkaTemplate<String, Object> kafkaTemplate, AlarmHandlerConfiguration accepterConfiguration){
+        return new AlarmKafkaHandler<>(kafkaTemplate, accepterConfiguration);
     }
 }

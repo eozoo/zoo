@@ -10,7 +10,7 @@ package com.cowave.commons.framework.support.redis.health;
 
 import java.util.Map;
 
-import com.cowave.commons.framework.support.redis.RedisHelper;
+import com.cowave.commons.framework.support.redis.StringRedisHelper;
 import org.springframework.boot.actuate.autoconfigure.health.CompositeHealthContributorConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.HealthContributor;
@@ -28,10 +28,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 @ConditionalOnEnabledHealthIndicator("redis")
 @Configuration
 public class RedisHealthContributorConfiguration
-        extends CompositeHealthContributorConfiguration<RedisHealthIndicator, RedisHelper> {
+        extends CompositeHealthContributorConfiguration<RedisHealthIndicator, StringRedisHelper> {
 
     @Bean
-    public HealthContributor redisHealthIndicator(Map<String, RedisHelper> redisMap) {
+    public HealthContributor redisHealthIndicator(Map<String, StringRedisHelper> redisMap) {
         return createContributor(redisMap);
     }
 }

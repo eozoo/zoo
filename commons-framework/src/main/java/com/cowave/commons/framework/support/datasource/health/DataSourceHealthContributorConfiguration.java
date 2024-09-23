@@ -48,7 +48,7 @@ extends CompositeHealthContributorConfiguration<DataSourceHealthIndicator, DataS
 	private DynamicDataSourceProperties dynamicDataSourceProperties;
 
 	@Bean
-	public HealthContributor dbHealthContributor(DynamicDataSource dataSource) {
+	public HealthContributor dbHealthContributor(DataSource dataSource) {
 		Map<String, DataSourceBean> map = new HashMap<>();
 		Map<String, DataSourceProperties> propertiesMap = dynamicDataSourceProperties.getDynamic();
 		if(propertiesMap != null && !propertiesMap.isEmpty()){
@@ -56,13 +56,21 @@ extends CompositeHealthContributorConfiguration<DataSourceHealthIndicator, DataS
 				String dataSourceName = entry.getKey();
 				DataSourceBean dataSourceBean = new DataSourceBean();
 				dataSourceBean.setDataSourceProperties(entry.getValue());
-				dataSourceBean.setDataSource((DataSource)dataSource.getDataSourceMap().get(dataSourceName));
+				if(dataSource instanceof DynamicDataSource dynamicDataSource){
+					dataSourceBean.setDataSource((DataSource)dynamicDataSource.getDataSourceMap().get(dataSourceName));
+				}else{
+					dataSourceBean.setDataSource(dataSource);
+				}
 				map.put(dataSourceName, dataSourceBean);
 			}
 		}else{
 			DataSourceBean dataSourceBean = new DataSourceBean();
 			dataSourceBean.setDataSourceProperties(dataSourceProperties);
-			dataSourceBean.setDataSource((DataSource)dataSource.getDataSourceMap().get("primary"));
+			if(dataSource instanceof DynamicDataSource dynamicDataSource){
+				dataSourceBean.setDataSource((DataSource)dynamicDataSource.getDataSourceMap().get("primary"));
+			}else{
+				dataSourceBean.setDataSource(dataSource);
+			}
 			map.put("primary", dataSourceBean);
 		}
 		return createContributor(map);

@@ -14,7 +14,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.cowave.commons.framework.helper.MessageHelper;
-import com.cowave.commons.framework.util.AssertsException;
+import com.cowave.commons.tools.AssertsException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

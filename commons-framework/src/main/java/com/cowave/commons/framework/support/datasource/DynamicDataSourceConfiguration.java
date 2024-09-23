@@ -8,7 +8,6 @@
  */
 package com.cowave.commons.framework.support.datasource;
 
-import com.cowave.commons.framework.support.datasource.druid.DruidDynamicDataSourceConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -43,7 +42,7 @@ public class DynamicDataSourceConfiguration {
 
     private final DynamicDataSourceProperties dynamicDataSourceProperties;
 
-    @ConditionalOnMissingBean(DruidDynamicDataSourceConfiguration.class)
+    @ConditionalOnMissingBean(DataSource.class)
     @Primary
     @Bean
     public DataSource dataSource() {

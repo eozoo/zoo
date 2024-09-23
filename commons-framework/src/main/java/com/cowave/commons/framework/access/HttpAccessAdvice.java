@@ -13,16 +13,12 @@ import com.cowave.commons.framework.helper.alarm.AccessAlarmFactory;
 import com.cowave.commons.framework.helper.alarm.Alarm;
 import com.cowave.commons.framework.helper.alarm.AlarmHandler;
 import com.cowave.commons.tools.AssertsException;
-import com.cowave.commons.tools.DateUtils;
 import com.cowave.commons.tools.HttpException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.feign.codec.HttpResponse;
-import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
 import org.springframework.feign.invoke.RemoteAssertsException;
 import org.springframework.feign.invoke.RemoteException;
 import org.springframework.http.HttpStatus;
@@ -31,28 +27,27 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.annotation.Nullable;
 import javax.validation.ConstraintViolationException;
-import java.beans.PropertyEditorSupport;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
-import static org.springframework.feign.codec.ResponseCode.*;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 /**
  * @author shanhuiming
  */
-@ConditionalOnMissingBean(HttpAccessAdvice.class)
+@ConditionalOnProperty(prefix = "spring.application.advice.http", value = "enabled")
 @RequiredArgsConstructor
 @RestControllerAdvice
-public class AccessAdvice {
+public class HttpAccessAdvice {
 
     // ErrorLog和Response.cause都不记内容
     private static final int ERR_LEVEL_0 = 0;
@@ -78,20 +73,6 @@ public class AccessAdvice {
     @Nullable
     private final AccessAlarmFactory<? extends Alarm> accessAlarmFactory;
 
-    /**
-     * 参数转换
-     */
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-        binder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
-            @Override
-            public void setAsText(String text) {
-                setValue(DateUtils.parse(text));
-            }
-        });
-    }
-
     @ExceptionHandler(HttpException.class)
     public HttpResponse<Map<String, String>> handleHttpException(HttpException e) {
         AccessLogger.error("", e);
@@ -107,91 +88,89 @@ public class AccessAdvice {
     }
 
     @ExceptionHandler(AssertsException.class)
-    public Response<Void> handleAssertsException(AssertsException e) {
+    public HttpResponse<Map<String, String>> handleAssertsException(AssertsException e) {
         AccessLogger.error("", e);
-        Response<Void> resp = Response.msg(SYS_ERROR, messageHelper.translateAssertsMessage(e));
-        accessLogger.logResponse(resp);
-        try {
-            LinkedList<String> cause = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toCollection(LinkedList::new));
-            cause.addFirst(e.getMessage());
-            resp.setCause(cause);
-        } catch (Exception ex) {
-            AccessLogger.error("", ex);
-        }
 
-        processAccessAlarm(HttpStatus.OK.value(), SYS_ERROR.getCode(), resp.getMsg(), resp, e);
-        return resp;
+        String message = messageHelper.translateAssertsMessage(e);
+        Map<String, String> body = Map.of("code", INTERNAL_SERVER_ERROR.name(), "msg", message);
+        HttpResponse<Map<String, String>> httpResponse = new HttpResponse<>(INTERNAL_SERVER_ERROR.value(), null, body);
+
+        httpResponse.setMessage(String.format("{code=%s, msg=%s}", INTERNAL_SERVER_ERROR.name(), message));
+        accessLogger.logResponse(httpResponse);
+
+        processAccessAlarm(INTERNAL_SERVER_ERROR.value(), INTERNAL_SERVER_ERROR.name(), message, httpResponse, e);
+        return httpResponse;
     }
 
     @ExceptionHandler(RemoteAssertsException.class)
-    public Response<Void> handleRemoteAssertsException(RemoteAssertsException e) {
-        return error(e, SYS_ERROR, null, e.getMessage(), ERR_LEVEL_0);
+    public HttpResponse<Map<String, String>> handleRemoteAssertsException(RemoteAssertsException e) {
+        return error(e, INTERNAL_SERVER_ERROR, null, e.getMessage(), ERR_LEVEL_0);
     }
 
     @ExceptionHandler(RemoteException.class)
-    public Response<Void> handleRemoteException(RemoteException e) {
-        return error(e, SYS_ERROR, "frame.remote.failed", "远程调用失败", ERR_LEVEL_1);
+    public HttpResponse<Map<String, String>> handleRemoteException(RemoteException e) {
+        return error(e, INTERNAL_SERVER_ERROR, "frame.remote.failed", "远程调用失败", ERR_LEVEL_1);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public Response<Void> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+    public HttpResponse<Map<String, String>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         return error(e, BAD_REQUEST, "frame.advice.httpRequestMethodNotSupportedException", "不支持的请求方法", ERR_LEVEL_2);
     }
 
     @ExceptionHandler(HttpMessageConversionException.class)
-    public Response<Void> handleHttpMessageConversionException(HttpMessageConversionException e) {
+    public HttpResponse<Map<String, String>> handleHttpMessageConversionException(HttpMessageConversionException e) {
         return error(e, BAD_REQUEST, "frame.advice.httpMessageConversionException", "请求参数转换失败", ERR_LEVEL_2);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Response<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public HttpResponse<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String msg = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
         return error(e, BAD_REQUEST, msg, msg, ERR_LEVEL_2);
     }
 
     @ExceptionHandler(BindException.class)
-    public Response<Void> handleBindException(BindException e) {
+    public HttpResponse<Map<String, String>> handleBindException(BindException e) {
         String msg = messageHelper.msg(e.getAllErrors().get(0).getDefaultMessage());
         return error(e, BAD_REQUEST, msg, msg, ERR_LEVEL_2);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public Response<Void> handleConstraintViolationException(ConstraintViolationException e) {
+    public HttpResponse<Map<String, String>> handleConstraintViolationException(ConstraintViolationException e) {
         String msg = e.getMessage().split(": ")[1];
         return error(e, BAD_REQUEST, msg, msg, ERR_LEVEL_2);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public Response<Void> handleAccessDeniedException(AccessDeniedException e) {
+    public HttpResponse<Map<String, String>> handleAccessDeniedException(AccessDeniedException e) {
         return error(e, FORBIDDEN, "frame.auth.denied", "没有访问权限", ERR_LEVEL_2);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public Response<Void> handleIllegalArgumentException(IllegalArgumentException e) {
+    public HttpResponse<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException e) {
         return error(e, BAD_REQUEST, "frame.advice.illegalArgumentException", "非法参数", ERR_LEVEL_3);
     }
 
     @ExceptionHandler(SQLException.class)
-    public Response<Void> handleSqlException(SQLException e) {
+    public HttpResponse<Map<String, String>> handleSqlException(SQLException e) {
         return error(e, INTERNAL_SERVER_ERROR, "frame.advice.sqlException", "数据操作失败", ERR_LEVEL_3);
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
-    public Response<Void> handleDuplicateKeyException(DuplicateKeyException e) {
+    public HttpResponse<Map<String, String>> handleDuplicateKeyException(DuplicateKeyException e) {
         return error(e, INTERNAL_SERVER_ERROR, "frame.advice.duplicateKeyException", "数据主键冲突", ERR_LEVEL_3);
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public Response<Void> handleDataAccessException(DataAccessException e) {
+    public HttpResponse<Map<String, String>> handleDataAccessException(DataAccessException e) {
         return error(e, INTERNAL_SERVER_ERROR, "frame.advice.dataAccessException", "数据访问失败", ERR_LEVEL_3);
     }
 
     @ExceptionHandler(Exception.class)
-    public Response<Void> handleException(Exception e) {
+    public HttpResponse<Map<String, String>> handleException(Exception e) {
         return error(e, INTERNAL_SERVER_ERROR, "frame.advice.exception", "系统错误", ERR_LEVEL_3);
     }
 
-    private Response<Void> error(Exception e, ResponseCode code, String msgKey, String msg, int errLevel) {
+    private HttpResponse<Map<String, String>> error(Exception e, HttpStatus status, String msgKey, String msg, int errLevel) {
         // 异常日志
         if(errLevel >= ERR_LEVEL_3){
             AccessLogger.error("", e);
@@ -199,25 +178,15 @@ public class AccessAdvice {
             AccessLogger.error(e.getMessage());
         }
 
-        // 响应日志
-        Response<Void> resp = Response.msg(code, messageHelper.translateErrorMessage(msgKey, msg));
-        accessLogger.logResponse(resp);
+        String message = messageHelper.translateErrorMessage(msgKey, msg);
+        Map<String, String> body = Map.of("code", status.name(), "msg", message);
+        HttpResponse<Map<String, String>> httpResponse = new HttpResponse<>(status.value(), null, body);
 
-        // 返回响应
-        if(errLevel >= ERR_LEVEL_3){
-            try {
-                LinkedList<String> cause = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toCollection(LinkedList::new));
-                cause.addFirst(e.getMessage());
-                resp.setCause(cause);
-            } catch (Exception ex) {
-                AccessLogger.error("", ex);
-            }
-        }else if(errLevel >= ERR_LEVEL_1){
-            resp.setCause(List.of(e.getMessage()));
-        }
+        httpResponse.setMessage(String.format("{code=%s, msg=%s}", status.name(), message));
+        accessLogger.logResponse(httpResponse);
 
-        processAccessAlarm(HttpStatus.OK.value(), code.getCode(), resp.getMsg(), resp, e);
-        return resp;
+        processAccessAlarm(status.value(), status.name(), message, httpResponse, e);
+        return httpResponse;
     }
 
     private void processAccessAlarm(int httpStatus, String code, String message, Object response, Exception e) {

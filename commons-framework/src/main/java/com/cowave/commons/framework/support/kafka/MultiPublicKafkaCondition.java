@@ -8,12 +8,13 @@
  */
 package com.cowave.commons.framework.support.kafka;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+
+import javax.validation.constraints.NotNull;
 
 /**
  *

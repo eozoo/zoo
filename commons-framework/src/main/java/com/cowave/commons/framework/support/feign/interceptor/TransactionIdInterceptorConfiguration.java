@@ -15,8 +15,6 @@ import feign.RequestInterceptor;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.feign.annotation.FeignClient;
@@ -36,7 +34,6 @@ public class TransactionIdInterceptorConfiguration {
     @Nullable
     private final TokenService tokenService;
 
-    @ConditionalOnMissingBean(RequestInterceptor.class)
     @Bean
     public RequestInterceptor requestInterceptor(
             ApplicationConfiguration applicationConfiguration, ClusterInfo clusterInfo) {

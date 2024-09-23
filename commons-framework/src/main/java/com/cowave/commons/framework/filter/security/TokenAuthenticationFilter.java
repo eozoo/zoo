@@ -14,11 +14,14 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import com.alibaba.fastjson.JSON;
-import org.jetbrains.annotations.NotNull;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.feign.codec.HttpCode;
 import org.springframework.feign.codec.Response;
 import org.springframework.feign.codec.ResponseCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,11 +50,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		if(accessToken.getValidCode() != 0) {
+		if(StringUtils.isNotBlank(accessToken.getValidCode())) {
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			response.setStatus(ResponseCode.OK.getCode());
-			response.getWriter().write(JSON.toJSONString(Response.error(accessToken.getValidCode(), accessToken.getValidDesc())));
+			response.setStatus(HttpStatus.OK.value());
+			response.getWriter().write(JSON.toJSONString(Response.code(new HttpCode() {
+						@Override
+						public String getCode() {
+							return accessToken.getValidCode();
+						}
+
+						@Override
+						public String getMsg() {
+							return accessToken.getValidDesc();
+						}
+					})));
 			return;
 		}
 		chain.doFilter(request, response);

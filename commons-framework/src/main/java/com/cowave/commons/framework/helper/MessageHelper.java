@@ -9,16 +9,12 @@
 package com.cowave.commons.framework.helper;
 
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.util.AssertsException;
+import com.cowave.commons.tools.AssertsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-
-import static org.springframework.feign.codec.ResponseCode.SYS_ERROR;
 
 /**
  *
@@ -35,34 +31,34 @@ public class MessageHelper {
     private final MessageSource messageSource;
 
     public String msg(String code, Object... args){
-        return messageSource.getMessage(code, args, Access.language());
+        return messageSource.getMessage(code, args, Access.accessLanguage());
     }
 
-    public Response<Void> translateErrorResponse(ResponseCode code, String msgKey, String msg){
+    public String translateErrorMessage(String msgKey, String msg){
         if (msgKey != null && messagesEnable) {
             try {
-                return Response.error(code, msg(msgKey));
+                return msg(msgKey);
             }catch (Exception e){
-                return Response.error(code, msgKey);
+                return msgKey;
             }
         } else {
-            return Response.error(code, msg);
+            return msg;
         }
     }
 
-    public Response<Void> translateAssertsResponse(AssertsException e){
+    public String translateAssertsMessage(AssertsException e){
         if (messagesEnable || e.getLanguage()) {
             try {
                 if (e.getArgs() != null) {
-                    return Response.error(SYS_ERROR, msg(e.getMessage(), e.getArgs()));
+                    return msg(e.getMessage(), e.getArgs());
                 } else {
-                    return Response.error(SYS_ERROR, msg(e.getMessage()));
+                    return msg(e.getMessage());
                 }
             } catch (Exception ex) {
-                return Response.error(SYS_ERROR, e.getMessage());
+                return e.getMessage();
             }
         } else {
-            return Response.error(SYS_ERROR, e.getMessage());
+            return e.getMessage();
         }
     }
 }

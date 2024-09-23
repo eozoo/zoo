@@ -10,7 +10,6 @@ package com.cowave.commons.framework.support.feign.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,15 +32,14 @@ import javax.annotation.Nullable;
 @ConditionalOnMissingClass("io.seata.core.context.RootContext")
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
-public class RequestIdInterceptorConfiguration {
+public class FeignAccessInterceptorConfiguration {
 
     @Nullable
     private final TokenService tokenService;
 
-    @ConditionalOnMissingBean(RequestInterceptor.class)
     @Bean
     public RequestInterceptor requestInterceptor(
             ApplicationConfiguration applicationConfiguration, ClusterInfo clusterInfo) {
-        return new RequestIdInterceptor(applicationConfiguration, tokenService, clusterInfo);
+        return new FeignAccessInterceptor(applicationConfiguration, tokenService, clusterInfo);
     }
 }

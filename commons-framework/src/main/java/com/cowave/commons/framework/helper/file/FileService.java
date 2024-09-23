@@ -17,7 +17,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cowave.commons.framework.util.AssertsException;
+import com.cowave.commons.tools.AssertsException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;

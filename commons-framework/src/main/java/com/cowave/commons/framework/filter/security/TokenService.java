@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.feign.codec.Response;
 import org.springframework.feign.codec.ResponseCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Service;
@@ -88,6 +89,7 @@ public class TokenService {
                 .claim(CLAIM_CLUSTER_NAME,  token.getClusterName())
                 .claim(CLAIM_USER_ROLE,     token.getRoles())
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
+                .claim(CLAIM_TYPE,          token.getType())
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
                 .setExpiration(new Date(System.currentTimeMillis() + configuration.getAccessExpire() * 1000L))
@@ -119,13 +121,13 @@ public class TokenService {
     public void refreshToken(HttpServletResponse response, String refreshToken) throws Exception {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(ResponseCode.OK.getCode());
+        response.setStatus(HttpStatus.OK.value());
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(refreshToken).getBody();
         } catch(Exception e) {
             response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.invalid"))));
+                    Response.msg(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.invalid"))));
             return;
         }
 
@@ -135,7 +137,7 @@ public class TokenService {
         AccessToken accessToken = redis.getValue(getKey(claims) + userAccount);
         if(accessToken == null) {
             response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.notexist"))));
+                    Response.msg(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.notexist"))));
             return;
         }
 
@@ -143,14 +145,14 @@ public class TokenService {
         String tokenId = (String)claims.get(CLAIM_ID);
         if(configuration.isConflict() && !tokenId.equals(accessToken.getId())) {
             response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.conflict"))));
+                    Response.msg(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.conflict"))));
             return;
         }
 
         // 更新Token信息
         accessToken.setId(IdUtil.fastSimpleUUID());
-        accessToken.setAccessTime(Access.time());
-        accessToken.setAccessIp(Access.ip());
+        accessToken.setAccessTime(Access.accessTime());
+        accessToken.setAccessIp(Access.accessIp());
 
         // 刷新Token并返回
         assignToken(accessToken);
@@ -163,7 +165,7 @@ public class TokenService {
     public AccessToken parseToken(HttpServletRequest request) {
         String jwt = getJwt(request);
         if(jwt == null) {
-            return new AccessToken(401, message.msg("frame.auth.no"));
+            return new AccessToken(ResponseCode.UNAUTHORIZED.getCode(), message.msg("frame.auth.no"));
         }
         return parseJwt(jwt);
     }
@@ -185,15 +187,15 @@ public class TokenService {
         try {
             claims =  Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(jwt).getBody();
         }catch(ExpiredJwtException e) {
-            return new AccessToken(498, message.msg("frame.auth.expired"));
+            return new AccessToken(ResponseCode.TOKEN_INVALID_OR_EXPIRED.getCode(), message.msg("frame.auth.expired"));
         }catch(Exception e) {
-            return new AccessToken(401, message.msg("frame.auth.invalid"));
+            return new AccessToken(ResponseCode.UNAUTHORIZED.getCode(), message.msg("frame.auth.invalid"));
         }
 
         // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
-        if(configuration.isConflict() && !Objects.equals(Access.ip(), userIp)) {
-            return new AccessToken(498, message.msg("frame.auth.ipchanged"));
+        if(configuration.isConflict() && !Objects.equals(Access.accessIp(), userIp)) {
+            return new AccessToken(ResponseCode.TOKEN_INVALID_OR_EXPIRED.getCode(), message.msg("frame.auth.ipchanged"));
         }
 
         AccessToken accessToken = new AccessToken();
@@ -242,7 +244,7 @@ public class TokenService {
     public void deleteToken(HttpServletResponse response, String accessToken) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(ResponseCode.OK.getCode());
+        response.setStatus(HttpStatus.OK.value());
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(accessToken).getBody();
@@ -250,7 +252,7 @@ public class TokenService {
             claims = e.getClaims();
         }catch(Exception e) {
             response.getWriter().write(JSON.toJSONString(
-                    Response.error(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.invalid"))));
+                    Response.msg(ResponseCode.UNAUTHORIZED, message.msg("frame.auth.invalid"))));
             return;
         }
 

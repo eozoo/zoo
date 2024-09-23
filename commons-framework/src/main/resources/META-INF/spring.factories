@@ -1,6 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.cowave.commons.framework.filter.RequestIdFilter,\
-com.cowave.commons.framework.filter.page.PageFilter,\
 com.cowave.commons.framework.configuration.ApplicationConfiguration,\
 com.cowave.commons.framework.support.datasource.DynamicDataSourceConfiguration,\
 com.cowave.commons.framework.support.datasource.druid.DruidDynamicDataSourceConfiguration,\

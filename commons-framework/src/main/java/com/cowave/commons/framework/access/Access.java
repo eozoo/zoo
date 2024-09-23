@@ -15,6 +15,7 @@ import java.util.*;
 
 import cn.hutool.core.net.NetUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cowave.commons.framework.filter.security.AccessToken;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,31 +37,31 @@ public class Access {
 
     private static final ThreadLocal<Access> LOCAL = new TransmittableThreadLocal<>();
 
-    private final String requestIp;
+    private final String accessId;
 
-    private final String requestId;
+    private final String accessIp;
 
-    private final String requestUrl;
+    private final String accessUrl;
 
-    private final Long requestTime;
-
-    private Locale locale;
+    private final Long accessTime;
 
     private AccessToken accessToken;
 
-    private TreeMap<String, Object> requestParam;
+    private Locale locale;
+
+    private Object requestParam;
 
     private Integer pageIndex;
 
     private Integer pageSize;
 
-    private Integer pageOffset;
+    private boolean responseLogged;
 
-    public Access(String language, String requestIp, String requestId, String requestUrl, Long requestTime){
-        this.requestIp = requestIp;
-        this.requestId = requestId;
-        this.requestUrl = requestUrl;
-        this.requestTime = requestTime;
+    public Access(String accessId, String accessIp, String accessUrl, Long accessTime, String language){
+        this.accessId = accessId;
+        this.accessIp = accessIp;
+        this.accessUrl = accessUrl;
+        this.accessTime = accessTime;
         this.locale = Locale.getDefault();
         if(StringUtils.isNotBlank(language)) {
             if(language.toLowerCase().contains("en")) {
@@ -84,31 +85,39 @@ public class Access {
         LOCAL.remove();
     }
 
-    public static Integer pageIndex() {
+    public static String accessId() {
         Access access;
         if((access = get()) == null) {
             return null;
         }
-        return access.pageIndex;
+        return access.accessId;
     }
 
-    public static Integer pageSize() {
+    public static String accessIp() {
+        Access access;
+        if((access = get()) == null) {
+            return NetUtil.getLocalhostStr();
+        }
+        return access.accessIp;
+    }
+
+    public static String accessUrl() {
         Access access;
         if((access = get()) == null) {
             return null;
         }
-        return access.pageSize;
+        return access.accessUrl;
     }
 
-    public static Integer pageOffset() {
+    public static Date accessTime() {
         Access access;
         if((access = get()) == null) {
-            return null;
+            return new Date();
         }
-        return access.pageOffset;
+        return new Date(access.accessTime);
     }
 
-    public static Locale language() {
+    public static Locale accessLanguage() {
         Access access;
         if((access = get()) == null) {
             return Locale.getDefault();
@@ -116,39 +125,77 @@ public class Access {
         return access.locale;
     }
 
-    public static String ip() {
+    public static <T> Page<T> page(){
         Access access;
         if((access = get()) == null) {
-            return NetUtil.getLocalhostStr();
+            return new Page<>();
         }
-        return access.requestIp;
+        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
+        int pageSize = access.pageSize != null ? access.pageSize : 10;
+        return new Page<>(pageIndex, pageSize);
     }
 
-    public static String id() {
+    public static <T> Page<T> page(int defaultSize){
         Access access;
         if((access = get()) == null) {
-            return null;
+            return new Page<>();
         }
-        return access.requestId;
+        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
+        int pageSize = access.pageSize != null ? access.pageSize : defaultSize;
+        return new Page<>(pageIndex, pageSize);
     }
 
-    public static String url() {
+    public static int pageIndex() {
         Access access;
         if((access = get()) == null) {
-            return null;
+            return 1;
         }
-        return access.requestUrl;
+        return access.pageIndex != null ? access.pageIndex : 1;
     }
 
-    public static Date time() {
+    public static int pageSize() {
         Access access;
         if((access = get()) == null) {
-            return new Date();
+            return 10;
         }
-        return new Date(access.requestTime);
+        return access.pageSize != null ? access.pageSize : 10;
     }
 
-    public static AccessToken token() {
+    public static int pageSize(int defaultSize) {
+        Access access;
+        if((access = get()) == null) {
+            return defaultSize;
+        }
+        return access.pageSize != null ? access.pageSize : defaultSize;
+    }
+
+    public static int pageOffset() {
+        Access access;
+        if((access = get()) == null) {
+            return 0;
+        }
+        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
+        int pageSize = access.pageSize != null ? access.pageSize : 10;
+        if(pageIndex <= 0 || pageSize <= 0){
+            return 0;
+        }
+        return (pageIndex - 1) * pageSize;
+    }
+
+    public static int pageOffset(int defaultSize) {
+        Access access;
+        if((access = get()) == null) {
+            return 0;
+        }
+        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
+        int pageSize = access.pageSize != null ? access.pageSize : defaultSize;
+        if(pageIndex <= 0 || pageSize <= 0){
+            return 0;
+        }
+        return (pageIndex - 1) * pageSize;
+    }
+
+    public static AccessToken accessToken() {
         Access access = get();
         if(access == null) {
             return null;
@@ -156,63 +203,31 @@ public class Access {
         return access.accessToken;
     }
 
-    public static String accessToken() {
-        AccessToken token = token();
-        if(token == null) {
-            return null;
-        }
-        return token.getAccessToken();
-    }
-
-    public static String refreshToken() {
-        AccessToken token = token();
-        if(token == null) {
-            return null;
-        }
-        return token.getRefreshToken();
-    }
-
     public static String tokenType() {
-        AccessToken token = token();
+        AccessToken token = accessToken();
         if(token == null) {
             return null;
         }
         return token.getType();
     }
 
-    public static Long userId() {
-        AccessToken token = token();
+    public static String tokenAccessValue() {
+        AccessToken token = accessToken();
         if(token == null) {
             return null;
         }
-        return token.getUserId();
+        return token.getAccessToken();
     }
 
-    public static String userCode() {
-        AccessToken token = token();
+    public static String tokenRefreshValue() {
+        AccessToken token = accessToken();
         if(token == null) {
             return null;
         }
-        return token.getUserCode();
+        return token.getRefreshToken();
     }
 
-    public static String userAccount() {
-        AccessToken token = token();
-        if(token == null) {
-            return null;
-        }
-        return token.getUsername();
-    }
-
-    public static String userName() {
-        AccessToken token = token();
-        if(token == null) {
-            return null;
-        }
-        return token.getUserNick();
-    }
-
-    public static AccessUser user(){
+    public static AccessUser accessUser(){
         AccessUser accessUser = new AccessUser();
         accessUser.setAccessUserId(userId());
         accessUser.setAccessUserAccount(userAccount());
@@ -222,12 +237,36 @@ public class Access {
         return accessUser;
     }
 
-    public static boolean isAdmin(){
-        List<String> roles = userRoles();
-        if(CollectionUtils.isEmpty(roles)){
-            return false;
+    public static Long userId() {
+        AccessToken token = accessToken();
+        if(token == null) {
+            return null;
         }
-        return roles.contains("sysAdmin");
+        return token.getUserId();
+    }
+
+    public static String userCode() {
+        AccessToken token = accessToken();
+        if(token == null) {
+            return null;
+        }
+        return token.getUserCode();
+    }
+
+    public static String userName() {
+        AccessToken token = accessToken();
+        if(token == null) {
+            return null;
+        }
+        return token.getUserNick();
+    }
+
+    public static String userAccount() {
+        AccessToken token = accessToken();
+        if(token == null) {
+            return null;
+        }
+        return token.getUsername();
     }
 
     public static List<String> userRoles() {
@@ -246,6 +285,14 @@ public class Access {
             return null;
         }
         return accessToken.getPermissions();
+    }
+
+    public static boolean userIsAdmin(){
+        List<String> roles = userRoles();
+        if(CollectionUtils.isEmpty(roles)){
+            return false;
+        }
+        return roles.contains("sysAdmin");
     }
 
     public static Long deptId() {

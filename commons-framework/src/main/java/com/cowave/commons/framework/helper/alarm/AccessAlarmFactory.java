@@ -8,7 +8,7 @@
  */
 package com.cowave.commons.framework.helper.alarm;
 
-import org.springframework.feign.codec.Response;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -17,5 +17,6 @@ import org.springframework.feign.codec.Response;
  */
 public interface AccessAlarmFactory<T extends Alarm> {
 
-    T newAccessAlarm(Response<Void> errorResp);
+    @NotNull
+    T createAlarm(int httpStatus, String code, String message, Object response, Exception e);
 }

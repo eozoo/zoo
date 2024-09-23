@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,7 +30,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -57,6 +58,8 @@ public class OperationAspect implements ApplicationContextAware {
 
 	private ApplicationContext applicationContext;
 
+	private final ThreadPoolExecutor applicationExecutor;
+
 	@Override
 	public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
@@ -83,14 +86,13 @@ public class OperationAspect implements ApplicationContextAware {
 					map.put(paramNames[i], null);
 				}else{
 					Class<?> clazz = args[i].getClass();
-					if ("requestId".equals(paramNames[i])
-							|| MultipartFile[].class.isAssignableFrom(clazz)
+					if (MultipartFile[].class.isAssignableFrom(clazz)
 							|| MultipartFile.class.isAssignableFrom(clazz)
 							|| HttpServletRequest.class.isAssignableFrom(clazz)
 							|| HttpServletResponse.class.isAssignableFrom(clazz)
 							|| BeanPropertyBindingResult.class.isAssignableFrom(clazz)
 							|| ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)
-							){
+					){
 						continue;
 					}
 					map.put(paramNames[i], args[i]);
@@ -125,23 +127,28 @@ public class OperationAspect implements ApplicationContextAware {
 			return;
 		}
 
-		OperationLog oplog = OPERATION.get();
+		OperationLog operationLog = OPERATION.get();
 		OPERATION.remove();
-		oplog.setLogStatus(OperationLog.SUCCESS);
-		oplog.setLogDesc(parseDesc(joinPoint, oper, resp));
+		operationLog.setLogStatus(OperationLog.SUCCESS);
+		operationLog.setLogDesc(parseDesc(joinPoint, oper, resp));
 
-		setResponse(oplog, resp);
+		setResponse(operationLog, resp);
 		if(oper.content() == Operation.Content.RESP || oper.content() == Operation.Content.ALL) {
-			oplog.putContent("resp", oplog.getResponse());
+			operationLog.putContent("resp", operationLog.getResponse());
 		}
 
-		Class<? extends OperationHandler> handlerClass =  oper.contentHandler();
+		Class<? extends OperationHandler> handlerClass = oper.contentHandler();
 		if(!EmptyOperationHandler.class.isAssignableFrom(handlerClass)) {
 			MethodSignature signature = (MethodSignature)joinPoint.getSignature();
 			OperationHandler operationHandler = applicationContext.getBean(handlerClass);
-			operationHandler.pareseResponseContent(signature.getMethod(), resp, oplog);
+			operationHandler.pareseResponseContent(signature.getMethod(), resp, operationLog);
 		}
-		operationAccepter.accept(oplog);
+
+		if(operationLog.isAsync()){
+			applicationExecutor.execute(() -> operationAccepter.accept(operationLog));
+		}else{
+			operationAccepter.accept(operationLog);
+		}
 	}
 
 	@AfterThrowing(pointcut = "operation() && @annotation(oper)", throwing = "e")
@@ -160,7 +167,12 @@ public class OperationAspect implements ApplicationContextAware {
 			OperationHandler operationHandler = applicationContext.getBean(handlerClass);
 			operationHandler.pareseExceptionContent(signature.getMethod(), e, operationLog);
 		}
-		operationAccepter.accept(operationLog);
+
+		if(operationLog.isAsync()){
+			applicationExecutor.execute(() -> operationAccepter.accept(operationLog));
+		}else{
+			operationAccepter.accept(operationLog);
+		}
 	}
 
 	private String parseDesc(JoinPoint point, Operation operation, Object resp) {

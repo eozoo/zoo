@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "spring.application.alarm")
-public class AlarmAccepterConfiguration {
+public class AlarmHandlerConfiguration {
 
     private boolean kafkaEnable = true;
 

@@ -10,7 +10,6 @@ package com.cowave.commons.framework.configuration;
 
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,12 +18,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
- * 
+ *
  * @author shanhuiming
- * 
+ *
  */
 @ConditionalOnClass(ApolloConfigChangeListener.class)
 @ConditionalOnProperty("apollo.bootstrap.enabled")

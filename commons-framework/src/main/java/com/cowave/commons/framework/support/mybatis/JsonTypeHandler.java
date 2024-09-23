@@ -10,7 +10,7 @@ package com.cowave.commons.framework.support.mybatis;
 
 import java.sql.*;
 
-import com.cowave.commons.framework.util.SpringContext;
+import com.cowave.commons.tools.SpringContext;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;

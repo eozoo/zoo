@@ -156,7 +156,7 @@ public class AccessToken implements UserDetails {
 	/**
 	 * 校验码
 	 */
-	private int validCode;
+	private String validCode;
 
 	/**
 	 * 校验描述
@@ -172,7 +172,7 @@ public class AccessToken implements UserDetails {
 
 	}
 
-	public AccessToken(int validCode, String validDesc) {
+	public AccessToken(String validCode, String validDesc) {
 		this.validCode = validCode;
 		this.validDesc = validDesc;
 	}
@@ -225,10 +225,10 @@ public class AccessToken implements UserDetails {
 
 	public static AccessToken newToken(){
 		AccessToken accessToken = new AccessToken();
-		accessToken.setLoginIp(Access.ip());
-		accessToken.setLoginTime(Access.time());
-		accessToken.setAccessIp(Access.ip());
-		accessToken.setAccessTime(Access.time());
+		accessToken.setLoginIp(Access.accessIp());
+		accessToken.setLoginTime(Access.accessTime());
+		accessToken.setAccessIp(Access.accessIp());
+		accessToken.setAccessTime(Access.accessTime());
 		accessToken.setId(IdUtil.fastSimpleUUID());
 		return accessToken;
 	}

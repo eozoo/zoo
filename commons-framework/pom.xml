@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.cowave.commons</groupId>
 		<artifactId>commons-dependencies</artifactId>
-		<version>2.7.0</version>
+		<version>2.8.0</version>
 		<relativePath>../commons-dependencies/pom.xml</relativePath>
 	</parent>
 
@@ -107,25 +107,17 @@
 		<!-- utils -->
 		<dependency>
 			<groupId>com.cowave.commons</groupId>
-			<artifactId>commons-tools</artifactId>
-			<version>1.0.0</version>
+			<artifactId>tools</artifactId>
+			<version>2.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.cowave.commons</groupId>
+			<artifactId>spring-feign</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.dromara.dynamictp</groupId>
 			<artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
 			<version>1.2.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.janino</groupId>
-			<artifactId>janino</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.cowave.tools</groupId>
-			<artifactId>spring-feign</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.cowave.tools</groupId>
-			<artifactId>spring-fom</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -143,6 +135,10 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+		</dependency>
 		<!-- ================provided================ -->
 		<!--
 		<dependency>
@@ -151,6 +147,12 @@
 			<optional>true</optional>
 		</dependency>
 		-->
+		<!-- fom -->
+		<dependency>
+			<groupId>com.cowave.commons</groupId>
+			<artifactId>spring-fom</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<!-- mybatis -->
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
@@ -273,22 +275,6 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<!-- geospatial -->
-		<dependency>
-			<groupId>org.locationtech.jts</groupId>
-			<artifactId>jts-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.osgeo</groupId>
-			<artifactId>proj4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.vividsolutions</groupId>
-			<artifactId>jts</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<!-- pmd -->

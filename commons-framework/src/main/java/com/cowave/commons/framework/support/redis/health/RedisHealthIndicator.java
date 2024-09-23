@@ -10,7 +10,7 @@ package com.cowave.commons.framework.support.redis.health;
 
 import java.util.*;
 
-import com.cowave.commons.framework.support.redis.RedisHelper;
+import com.cowave.commons.framework.support.redis.StringRedisHelper;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.data.redis.connection.*;
@@ -23,17 +23,21 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
  */
 public class RedisHealthIndicator extends AbstractHealthIndicator {
 
-    private final RedisHelper redis;
+    private final StringRedisHelper redis;
 
-    public RedisHealthIndicator(RedisHelper redis) {
+    public RedisHealthIndicator(StringRedisHelper redis) {
         this.redis = redis;
     }
 
     @Override
     protected void doHealthCheck(Health.Builder builder) {
         try{
-            redis.ping();
-            builder.up();
+            String pong = redis.ping();
+            if("PONG".equals(pong)){
+                builder.up();
+            }else{
+                builder.down();
+            }
 
             Properties info = redis.info();
             assert info != null;

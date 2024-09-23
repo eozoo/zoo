@@ -22,6 +22,13 @@ public interface OperationLog {
     int FAIL = 0;
 
     /**
+     * 是否异步处理
+     */
+    default boolean isAsync(){
+        return true;
+    }
+
+    /**
      * 初始化日志属性
      */
     void initialize();

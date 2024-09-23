@@ -9,9 +9,9 @@
 package com.cowave.commons.framework.support.mybatis;
 
 import com.baomidou.mybatisplus.extension.handlers.AbstractJsonTypeHandler;
-import com.cowave.convert.CollectionConverts;
-import com.cowave.convert.Converts;
-import com.cowave.jackson.JacksonUtils;
+import com.cowave.commons.tools.Converts;
+import com.cowave.commons.tools.Collections;
+import com.cowave.commons.tools.json.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -38,7 +38,7 @@ public class JacksonCollectionTypeHandler<K, T extends Collection<K>> extends Ab
     private Collection<K> toObject(String content, Class<K> clazz) {
         if (StringUtils.isNotBlank(content)) {
             try {
-                ObjectMapper mapper = JacksonUtils.objectMapper();
+                ObjectMapper mapper = JacksonUtils.MAPPER;
                 JsonNode jsonNode = mapper.readTree(content);
                 if (!jsonNode.isArray()) {
                     return createCollection(clazz);
@@ -71,7 +71,7 @@ public class JacksonCollectionTypeHandler<K, T extends Collection<K>> extends Ab
 
     @Override
     protected String toJson(T obj) {
-        List<ItemInfo> itemInfoList = CollectionConverts.copyTo(Converts.cast(obj), ItemInfo::apply);
+        List<ItemInfo> itemInfoList = Collections.copyToList(Converts.cast(obj), ItemInfo::apply);
         return JacksonUtils.writeValue(itemInfoList);
     }
 

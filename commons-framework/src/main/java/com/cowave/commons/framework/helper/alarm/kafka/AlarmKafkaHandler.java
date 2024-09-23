@@ -11,10 +11,9 @@ package com.cowave.commons.framework.helper.alarm.kafka;
 import com.alibaba.fastjson.JSON;
 
 import com.cowave.commons.framework.helper.alarm.Alarm;
-import com.cowave.commons.framework.helper.alarm.AlarmAccepter;
-import com.cowave.commons.framework.helper.alarm.AlarmAccepterConfiguration;
+import com.cowave.commons.framework.helper.alarm.AlarmHandler;
+import com.cowave.commons.framework.helper.alarm.AlarmHandlerConfiguration;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 
 /**
@@ -23,14 +22,14 @@ import org.springframework.kafka.core.KafkaTemplate;
  *
  */
 @RequiredArgsConstructor
-public class AlarmKafkaAccepter<T extends Alarm> implements AlarmAccepter<T> {
+public class AlarmKafkaHandler<T extends Alarm> implements AlarmHandler<T> {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private final AlarmAccepterConfiguration accepterConfiguration;
+    private final AlarmHandlerConfiguration accepterConfiguration;
 
     @Override
-    public void accept(T alarm) {
+    public void handle(T alarm) {
         kafkaTemplate.send(accepterConfiguration.getKafkaTopic(), JSON.toJSONString(alarm));
     }
 }

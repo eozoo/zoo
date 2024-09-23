@@ -24,15 +24,16 @@ import com.cowave.commons.framework.support.datasource.DynamicDataSourceProperti
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatProperties;
+import org.springframework.context.annotation.Primary;
 
 /**
  *
@@ -53,6 +54,7 @@ public class DruidDynamicDataSourceConfiguration {
 
 	private final ApplicationContext applicationContext;
 
+	@ConditionalOnMissingBean(DataSource.class)
 	@Primary
 	@Bean
 	public DataSource dataSource() throws Exception {

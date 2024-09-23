@@ -23,7 +23,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.feign.annotation.FeignScan;
-import org.springframework.fom.annotation.EnableFom;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -37,7 +36,6 @@ import java.util.List;
  */
 @Slf4j
 @Data
-@EnableFom
 @EnableDynamicTp
 @EnableAspectJAutoProxy(exposeProxy = true)
 @FeignScan(basePackages = "com.cowave")

@@ -12,8 +12,8 @@
     },
     {
       "name": "spring.application.alarm",
-      "type": "com.cowave.commons.framework.helper.alarm.AlarmAccepterConfiguration",
-      "sourceType": "com.cowave.commons.framework.helper.alarm.AlarmAccepterConfiguration"
+      "type": "com.cowave.commons.framework.helper.alarm.AlarmHandlerConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.alarm.AlarmHandlerConfiguration"
     },
     {
       "name": "spring.application.oplog",
@@ -77,13 +77,13 @@
     {
       "name": "spring.application.alarm.kafka-enable",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.helper.alarm.AlarmAccepterConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.alarm.AlarmHandlerConfiguration",
       "defaultValue": true
     },
     {
       "name": "spring.application.alarm.kafka-topic",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.helper.alarm.AlarmAccepterConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.alarm.AlarmHandlerConfiguration",
       "defaultValue": "sys-alarm"
     },
     {
@@ -102,20 +102,6 @@
       "type": "java.lang.String",
       "sourceType": "com.cowave.commons.framework.helper.operation.OperationAccepterConfiguration",
       "defaultValue": "sys-oplog"
-    },
-    {
-      "name": "spring.application.token.app-expire",
-      "type": "java.lang.Integer",
-      "description": "应用令牌认证超时[单位秒]",
-      "sourceType": "com.cowave.commons.framework.filter.security.TokenConfiguration",
-      "defaultValue": 60
-    },
-    {
-      "name": "spring.application.token.client-expire",
-      "type": "java.lang.Integer",
-      "description": "客户端超时[单位秒]",
-      "sourceType": "com.cowave.commons.framework.filter.security.TokenConfiguration",
-      "defaultValue": 3600
     },
     {
       "name": "spring.application.token.conflict",
@@ -145,9 +131,16 @@
       "defaultValue": "admin@cowave.com"
     },
     {
-      "name": "spring.application.token.server-expire",
+      "name": "spring.application.token.accessExpire",
       "type": "java.lang.Integer",
-      "description": "服务端超时[单位秒]",
+      "description": "access token超时[单位秒]",
+      "sourceType": "com.cowave.commons.framework.filter.security.TokenConfiguration",
+      "defaultValue": 3600
+    },
+    {
+      "name": "spring.application.token.refreshExpire",
+      "type": "java.lang.Integer",
+      "description": "refresh token超时[单位秒]",
       "sourceType": "com.cowave.commons.framework.filter.security.TokenConfiguration",
       "defaultValue": 36000
     },
@@ -3562,6 +3555,36 @@
       "name": "logging.sql-enabled",
       "type": "java.lang.Boolean",
       "description": "是否打印sql",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.application.filter-access.patterns",
+      "type": "java.lang.String",
+      "description": "AccessFilter中的urlPattern",
+      "defaultValue": "/*"
+    },
+    {
+      "name": "spring.application.advice.http.enabled",
+      "type": "java.lang.Boolean",
+      "description": "异常切面是否返回HttpResponse",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.redis.exitOnConnectionFailed",
+      "type": "java.lang.Boolean",
+      "description": "Redis连接失败是否退出进程",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.redis.private.exitOnConnectionFailed",
+      "type": "java.lang.Boolean",
+      "description": "Redis连接失败是否退出进程",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.redis.public.exitOnConnectionFailed",
+      "type": "java.lang.Boolean",
+      "description": "Redis连接失败是否退出进程",
       "defaultValue": false
     }
   ],

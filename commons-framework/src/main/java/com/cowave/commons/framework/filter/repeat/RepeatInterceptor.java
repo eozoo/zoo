@@ -19,16 +19,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.filter.page.PageRequestWrapper;
+import com.cowave.commons.framework.filter.access.AccessRequestWrapper;
 import com.cowave.commons.framework.helper.MessageHelper;
 import com.cowave.commons.framework.support.redis.RedisHelper;
-import com.cowave.commons.framework.util.Utils;
+import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.feign.codec.Response;
 import org.springframework.feign.codec.ResponseCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -56,9 +57,9 @@ public class RepeatInterceptor implements HandlerInterceptor {
             Method method = handlerMethod.getMethod();
             Repeat repeat = method.getAnnotation(Repeat.class);
             if (repeat != null && this.isRepeatSubmit(request, repeat)) {
-                Response<Void> response =
-                        messageHelper.translateErrorResponse(ResponseCode.BAD_REQUEST, repeat.message(), "请求过快，请稍后重试～");
-                httpResponse.setStatus(ResponseCode.OK.getCode());
+                Response<Void> response = Response.msg(ResponseCode.TOO_MANY_REQUESTS,
+                        messageHelper.translateErrorMessage(repeat.message(), "请求过快，请稍后重试～"));
+                httpResponse.setStatus(HttpStatus.OK.value());
                 httpResponse.setHeader("Retry-After", String.valueOf(repeat.interval() / 1000.0));
                 httpResponse.setContentType("application/json");
                 httpResponse.setCharacterEncoding("utf-8");
@@ -71,8 +72,8 @@ public class RepeatInterceptor implements HandlerInterceptor {
 
     public boolean isRepeatSubmit(HttpServletRequest request, Repeat repeat) {
         String nowParams = "";
-        if (request instanceof PageRequestWrapper repeatedlyRequest) {
-            nowParams = Utils.getRequestBody(repeatedlyRequest);
+        if (request instanceof AccessRequestWrapper repeatedlyRequest) {
+            nowParams = ServletUtils.getRequestBody(repeatedlyRequest);
         }
 
         // body参数为空，获取Parameter的数据
@@ -89,7 +90,7 @@ public class RepeatInterceptor implements HandlerInterceptor {
         // 访问身份标识
         String accessKey = StringUtils.trimToEmpty(request.getHeader("Authorization"));
         if(StringUtils.isEmpty(accessKey)){
-            accessKey = Access.ip();
+            accessKey = Access.accessIp();
         }
 
         String repeatKey = REPEAT_KEY + url + ":" + accessKey;

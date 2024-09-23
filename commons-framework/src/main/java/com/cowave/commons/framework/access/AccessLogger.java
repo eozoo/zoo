@@ -8,11 +8,7 @@
  */
 package com.cowave.commons.framework.access;
 
-import java.util.List;
-import java.util.TreeMap;
-
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -24,16 +20,15 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.feign.codec.RemoteChain;
+import org.springframework.feign.codec.HttpResponse;
 import org.springframework.feign.codec.Response;
+import org.springframework.feign.codec.ResponseCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 
 import com.alibaba.fastjson.JSON;
+
+import java.util.Objects;
 
 /**
  *
@@ -50,108 +45,100 @@ public class AccessLogger {
 	@Nullable
 	private final AccessUserParser accessUserParser;
 
-	@Nullable
-	private final TransactionAdvice transactionAdvice;
-
 	@Pointcut("execution(public * *..*Controller.*(..)) "
-			+ "&& !execution(public * de.codecentric.boot..*Controller.*(..)) "
-			+ "&& !execution(public * com.cowave.commons.framework.access.AccessErrorController.*(..)) ")
+			+ "&& !execution(public * org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.*(..)) ")
 	public void point() {
 
 	}
 
 	@Before("point()")
 	public void logRequest(JoinPoint point) {
-		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = attributes.getRequest();
-		String url = request.getRequestURI();
-		String remote = request.getRemoteAddr();
-
-		// seata事务标识
-		String xid = request.getHeader("xid");
-		if(transactionAdvice != null && xid != null){
-			transactionAdvice.setXid(xid);
-		}
-
-		TreeMap<String, Object> map = new TreeMap<>();
-		MethodSignature signature = (MethodSignature)point.getSignature();
-		String[] paramNames = signature.getParameterNames();
-		Object[] args = point.getArgs();
-		if(paramNames != null) {
-			for (int i = 0; i < args.length; i++) {
-				if(args[i] == null){
-					map.put(paramNames[i], null);
-				}else{
-					Class<?> clazz = args[i].getClass();
-					if (MultipartFile[].class.isAssignableFrom(clazz)
-							|| MultipartFile.class.isAssignableFrom(clazz)
-							|| HttpServletRequest.class.isAssignableFrom(clazz)
-							|| HttpServletResponse.class.isAssignableFrom(clazz)
-							|| BeanPropertyBindingResult.class.isAssignableFrom(clazz)
-							|| ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)
-							){
-						continue;
+		if (accessUserParser != null) {
+			MethodSignature signature = (MethodSignature)point.getSignature();
+			String[] paramNames = signature.getParameterNames();
+			if(paramNames != null) {
+				for (Object arg : point.getArgs()) {
+					if (arg != null) {
+						accessUserParser.parse(arg.getClass(), arg);
 					}
-
-					if(accessUserParser != null) {
-						accessUserParser.parse(clazz, args[i]);
-					}
-					map.put(paramNames[i], args[i]);
 				}
 			}
 		}
-		Access access = Access.get();
-		access.setRequestParam(map);
-		LOGGER.info(">> request  {} {} {}", remote, url, JSON.toJSONString(map));
 	}
 
 	@AfterReturning(returning = "resp", pointcut = "point()")
 	public void logResponse(Object resp) {
-		Access access = Access.get();
-
-		Integer code = null;
-		String msg = null;
-		Object data = null;
-		List<RemoteChain> chains = null;
-		if (resp != null) {
-			if(Response.class.isAssignableFrom(resp.getClass())){
-				Response<?> rsp = (Response<?>) resp;
-				rsp.setRequestId(access.getRequestId());
-				code = rsp.getCode();
-				msg = rsp.getMsg();
-				data = rsp.getData();
-				chains = rsp.getChains();
-			}
+		HttpServletResponse servletResponse = Access.httpResponse();
+		if(servletResponse == null){
+			return;
 		}
 
-		long cost = 0L;
-		if(access.getRequestTime() != null){
-			cost = System.currentTimeMillis() - access.getRequestTime();
+		Access access = Access.get();
+		access.setResponseLogged(true);
+		int status = servletResponse.getStatus();
+		long cost = System.currentTimeMillis() - access.getAccessTime();
+
+		String code = null;
+		String msg = null;
+		Object data = null;
+		Response<?> response = null;
+		HttpResponse<?> httpResponse = null;
+		if (resp != null) {
+			if(Response.class.isAssignableFrom(resp.getClass())){
+				response = (Response<?>) resp;
+				data = response.getData();
+				code = response.getCode();
+				msg = response.getMsg() != null ? response.getMsg() : "";
+			}else if(HttpResponse.class.isAssignableFrom(resp.getClass())){
+				httpResponse = (HttpResponse<?>) resp;
+				data = httpResponse.getBody();
+				status = httpResponse.getStatusCodeValue();
+				msg = httpResponse.getMessage() != null ? httpResponse.getMessage() : "";
+			}
 		}
 
 		if(resp == null || !LOGGER.isDebugEnabled()){
-			if(chains != null){
-				StringBuilder builder = new StringBuilder();
-				RemoteChain.buildeTree("", chains, builder);
-				LOGGER.info("<< response {} {}ms {}\n{}", code, cost, msg, builder);
+			if(response != null) {
+				// Response
+				if(Objects.equals(code, ResponseCode.SUCCESS.getCode())){
+					LOGGER.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+				}else{
+					if(!LOGGER.isInfoEnabled()){
+						LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+					}else{
+						LOGGER.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+					}
+				}
+			}else if(httpResponse != null){
+				// HttpResponse
+				if(status == HttpStatus.OK.value()){
+					LOGGER.info("<< {} {}ms {}", status, cost, msg);
+				}else{
+					if(!LOGGER.isInfoEnabled()){
+						LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+					}else{
+						LOGGER.warn("<< {} {}ms {}", status, cost, msg);
+					}
+				}
 			}else{
-				if(code != null) {
-					LOGGER.info("<< response {} {}ms {}", code, cost, msg);
-				}else {
-					LOGGER.info("<< response {}ms", cost);
+				// Others
+				if(status == HttpStatus.OK.value()){
+					LOGGER.info("<< {} {}ms", status, cost);
+				}else{
+					if(!LOGGER.isInfoEnabled()){
+						LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+					}else{
+						LOGGER.info("<< {} {}ms", status, cost);
+					}
 				}
 			}
 		}else{
-			if(chains != null){
-				StringBuilder builder = new StringBuilder();
-				RemoteChain.buildeTree("", chains, builder);
-				LOGGER.debug("<< response {} {}ms {} {}\n{}", code, cost, msg, JSON.toJSONString(data), builder);
+			if(response != null) {
+				LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
+			}else if(httpResponse != null){
+				LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
 			}else{
-				if(code != null) {
-					LOGGER.debug("<< response {} {}ms {} {}", code, cost, msg, JSON.toJSONString(data));
-				}else {
-					LOGGER.debug("<< response {}ms {}", cost, JSON.toJSONString(resp));
-				}
+				LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
 			}
 		}
 	}

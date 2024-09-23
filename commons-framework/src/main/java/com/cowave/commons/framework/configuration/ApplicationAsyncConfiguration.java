@@ -6,8 +6,9 @@
  * This code is proprietary and confidential.
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  */
-package com.cowave.commons.framework.configuration.executor;
+package com.cowave.commons.framework.configuration;
 
+import com.cowave.commons.tools.executors.TtlThreadPoolExecutor;
 import org.dromara.dynamictp.core.support.DynamicTp;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -23,7 +24,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -39,12 +42,13 @@ public class ApplicationAsyncConfiguration implements AsyncConfigurer {
 
     private final TaskExecutionProperties taskExecutionProperties;
 
-    @Bean(name = { "applicationExecutor" })
-    @Primary
     @DynamicTp
+    @Primary
+    @Bean(name = { "applicationExecutor" })
     @Override
     public ThreadPoolExecutor getAsyncExecutor() {
-        return new ApplicationThreadPool(taskExecutionProperties.getPool());
+        TaskExecutionProperties.Pool pool = taskExecutionProperties.getPool();
+        return new TtlThreadPoolExecutor(pool.getCoreSize(), pool.getMaxSize(), pool.getKeepAlive().toSeconds(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(pool.getQueueCapacity()));
     }
 
     @Override
