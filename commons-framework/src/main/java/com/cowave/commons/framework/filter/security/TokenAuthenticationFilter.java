@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.feign.codec.HttpCode;
 import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
