@@ -52,7 +52,7 @@ public class FeignAccessInterceptor implements RequestInterceptor {
         String authorization = Access.tokenAccessValue();
         if(StringUtils.isBlank(accessId)) {
             accessId = newAccessId();
-            log.info(">< Prepare Access-Id: {}", accessId);
+            log.info(">< new access-id: {}", accessId);
         }
         if(StringUtils.isBlank(authorization) && tokenService != null) {
             authorization = newAuthorization();

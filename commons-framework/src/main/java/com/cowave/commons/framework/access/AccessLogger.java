@@ -9,8 +9,11 @@
 package com.cowave.commons.framework.access;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.cowave.commons.framework.filter.access.AccessIdGenerator;
+import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -42,6 +45,8 @@ public class AccessLogger {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogger.class);
 
+	private final AccessIdGenerator accessIdGenerator;
+
 	@Nullable
 	private final AccessUserParser accessUserParser;
 
@@ -53,7 +58,16 @@ public class AccessLogger {
 
 	@Before("point()")
 	public void logRequest(JoinPoint point) {
-		if (accessUserParser != null) {
+		Access access = Access.get();
+		// 请求有可能不经过AccessFilter
+		if(access == null){
+			HttpServletRequest httpServletRequest = Access.httpRequest();
+			assert httpServletRequest != null;
+			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
+			String accessUrl = httpServletRequest.getRequestURI();
+			String language = httpServletRequest.getHeader("Accept-Language");
+			Access.set(new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis(), language));
+		}else if (accessUserParser != null) {
 			MethodSignature signature = (MethodSignature)point.getSignature();
 			String[] paramNames = signature.getParameterNames();
 			if(paramNames != null) {

@@ -137,6 +137,11 @@ public class StringRedisHelper {
         return set;
     }
 
+    public <T> List<T> popSet(final String key, final int count, final Class<T> clazz){
+        List<String> list = stringRedisTemplate.opsForSet().pop(key, count);
+        return Collections.copyToList(list, e -> JSON.parseObject(e, clazz));
+    }
+
     private String toStringValue(Object value){
         Asserts.notNull(value, "redis value can't be bull");
         if(String.class.isAssignableFrom(value.getClass())){
@@ -206,6 +211,11 @@ public class StringRedisHelper {
         hashOperations.delete(key, hKey);
     }
 
+    public void deleteSet(final String key, final Object... values){
+        BoundSetOperations<String, String> setOperation = stringRedisTemplate.boundSetOps(key);
+        setOperation.remove(values);
+    }
+
     public Properties info(){
         return stringRedisTemplate.execute((RedisCallback<Properties>) RedisServerCommands::info);
     }
@@ -234,7 +244,7 @@ public class StringRedisHelper {
         return stringRedisTemplate.opsForValue().decrement(key, step);
     }
 
-    public Boolean isSetMember(String key, Object member) {
+    public Boolean memberOfSet(String key, Object member) {
         return stringRedisTemplate.opsForSet().isMember(key, JSON.toJSONString(member));
     }
 

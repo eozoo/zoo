@@ -13,7 +13,6 @@ import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.framework.helper.MessageHelper;
 import com.cowave.commons.tools.ServletUtils;
-import com.cowave.commons.tools.ids.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
@@ -38,13 +37,11 @@ import java.lang.reflect.Field;
 @RequiredArgsConstructor
 public class AccessFilter implements Filter {
 
-    private final IdGenerator idGenerator = new IdGenerator();
-
-    private final MessageHelper messageHelper;
-
     private final TransactionIdSetter transactionIdSetter;
 
-    private final String idPrefix;
+    private final AccessIdGenerator accessIdGenerator;
+
+    private final MessageHelper messageHelper;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -54,7 +51,7 @@ public class AccessFilter implements Filter {
         // 检查获取accessId，设置请求和响应Header
         String accessId = httpServletRequest.getHeader("Access-Id");
         if (StringUtils.isBlank(accessId)) {
-            accessId = newAccessId();
+            accessId = accessIdGenerator.newAccessId();
         }
         httpServletResponse.setHeader("Access-Id", accessId);
 
@@ -104,10 +101,6 @@ public class AccessFilter implements Filter {
 
         Access.remove();
         MDC.remove("accessId");
-    }
-
-    private String newAccessId() {
-        return idGenerator.generateIdWithDate(idPrefix, "", "yyyyMMddHHmmss", 1000);
     }
 
     public void headerAccessId(HttpServletRequest request, String value) {

@@ -75,6 +75,10 @@ public class RedisHelper{
 		return redisTemplate.opsForSet().members(key);
 	}
 
+	public <T> List<T> popSet(final String key, final int count){
+		return redisTemplate.opsForSet().pop(key, count);
+	}
+
 	public <T> void putValue(final String key, final T value){
 		Asserts.notNull(value, "redis value can't be bull");
 		redisTemplate.opsForValue().set(key, value);
@@ -132,6 +136,11 @@ public class RedisHelper{
 		hashOperations.delete(key, hKey);
 	}
 
+	public void deleteSet(final String key, final Object... values){
+		BoundSetOperations<String, Object> setOperation = redisTemplate.boundSetOps(key);
+		setOperation.remove(values);
+	}
+
 	public Properties info(){
 		return (Properties) redisTemplate.execute((RedisCallback<Properties>) RedisServerCommands::info);
 	}
@@ -160,7 +169,7 @@ public class RedisHelper{
 		return redisTemplate.opsForValue().decrement(key, step);
 	}
 
-	public Boolean isSetMember(String key, Object member) {
+	public Boolean memberOfSet(String key, Object member) {
 		return redisTemplate.opsForSet().isMember(key, member);
 	}
 
