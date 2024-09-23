@@ -57,7 +57,7 @@ public class RepeatInterceptor implements HandlerInterceptor {
             Repeat repeat = method.getAnnotation(Repeat.class);
             if (repeat != null && this.isRepeatSubmit(request, repeat)) {
                 Response<Void> response =
-                        messageHelper.translateErrorResponse(ResponseCode.TOO_MANY_REQUESTS, repeat.message(), "请求过快，请稍后重试～");
+                        messageHelper.translateErrorResponse(ResponseCode.BAD_REQUEST, repeat.message(), "请求过快，请稍后重试～");
                 httpResponse.setStatus(ResponseCode.OK.getCode());
                 httpResponse.setHeader("Retry-After", String.valueOf(repeat.interval() / 1000.0));
                 httpResponse.setContentType("application/json");

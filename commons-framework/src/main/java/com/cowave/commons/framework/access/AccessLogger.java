@@ -24,7 +24,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.feign.codec.HttpResponse;
 import org.springframework.feign.codec.RemoteChain;
 import org.springframework.feign.codec.Response;
 import org.springframework.stereotype.Component;
@@ -122,12 +121,6 @@ public class AccessLogger {
 				msg = rsp.getMsg();
 				data = rsp.getData();
 				chains = rsp.getChains();
-			}else if(HttpResponse.class.isAssignableFrom(resp.getClass())){
-				HttpResponse rsp = (HttpResponse) resp;
-				rsp.setRequestId(access.getRequestId());
-				code = rsp.getStatus();
-				msg = rsp.getReason();
-				data = rsp.getData();
 			}
 		}
 
