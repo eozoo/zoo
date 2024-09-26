@@ -692,533 +692,267 @@
       "deprecation": {}
     },
     {
-      "name": "spring.redis.private",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "description": "私有Redis环境."
-    },
-    {
-      "name": "spring.redis.private.cluster",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getCluster()"
-    },
-    {
-      "name": "spring.redis.private.jedis",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getJedis()"
-    },
-    {
-      "name": "spring.redis.private.jedis.pool",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
-      "sourceMethod": "getPool()"
-    },
-    {
-      "name": "spring.redis.private.lettuce",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getLettuce()"
-    },
-    {
-      "name": "spring.redis.private.lettuce.cluster",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceMethod": "getCluster()"
-    },
-    {
-      "name": "spring.redis.private.lettuce.cluster.refresh",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
-      "sourceMethod": "getRefresh()"
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceMethod": "getPool()"
-    },
-    {
-      "name": "spring.redis.private.sentinel",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getSentinel()"
-    },
-    {
-      "name": "spring.redis.private.client-name",
-      "type": "java.lang.String",
-      "description": "Client name to be set on connections with CLIENT SETNAME.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.private.client-type",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$ClientType",
-      "description": "Type of client to use. By default, auto-detected according to the classpath.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.private.cluster.max-redirects",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of redirects to follow when executing commands across the cluster.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
-    },
-    {
-      "name": "spring.redis.private.cluster.nodes",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-separated list of \"host:port\" pairs to bootstrap from. This represents an \"initial\" list of cluster nodes and is required to have at least one entry.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
-    },
-    {
-      "name": "spring.redis.private.connect-timeout",
-      "type": "java.time.Duration",
-      "description": "Connection timeout.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.private.database",
-      "type": "java.lang.Integer",
-      "description": "Database index used by the connection factory.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": 0
-    },
-    {
-      "name": "spring.redis.private.host",
-      "type": "java.lang.String",
-      "description": "Redis server host.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": "localhost"
-    },
-    {
-      "name": "spring.redis.private.jedis.pool.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "spring.redis.private.jedis.pool.max-active",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "spring.redis.private.jedis.pool.max-idle",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "spring.redis.private.jedis.pool.max-wait",
-      "type": "java.time.Duration",
-      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": "-1ms"
-    },
-    {
-      "name": "spring.redis.private.jedis.pool.min-idle",
-      "type": "java.lang.Integer",
-      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 0
-    },
-    {
-      "name": "spring.redis.private.jedis.pool.time-between-eviction-runs",
-      "type": "java.time.Duration",
-      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "spring.redis.private.lettuce.cluster.refresh.adaptive",
-      "type": "java.lang.Boolean",
-      "description": "Whether adaptive topology refreshing using all available refresh triggers should be used.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "defaultValue": false
-    },
-    {
-      "name": "spring.redis.private.lettuce.cluster.refresh.dynamic-refresh-sources",
-      "type": "java.lang.Boolean",
-      "description": "Whether to discover and query all cluster nodes for obtaining the cluster topology. When set to false, only the initial seed nodes are used as sources for topology discovery.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "defaultValue": true
-    },
-    {
-      "name": "spring.redis.private.lettuce.cluster.refresh.period",
-      "type": "java.time.Duration",
-      "description": "Cluster topology refresh period.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh"
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool.max-active",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool.max-idle",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool.max-wait",
-      "type": "java.time.Duration",
-      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": "-1ms"
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool.min-idle",
-      "type": "java.lang.Integer",
-      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 0
-    },
-    {
-      "name": "spring.redis.private.lettuce.pool.time-between-eviction-runs",
-      "type": "java.time.Duration",
-      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "spring.redis.private.lettuce.shutdown-timeout",
-      "type": "java.time.Duration",
-      "description": "Shutdown timeout.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "defaultValue": "100ms"
-    },
-    {
-      "name": "spring.redis.private.password",
-      "type": "java.lang.String",
-      "description": "Login password of the redis server.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.private.port",
-      "type": "java.lang.Integer",
-      "description": "Redis server port.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": 6379
-    },
-    {
-      "name": "spring.redis.private.sentinel.master",
-      "type": "java.lang.String",
-      "description": "Name of the Redis server.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "spring.redis.private.sentinel.nodes",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-separated list of \"host:port\" pairs.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "spring.redis.private.sentinel.password",
-      "type": "java.lang.String",
-      "description": "Password for authenticating with sentinel(s).",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "spring.redis.private.sentinel.username",
-      "type": "java.lang.String",
-      "description": "Login username for authenticating with sentinel(s).",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "spring.redis.private.ssl",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable SSL support.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": false
-    },
-    {
-      "name": "spring.redis.private.timeout",
-      "type": "java.time.Duration",
-      "description": "Read timeout.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.private.url",
-      "type": "java.lang.String",
-      "description": "Connection URL. Overrides host, port, and password. User is ignored. Example: redis:\/\/user:password@example.com:6379",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.private.username",
-      "type": "java.lang.String",
-      "description": "Login username of the redis server.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "spring.redis.public",
+      "name": "common.redis",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "description": "公共Redis环境."
     },
     {
-      "name": "spring.redis.public.cluster",
+      "name": "common.redis.cluster",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "sourceMethod": "getCluster()"
     },
     {
-      "name": "spring.redis.public.jedis",
+      "name": "common.redis.jedis",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "sourceMethod": "getJedis()"
     },
     {
-      "name": "spring.redis.public.jedis.pool",
+      "name": "common.redis.jedis.pool",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
       "sourceMethod": "getPool()"
     },
     {
-      "name": "spring.redis.public.lettuce",
+      "name": "common.redis.lettuce",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "sourceMethod": "getLettuce()"
     },
     {
-      "name": "spring.redis.public.lettuce.cluster",
+      "name": "common.redis.lettuce.cluster",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
       "sourceMethod": "getCluster()"
     },
     {
-      "name": "spring.redis.public.lettuce.cluster.refresh",
+      "name": "common.redis.lettuce.cluster.refresh",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
       "sourceMethod": "getRefresh()"
     },
     {
-      "name": "spring.redis.public.lettuce.pool",
+      "name": "common.redis.lettuce.pool",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
       "sourceMethod": "getPool()"
     },
     {
-      "name": "spring.redis.public.sentinel",
+      "name": "common.redis.sentinel",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "sourceMethod": "getSentinel()"
     },
     {
-      "name": "spring.redis.public.client-name",
+      "name": "common.redis.client-name",
       "type": "java.lang.String",
       "description": "Client name to be set on connections with CLIENT SETNAME.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
     },
     {
-      "name": "spring.redis.public.client-type",
+      "name": "common.redis.client-type",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$ClientType",
       "description": "Type of client to use. By default, auto-detected according to the classpath.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
     },
     {
-      "name": "spring.redis.public.cluster.max-redirects",
+      "name": "common.redis.cluster.max-redirects",
       "type": "java.lang.Integer",
       "description": "Maximum number of redirects to follow when executing commands across the cluster.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
     },
     {
-      "name": "spring.redis.public.cluster.nodes",
+      "name": "common.redis.cluster.nodes",
       "type": "java.util.List<java.lang.String>",
       "description": "Comma-separated list of \"host:port\" pairs to bootstrap from. This represents an \"initial\" list of cluster nodes and is required to have at least one entry.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
     },
     {
-      "name": "spring.redis.public.connect-timeout",
+      "name": "common.redis.connect-timeout",
       "type": "java.time.Duration",
       "description": "Connection timeout.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
     },
     {
-      "name": "spring.redis.public.database",
+      "name": "common.redis.database",
       "type": "java.lang.Integer",
       "description": "Database index used by the connection factory.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "defaultValue": 0
     },
     {
-      "name": "spring.redis.public.host",
+      "name": "common.redis.host",
       "type": "java.lang.String",
       "description": "Redis server host.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "defaultValue": "localhost"
     },
     {
-      "name": "spring.redis.public.jedis.pool.enabled",
+      "name": "common.redis.jedis.pool.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
     },
     {
-      "name": "spring.redis.public.jedis.pool.max-active",
+      "name": "common.redis.jedis.pool.max-active",
       "type": "java.lang.Integer",
       "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": 8
     },
     {
-      "name": "spring.redis.public.jedis.pool.max-idle",
+      "name": "common.redis.jedis.pool.max-idle",
       "type": "java.lang.Integer",
       "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": 8
     },
     {
-      "name": "spring.redis.public.jedis.pool.max-wait",
+      "name": "common.redis.jedis.pool.max-wait",
       "type": "java.time.Duration",
       "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": "-1ms"
     },
     {
-      "name": "spring.redis.public.jedis.pool.min-idle",
+      "name": "common.redis.jedis.pool.min-idle",
       "type": "java.lang.Integer",
       "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": 0
     },
     {
-      "name": "spring.redis.public.jedis.pool.time-between-eviction-runs",
+      "name": "common.redis.jedis.pool.time-between-eviction-runs",
       "type": "java.time.Duration",
       "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
     },
     {
-      "name": "spring.redis.public.lettuce.cluster.refresh.adaptive",
+      "name": "common.redis.lettuce.cluster.refresh.adaptive",
       "type": "java.lang.Boolean",
       "description": "Whether adaptive topology refreshing using all available refresh triggers should be used.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
       "defaultValue": false
     },
     {
-      "name": "spring.redis.public.lettuce.cluster.refresh.dynamic-refresh-sources",
+      "name": "common.redis.lettuce.cluster.refresh.dynamic-refresh-sources",
       "type": "java.lang.Boolean",
       "description": "Whether to discover and query all cluster nodes for obtaining the cluster topology. When set to false, only the initial seed nodes are used as sources for topology discovery.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
       "defaultValue": true
     },
     {
-      "name": "spring.redis.public.lettuce.cluster.refresh.period",
+      "name": "common.redis.lettuce.cluster.refresh.period",
       "type": "java.time.Duration",
       "description": "Cluster topology refresh period.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh"
     },
     {
-      "name": "spring.redis.public.lettuce.pool.enabled",
+      "name": "common.redis.lettuce.pool.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
     },
     {
-      "name": "spring.redis.public.lettuce.pool.max-active",
+      "name": "common.redis.lettuce.pool.max-active",
       "type": "java.lang.Integer",
       "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": 8
     },
     {
-      "name": "spring.redis.public.lettuce.pool.max-idle",
+      "name": "common.redis.lettuce.pool.max-idle",
       "type": "java.lang.Integer",
       "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": 8
     },
     {
-      "name": "spring.redis.public.lettuce.pool.max-wait",
+      "name": "common.redis.lettuce.pool.max-wait",
       "type": "java.time.Duration",
       "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": "-1ms"
     },
     {
-      "name": "spring.redis.public.lettuce.pool.min-idle",
+      "name": "common.redis.lettuce.pool.min-idle",
       "type": "java.lang.Integer",
       "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
       "defaultValue": 0
     },
     {
-      "name": "spring.redis.public.lettuce.pool.time-between-eviction-runs",
+      "name": "common.redis.lettuce.pool.time-between-eviction-runs",
       "type": "java.time.Duration",
       "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
     },
     {
-      "name": "spring.redis.public.lettuce.shutdown-timeout",
+      "name": "common.redis.lettuce.shutdown-timeout",
       "type": "java.time.Duration",
       "description": "Shutdown timeout.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
       "defaultValue": "100ms"
     },
     {
-      "name": "spring.redis.public.password",
+      "name": "common.redis.password",
       "type": "java.lang.String",
       "description": "Login password of the redis server.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
     },
     {
-      "name": "spring.redis.public.port",
+      "name": "common.redis.port",
       "type": "java.lang.Integer",
       "description": "Redis server port.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "defaultValue": 6379
     },
     {
-      "name": "spring.redis.public.sentinel.master",
+      "name": "common.redis.sentinel.master",
       "type": "java.lang.String",
       "description": "Name of the Redis server.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
     },
     {
-      "name": "spring.redis.public.sentinel.nodes",
+      "name": "common.redis.sentinel.nodes",
       "type": "java.util.List<java.lang.String>",
       "description": "Comma-separated list of \"host:port\" pairs.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
     },
     {
-      "name": "spring.redis.public.sentinel.password",
+      "name": "common.redis.sentinel.password",
       "type": "java.lang.String",
       "description": "Password for authenticating with sentinel(s).",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
     },
     {
-      "name": "spring.redis.public.sentinel.username",
+      "name": "common.redis.sentinel.username",
       "type": "java.lang.String",
       "description": "Login username for authenticating with sentinel(s).",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
     },
     {
-      "name": "spring.redis.public.ssl",
+      "name": "common.redis.ssl",
       "type": "java.lang.Boolean",
       "description": "Whether to enable SSL support.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
       "defaultValue": false
     },
     {
-      "name": "spring.redis.public.timeout",
+      "name": "common.redis.timeout",
       "type": "java.time.Duration",
       "description": "Read timeout.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
     },
     {
-      "name": "spring.redis.public.url",
+      "name": "common.redis.url",
       "type": "java.lang.String",
       "description": "Connection URL. Overrides host, port, and password. User is ignored. Example: redis:\/\/user:password@example.com:6379",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
     },
     {
-      "name": "spring.redis.public.username",
+      "name": "common.redis.username",
       "type": "java.lang.String",
       "description": "Login username of the redis server.",
       "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
@@ -3576,13 +3310,7 @@
       "defaultValue": false
     },
     {
-      "name": "spring.redis.private.exitOnConnectionFailed",
-      "type": "java.lang.Boolean",
-      "description": "Redis连接失败是否退出进程",
-      "defaultValue": false
-    },
-    {
-      "name": "spring.redis.public.exitOnConnectionFailed",
+      "name": "common.redis.exitOnConnectionFailed",
       "type": "java.lang.Boolean",
       "description": "Redis连接失败是否退出进程",
       "defaultValue": false
