@@ -39,11 +39,11 @@ import io.lettuce.core.resource.ClientResources;
  * @author Andy Wilkinson
  */
 @SuppressWarnings("deprecation")
-public class RedisLettuceConnectionConfiguration extends AbstractRedisConnectionConfiguration {
+public class LettuceRedisConnectionConfiguration extends AbstractRedisConnectionConfiguration {
 
-	public RedisLettuceConnectionConfiguration(RedisProperties properties,
-										ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
-										ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
+	public LettuceRedisConnectionConfiguration(RedisProperties properties,
+                                               ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
+                                               ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
 		super(properties, sentinelConfigurationProvider, clusterConfigurationProvider);
 	}
 

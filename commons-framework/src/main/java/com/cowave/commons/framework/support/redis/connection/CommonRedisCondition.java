@@ -21,12 +21,11 @@ import javax.validation.constraints.NotNull;
  * @author shanhuiming
  *
  */
-public class MultiPrivateRedisCondition implements Condition {
+public class CommonRedisCondition implements Condition {
 
-	@Override
-	public boolean matches(ConditionContext context, @NotNull AnnotatedTypeMetadata metadata) {
-		RedisProperties privateRedis = Binder.get(context.getEnvironment()).bind(
-				"spring.redis.private", RedisProperties.class).orElse(null);
-		return privateRedis != null;
-	}
+    @Override
+    public boolean matches(ConditionContext context, @NotNull AnnotatedTypeMetadata metadata) {
+        return Binder.get(context.getEnvironment()).bind(
+                "common.redis", RedisProperties.class).orElse(null) != null;
+    }
 }

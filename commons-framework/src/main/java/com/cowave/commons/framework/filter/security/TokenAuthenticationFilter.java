@@ -44,11 +44,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(
 			@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain chain) throws ServletException, IOException {
 		AccessToken accessToken = tokenService.parseToken(request);
-
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
 		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		if(StringUtils.isNotBlank(accessToken.getValidCode())) {
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);

@@ -28,9 +28,9 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author Stephane Nicoll
  */
 @SuppressWarnings("deprecation")
-public class RedisJedisConnectionConfiguration extends AbstractRedisConnectionConfiguration {
+public class JedisRedisConnectionConfiguration extends AbstractRedisConnectionConfiguration {
 
-	RedisJedisConnectionConfiguration(RedisProperties properties,
+	JedisRedisConnectionConfiguration(RedisProperties properties,
 									  ObjectProvider<RedisSentinelConfiguration> sentinelConfiguration,
 									  ObjectProvider<RedisClusterConfiguration> clusterConfiguration) {
 		super(properties, sentinelConfiguration, clusterConfiguration);

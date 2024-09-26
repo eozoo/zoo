@@ -5,8 +5,7 @@ com.cowave.commons.framework.support.datasource.druid.DruidDynamicDataSourceConf
 com.cowave.commons.framework.support.redis.connection.LettuceAutoConfiguration,\
 com.cowave.commons.framework.support.redis.connection.JedisAutoConfiguration,\
 com.cowave.commons.framework.support.redis.RedisAutoConfiguration,\
-com.cowave.commons.framework.support.redis.MultiRedisAutoConfiguration,\
-com.cowave.commons.framework.support.redis.redisson.MultiRedissonAutoConfiguration,\
+com.cowave.commons.framework.support.redis.redisson.RedissonAutoConfiguration,\
 com.cowave.commons.framework.support.mybatis.logger.SqlLoggerMybatisConfiguration,\
 com.cowave.commons.framework.filter.repeat.RepeatConfiguration
 

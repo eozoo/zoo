@@ -8,7 +8,6 @@
  */
 package com.cowave.commons.framework.support.redis.connection;
 
-import com.cowave.commons.framework.support.redis.MultiRedisAutoConfiguration;
 import com.cowave.commons.framework.support.redis.RedisAutoConfiguration;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.resource.ClientResources;
@@ -16,8 +15,8 @@ import io.lettuce.core.resource.DefaultClientResources;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.ClientResourcesBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
@@ -33,22 +32,16 @@ import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 /**
+ *
  * @author shanhuiming
+ *
  */
-@ConditionalOnClass(RedisClient.class)
+@AutoConfigureBefore({RedisAutoConfiguration.class})
 @ConditionalOnProperty(name = "spring.redis.client-type", havingValue = "lettuce", matchIfMissing = true)
+@ConditionalOnClass(RedisClient.class)
 @EnableConfigurationProperties({RedisProperties.class})
-@AutoConfigureBefore({MultiRedisAutoConfiguration.class, RedisAutoConfiguration.class})
 public class LettuceAutoConfiguration {
 
-    private final RedisProperties redisProperties;
-
-    public LettuceAutoConfiguration(RedisProperties redisProperties) {
-        this.redisProperties = redisProperties;
-    }
-
-    @ConditionalOnMissingBean(DefaultClientResources.class)
-    @Conditional(MultiOriginRedisCondition.class)
     @Primary
     @Bean(destroyMethod = "shutdown")
     public DefaultClientResources clientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
@@ -57,82 +50,45 @@ public class LettuceAutoConfiguration {
         return builder.build();
     }
 
-    @ConditionalOnMissingBean(RedisLettuceConnectionConfiguration.class)
-    @Conditional(MultiOriginRedisCondition.class)
     @Primary
     @Bean
-    public RedisLettuceConnectionConfiguration redisConnectionConfiguration(
+    public LettuceRedisConnectionConfiguration redisConnectionConfiguration(RedisProperties redisProperties,
             ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
             ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
-        return new RedisLettuceConnectionConfiguration(redisProperties, sentinelConfigurationProvider, clusterConfigurationProvider);
+        return new LettuceRedisConnectionConfiguration(redisProperties, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
-    @ConditionalOnMissingBean(name = "redisConnectionFactory")
-    @Conditional(MultiOriginRedisCondition.class)
     @Primary
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(
             ClientResources clientResources,
-            RedisLettuceConnectionConfiguration redisConnectionConfiguration,
+            LettuceRedisConnectionConfiguration redisConnectionConfiguration,
             ObjectProvider<LettuceClientConfigurationBuilderCustomizer> builderCustomizers) {
         return redisConnectionConfiguration.redisConnectionFactory(builderCustomizers, clientResources);
     }
 
-    @Conditional(MultiPrivateRedisCondition.class)
-    @Primary
+    @Conditional(CommonRedisCondition.class)
     @Bean(destroyMethod = "shutdown")
-    public DefaultClientResources privateClientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
+    public DefaultClientResources commonClientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
         DefaultClientResources.Builder builder = DefaultClientResources.builder();
         customizers.orderedStream().forEach(customizer -> customizer.customize(builder));
         return builder.build();
     }
 
-    @Conditional(MultiPrivateRedisCondition.class)
-    @Primary
+    @ConditionalOnBean(name = "commonClientResources")
     @Bean
-    public RedisLettuceConnectionConfiguration privateRedisConnectionConfiguration(
+    public LettuceRedisConnectionConfiguration commonRedisConnectionConfiguration(Environment environment,
             ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
-            ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider,
-            Environment environment) {
-        RedisProperties properties = Binder.get(environment).bind("spring.redis.private", RedisProperties.class).get();
-        return new RedisLettuceConnectionConfiguration(properties, sentinelConfigurationProvider, clusterConfigurationProvider);
+            ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
+        RedisProperties properties = Binder.get(environment).bind("common.redis", RedisProperties.class).get();
+        return new LettuceRedisConnectionConfiguration(properties, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
-    @ConditionalOnMissingBean(name = "privateRedisConnectionFactory")
-    @Conditional(MultiPrivateRedisCondition.class)
-    @Primary
+    @ConditionalOnBean(name = "commonRedisConnectionConfiguration")
     @Bean
-    public LettuceConnectionFactory privateRedisConnectionFactory(
-            ClientResources clientResources,
-            RedisLettuceConnectionConfiguration redisConnectionConfiguration,
-            ObjectProvider<LettuceClientConfigurationBuilderCustomizer> builderCustomizers) {
-        return redisConnectionConfiguration.redisConnectionFactory(builderCustomizers, clientResources);
-    }
-
-    @Conditional(MultiPublicRedisCondition.class)
-    @Bean(destroyMethod = "shutdown")
-    public DefaultClientResources publicClientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
-        DefaultClientResources.Builder builder = DefaultClientResources.builder();
-        customizers.orderedStream().forEach(customizer -> customizer.customize(builder));
-        return builder.build();
-    }
-
-    @Conditional(MultiPublicRedisCondition.class)
-    @Bean
-    public RedisLettuceConnectionConfiguration publicRedisConnectionConfiguration(
-            ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
-            ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider,
-            Environment environment) {
-        RedisProperties properties = Binder.get(environment).bind("spring.redis.public", RedisProperties.class).get();
-        return new RedisLettuceConnectionConfiguration(properties, sentinelConfigurationProvider, clusterConfigurationProvider);
-    }
-
-    @ConditionalOnMissingBean(name = "publicRedisConnectionFactory")
-    @Conditional(MultiPublicRedisCondition.class)
-    @Bean
-    public LettuceConnectionFactory publicRedisConnectionFactory(
-            @Qualifier("publicClientResources") ClientResources clientResources,
-            @Qualifier("publicRedisConnectionConfiguration") RedisLettuceConnectionConfiguration redisConnectionConfiguration,
+    public LettuceConnectionFactory commonRedisConnectionFactory(
+            @Qualifier("commonClientResources") ClientResources clientResources,
+            @Qualifier("commonRedisConnectionConfiguration") LettuceRedisConnectionConfiguration redisConnectionConfiguration,
             ObjectProvider<LettuceClientConfigurationBuilderCustomizer> builderCustomizers) {
         return redisConnectionConfiguration.redisConnectionFactory(builderCustomizers, clientResources);
     }
