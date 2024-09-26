@@ -21,11 +21,11 @@ import javax.validation.constraints.NotNull;
  * @author shanhuiming
  *
  */
-public class MultiPublicKafkaCondition implements Condition {
+public class CommonKafkaCondition implements Condition {
 
 	@Override
 	public boolean matches(ConditionContext context, @NotNull AnnotatedTypeMetadata metadata) {
 		return Binder.get(context.getEnvironment()).bind(
-				"spring.kafka.public", KafkaProperties.class).orElse(null) != null;
+				"common.kafka", KafkaProperties.class).orElse(null) != null;
 	}
 }

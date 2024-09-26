@@ -10,7 +10,7 @@ package com.cowave.commons.framework.support.kafka.health;
 
 import java.util.Map;
 
-import com.cowave.commons.framework.support.kafka.KafkaMultiConfiguration;
+import com.cowave.commons.framework.support.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.CompositeHealthContributorConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.HealthContributor;
@@ -28,7 +28,7 @@ import org.springframework.kafka.core.KafkaTemplate;
  */
 @ConditionalOnClass(KafkaTemplate.class)
 @ConditionalOnEnabledHealthIndicator("kafka")
-@AutoConfiguration(after = { KafkaMultiConfiguration.class })
+@AutoConfiguration(after = { KafkaAutoConfiguration.class })
 public class KafkaHealthContributorConfiguration
         extends CompositeHealthContributorConfiguration<KafkaHealthIndicator, KafkaAdmin> {
 
