@@ -77,38 +77,98 @@ prepare_build(){
       ## spring.application.name
       replace classes/META-INF/info.yml name "$app_name" 2
   fi
+}
 
-  ## 创建打包目录，拷贝: /bin、/config、changelog.md、install.sh
-  app_source="$app_name"_"$app_version"
+tar_build(){
+  . "./bin/setenv.sh"
+  export app_source="$app_name"_"$app_version"
+  ## /lib
   mkdir -p "$app_source"/lib
-  cp -rf bin "$app_source"
+  ## 拷贝jar包
+  jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## 如果使用了classfinal加密，重新命名下
+  if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
+      cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
+  else
+      cp "$jar_name"-"$jar_version".jar "$app_source"/lib/"$app_name"-"$app_version".jar
+  fi
+  ## /bin
+  mv bin "$app_source"
+  ## /config
+  cp -rf classes/config "$app_source"
+  ## changelog.md
   if [ -f ../changelog.md ];then
       cp -f ../changelog.md "$app_source"
   else
       touch "$app_source"/changelog.md
   fi
+  ## install.sh
   mv "$app_source"/bin/install.sh "$app_source"
-  cp -rf classes/config "$app_source"
-}
 
-tar_build(){
-  . "./bin/setenv.sh"
   . "./tar.sh"
-  export app_source="$app_name"_"$app_version"
   build
 }
 
 docker_build(){
   . "./bin/setenv.sh"
-  . "./docker.sh"
   export app_source="$app_name"_"$app_version"
+  ## /lib
+  mkdir -p "$app_source"/lib
+  ## 拷贝jar包
+  jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## 如果使用了classfinal加密，重新命名下
+  if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
+      cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
+  else
+      cp "$jar_name"-"$jar_version".jar "$app_source"/lib/"$app_name"-"$app_version".jar
+  fi
+  ## /bin
+  mv bin "$app_source"
+  ## /config
+  cp -rf classes/config "$app_source"
+  ## changelog.md
+  if [ -f ../changelog.md ];then
+      cp -f ../changelog.md "$app_source"
+  else
+      touch "$app_source"/changelog.md
+  fi
+  ## install.sh
+  mv "$app_source"/bin/install.sh "$app_source"
+
+  . "./docker.sh"
   build
 }
 
 deb_build(){
   . "./bin/setenv.sh"
-  . "./deb.sh"
   export app_source="$app_name"_"$app_version"
+  ## /lib
+  mkdir -p "$app_source"/lib
+  ## 拷贝jar包
+  jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## 如果使用了classfinal加密，重新命名下
+  if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
+      cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
+  else
+      cp "$jar_name"-"$jar_version".jar "$app_source"/lib/"$app_name"-"$app_version".jar
+  fi
+  ## /bin
+  mv bin "$app_source"
+  ## /config
+  cp -rf classes/config "$app_source"
+  ## changelog.md
+  if [ -f ../changelog.md ];then
+      cp -f ../changelog.md "$app_source"
+  else
+      touch "$app_source"/changelog.md
+  fi
+  ## install.sh
+  mv "$app_source"/bin/install.sh "$app_source"
+
+  . "./deb.sh"
   build
 }
 
