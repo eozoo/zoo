@@ -19,7 +19,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cowave.commons.framework.filter.security.AccessToken;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,12 +29,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
+ *
  * @author shanhuiming
+ *
  */
 @Data
 public class Access {
 
-    private static final ThreadLocal<Access> LOCAL = new TransmittableThreadLocal<>();
+    private static final ThreadLocal<Access> ACCESS = new TransmittableThreadLocal<>();
 
     private final String accessId;
 
@@ -47,8 +48,6 @@ public class Access {
 
     private AccessToken accessToken;
 
-    private Locale locale;
-
     private Object requestParam;
 
     private Integer pageIndex;
@@ -57,32 +56,23 @@ public class Access {
 
     private boolean responseLogged;
 
-    public Access(String accessId, String accessIp, String accessUrl, Long accessTime, String language){
+    public Access(String accessId, String accessIp, String accessUrl, Long accessTime){
         this.accessId = accessId;
         this.accessIp = accessIp;
         this.accessUrl = accessUrl;
         this.accessTime = accessTime;
-        this.locale = Locale.getDefault();
-        if(StringUtils.isNotBlank(language)) {
-            if(language.toLowerCase().contains("en")) {
-                this.locale = new Locale("en");
-            }
-            if(language.toLowerCase().contains("zh")) {
-                this.locale = new Locale("zh");
-            }
-        }
     }
 
     public static Access get(){
-        return LOCAL.get();
+        return ACCESS.get();
     }
 
     public static void set(Access access){
-        LOCAL.set(access);
+        ACCESS.set(access);
     }
 
     public static void remove(){
-        LOCAL.remove();
+        ACCESS.remove();
     }
 
     public static String accessId() {
@@ -115,14 +105,6 @@ public class Access {
             return new Date();
         }
         return new Date(access.accessTime);
-    }
-
-    public static Locale accessLanguage() {
-        Access access;
-        if((access = get()) == null) {
-            return Locale.getDefault();
-        }
-        return access.locale;
     }
 
     public static <T> Page<T> page(){

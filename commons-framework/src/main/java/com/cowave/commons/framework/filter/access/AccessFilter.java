@@ -11,14 +11,14 @@ package com.cowave.commons.framework.filter.access;
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
-import com.cowave.commons.framework.helper.MessageHelper;
+import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -28,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
+
+import static org.springframework.feign.codec.ResponseCode.BAD_REQUEST;
+import static org.springframework.feign.codec.ResponseCode.SUCCESS;
 
 /**
  *
@@ -41,52 +44,52 @@ public class AccessFilter implements Filter {
 
     private final AccessIdGenerator accessIdGenerator;
 
-    private final MessageHelper messageHelper;
+    @Value("${spring.application.response-always-success:false}")
+    private boolean responseAlwaysSuccess;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-
         // 检查获取accessId，设置请求和响应Header
         String accessId = httpServletRequest.getHeader("Access-Id");
         if (StringUtils.isBlank(accessId)) {
             accessId = accessIdGenerator.newAccessId();
         }
         httpServletResponse.setHeader("Access-Id", accessId);
-
         // MDC设置accessId
         MDC.put("accessId", accessId);
-
-        // 初始化Access
+        // Access设置
         String accessIp = ServletUtils.getRequestIp(httpServletRequest);
         String accessUrl = httpServletRequest.getRequestURI();
+        Access.set(new Access(accessId, accessIp, accessUrl, System.currentTimeMillis()));
+        // 国际化设置
         String language = httpServletRequest.getHeader("Accept-Language");
-        Access.set(new Access(accessId, accessIp, accessUrl, System.currentTimeMillis(), language));
-
+        Messages.setLanguage(language);
         // 拦截记录请求信息，顺便获取设置下分页参数
         AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest);
         try{
             accessRequestWrapper.recordAccessParams();
         }catch (HttpMessageConversionException e){
+            int httpStatus = BAD_REQUEST.getStatus();
+            if(responseAlwaysSuccess){
+                httpStatus = SUCCESS.getStatus();
+            }
             HttpServletResponse httpResponse = (HttpServletResponse)response;
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            httpResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            response.getWriter().write(JSON.toJSONString(Response.msg(ResponseCode.BAD_REQUEST,
-                            messageHelper.translateErrorMessage("frame.advice.httpMessageConversionException", "请求参数转换失败"))));
+            httpResponse.setStatus(httpStatus);
+            response.getWriter().write(JSON.toJSONString(
+                    Response.msg(BAD_REQUEST, Messages.msg("frame.advice.httpMessageConversionException"))));
             return;
         }
-
         // 尝试获取设置Seata事务id
         String xid = httpServletRequest.getHeader("xid");
         if(transactionIdSetter != null && xid != null){
             transactionIdSetter.setXid(xid);
         }
-
         // servlet处理
         chain.doFilter(accessRequestWrapper, response);
-
         // 拦截打印响应（AccessLogger中没有拦截到的）
         Access access = Access.get();
         if(!access.isResponseLogged()){
@@ -98,7 +101,7 @@ public class AccessFilter implements Filter {
                 AccessLogger.warn("<< {} {}ms", status, cost);
             }
         }
-
+        // 清除access
         Access.remove();
         MDC.remove("accessId");
     }

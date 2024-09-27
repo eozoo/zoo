@@ -35,13 +35,13 @@ public class DictHelper {
      */
     public void put(Dict dict) {
         if(dict.getGroupCode() == null){
-            throw new AssertsException("frame.dict.notnull.groupcode").language(true);
+            throw new AssertsException("{frame.dict.notnull.groupcode}");
         }
         if(dict.getTypeCode() == null){
-            throw new AssertsException("frame.dict.notnull.typecode").language(true);
+            throw new AssertsException("{frame.dict.notnull.typecode}");
         }
         if(dict.getDictCode() == null){
-            throw new AssertsException("frame.dict.notnull.code").language(true);
+            throw new AssertsException("{frame.dict.notnull.code}");
         }
         if(!"dict_root".equals(dict.getTypeCode())){
             redisHelper.putMap(KEY_GROUP + dict.getGroupCode(), dict.getDictCode(), dict);

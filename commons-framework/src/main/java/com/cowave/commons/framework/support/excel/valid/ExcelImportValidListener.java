@@ -13,7 +13,7 @@ import cn.hutool.extra.validation.ValidationUtil;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.cowave.commons.framework.helper.MessageHelper;
+import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.AssertsException;
 
 import java.lang.reflect.Field;
@@ -29,14 +29,10 @@ public class ExcelImportValidListener<T> extends AnalysisEventListener<T> {
     private final List<T> list = new ArrayList<>();
     private final ExcelDataImporter<T> dataImporter;
     private final boolean overwrite;
-    private final boolean messageGlobal;
-    private final MessageHelper message;
 
-    public ExcelImportValidListener(ExcelDataImporter<T> dataImporter, boolean overwrite, MessageHelper message, boolean messageGlobal){
+    public ExcelImportValidListener(ExcelDataImporter<T> dataImporter, boolean overwrite){
         this.dataImporter = dataImporter;
         this.overwrite = overwrite;
-        this.message = message;
-        this.messageGlobal = messageGlobal;
     }
 
     @Override
@@ -51,7 +47,7 @@ public class ExcelImportValidListener<T> extends AnalysisEventListener<T> {
     }
 
     private void valid(Object bean, AnalysisContext context) {
-        StringBuilder failedBuilder = new StringBuilder(message.msg("frame.import.failed.msg"));
+        StringBuilder failedBuilder = new StringBuilder(Messages.msg("frame.import.failed.msg"));
         Field[] fields = bean.getClass().getDeclaredFields();
         boolean validFailed = false;
         for (Field field : fields) {
@@ -72,9 +68,6 @@ public class ExcelImportValidListener<T> extends AnalysisEventListener<T> {
     }
 
     private String getMessage(int rowIndex, String message){
-        if(messageGlobal){
-            message = this.message.msg(message);
-        }
-        return this.message.msg("frame.excel.failed.row", rowIndex, message);
+        return Messages.msg("frame.excel.failed.row", rowIndex, message);
     }
 }

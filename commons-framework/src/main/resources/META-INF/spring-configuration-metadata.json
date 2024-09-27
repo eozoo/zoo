@@ -2119,12 +2119,6 @@
       ]
     },
     {
-      "name": "spring.messages.enable",
-      "type": "java.lang.Boolean",
-      "defaultValue": false,
-      "description": "国际化开关."
-    },
-    {
       "name": "logging.sql-enabled",
       "type": "java.lang.Boolean",
       "description": "是否打印sql",
@@ -2137,9 +2131,9 @@
       "defaultValue": "/*"
     },
     {
-      "name": "spring.application.advice.http.enabled",
+      "name": "spring.application.response-always-success",
       "type": "java.lang.Boolean",
-      "description": "异常切面是否返回HttpResponse",
+      "description": "Http响应码永远返回200",
       "defaultValue": false
     },
     {

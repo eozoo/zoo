@@ -8,8 +8,6 @@
  */
 package com.cowave.commons.framework.filter.access;
 
-import com.cowave.commons.framework.helper.MessageHelper;
-import com.cowave.commons.tools.ids.IdGenerator;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +32,6 @@ public class AccessFilterConfiguration {
 
     private String[] patterns = {"/*"};
 
-    private final MessageHelper messageHelper;
-
     @Nullable
     private final TransactionIdSetter transactionIdSetter;
 
@@ -47,7 +43,7 @@ public class AccessFilterConfiguration {
     @Bean
     public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator){
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, messageHelper));
+        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator));
         registration.setName("accessFilter");
         registration.addUrlPatterns(patterns);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);

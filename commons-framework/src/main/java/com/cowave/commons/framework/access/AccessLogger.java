@@ -65,8 +65,7 @@ public class AccessLogger {
 			assert httpServletRequest != null;
 			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
 			String accessUrl = httpServletRequest.getRequestURI();
-			String language = httpServletRequest.getHeader("Accept-Language");
-			Access.set(new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis(), language));
+			Access.set(new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis()));
 		}else if (accessUserParser != null) {
 			MethodSignature signature = (MethodSignature)point.getSignature();
 			String[] paramNames = signature.getParameterNames();

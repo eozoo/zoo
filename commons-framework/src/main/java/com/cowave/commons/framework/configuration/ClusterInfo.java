@@ -13,7 +13,9 @@ import java.util.Map;
 import lombok.Data;
 
 /**
+ *
  * @author shanhuiming
+ *
  */
 @Data
 public class ClusterInfo {

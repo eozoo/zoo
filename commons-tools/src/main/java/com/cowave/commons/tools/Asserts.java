@@ -26,7 +26,7 @@ public class Asserts {
 
 	public static void isTrue(boolean expression, String message, Object... args) {
 		if (!expression) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -38,7 +38,7 @@ public class Asserts {
 
 	public static void isFalse(boolean expression, String message, Object... args) {
 		if (expression) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class Asserts {
 
 	public static void notEquals(Object a, Object b, String message, Object... args) {
 		if (Objects.equals(a, b)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class Asserts {
 
 	public static void equals(Object a, Object b, String message, Object... args) {
 		if (!Objects.equals(a, b)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class Asserts {
 
 	public static void notBlank(String text, String message, Object... args) {
 		if (StringUtils.isBlank(text)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -86,7 +86,7 @@ public class Asserts {
 
 	public static void isBlank(String text, String message, Object... args) {
 		if (StringUtils.isBlank(text)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -98,7 +98,7 @@ public class Asserts {
 
 	public static void notNull(Object object, String message, Object... args) {
 		if (object == null) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -110,7 +110,7 @@ public class Asserts {
 
 	public static void isNull(Object object, String message, Object... args) {
 		if (object != null) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class Asserts {
 
 	public static void notEmpty(Map<?, ?> map, String message, Object... args) {
 		if (ObjectUtils.isEmpty(map)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -134,7 +134,7 @@ public class Asserts {
 
 	public static void isEmpty(Map<?, ?> map, String message, Object... args) {
 		if (ObjectUtils.isNotEmpty(map)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -146,7 +146,7 @@ public class Asserts {
 
 	public static void notEmpty(Collection<?> collection, String message, Object... args) {
 		if (CollectionUtils.isEmpty(collection)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class Asserts {
 
 	public static void isEmpty(Collection<?> collection, String message, Object... args) {
 		if (!CollectionUtils.isEmpty(collection)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -170,7 +170,7 @@ public class Asserts {
 
 	public static void notEmpty(Object[] array, String message, Object... args) {
 		if (ObjectUtils.isEmpty(array)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 
@@ -183,7 +183,7 @@ public class Asserts {
 
 	public static void isEmpty(Object[] array, String message, Object... args) {
 		if (!ObjectUtils.isEmpty(array)) {
-			throw new AssertsException(message).args(args);
+			throw new AssertsException(message, args);
 		}
 	}
 

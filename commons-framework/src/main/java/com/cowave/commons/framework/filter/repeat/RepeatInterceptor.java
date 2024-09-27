@@ -20,18 +20,19 @@ import javax.validation.constraints.NotNull;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.filter.access.AccessRequestWrapper;
-import com.cowave.commons.framework.helper.MessageHelper;
+import com.cowave.commons.tools.Messages;
 import com.cowave.commons.framework.support.redis.RedisHelper;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import static org.springframework.feign.codec.ResponseCode.*;
 
 /**
  *
@@ -49,7 +50,8 @@ public class RepeatInterceptor implements HandlerInterceptor {
 
     private final RedisHelper redisHelper;
 
-    private final MessageHelper messageHelper;
+    @Value("${spring.application.response-always-success:false}")
+    private boolean responseAlwaysSuccess;
 
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse httpResponse, @NotNull Object handler) throws IOException {
@@ -57,13 +59,16 @@ public class RepeatInterceptor implements HandlerInterceptor {
             Method method = handlerMethod.getMethod();
             Repeat repeat = method.getAnnotation(Repeat.class);
             if (repeat != null && this.isRepeatSubmit(request, repeat)) {
-                Response<Void> response = Response.msg(ResponseCode.TOO_MANY_REQUESTS,
-                        messageHelper.translateErrorMessage(repeat.message(), "请求过快，请稍后重试～"));
-                httpResponse.setStatus(HttpStatus.OK.value());
-                httpResponse.setHeader("Retry-After", String.valueOf(repeat.interval() / 1000.0));
-                httpResponse.setContentType("application/json");
+                int httpStatus = TOO_MANY_REQUESTS.getStatus();
+                if(responseAlwaysSuccess){
+                    httpStatus = SUCCESS.getStatus();
+                }
+                httpResponse.setStatus(httpStatus);
                 httpResponse.setCharacterEncoding("utf-8");
-                httpResponse.getWriter().print(JSON.toJSONString(response));
+                httpResponse.setContentType("application/json");
+                httpResponse.setHeader("Retry-After", String.valueOf(repeat.interval() / 1000.0));
+                httpResponse.getWriter().print(JSON.toJSONString(
+                        Response.msg(TOO_MANY_REQUESTS, Messages.translateIfNeed(repeat.message()))));
                 return false;
             }
         }

@@ -65,12 +65,12 @@ public class FileService {
         String name = multipartFile.getOriginalFilename();
         String suffix = FilenameUtils.getExtension(name);
         if (!suffixValid(suffix)) {
-            throw new AssertsException("frame.file.invalid").language(true).args(name);
+            throw new AssertsException("{frame.file.invalid}", name);
         }
 
         File dir = new File(dirPath);
         if (!dir.exists() && !dir.mkdirs()) {
-            throw new AssertsException("frame.dir.failed").language(true).args(dirPath);
+            throw new AssertsException("{frame.dir.failed}", dirPath);
         }
 
         String md5 = DigestUtils.md5Hex(multipartFile.getBytes());
@@ -106,7 +106,7 @@ public class FileService {
      */
     public void minioUpload(MultipartFile multipartFile, String bucket, String filePath, boolean isPublic) throws Exception {
         if (minioService == null) {
-            throw new AssertsException("frame.not.exist.minio").language(true);
+            throw new AssertsException("{frame.not.exist.minio}");
         }
         minioService.upload(multipartFile, filePath, bucket, isPublic);
     }
@@ -121,7 +121,7 @@ public class FileService {
      */
     public void minioUpload(InputStream inputStream, String bucket, String filePath, boolean isPublic) throws Exception {
         if (minioService == null) {
-            throw new AssertsException("frame.not.exist.minio").language(true);
+            throw new AssertsException("{frame.not.exist.minio}");
         }
         minioService.upload(inputStream, filePath, bucket, isPublic);
     }
@@ -135,7 +135,7 @@ public class FileService {
      */
     public void minioDownload(HttpServletResponse resp, String bucket, String filePath, String fileName) throws Exception {
         if (minioService == null) {
-            throw new AssertsException("frame.not.exist.minio").language(true);
+            throw new AssertsException("{frame.not.exist.minio}");
         }
         minioService.download(resp, bucket, filePath, fileName);
     }
@@ -148,7 +148,7 @@ public class FileService {
      */
     public String minioPreview(String bucket, String filePath) throws Exception {
         if (minioService == null) {
-            throw new AssertsException("frame.not.exist.minio").language(true);
+            throw new AssertsException("{frame.not.exist.minio}");
         }
         return minioService.preview(bucket, filePath);
     }
@@ -162,7 +162,7 @@ public class FileService {
      */
     public String minioPreview(String bucket, String filePath, int expireSeconds) throws Exception {
         if (minioService == null) {
-            throw new AssertsException("frame.not.exist.minio").language(true);
+            throw new AssertsException("{frame.not.exist.minio}");
         }
         return minioService.preview(bucket, filePath, expireSeconds);
     }
@@ -175,7 +175,7 @@ public class FileService {
      */
     public void minioDelete(String bucket, String filePath) throws Exception {
         if (minioService == null) {
-            throw new AssertsException("frame.not.exist.minio").language(true);
+            throw new AssertsException("{frame.not.exist.minio}");
         }
         minioService.delete(bucket, filePath);
     }
@@ -186,6 +186,9 @@ public class FileService {
      * @author cailinfei
      */
     public InputStream minioInputStream(String bucket, String filePath) throws Exception {
+        if (minioService == null) {
+            throw new AssertsException("{frame.not.exist.minio}");
+        }
         return minioService.getInputStream(bucket, filePath);
     }
 
@@ -195,6 +198,9 @@ public class FileService {
      * @author cailinfei
      */
     public byte[] minioDownloadTgzBytes(Map<String, String> filePathMap, String bucket) throws Exception {
+        if (minioService == null) {
+            throw new AssertsException("{frame.not.exist.minio}");
+        }
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              TarArchiveOutputStream tarOs = new TarArchiveOutputStream(new GZIPOutputStream(byteArrayOutputStream))) {
             minioService.appendToTgz(tarOs, filePathMap, bucket);
@@ -209,6 +215,9 @@ public class FileService {
      * @author cailinfei
      */
     public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String, String> filePathMap, String fileName) throws Exception {
+        if (minioService == null) {
+            throw new AssertsException("{frame.not.exist.minio}");
+        }
         resp.setCharacterEncoding("utf-8");
         resp.setContentType("application/octet-stream;charset=UTF-8");
         resp.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);

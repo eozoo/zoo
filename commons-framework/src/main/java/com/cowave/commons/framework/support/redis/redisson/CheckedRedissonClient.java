@@ -84,31 +84,27 @@ public class CheckedRedissonClient implements RedissonClient {
             timeout = (Integer)timeoutValue;
         }
 
-        if(redissonProperties != null){
-            if (redissonProperties.getConfig() != null) {
+        if (redissonProperties.getConfig() != null) {
+            try {
+                config = Config.fromYAML(redissonProperties.getConfig());
+            } catch (IOException var13) {
                 try {
-                    config = Config.fromYAML(redissonProperties.getConfig());
-                } catch (IOException var13) {
-                    try {
-                        config = Config.fromJSON(redissonProperties.getConfig());
-                    } catch (IOException var12) {
-                        throw new IllegalArgumentException("Can't parse config", var12);
-                    }
+                    config = Config.fromJSON(redissonProperties.getConfig());
+                } catch (IOException var12) {
+                    throw new IllegalArgumentException("Can't parse config", var12);
                 }
-            } else if (redissonProperties.getFile() != null) {
+            }
+        } else if (redissonProperties.getFile() != null) {
+            try {
+                InputStream is = this.getConfigStream(ctx, redissonProperties);
+                config = Config.fromYAML(is);
+            } catch (IOException var11) {
                 try {
                     InputStream is = this.getConfigStream(ctx, redissonProperties);
-                    config = Config.fromYAML(is);
-                } catch (IOException var11) {
-                    try {
-                        InputStream is = this.getConfigStream(ctx, redissonProperties);
-                        config = Config.fromJSON(is);
-                    } catch (IOException var10) {
-                        throw new IllegalArgumentException("Can't parse config", var10);
-                    }
+                    config = Config.fromJSON(is);
+                } catch (IOException var10) {
+                    throw new IllegalArgumentException("Can't parse config", var10);
                 }
-            }else{
-                config = new Config();
             }
         } else if (redisProperties.getSentinel() != null) {
             nodesMethod = ReflectionUtils.findMethod(RedisProperties.Sentinel.class, "getNodes");

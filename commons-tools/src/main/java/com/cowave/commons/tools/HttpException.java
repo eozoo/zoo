@@ -22,14 +22,14 @@ public class HttpException extends RuntimeException {
 
     private final String code;
 
-    public HttpException(int status, String code, String message) {
-        super(message);
+    public HttpException(int status, String code, String message, Object... args) {
+        super(Messages.translateIfNeed(message, args));
         this.code = code;
         this.status = status;
     }
 
-    public HttpException(int status, String code, String message, Throwable cause) {
-        super(message, cause);
+    public HttpException(int status, String code, String message, Throwable cause, Object... args) {
+        super(Messages.translateIfNeed(message, args), cause);
         this.code = code;
         this.status = status;
     }

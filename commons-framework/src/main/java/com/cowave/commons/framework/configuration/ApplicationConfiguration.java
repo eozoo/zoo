@@ -11,7 +11,6 @@ package com.cowave.commons.framework.configuration;
 import com.cowave.commons.framework.filter.xss.XssFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.dynamictp.core.spring.EnableDynamicTp;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContextInitializer;
@@ -19,7 +18,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
@@ -34,7 +32,9 @@ import lombok.Data;
 import java.util.List;
 
 /**
+ *
  * @author shanhuiming
+ *
  */
 @Slf4j
 @Data
@@ -44,8 +44,6 @@ import java.util.List;
 @ComponentScan(basePackages = "com.cowave")
 @ConfigurationProperties(prefix = "spring.application")
 public class ApplicationConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-    private static final String FRAMEWORK_BASENAME = "META-INF/i18n/messages-frame";
 
     private String name;
 
@@ -88,13 +86,5 @@ public class ApplicationConfiguration implements ApplicationContextInitializer<C
     // @Bean
     public XssFilter xssFilter() {
         return new XssFilter();
-    }
-
-    @Bean
-    public ResourceBundleMessageSource messageSource(
-            @Value("${spring.messages.basename:META-INF/i18n/messages}") String baseNames) {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename(baseNames + "," + FRAMEWORK_BASENAME);
-        return messageSource;
     }
 }

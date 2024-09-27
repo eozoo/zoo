@@ -34,5 +34,5 @@ public @interface Repeat {
     /**
      * 提示消息
      */
-    String message() default "frame.advice.repeat";
+    String message() default "{frame.advice.repeat}";
 }

@@ -24,9 +24,9 @@ import java.util.function.Supplier;
  */
 public class HttpAsserts {
 
-    public static void isTrue(boolean expression, int status, String code, String message) {
+    public static void isTrue(boolean expression, int status, String code, String message, Object... args) {
         if (!expression) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -36,9 +36,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void isFalse(boolean expression, int status, String code, String message) {
+    public static void isFalse(boolean expression, int status, String code, String message, Object... args) {
         if (expression) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -48,9 +48,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void notEquals(Object a, Object b, int status, String code, String message) {
+    public static void notEquals(Object a, Object b, int status, String code, String message, Object... args) {
         if (Objects.equals(a, b)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -60,9 +60,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void equals(Object a, Object b, int status, String code, String message) {
+    public static void equals(Object a, Object b, int status, String code, String message, Object... args) {
         if (!Objects.equals(a, b)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -72,9 +72,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void notBlank(String text, int status, String code, String message) {
+    public static void notBlank(String text, int status, String code, String message, Object... args) {
         if (StringUtils.isBlank(text)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -84,9 +84,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void isBlank(String text, int status, String code, String message) {
+    public static void isBlank(String text, int status, String code, String message, Object... args) {
         if (StringUtils.isBlank(text)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -96,9 +96,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void notNull(Object object, int status, String code, String message) {
+    public static void notNull(Object object, int status, String code, String message, Object... args) {
         if (object == null) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -108,9 +108,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void isNull(Object object, int status, String code, String message) {
+    public static void isNull(Object object, int status, String code, String message, Object... args) {
         if (object != null) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -120,9 +120,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void notEmpty(Map<?, ?> map, int status, String code, String message) {
+    public static void notEmpty(Map<?, ?> map, int status, String code, String message, Object... args) {
         if (ObjectUtils.isEmpty(map)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -132,9 +132,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void isEmpty(Map<?, ?> map, int status, String code, String message) {
+    public static void isEmpty(Map<?, ?> map, int status, String code, String message, Object... args) {
         if (ObjectUtils.isNotEmpty(map)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -144,9 +144,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void notEmpty(Collection<?> collection, int status, String code, String message) {
+    public static void notEmpty(Collection<?> collection, int status, String code, String message, Object... args) {
         if (CollectionUtils.isEmpty(collection)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -156,9 +156,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void isEmpty(Collection<?> collection, int status, String code, String message) {
+    public static void isEmpty(Collection<?> collection, int status, String code, String message, Object... args) {
         if (!CollectionUtils.isEmpty(collection)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -168,9 +168,9 @@ public class HttpAsserts {
         }
     }
 
-    public static void notEmpty(Object[] array, int status, String code, String message) {
+    public static void notEmpty(Object[] array, int status, String code, String message, Object... args) {
         if (ObjectUtils.isEmpty(array)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 
@@ -181,9 +181,9 @@ public class HttpAsserts {
     }
 
 
-    public static void isEmpty(Object[] array, int status, String code, String message) {
+    public static void isEmpty(Object[] array, int status, String code, String message, Object... args) {
         if (!ObjectUtils.isEmpty(array)) {
-            throw new HttpException(status, code, message);
+            throw new HttpException(status, code, message, args);
         }
     }
 

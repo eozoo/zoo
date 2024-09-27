@@ -15,33 +15,11 @@ package com.cowave.commons.tools;
  */
 public class AssertsException extends RuntimeException {
 
-    private transient Object[] args;
-
-    private boolean language;
-
-	public AssertsException(String message) {
-        super(message);
+	public AssertsException(String message, Object... args) {
+        super(Messages.translateIfNeed(message, args));
     }
 
-    public AssertsException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public AssertsException language(boolean language){
-        this.language = language;
-        return this;
-    }
-
-    public AssertsException args(Object... args){
-        this.args = args;
-        return this;
-    }
-
-    public boolean getLanguage(){
-        return this.language;
-    }
-
-    public Object[] getArgs(){
-        return this.args;
+    public AssertsException(String message, Throwable cause, Object... args) {
+        super(Messages.translateIfNeed(message, args), cause);
     }
 }

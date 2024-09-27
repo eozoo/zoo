@@ -17,7 +17,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
+ *
  * @author shanhuiming
+ *
  */
 @Data
 public class AccessUser {
