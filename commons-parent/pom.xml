@@ -42,11 +42,12 @@
 					</execution>
 				</executions>
 				<configuration>
+					<skipPoms>false</skipPoms>
+					<format>json</format>
+					<dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
+					<failOnNoGitDirectory>false</failOnNoGitDirectory>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<generateGitPropertiesFilename>${project.build.directory}/classes/META-INF/git.info</generateGitPropertiesFilename>
-					<format>json</format>
-					<skipPoms>false</skipPoms>
-					<dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -9,7 +9,6 @@
 package com.cowave.commons.framework.support.actuator;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.TreeMap;
 
 /**
  *
@@ -34,13 +34,13 @@ import java.nio.charset.StandardCharsets;
 public class GitEndpoint {
 
     @ReadOperation
-    public JSONObject info() throws IOException {
+    public TreeMap<String, Object> info() throws IOException {
         Resource resource = new DefaultResourceLoader().getResource("classpath:META-INF/git.info");
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {
-                return JSON.parseObject(IOUtils.toString(input, StandardCharsets.UTF_8));
+                return JSON.parseObject(IOUtils.toString(input, StandardCharsets.UTF_8), TreeMap.class);
             }
         }
-        return new JSONObject();
+        return new TreeMap<>();
     }
 }

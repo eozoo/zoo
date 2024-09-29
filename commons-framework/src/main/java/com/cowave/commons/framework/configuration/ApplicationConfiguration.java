@@ -52,20 +52,20 @@ public class ApplicationConfiguration implements ApplicationContextInitializer<C
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        String infoPath = "/META-INF/info.yml";
-        Resource infoResource = new ClassPathResource(infoPath);
+        String yamlPath = "/META-INF/common.yml";
+        Resource infoResource = new ClassPathResource(yamlPath);
         if(!infoResource.exists()){
             return;
         }
 
         try{
-            log.info("prepare to load: META-INF/info.yml");
-            List<PropertySource<?>> list = new YamlPropertySourceLoader().load(infoPath, infoResource);
+            log.info("prepare to load: META-INF/common.yml");
+            List<PropertySource<?>> list = new YamlPropertySourceLoader().load(yamlPath, infoResource);
             for(PropertySource<?> source : list){
                 environment.getPropertySources().addLast(source);
             }
         }catch (Exception e){
-            log.error("failed to load: META-INF/info.yml", e);
+            log.error("failed to load: META-INF/common.yml", e);
             System.exit(-1);
         }
     }

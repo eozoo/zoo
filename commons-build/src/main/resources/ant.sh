@@ -26,9 +26,6 @@ prepare_build(){
   find . -type f -name "*.sh" -exec chmod 744 {} \;
   find . -type f -name "*.sh" -exec dos2unix {} \;
 
-  ## 引用setenv.sh，下面调用replace方法
-  . "./bin/setenv.sh"
-
   ## 获取app_name和app_version（优先取env.properties，没有则从pom.xml获取），然后写到setenv.sh中
   line_app_name=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_name)
   line_app_version=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_version)
@@ -46,36 +43,31 @@ prepare_build(){
       app_home="/opt/cowave/$app_name"
   fi
 
-  ## 获取代码版本信息
-  commit=$(git log -n 1 --pretty=oneline | awk '{print $1}')
-  branch=$(git name-rev --name-only HEAD)
-  codeVersion="$branch $commit"
-  commit_msg=$(git log --pretty=format:"%s" -1)
-  commit_time=$(git log --pretty=format:"%cd" -1)
-  commit_author=$(git log --pretty=format:"%an" -1)
-  echo "${app_name} ${app_version}(${branch} ${commit} @${commit_author})"
-
   ## 设置setenv.sh中的变量，比如app_name、app_version、app_home
-  buildTime=$(date "+%Y-%m-%d %H:%M:%S")
-  sed -i 's#export build_time=.*#export build_time="'"$buildTime"'"#' bin/setenv.sh
+  build_time=$(date "+%Y-%m-%d %H:%M:%S")
+  sed -i 's#export app_home=.*#export app_home="'"$app_home"'"#' bin/setenv.sh
   sed -i 's#export app_name=.*#export app_name="'"$app_name"'"#' bin/setenv.sh
   sed -i 's#export app_version=.*#export app_version="'"$app_version"'"#' bin/setenv.sh
-  sed -i 's#export app_home=.*#export app_home="'"$app_home"'"#' bin/setenv.sh
-  sed -i 's#export code_version=.*#export code_version="'"$codeVersion"'"#' bin/setenv.sh
+  sed -i 's#export build_time=.*#export build_time="'"$build_time"'"#' bin/setenv.sh
 
-  ## 尝试将信息写入META-INF/info.yml（如果存在的话），打到jar里面
-  if [ -f classes/META-INF/info.yml ];then
-      ## info.application
-      replace classes/META-INF/info.yml name "$app_name" 1
-      replace classes/META-INF/info.yml version "$app_version" 1
-      replace classes/META-INF/info.yml build "$buildTime" 1
-      ## info.commit
-      replace classes/META-INF/info.yml version \""$codeVersion"\" 2
-      replace classes/META-INF/info.yml Msg \""$commit_msg"\" 1
-      replace classes/META-INF/info.yml Time "$commit_time" 1
-      replace classes/META-INF/info.yml Author "$commit_author" 1
-      ## spring.application.name
-      replace classes/META-INF/info.yml name "$app_name" 2
+  ## 尝试改下META-INF/git.info
+  if [ -f classes/META-INF/git.info ];then
+      sed -i "1 s/{/{\n    \"build.time\": \"$build_time\",/" classes/META-INF/git.info
+      sed -i "1 s/{/{\n    \"app.version\": \"$app_version\",/" classes/META-INF/git.info
+      sed -i "1 s/{/{\n    \"app.name\": \"$app_name\",/" classes/META-INF/git.info
+      ## 获取代码版本信息
+      commit=$(git log -n 1 --pretty=oneline | awk '{print $1}')
+      branch=$(git name-rev --name-only HEAD)
+      code_version="$branch $commit"
+      sed -i 's#export code_version=.*#export code_version="'"$code_version"'"#' bin/setenv.sh
+  else
+cat <<EOF > classes/META-INF/git.info
+{
+    "app.name": "$app_home",
+    "app.version": "$app_version",
+    "build.time": "$build_time"
+}
+EOF
   fi
 }
 

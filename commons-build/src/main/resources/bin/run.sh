@@ -47,7 +47,6 @@ status(){
 
 up(){
     [[ $pwd = $app_home* ]] || { LogError "[run.sh up] can only run in $app_name home: $app_home"; exit 1; }
-    echo "$app_name $app_version($code_version) Copyright ©$build_time Cowave All Rights Reserved"
 
     java -version 2>&1 || { LogError "java not found"; exit 1; }
     s_time=$(date "+%Y-%m-%d %H:%M:%S")
@@ -72,7 +71,6 @@ up(){
 start(){
     [[ $pwd = $app_home* ]] || { LogError "[run.sh start] can only run in $app_name home: $app_home"; exit 1; }
     mkdir -p "$app_home/log"
-    echo "$app_name $app_version($code_version) Copyright ©$build_time Cowave All Rights Reserved" | tee -a "$app_home/log/boot.log"
 
     [ -n "${java_commond}" ] || { LogError "java not found"; exit 1; }
     echo "[Effective java]: $java_commond" | tee -a "$app_home/log/boot.log"
