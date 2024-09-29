@@ -9,6 +9,8 @@
 package com.cowave.commons.framework.support.redis.redisson;
 
 import com.cowave.commons.framework.support.redis.connection.*;
+import com.cowave.commons.framework.support.redis.redisson.lock.RedissonLockAspect;
+import com.cowave.commons.framework.support.redis.redisson.lock.RedissonLockHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
@@ -91,5 +93,17 @@ public class RedissonAutoConfiguration {
     @Bean
     public RedissonRxClient publicredissonRxJava(@Qualifier("commonRedissonClient") RedissonClient redissonClient) {
         return redissonClient.rxJava();
+    }
+
+    @ConditionalOnBean(RedissonClient.class)
+    @Bean
+    public RedissonLockHelper redissonLockHelper(RedissonClient redissonClient){
+        return new RedissonLockHelper(redissonClient);
+    }
+
+    @ConditionalOnBean(RedissonLockHelper.class)
+    @Bean
+    public RedissonLockAspect redissonLockAspect(RedissonLockHelper redissonLockHelper){
+        return new RedissonLockAspect(redissonLockHelper);
     }
 }
