@@ -8,6 +8,7 @@
  */
 package com.cowave.commons.framework.filter.access;
 
+import com.cowave.commons.framework.configuration.AccessConfiguration;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,7 @@ import javax.annotation.Nullable;
 @Data
 @RequiredArgsConstructor
 @Configuration
-@ConfigurationProperties("spring.application.filter-access")
+@ConfigurationProperties("spring.access.filter")
 public class AccessFilterConfiguration {
 
     private String[] patterns = {"/*"};
@@ -41,9 +42,9 @@ public class AccessFilterConfiguration {
     }
 
     @Bean
-    public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator){
+    public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator, AccessConfiguration accessConfiguration){
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator));
+        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessConfiguration.isAlwaysSuccess()));
         registration.setName("accessFilter");
         registration.addUrlPatterns(patterns);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);

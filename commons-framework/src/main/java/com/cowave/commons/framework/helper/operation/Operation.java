@@ -47,7 +47,7 @@ public @interface Operation {
     /**
      * 详情处理
      */
-    Class<? extends OperationHandler> contentHandler() default EmptyOperationHandler.class;
+    Class<? extends OperationParser> contentHandler() default EmptyOperationParser.class;
 
     enum Content {
 

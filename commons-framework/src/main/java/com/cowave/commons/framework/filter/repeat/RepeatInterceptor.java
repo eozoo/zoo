@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.feign.codec.Response;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -50,8 +49,7 @@ public class RepeatInterceptor implements HandlerInterceptor {
 
     private final RedisHelper redisHelper;
 
-    @Value("${spring.application.response-always-success:false}")
-    private boolean responseAlwaysSuccess;
+    private final boolean isAlwaysSuccess;
 
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse httpResponse, @NotNull Object handler) throws IOException {
@@ -60,7 +58,7 @@ public class RepeatInterceptor implements HandlerInterceptor {
             Repeat repeat = method.getAnnotation(Repeat.class);
             if (repeat != null && this.isRepeatSubmit(request, repeat)) {
                 int httpStatus = TOO_MANY_REQUESTS.getStatus();
-                if(responseAlwaysSuccess){
+                if(isAlwaysSuccess){
                     httpStatus = SUCCESS.getStatus();
                 }
                 httpResponse.setStatus(httpStatus);

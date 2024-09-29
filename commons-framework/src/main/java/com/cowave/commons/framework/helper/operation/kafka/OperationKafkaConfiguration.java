@@ -8,8 +8,9 @@
  */
 package com.cowave.commons.framework.helper.operation.kafka;
 
-import com.cowave.commons.framework.helper.operation.OperationAccepter;
-import com.cowave.commons.framework.helper.operation.OperationAccepterConfiguration;
+import com.cowave.commons.framework.configuration.AccessConfiguration;
+import com.cowave.commons.framework.helper.operation.OperationHandler;
+import com.cowave.commons.framework.helper.operation.OperationParser;
 import com.cowave.commons.framework.helper.operation.OperationLog;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -27,11 +28,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 @Configuration(proxyBeanMethods = false)
 public class OperationKafkaConfiguration {
 
-    @ConditionalOnProperty(name = "spring.application.oplog.kafka-enable", matchIfMissing = true)
-    @ConditionalOnMissingBean(OperationAccepter.class)
+    @ConditionalOnProperty(name = "spring.access.oplog.kafka-enable", matchIfMissing = true)
+    @ConditionalOnMissingBean(OperationParser.class)
     @Bean
-    public OperationAccepter<? super OperationLog> operationService(
-            KafkaTemplate<String, Object> kafkaTemplate, OperationAccepterConfiguration accepterConfiguration){
-        return new OperationKafkaAccepter<>(kafkaTemplate, accepterConfiguration);
+    public OperationHandler<? super OperationLog> operationService(
+            KafkaTemplate<String, Object> kafkaTemplate, AccessConfiguration accessConfiguration){
+        return new OperationKafkaHandler<>(kafkaTemplate, accessConfiguration.getOplog());
     }
 }

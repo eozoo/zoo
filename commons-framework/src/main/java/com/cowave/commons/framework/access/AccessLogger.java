@@ -13,8 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cowave.commons.framework.filter.access.AccessIdGenerator;
+import com.cowave.commons.framework.filter.access.AccessRequestWrapper;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,7 +32,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -50,36 +57,82 @@ public class AccessLogger {
 	@Nullable
 	private final AccessUserParser accessUserParser;
 
-	@Pointcut("execution(public * *..*Controller.*(..)) "
-			+ "&& !execution(public * org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.*(..)) ")
-	public void point() {
+	@Pointcut("execution(public * com.cowave..*.*(..)) " +
+			"&& (@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.DeleteMapping))")
+	public void request() {
 
 	}
 
-	@Before("point()")
+	@Before("request()")
 	public void logRequest(JoinPoint point) {
 		Access access = Access.get();
-		// 请求有可能不经过AccessFilter
 		if(access == null){
+			// 请求没有经过AccessFilter
+			MethodSignature signature = (MethodSignature)point.getSignature();
+			String[] paramNames = signature.getParameterNames();
+			Object[] args = point.getArgs();
+			Map<String, Object> map = new HashMap<>();
+			if(paramNames != null) {
+				for (int i = 0; i < args.length; i++) {
+					if (args[i] == null) {
+						map.put(paramNames[i], null);
+					} else {
+						Class<?> clazz = args[i].getClass();
+						if (MultipartFile.class.isAssignableFrom(clazz) || MultipartFile[].class.isAssignableFrom(clazz)
+								|| HttpServletRequest.class.isAssignableFrom(clazz) || HttpServletResponse.class.isAssignableFrom(clazz)
+								|| BeanPropertyBindingResult.class.isAssignableFrom(clazz)
+								|| ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)) {
+							continue;
+						}
+
+						if (accessUserParser != null) {
+							accessUserParser.parse(clazz, args[i]);
+						}
+						map.put(paramNames[i], args[i]);
+					}
+				}
+			}
+
 			HttpServletRequest httpServletRequest = Access.httpRequest();
 			assert httpServletRequest != null;
 			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
 			String accessUrl = httpServletRequest.getRequestURI();
-			Access.set(new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis()));
-		}else if (accessUserParser != null) {
-			MethodSignature signature = (MethodSignature)point.getSignature();
-			String[] paramNames = signature.getParameterNames();
-			if(paramNames != null) {
-				for (Object arg : point.getArgs()) {
-					if (arg != null) {
-						accessUserParser.parse(arg.getClass(), arg);
+			String httpMethod = httpServletRequest.getMethod();
+			String contentType = httpServletRequest.getContentType();
+			access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
+			access.setRequestParam(map);
+			Access.set(access);
+
+			StringBuilder builder = new StringBuilder();
+			builder.append(">> ").append(httpMethod).append(" ").append(accessUrl).append(" [").append(accessIp);
+			if(StringUtils.isNotBlank(contentType)){
+				builder.append(" ").append(contentType).append("]");
+			}else{
+				builder.append("]");
+			}
+			builder.append(" args=").append(JSON.toJSONString(map, new AccessRequestWrapper.PasswordFilter()));
+			LOGGER.info(builder.toString());
+		}else{
+			// 请求经过AccessFilter
+			if (accessUserParser != null) {
+				MethodSignature signature = (MethodSignature) point.getSignature();
+				String[] paramNames = signature.getParameterNames();
+				if (paramNames != null) {
+					for (Object arg : point.getArgs()) {
+						if (arg != null) {
+							accessUserParser.parse(arg.getClass(), arg);
+						}
 					}
 				}
 			}
 		}
 	}
 
-	@AfterReturning(returning = "resp", pointcut = "point()")
+	@AfterReturning(pointcut = "request()", returning = "resp")
 	public void logResponse(Object resp) {
 		HttpServletResponse servletResponse = Access.httpResponse();
 		if(servletResponse == null){

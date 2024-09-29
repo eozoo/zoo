@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.feign.codec.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,8 +43,7 @@ public class AccessFilter implements Filter {
 
     private final AccessIdGenerator accessIdGenerator;
 
-    @Value("${spring.application.response-always-success:false}")
-    private boolean responseAlwaysSuccess;
+    private final boolean isAlwaysSuccess;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -72,7 +70,7 @@ public class AccessFilter implements Filter {
             accessRequestWrapper.recordAccessParams();
         }catch (HttpMessageConversionException e){
             int httpStatus = BAD_REQUEST.getStatus();
-            if(responseAlwaysSuccess){
+            if(isAlwaysSuccess){
                 httpStatus = SUCCESS.getStatus();
             }
             HttpServletResponse httpResponse = (HttpServletResponse)response;

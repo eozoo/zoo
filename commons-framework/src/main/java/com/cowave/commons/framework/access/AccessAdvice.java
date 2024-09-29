@@ -8,6 +8,7 @@
  */
 package com.cowave.commons.framework.access;
 
+import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.framework.helper.alarm.AccessAlarmFactory;
 import com.cowave.commons.framework.helper.alarm.Alarm;
@@ -16,7 +17,6 @@ import com.cowave.commons.tools.AssertsException;
 import com.cowave.commons.tools.DateUtils;
 import com.cowave.commons.tools.HttpException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -69,14 +69,13 @@ public class AccessAdvice {
 
     private final ThreadPoolExecutor applicationExecutor;
 
-    @Nullable
-    private final AccessAlarmFactory<? extends Alarm> accessAlarmFactory;
+    private final AccessConfiguration accessConfiguration;
 
     @Nullable
     private final AlarmHandler alarmHandler;
 
-    @Value("${spring.application.response-always-success:false}")
-    private boolean responseAlwaysSuccess;
+    @Nullable
+    private final AccessAlarmFactory<? extends Alarm> accessAlarmFactory;
 
     /**
      * 参数转换
@@ -190,7 +189,7 @@ public class AccessAdvice {
             response.setCause(List.of(e.getMessage()));
         }
         // HttpResponse
-        if(responseAlwaysSuccess){
+        if(accessConfiguration.isAlwaysSuccess()){
             httpStatus = SUCCESS.getStatus();
         }
         HttpResponse<Response<Void>> httpResponse = new HttpResponse<>(httpStatus, null, response);

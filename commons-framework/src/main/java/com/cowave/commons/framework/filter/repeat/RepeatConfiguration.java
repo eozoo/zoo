@@ -8,6 +8,7 @@
  */
 package com.cowave.commons.framework.filter.repeat;
 
+import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.framework.support.redis.RedisAutoConfiguration;
 import com.cowave.commons.framework.support.redis.RedisHelper;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -27,8 +28,8 @@ public class RepeatConfiguration {
 
     @ConditionalOnBean(RedisHelper.class)
     @Bean
-    public RepeatInterceptor sameUrlDataInterceptorAbstract(RedisHelper redisHelper){
-        return new RepeatInterceptor(redisHelper);
+    public RepeatInterceptor sameUrlDataInterceptorAbstract(RedisHelper redisHelper, AccessConfiguration accessConfiguration){
+        return new RepeatInterceptor(redisHelper, accessConfiguration.isAlwaysSuccess());
     }
 
     @ConditionalOnBean(RepeatInterceptor.class)

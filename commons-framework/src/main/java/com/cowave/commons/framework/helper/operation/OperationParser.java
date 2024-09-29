@@ -8,15 +8,19 @@
  */
 package com.cowave.commons.framework.helper.operation;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+
 /**
  *
  * @author shanhuiming
  *
  */
-public interface OperationAccepter<T extends OperationLog> {
+public interface OperationParser {
 
-	/**
-	 * 接收操作日志
-	 */
-	void accept(T log);
+	void parseRequestContent(Method method, Map<String, Object> args, OperationLog log);
+
+	void parseResponseContent(Method method, Object resp, OperationLog log);
+
+	void parseExceptionContent(Method method, Exception e, OperationLog log);
 }

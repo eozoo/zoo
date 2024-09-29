@@ -54,7 +54,7 @@ public class OperationAspect implements ApplicationContextAware {
 	private static final ThreadLocal<OperationLog> OPERATION = new ThreadLocal<>();
 
 	@Nullable
-	private final OperationAccepter operationAccepter;
+	private final OperationHandler operationHandler;
 
 	private ApplicationContext applicationContext;
 
@@ -66,13 +66,13 @@ public class OperationAspect implements ApplicationContextAware {
 	}
 
 	@Pointcut("@annotation(com.cowave.commons.framework.helper.operation.Operation)")
-	public void operation() {
+	public void oplog() {
 
 	}
 
-	@Before("operation() && @annotation(operation)")
+	@Before("oplog() && @annotation(operation)")
 	public void doBefore(JoinPoint joinPoint, Operation operation) {
-		if(operationAccepter == null) {
+		if(operationHandler == null) {
 			return;
 		}
 
@@ -113,17 +113,17 @@ public class OperationAspect implements ApplicationContextAware {
 			}
 		}
 
-		Class<? extends OperationHandler> handlerClass =  operation.contentHandler();
-		if(!EmptyOperationHandler.class.isAssignableFrom(handlerClass)) {
-			OperationHandler operationHandler = applicationContext.getBean(handlerClass);
-			operationHandler.pareseRequestContent(signature.getMethod(), map, oplog);
+		Class<? extends OperationParser> handlerClass =  operation.contentHandler();
+		if(!EmptyOperationParser.class.isAssignableFrom(handlerClass)) {
+			OperationParser operationHandler = applicationContext.getBean(handlerClass);
+			operationHandler.parseRequestContent(signature.getMethod(), map, oplog);
 		}
 		OPERATION.set(oplog);
 	}
 
-	@AfterReturning(pointcut = "operation() && @annotation(oper)", returning = "resp")
+	@AfterReturning(pointcut = "oplog() && @annotation(oper)", returning = "resp")
 	public void doAfter(JoinPoint joinPoint, Operation oper, Object resp) {
-		if(operationAccepter == null) {
+		if(operationHandler == null) {
 			return;
 		}
 
@@ -137,41 +137,41 @@ public class OperationAspect implements ApplicationContextAware {
 			operationLog.putContent("resp", operationLog.getResponse());
 		}
 
-		Class<? extends OperationHandler> handlerClass = oper.contentHandler();
-		if(!EmptyOperationHandler.class.isAssignableFrom(handlerClass)) {
+		Class<? extends OperationParser> handlerClass = oper.contentHandler();
+		if(!EmptyOperationParser.class.isAssignableFrom(handlerClass)) {
 			MethodSignature signature = (MethodSignature)joinPoint.getSignature();
-			OperationHandler operationHandler = applicationContext.getBean(handlerClass);
-			operationHandler.pareseResponseContent(signature.getMethod(), resp, operationLog);
+			OperationParser operationHandler = applicationContext.getBean(handlerClass);
+			operationHandler.parseResponseContent(signature.getMethod(), resp, operationLog);
 		}
 
 		if(operationLog.isAsync()){
-			applicationExecutor.execute(() -> operationAccepter.accept(operationLog));
+			applicationExecutor.execute(() -> operationHandler.handle(operationLog));
 		}else{
-			operationAccepter.accept(operationLog);
+			operationHandler.handle(operationLog);
 		}
 	}
 
-	@AfterThrowing(pointcut = "operation() && @annotation(oper)", throwing = "e")
-	public void doThrow(JoinPoint joinPoint, Operation oper, Exception e) {
-		if(operationAccepter == null) {
+	@AfterThrowing(pointcut = "oplog() && @annotation(operation)", throwing = "e")
+	public void doThrow(JoinPoint joinPoint, Operation operation, Exception e) {
+		if(operationHandler == null) {
 			return;
 		}
 
 		OperationLog operationLog = OPERATION.get();
 		OPERATION.remove();
 		operationLog.setLogStatus(OperationLog.FAIL);
-		operationLog.setLogDesc(parseDesc(joinPoint, oper, null));
-		Class<? extends OperationHandler> handlerClass =  oper.contentHandler();
-		if(!EmptyOperationHandler.class.isAssignableFrom(handlerClass)) {
+		operationLog.setLogDesc(parseDesc(joinPoint, operation, null));
+		Class<? extends OperationParser> handlerClass =  operation.contentHandler();
+		if(!EmptyOperationParser.class.isAssignableFrom(handlerClass)) {
 			MethodSignature signature = (MethodSignature)joinPoint.getSignature();
-			OperationHandler operationHandler = applicationContext.getBean(handlerClass);
-			operationHandler.pareseExceptionContent(signature.getMethod(), e, operationLog);
+			OperationParser operationHandler = applicationContext.getBean(handlerClass);
+			operationHandler.parseExceptionContent(signature.getMethod(), e, operationLog);
 		}
 
 		if(operationLog.isAsync()){
-			applicationExecutor.execute(() -> operationAccepter.accept(operationLog));
+			applicationExecutor.execute(() -> operationHandler.handle(operationLog));
 		}else{
-			operationAccepter.accept(operationLog);
+			operationHandler.handle(operationLog);
 		}
 	}
 

@@ -216,7 +216,7 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
         return "";
     }
 
-    private static class PasswordFilter implements PropertyFilter {
+    public static class PasswordFilter implements PropertyFilter {
         @Override
         public boolean apply(Object object, String name, Object value) {
             return !"password".equalsIgnoreCase(name) && !"passwd".equalsIgnoreCase(name);

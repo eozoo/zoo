@@ -21,10 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
+import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.framework.support.redis.RedisHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.feign.codec.Response;
 import org.springframework.feign.codec.ResponseCode;
@@ -68,13 +68,10 @@ public class TokenService {
     private static final String CLAIM_CLUSTER_LEVEL = "Cluster.level";
     private static final String CLAIM_CLUSTER_NAME = "Cluster.name";
 
-    private final TokenConfiguration configuration;
+    private final AccessConfiguration accessConfiguration;
 
     @Nullable
     private final RedisHelper redis;
-
-    @Value("${spring.application.response-always-success:false}")
-    private boolean responseAlwaysSuccess;
 
     /**
      * 赋值Token
@@ -95,8 +92,8 @@ public class TokenService {
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
                 .claim(CLAIM_TYPE,          token.getType())
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
-                .setExpiration(new Date(System.currentTimeMillis() + configuration.getAccessExpire() * 1000L))
+                .signWith(SignatureAlgorithm.HS512, accessConfiguration.getToken().getSalt())
+                .setExpiration(new Date(System.currentTimeMillis() + accessConfiguration.getToken().getAccessExpire() * 1000L))
                 .compact();
         token.setAccessToken(accessToken);
 
@@ -105,13 +102,13 @@ public class TokenService {
                 .claim(CLAIM_TYPE,       token.getType())
                 .claim(CLAIM_USER_ACCOUNT,  token.getUsername())
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
+                .signWith(SignatureAlgorithm.HS512, accessConfiguration.getToken().getSalt())
                 .compact();
         token.setRefreshToken(refreshToken);
 
         assert redis != null;
         String key = AccessToken.KEY + token.getType() + ":" + token.getUsername();
-        redis.putExpireValue(key, token, configuration.getRefreshExpire(), TimeUnit.SECONDS);
+        redis.putExpireValue(key, token, accessConfiguration.getToken().getRefreshExpire(), TimeUnit.SECONDS);
 
         Access access = Access.get();
         if(access != null){
@@ -125,7 +122,7 @@ public class TokenService {
     public void refreshToken(HttpServletResponse response, String refreshToken) throws Exception {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(refreshToken).getBody();
+            claims = Jwts.parser().setSigningKey(accessConfiguration.getToken().getSalt()).parseClaimsJws(refreshToken).getBody();
         } catch(Exception e) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
             return;
@@ -140,7 +137,7 @@ public class TokenService {
         }
         // 比对id，判断Token是否已经被刷新过
         String tokenId = (String)claims.get(CLAIM_ID);
-        if(configuration.isConflict() && !tokenId.equals(accessToken.getId())) {
+        if(accessConfiguration.getToken().isConflict() && !tokenId.equals(accessToken.getId())) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.conflict");
             return;
         }
@@ -165,7 +162,7 @@ public class TokenService {
     }
 
     public String getJwt(HttpServletRequest request) {
-        String jwt = request.getHeader(configuration.getHeader());
+        String jwt = request.getHeader(accessConfiguration.getToken().getHeader());
         if(StringUtils.isEmpty(jwt)) {
             return null;
         }
@@ -179,7 +176,7 @@ public class TokenService {
     public AccessToken parseJwt(String jwt) {
         Claims claims;
         try {
-            claims =  Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(jwt).getBody();
+            claims =  Jwts.parser().setSigningKey(accessConfiguration.getToken().getSalt()).parseClaimsJws(jwt).getBody();
         }catch(ExpiredJwtException e) {
             return new AccessToken(ResponseCode.TOKEN_INVALID_OR_EXPIRED.getCode(), Messages.msg("frame.auth.expired"));
         }catch(Exception e) {
@@ -188,7 +185,7 @@ public class TokenService {
 
         // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
-        if(configuration.isConflict() && !Objects.equals(Access.accessIp(), userIp)) {
+        if(accessConfiguration.getToken().isConflict() && !Objects.equals(Access.accessIp(), userIp)) {
             return new AccessToken(ResponseCode.TOKEN_INVALID_OR_EXPIRED.getCode(), Messages.msg("frame.auth.ipchanged"));
         }
 
@@ -238,7 +235,7 @@ public class TokenService {
     public void deleteToken(HttpServletResponse response, String accessToken) throws IOException {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(accessToken).getBody();
+            claims = Jwts.parser().setSigningKey(accessConfiguration.getToken().getSalt()).parseClaimsJws(accessToken).getBody();
         }catch(ExpiredJwtException e) {
             claims = e.getClaims();
         }catch(Exception e) {
@@ -263,7 +260,7 @@ public class TokenService {
             accessToken = accessToken.replace("Bearer ", "");
         }
         try {
-            Jwts.parser().setSigningKey(configuration.getSalt()).parseClaimsJws(accessToken).getBody();
+            Jwts.parser().setSigningKey(accessConfiguration.getToken().getSalt()).parseClaimsJws(accessToken).getBody();
         }catch(Exception e) {
             return false;
         }
@@ -288,14 +285,14 @@ public class TokenService {
                 .claim(CLAIM_USER_ROLE,     token.getRoles())
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, configuration.getSalt())
+                .signWith(SignatureAlgorithm.HS512, accessConfiguration.getToken().getSalt())
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
                 .compact();
     }
 
     private void writeResponse(HttpServletResponse response, ResponseCode responseCode, String messageKey) throws IOException {
         int httpStatus = responseCode.getStatus();
-        if(responseAlwaysSuccess){
+        if(accessConfiguration.isAlwaysSuccess()){
             httpStatus = SUCCESS.getStatus();
         }
         response.setStatus(httpStatus);
