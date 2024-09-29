@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.ClientResourcesBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
@@ -42,6 +43,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @EnableConfigurationProperties({RedisProperties.class})
 public class LettuceAutoConfiguration {
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean(destroyMethod = "shutdown")
     public DefaultClientResources clientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
@@ -50,6 +52,7 @@ public class LettuceAutoConfiguration {
         return builder.build();
     }
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public LettuceRedisConnectionConfiguration redisConnectionConfiguration(RedisProperties redisProperties,
@@ -58,6 +61,7 @@ public class LettuceAutoConfiguration {
         return new LettuceRedisConnectionConfiguration(redisProperties, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(

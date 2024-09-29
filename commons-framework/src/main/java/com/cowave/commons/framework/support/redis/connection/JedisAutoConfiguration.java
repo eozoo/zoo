@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.JedisClientConfigurationBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -41,6 +42,7 @@ import redis.clients.jedis.Jedis;
 @EnableConfigurationProperties({RedisProperties.class})
 public class JedisAutoConfiguration {
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public JedisRedisConnectionConfiguration redisConnectionConfiguration(RedisProperties redisProperties,
@@ -49,6 +51,7 @@ public class JedisAutoConfiguration {
         return new JedisRedisConnectionConfiguration(redisProperties, sentinelConfiguration, clusterConfiguration);
     }
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public JedisConnectionFactory redisConnectionFactory(

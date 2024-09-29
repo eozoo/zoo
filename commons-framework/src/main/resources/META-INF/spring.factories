@@ -1,5 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.cowave.commons.framework.configuration.ApplicationConfiguration,\
+com.cowave.commons.framework.configuration.I18nConfiguration,\
 com.cowave.commons.framework.support.datasource.DynamicDataSourceConfiguration,\
 com.cowave.commons.framework.support.datasource.druid.DruidDynamicDataSourceConfiguration,\
 com.cowave.commons.framework.support.redis.connection.LettuceAutoConfiguration,\

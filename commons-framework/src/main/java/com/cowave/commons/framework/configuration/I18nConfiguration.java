@@ -10,9 +10,10 @@ package com.cowave.commons.framework.configuration;
 
 import org.hibernate.validator.HibernateValidator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
  * @author shanhuiming
  *
  */
-@Configuration
+@AutoConfigureBefore({MessageSourceAutoConfiguration.class})
 public class I18nConfiguration {
 
     private static final String FRAMEWORK_MESSAGES = "META-INF/i18n/messages-frame";

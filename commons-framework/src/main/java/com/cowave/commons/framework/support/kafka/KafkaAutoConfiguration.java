@@ -13,6 +13,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.kafka.DefaultKafkaProducerFactoryCustomizer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,6 +40,7 @@ import org.springframework.kafka.support.converter.RecordMessageConverter;
 @EnableConfigurationProperties({KafkaProperties.class})
 public class KafkaAutoConfiguration {
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> kafkaListenerContainerFactory(KafkaProperties kafkaProperties) {
@@ -49,6 +51,7 @@ public class KafkaAutoConfiguration {
         return factory;
     }
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public ProducerFactory<?, ?> producerFactory(KafkaProperties kafkaProperties, ObjectProvider<DefaultKafkaProducerFactoryCustomizer> customizers) {
@@ -62,6 +65,7 @@ public class KafkaAutoConfiguration {
         return factory;
     }
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public KafkaTemplate<?, ?> kafkaTemplate(KafkaProperties kafkaProperties, ProducerFactory<Object, Object> kafkaProducerFactory,
@@ -75,6 +79,7 @@ public class KafkaAutoConfiguration {
         return kafkaTemplate;
     }
 
+    @ConditionalOnMissingBean
     @Primary
     @Bean
     public KafkaAdmin kafkaAdmin(KafkaProperties kafkaProperties) {
