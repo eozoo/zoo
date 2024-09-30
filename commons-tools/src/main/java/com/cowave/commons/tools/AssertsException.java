@@ -19,7 +19,7 @@ public class AssertsException extends RuntimeException {
         super(Messages.translateIfNeed(message, args));
     }
 
-    public AssertsException(String message, Throwable cause, Object... args) {
+    public AssertsException(Throwable cause, String message, Object... args) {
         super(Messages.translateIfNeed(message, args), cause);
     }
 }
