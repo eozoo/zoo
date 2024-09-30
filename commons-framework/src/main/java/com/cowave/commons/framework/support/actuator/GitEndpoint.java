@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -34,7 +35,7 @@ import java.util.TreeMap;
 public class GitEndpoint {
 
     @ReadOperation
-    public TreeMap<String, Object> info() throws IOException {
+    public SortedMap<String, Object> info() throws IOException {
         Resource resource = new DefaultResourceLoader().getResource("classpath:META-INF/git.info");
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {
