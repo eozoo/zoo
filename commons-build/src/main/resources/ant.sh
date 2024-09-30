@@ -28,16 +28,26 @@ prepare_build(){
 
   ## 获取app_name和app_version（优先取env.properties，没有则从pom.xml获取），然后写到setenv.sh中
   line_app_name=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_name)
-  line_app_version=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_version)
-  line_app_home=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_home)
   app_name=$(echo "$line_app_name" | awk -F '=' '{ key=$1; sub(/^[ \t]+/, "", key); sub(/[ \t]+$/, "", key); value=substr($0,length(key)+2); print value}')
   if [ -z "$app_name" ]; then
-      app_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+      app_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
+      if [ -z "$app_name" ]; then
+          app_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='artifactId']/text()" ../pom.xml)
+      fi
+      ## app_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   fi
+
+  line_app_version=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_version)
   app_version=$(echo "$line_app_version" | awk -F '=' '{ key=$1; sub(/^[ \t]+/, "", key); sub(/[ \t]+$/, "", key); value=substr($0,length(key)+2); print value}')
   if [ -z "$app_version" ]; then
-      app_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+      app_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ../pom.xml)
+      if [ -z "$app_version" ]; then
+          app_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
+      fi
+      ## app_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   fi
+
+  line_app_home=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_home)
   app_home=$(echo "$line_app_home" | awk -F '=' '{ key=$1; sub(/^[ \t]+/, "", key); sub(/[ \t]+$/, "", key); value=substr($0,length(key)+2); print value}')
   if [ -z "$app_home" ]; then
       app_home="/opt/cowave/$app_name"
@@ -77,8 +87,16 @@ tar_build(){
   ## /lib
   mkdir -p "$app_source"/lib
   ## 拷贝jar包
-  jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
-  jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
+  if [ -z "$jar_name" ]; then
+      jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='artifactId']/text()" ../pom.xml)
+  fi
+  jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ../pom.xml)
+  if [ -z "$jar_version" ]; then
+      jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
+  fi
   ## 如果使用了classfinal加密，重新命名下
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
       cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
@@ -108,8 +126,16 @@ docker_build(){
   ## /lib
   mkdir -p "$app_source"/lib
   ## 拷贝jar包
-  jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
-  jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
+  if [ -z "$jar_name" ]; then
+      jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='artifactId']/text()" ../pom.xml)
+  fi
+  jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ../pom.xml)
+  if [ -z "$jar_version" ]; then
+      jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
+  fi
   ## 如果使用了classfinal加密，重新命名下
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
       cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
@@ -139,8 +165,16 @@ deb_build(){
   ## /lib
   mkdir -p "$app_source"/lib
   ## 拷贝jar包
-  jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
-  jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
+  if [ -z "$jar_name" ]; then
+      jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='artifactId']/text()" ../pom.xml)
+  fi
+  jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ../pom.xml)
+  if [ -z "$jar_version" ]; then
+      jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
+  fi
   ## 如果使用了classfinal加密，重新命名下
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
       cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
