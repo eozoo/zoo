@@ -12,7 +12,6 @@ import com.cowave.commons.framework.configuration.AccessConfiguration;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,12 +25,9 @@ import javax.annotation.Nullable;
  *
  */
 @Data
-@RequiredArgsConstructor
 @Configuration
-@ConfigurationProperties("spring.access.filter")
+@RequiredArgsConstructor
 public class AccessFilterConfiguration {
-
-    private String[] patterns = {"/*"};
 
     @Nullable
     private final TransactionIdSetter transactionIdSetter;
@@ -46,7 +42,7 @@ public class AccessFilterConfiguration {
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessConfiguration.isAlwaysSuccess()));
         registration.setName("accessFilter");
-        registration.addUrlPatterns(patterns);
+        registration.addUrlPatterns(accessConfiguration.getPatterns());
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return registration;
     }
