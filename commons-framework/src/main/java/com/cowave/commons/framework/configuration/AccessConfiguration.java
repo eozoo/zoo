@@ -50,6 +50,75 @@ public class AccessConfiguration {
      */
     private AlarmConfig alarm;
 
+    public String tokenHeader(){
+        if(token != null){
+            return token.header;
+        }
+        return "Authorization";
+    }
+
+    public String tokenSalt(){
+        if(token != null){
+            return token.salt;
+        }
+        return "admin@cowave.com";
+    }
+    public boolean tokenConflict(){
+        if(token != null){
+            return token.conflict;
+        }
+        return false;
+    }
+
+    public int tokenAccessExpire(){
+        if(token != null){
+            return token.accessExpire;
+        }
+        return 3600;
+    }
+
+    public int tokenRefreshExpire(){
+        if(token != null){
+            return token.refreshExpire;
+        }
+        return 3600 * 24 * 7;
+    }
+
+    public List<String> tokenIgnoreUrls(){
+        if(token != null){
+            return token.ignoreUrls;
+        }
+        return new ArrayList<>();
+    }
+
+    public boolean alarmKafkaEnable(){
+        if(alarm != null){
+            return alarm.kafkaEnable;
+        }
+        return true;
+    }
+
+    public String alarmKafkaTopic(){
+        if(alarm != null){
+            return alarm.kafkaTopic;
+        }
+        return "access-alarm";
+    }
+
+    public boolean oplogKafkaEnable(){
+        if(oplog != null){
+            return oplog.kafkaEnable;
+        }
+        return true;
+    }
+
+    public String oplogKafkaTopic(){
+        if(oplog != null){
+            return oplog.kafkaTopic;
+        }
+        return "access-alarm";
+    }
+
     @Data
     public static class TokenConfig {
 

@@ -33,6 +33,6 @@ public class OperationKafkaConfiguration {
     @Bean
     public OperationHandler<? super OperationLog> operationService(
             KafkaTemplate<String, Object> kafkaTemplate, AccessConfiguration accessConfiguration){
-        return new OperationKafkaHandler<>(kafkaTemplate, accessConfiguration.getOplog());
+        return new OperationKafkaHandler<>(kafkaTemplate, accessConfiguration.oplogKafkaTopic());
     }
 }

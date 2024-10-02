@@ -42,14 +42,20 @@ public class CowaveBranner implements Banner {
                 String buildTime = (String) json.get("build.time");
                 String gitId = (String) json.get("git.commit.id");
                 String gitBranch = (String) json.get("git.branch");
-                if(StringUtils.isBlank(gitBranch)){
-                    info = appName + " " + appVersion + " build("+ buildTime + ")" + " " + info;
+                if(StringUtils.isBlank(appName)){
+                    if(StringUtils.isBlank(gitBranch)){
+                        info = appName + " " + appVersion + " build("+ buildTime + ")" + " " + info;
+                    }else{
+                        info = appName + " " + appVersion + " build("+ buildTime + " " + gitBranch + " " + gitId + ")" + " " + info;
+                    }
                 }else{
-                    info = appName + " " + appVersion + " build("+ buildTime + " " + gitBranch + " " + gitId + ")" + " " + info;
+                    info = "Local startup, " + info;
                 }
             }catch(Exception e){
                 log.error("", e);
             }
+        }else{
+            info = "Local startup, " + info;
         }
         out.println("  ______    ______  ____    __    ____  ___   ____    ____  _______");
         out.println(" /      |  /  __  \\ \\   \\  /  \\  /   / /   \\  \\   \\  /   / |   ____|");

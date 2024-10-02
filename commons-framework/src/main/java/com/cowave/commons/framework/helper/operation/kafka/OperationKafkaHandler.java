@@ -9,7 +9,6 @@
 package com.cowave.commons.framework.helper.operation.kafka;
 
 import com.alibaba.fastjson.JSON;
-import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.framework.helper.operation.OperationHandler;
 import com.cowave.commons.framework.helper.operation.OperationLog;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +24,10 @@ public class OperationKafkaHandler<T extends OperationLog> implements OperationH
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private final AccessConfiguration.OplogConfig oplogConfig;
+    private final String kafkaTopic;
 
     @Override
     public void handle(T log) {
-        kafkaTemplate.send(oplogConfig.getKafkaTopic(), JSON.toJSONString(log));
+        kafkaTemplate.send(kafkaTopic, JSON.toJSONString(log));
     }
 }

@@ -32,6 +32,6 @@ public class AlarmKafkaConfiguration {
     @Bean
     public AlarmHandler<? super Alarm> alarmService(
             KafkaTemplate<String, Object> kafkaTemplate, AccessConfiguration accessConfiguration){
-        return new AlarmKafkaHandler<>(kafkaTemplate, accessConfiguration.getAlarm());
+        return new AlarmKafkaHandler<>(kafkaTemplate, accessConfiguration.alarmKafkaTopic());
     }
 }

@@ -38,18 +38,20 @@ public class InfoEndpointContributor implements InfoContributor {
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {
                 JSONObject json = JSON.parseObject(IOUtils.toString(input, StandardCharsets.UTF_8));
-                Map<String, Object> application = new LinkedHashMap<>();
-                application.put("name", json.get("app.name"));
-                application.put("version", json.get("app.version"));
-                application.put("build", json.get("build.time"));
-                builder.withDetail("application", application);
-                if(json.get("git.branch") != null){
-                    Map<String, Object> commit = new LinkedHashMap<>();
-                    commit.put("commit-id", json.get("git.branch") + " " + json.get("git.commit.id.abbrev"));
-                    commit.put("commit-msg", json.get("git.commit.message.short"));
-                    commit.put("Author", json.get("git.commit.user.email"));
-                    commit.put("Time", json.get("git.commit.time"));
-                    builder.withDetail("commit", commit);
+                if(json.get("name") != null){
+                    Map<String, Object> application = new LinkedHashMap<>();
+                    application.put("name", json.get("app.name"));
+                    application.put("version", json.get("app.version"));
+                    application.put("build", json.get("build.time"));
+                    builder.withDetail("application", application);
+                    if(json.get("git.branch") != null){
+                        Map<String, Object> commit = new LinkedHashMap<>();
+                        commit.put("commit-id", json.get("git.branch") + " " + json.get("git.commit.id.abbrev"));
+                        commit.put("commit-msg", json.get("git.commit.message.short"));
+                        commit.put("Author", json.get("git.commit.user.email"));
+                        commit.put("Time", json.get("git.commit.time"));
+                        builder.withDetail("commit", commit);
+                    }
                 }
             }catch (Exception e){
                 log.error("", e);
