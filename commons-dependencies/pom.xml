@@ -210,29 +210,6 @@ Unauthorized copying of this file, via any medium is strictly prohibited.
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.2.2</version>
-				<executions>
-					<execution>
-						<id>default-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<finalName>${project.name}-${project.version}</finalName>
-							<classesDirectory>${project.build.directory}/classes</classesDirectory>
-							<excludes>
-								<exclude>config/**</exclude>
-								<exclude>smart-doc.json</exclude>
-								<exclude>**/*.java</exclude>
-							</excludes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>3.2.1</version>
 				<configuration>

@@ -16,7 +16,7 @@ package com.cowave.commons.framework.helper.alarm;
 public interface AlarmHandler<T extends Alarm> {
 
     /**
-     * 生成告警
+     * 处理告警
      */
     void handle(T alarm);
 }

@@ -49,8 +49,8 @@
       ]
     },
     "favicon": {
-      "shortcut": "images/favicon.ico",
-      "bookmark": "images/favicon.ico"
+      "shortcut": "source/favicon.ico",
+      "bookmark": "source/favicon.ico"
     }
   },
   "title": "Sample GitBook",

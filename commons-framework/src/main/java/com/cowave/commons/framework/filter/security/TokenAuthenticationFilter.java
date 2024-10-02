@@ -17,15 +17,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import com.alibaba.fastjson.JSON;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.feign.codec.HttpCode;
 import org.springframework.feign.codec.Response;
-import org.springframework.http.HttpStatus;
+import org.springframework.feign.codec.ResponseCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import static org.springframework.feign.codec.ResponseCode.SUCCESS;
 
 /**
  *
@@ -47,14 +48,19 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
 		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		if(StringUtils.isNotBlank(accessToken.getValidCode())) {
+		ResponseCode validCode = accessToken.getValidCode();
+		if(validCode != null) {
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			response.setStatus(HttpStatus.OK.value());
+			if(tokenService.isAlwaysSuccess()){
+				response.setStatus(SUCCESS.getStatus());
+			}else{
+				response.setStatus(validCode.getStatus());
+			}
 			response.getWriter().write(JSON.toJSONString(Response.code(new HttpCode() {
 						@Override
 						public String getCode() {
-							return accessToken.getValidCode();
+							return validCode.getCode();
 						}
 
 						@Override

@@ -55,16 +55,8 @@ public class Messages {
         LOCAL.remove();
     }
 
-    public static String msg(String key) {
-        return messageSource.getMessage(key, null, "not support Key: " + key, getLanguage());
-    }
-
     public static String msg(String key, Object... args) {
         return messageSource.getMessage(key, args, "not Support Key: " + key, getLanguage());
-    }
-
-    public static String msgWithDefault(String key, String defaultMessage) {
-        return messageSource.getMessage(key, null, defaultMessage, getLanguage());
     }
 
     public static String msgWithDefault(String key, String defaultMessage, Object... args) {

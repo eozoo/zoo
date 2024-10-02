@@ -1,46 +1,94 @@
+> @since 2.8.2
+
 ## 文档目的
 
-此文档主要说明下我们在开发中的一些约定，介绍下commons-framework中做了哪些工作。限于个人水平和精力，虽然已经付出了不少时间，难免还有一些不足或问题。如果有好的想法或意见，可以提出来进行改正。
+主要介绍下commons-framework中做了哪些工作，以及在开发中的一些约定；
+
+限于个人水平和精力，虽然付出了不少时间，但难免还有一些不足或问题，如有更好的想法或意见，可以提出来进行改进。
 
 
 
 ## 1. 请求处理
 
-### 1.1. 请求信息 Access
+Access对应定义了一套默认配置，具体作用会在下面分别进行说明
 
-针对Controller请求（约定Controller类命名统一以Controller结尾），我们使用Access封装了一些请求信息，并提供一套静态接口，方便在处理过程中获取，比如以下接口：
-
-```java
-Access.language();    // 国际化语言
-Access.ip();          // 请求ip
-Access.id();          // 请求id
-Access.url();         // 请求url
-Access.time();        // 请求时间
-Access.pageIndex();   // 分页参数 page
-Access.pageSize();    // 分页参数 pageSize
-Access.pageOffset();  // 分页offset
-Access.accessToken();      // AccessToken实例
-Access.token();            // JWT Token
-Access.userId();           // 用户id
-Access.userCode();         // 用户编码
-Access.userAccount();      // 用户账号
-Access.userName();         // 用户名称
-Access.isAdmin();          // 是否系统管理员
-Access.userRoles();        // 用户角色列表
-Access.userPermissions();  // 操作权限列表
-Access.deptId();           // 部门id
-Access.deptCode();         // 部门编码
-Access.deptName();         // 部门名称
-Access.clusterId();        // 集群id
-Access.clusterLevel();     // 集群等级
-Access.clusterName();      // 集群名称
+```yaml
+spring:
+  access:
+    always-success: false
+    patterns:
+      - /*
+    token:
+      header: Authorization
+      salt: admin@cowave.com
+      conflict: false
+      accessExpire: 3600
+      refreshExpire: 6400
+      ignoreUrls:
+    oplog:
+      kafka-enable: true
+      kafka-topic: access-oplog
+    alarm:
+      kafka-enable: true
+      kafka-topic: access-alarm
 ```
 
 
 
-### 1.2. 异常处理 AccessAdvice
+### 1.1. 请求信息 Access
 
-针对Controller请求，AccessAdvice会在返回时统一处理异常，根据类型分别进行不同的提示（支持国际化），默认进行如下转换：
+针对Restful请求，使用Access封装了一些请求信息，同时提供静态获取接口，方便在处理过程中获取：
+
+```java
+Access.accessId();    // 请求id
+Access.accessIp();    // 请求ip
+Access.accessUrl();   // 请求url
+Access.accessTime();  // 请求时间
+Access.page();        // mybatis-plus分页对象
+Access.pageIndex();   // 分页参数 page
+Access.pageSize();    // 分页参数 pageSize
+Access.pageOffset();  // 分页offset
+Access.accessToken(); // AccessToken实例
+Access.userId();      // 用户id
+... ...
+```
+
+
+
+### 1.2. 请求日志 AccessLogger
+
+- 请求日志
+
+请求日志会在`AccessFilter`中拦截和打印，包括请求方法，以及参数（区分body和请求行参数）等信息；
+
+默认会拦截打印所有请求，当然也可以对默认配置进行修改：
+
+```yaml
+spring:
+  access:
+    patterns:
+      - /*
+```
+
+对于`AccessFilter`没有拦截的请求，也会在Controller接口的入口处尝试拦截打印，不过打印的是方法签名中的参数；
+
+
+
+- 响应日志
+
+响应日志在Controller接口返回时打印，这里对不同日志级别做了下区分处理
+
+```tex
+debug   打印请求和响应(附带响应内容)
+info    打印请求和响应
+warn    只打印非200响应(附带请求信息)
+```
+
+
+
+### 1.3. 异常处理 AccessAdvice
+
+针对Restful请求，AccessAdvice会在返回时统一处理异常，根据类型进行不同的提示（支持国际化），默认进行如下转换：
 
 ```
 HttpRequestMethodNotSupportedException   ## 不支持的请求方法
@@ -51,158 +99,203 @@ SQLException                             ## 数据操作失败
 DuplicateKeyException                    ## 数据主键冲突
 DataAccessException                      ## 数据访问失败
 Exception                                ## 系统错误
-BindException                            ## 获取Validation注解内容
-ConstraintViolationException             ## 获取Validation注解内容
-MethodArgumentNotValidException          ## 获取Validation注解内容
-AssertsException                         ## 获取异常msg
-```
+BindException                            ## Validation注解内容
+ConstraintViolationException             ## Validation注解内容
+MethodArgumentNotValidException          ## Validation注解内容
+RemoteException                          ## 远程调用失败
 
-- AssertsException自定义提示
-
-通过抛出AssertsException可以自定义异常提示，所以如果需要定义一些自己的异常类型（一般并不需要，尽量使用已知的约定异常），并指定输出提示，请继承AssertsException。
-
-对应的为了方便，我们也提供了一套断言接口（失败抛出AssertsException），并支持国际化。
-
-```java
-Asserts.isTrue(boolean expression, String message, Object... args);
-Asserts.isFalse(boolean expression, String message, Object... args);
-Asserts.notEquals(Object a, Object b, String message, Object... args);
-Asserts.equals(Object a, Object b, String message, Object... args);
-Asserts.notBlank(@Nullable String text, String message, Object... args);
-Asserts.isBlank(@Nullable String text, String message, Object... args);
-Asserts.notNull(@Nullable Object object, String message, Object... args);
-Asserts.isNull(@Nullable Object object, String message, Object... args);
-Asserts.notEmpty(@Nullable Map<?, ?> map, String message, Object... args);
-Asserts.isEmpty(@Nullable Map<?, ?> map, String message, Object... args);
-Asserts.notEmpty(@Nullable Collection<?> collection, String message, Object... args);
-Asserts.isEmpty(@Nullable Collection<?> collection, String message, Object... args);
-Asserts.notEmpty(@Nullable Object[] array, String message, Object... args);
-Asserts.isEmpty(@Nullable Object[] array, String message, Object... args);
+RemoteAssertsException                   ## 异常msg
+AssertsException                         ## 异常msg
+HttpException                            ## 异常msg
 ```
 
 
 
-### 1.3. 国际化处理 Accept-Language
+- 响应吗设置
 
-对于国际化参数，我们在Http Header中使用Accept-Language来传递，默认取值为：Locale.getDefault()
-
-- 国际化开关
+默认返回的Http状态码是由`ResponseCode`定义的，不过在Java开发中，很多时候习惯将Http状态码全部置为200，然后通过业务code来区分，这种情况可以修改如下默认配置：
 
 ```yaml
 spring:
-  messages:
-    enable: false  ## （默认关闭）
+  access:
+    always-success: false  ## 改成true，http状态码永远返回200
 ```
+
+
+
+- 自定义异常提示
+
+如果希望自定义异常提示，建议使用AssertsException或HttpException
+
+```java
+public class AssertsException extends RuntimeException {
+
+	  public AssertsException(String message, Object... args) {
+        super(Messages.translateIfNeed(message, args));
+    }
+
+    // 异常放在前面，避免方法签名混淆
+    public AssertsException(Throwable cause, String message, Object... args) { 
+        super(Messages.translateIfNeed(message, args), cause);
+    }
+}
+```
+
+AssertsException的Http状态和错误码固定为597，使用HttpException可以具体指定
+
+```java
+public class HttpException extends RuntimeException {
+
+    private final int status;
+
+    private final String code;
+
+    public HttpException(int status, String code, String message, Object... args) {
+        super(Messages.translateIfNeed(message, args));
+        this.code = code;
+        this.status = status;
+    }
+
+    // 异常放在前面，避免方法签名混淆
+    public HttpException(Throwable cause, int status, String code, String message, Object... args) {
+        super(Messages.translateIfNeed(message, args), cause);
+        this.code = code;
+        this.status = status;
+    }
+}
+```
+
+另外，为了使用方便也提供了对应的断言类`Asserts` 和 `HttpAsserts`
+
+
+
+### 1.4. 国际化处理 Accept-Language
+
+对于国际化参数，约定在Http Header中通过Accept-Language来传递，默认取值为：Locale.getDefault()
+
+
 
 - 国际化资源
 
-对于国际化资源，我们约定为：`META-INF/i18n/messages`，不过在配置时注意需要带上`commons-framework`定义的资源（framework中定义的国际化资源key统一是以frame作为的前缀）
+在《Java工程构建》中已有描述，约定为：`META-INF/i18n/messages`，或者自行修改默认配置
 
 ```yaml
 spring:
   messages:
-    basename: META-INF/i18n/messages,META-INF/i18n/messages-frame
+    basename: META-INF/i18n/messages
 ```
+
+
 
 - 国际化操作
 
-对于国际化翻译，我们定义了`MessageHelper`，直接注入就行
+对于国际化翻译，可以使用工具类`Messages`
 
 ```java
-//MessageHelper
-public String msg(String key, Object... args);
-```
+public class Messages {
 
-- 国际化异常
-
-如果是抛出AssertsException，那么需要将message设置为国际化的key，然后可以通过args追加参数，比如：
-
-```java
-throw new AssertsException("frame.file.invalid").args(name);
-```
-
-对应的如果是使用Asserts断言，就将message设置为国际化的key；
-
-```java
-Asserts.notNull(user.getAccount(), "user.notnull.account", id);
-```
-
-如果是Validation注解声明的校验，需要将注解的message定义为国际化key，但是这里无法传入参数来替换国际化中的占位符，比如：
-
-```java
-@NotBlank(message = "user.notnull.name")
-private String userName;
-
-@NotBlank(message = "user.notnull.account")
-private String userAccount;
-```
-
-
-
-### 1.4. 响应结构 Response
-
-针对Controller响应，我们约定了如下的结构
-
-- 一般响应结构：
-
-| 字段      | 类型   | 必填 | 含义     |
-| --------- | ------ | ---- | -------- |
-| requestId | string | 是   | 请求Id   |
-| code      | int    | 是   | 响应码   |
-| msg       | string | 否   | 响应描述 |
-| cause     | string | 否   | 错误原因 |
-| data      | Object | 否   | 响应数据 |
-
-- 分页响应结构：
-
-对于分页请求参数，我们统一约定为：`page`和`pageSize`
-
-| 字段       |       | 类型    | 必填 | 含义     |
-| --------- | ----- | ------ | ---- | -------- |
-| requestId |       | string | 是   | 请求Id    |
-| code      |       | int    | 是   | 响应码    |
-| msg       |       | string | 否   | 响应描述  |
-| cause     |       | string | 否   | 错误原因  |
-| data      | total | int    | 是   | 总数      |
-|           | list  | array  | 是   | 对象列表   |
-
-对应的，我们提供了一套Response静态构造器：
-
-```java
-Response.success();                                    // 200
-Response.success(V data);                              // 200 Response<V>
-Response.success(String msg, V data);                  // 200 Response<V>
-Response.error();                                      // 500
-Response.error(String msg);                            // 500
-Response.error(ResponseCode responseCode);             // code(200,202,400,401,403,429,498,500,597)
-Response.error(ResponseCode responseCode, String msg); // code
-Response.page(List<E> list);                           // 200 Response<Page<E>>
-```
-
-这样在Controller中，我们就可以尽量保证代码简洁，比如：
-
-```java
-@RequiredArgsConstructor
-@Validated
-@RestController
-@RequestMapping("/api/v1/user")
-public class SysUserController {
-
-    @PostMapping("/list")
-    public Response<Response.Page<SysUser>> list(@RequestBody SysUser sysUser) {
-        return Response.page(sysUserService.list(sysUser));
+    public static String msg(String key, Object... args) {
+        return messageSource.getMessage(key, args, "not Support Key: " + key, getLanguage());
     }
-    
-    @GetMapping(value = {"/info/{userId}"})
-    public Response<SysUser> info(@PathVariable Long userId) {
-        return Response.success(sysUserService.info(userId));
-    }
+
+    public static String msgWithDefault(String key, String defaultMessage, Object... args) {
+        return messageSource.getMessage(key, args, defaultMessage, getLanguage());
+    }  
 }
 ```
 
 
 
-### 1.5. 请求鉴权 Authorization
+- 异常提示国际化
+
+对于Validation注解声明的校验，可以按照spring的默认约定，使用`{}`进行标识就会进行国际化翻译，比如：
+
+```java
+@NotBlank(message = "{user.notnull.account}")
+private String userAccount;
+```
+
+
+
+但是Validation注解的message无法传递参数，参照它的形式，在AssertsException和HttpException中，我们也通过`{}`来表示提示信息是否需要国际化翻译，并支持传递占位符参数，比如：
+
+```java
+throw new AssertsException("{user.notnull.account}", args);
+throw new HttpException(400, "400", "{user.notnull.account}", args);
+ 
+或者
+Asserts.notNull(userAccount, "{user.notnull.account}", args);
+HttpAsserts.notNull(userAccount, 400, "400", "{user.notnull.account}", args);
+```
+
+
+
+### 1.5. 请求响应 Response
+
+- 响应头
+
+对于在`AccessFilter`中拦截到的请求，都会在响应头中设置`Access-Id`，这样方便根据响应反查请求处理的过程日志（access.log）
+
+
+
+- 响应结构
+
+一般的响应结构：
+
+```json
+{
+  "code": "",      // 响应码 
+  "msg": "",       // 响应描述
+  "cause": "",     // 异常堆栈信息
+  "data": {}       // 响应内容
+}
+```
+
+分页的响应结构（关于分页参数的约定：页码可以使用`page`、`pageIndex`、`pageNum`，每页条目数使用`pageSize`）
+
+```java
+{
+  "code": "",      // 响应码 
+  "msg": "",       // 响应描述
+  "cause": "",     // 异常堆栈信息
+  "data": {
+    "total": 100,  // 分页总数
+    "list": []     // 分页条目
+  }       
+}
+```
+
+为了方便，对应提供了静态的响应构造器（尽量保证Controller接口的代码简洁）：
+
+```java
+Response.code(HttpCode code);             // status=200, code=#{code.code}, msg=#{code.msg}, data=null   
+Response.data(HttpCode code, V data);     // status=200, code=#{code.code}, msg=#{code.msg}, data=#{data}
+Response.msg(HttpCode code, String msg);  // status=200, code=#{code.code}, msg=#{msg}, data=null
+Response.success();                   // status=200, code=200, msg="success", data=null
+Response.success(V data);             // status=200, code=200, msg="success", data=#{data}
+Response.success(V data, String msg); // status=200, code=200, msg=#{msg}, data=#{data}
+Response.error();            // status=200, code=500, msg="Internal Server Error", data=null
+Response.error(String msg);  // status=200, code=500, msg=#{msg}, data=null
+Response.page(List<E> list);              // status=200, code=200, msg="success", data=#{page}
+Response.page(mybatisplus..Page<E> page); // status=200, code=200, msg="success", data=#{page}
+```
+
+
+
+- 响应码设置：
+
+上面的Response返回Http状态永远是200，如果使用HttpResponse，可以自行设置响应的Http状态，也提供了对应的静态构造器： 
+
+```json
+HttpResponse.code(HttpCode httpCode);         // status=#{HttpCode.status}, body=#{HttpCode.msg}
+HttpResponse.body(HttpCode httpCode, V data); // status=#{HttpCode.status}, body=#{data}
+HttpResponse.success();       // status=200, body=null
+HttpResponse.success(V data); // status=200, body=#{data}
+```
+
+
+
+### 1.6. 请求鉴权 Authorization
 
 鉴权是基于spring-security实现，依赖需要自己声明：
 
@@ -217,43 +310,47 @@ public class SysUserController {
 </dependency>
 ```
 
-- 配置（默认）
+
+
+- 默认配置
 
 ```yaml
 spring:
-  application:
+  access:
     token:
       header: Authorization
-      salt: admin@cowave.com    ## 认证秘钥，要与Token发放服务保持一致，否则无法通过；
-      conflict: false           ## 是否检测登录冲突，后面的登录会使之前登录获取的Token失效；
-      clientExpire: 360         ## 客户端Token超时
-      serverExpire: 3600        ## 服务端Token超时
-      systemExpire: 60          ## 后台应用的Token超时
-      ignoreUrls:               ## 忽略鉴权的url
-        - /api/v1/auth/login
-        - /api/v1/auth/register
+      salt: admin@cowave.com  ## 认证秘钥，要与Token发放服务保持一致，否则无法通过
+      conflict: false         ## 是否检测登录冲突，（设置为true，那么除了超时，其它ip变化也会触发刷新accessToken)
+      accessExpire: 3600      ## accessToken超时
+      refreshExpire: 6400     ## refreshToken超时
+      ignoreUrls:
+
 ```
 
-对于Token鉴权的流程设计如下（关键的配置就是鉴权服务与资源服务之间约定的加密salt）
+关于Token鉴权的流程设计：
 
-![token](./images/token.jpg)
+![token](source/token.jpg)
 
-- 定义
 
-如果引入了security依赖，默认会对所有的请求进行鉴权，如下可以对鉴权行为进行一些自定义设置
+
+- Api
+
+如果引入了security依赖，默认会对所有的请求进行鉴权，可以自己对鉴权行为进行一些设置
 
 ```java
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     
-    private final TokenConfiguration tokenConfiguration;
+    private final AccessConfiguration accessConfiguration;
 
     private final TokenService tokenService;
 
     private String[] permitAll(){
-        // tokenConfiguration.getIgnoreUrls()，以及一些预定义的忽略鉴权的url
-    }
+		    List<String> list = new ArrayList<>(PERMIT_ALL);
+		    list.addAll(accessConfiguration.tokenIgnoreUrls());
+		    return list.toArray(new String[0]);
+	  }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -261,7 +358,7 @@ public class SecurityConfiguration {
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.headers().frameOptions().disable();
         httpSecurity.authorizeRequests().antMatchers(permitAll()).permitAll().anyRequest().authenticated();
-        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(tokenService, permitAll());
+        TokenAuthenticationFilter tokenAuthenticationFilter = new TokenAuthenticationFilter(tokenService);
         httpSecurity.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
@@ -274,9 +371,13 @@ public class SecurityConfiguration {
 }
 ```
 
+
+
 - 接口权限
 
-以上讨论的都是访问鉴权，就是要求用户在访问之前先进行登录。然后在登录的基础上，还可以限制用户的操作权限，以下是我们提供的一个permit鉴权实例
+以上讨论是针对访问鉴权，要求用户在访问之前先进行登录。
+
+如果在已经登录的基础上，需要限制用户的操作权限，则对应提供的一个permit鉴权实例（spring bean）
 
 ```java
 public boolean isAdmin();                     // 是否管理员
@@ -285,7 +386,7 @@ public boolean hasPermit(String permission);  // 是否拥有权限/菜单
 public boolean isCurrentCluster();            // 是否登录的当前集群
 ```
 
-这样就可以通过`@PreAuthorize`对接口操作进行一些鉴权判断了
+这样在Controller接口上可以通过`@PreAuthorize`对接口操作进行一些鉴权判断，不满足会返回403
 
 ```java
 @PreAuthorize("@permit.hasRole('sysAdmin')")
@@ -294,6 +395,8 @@ public Response<Page<SysConfig>> list(SysConfig config){
    return Response.page(configService.selectConfigList(config));
 }
 ```
+
+
 
 ## 2. 数据库操作
 
@@ -321,7 +424,7 @@ public Response<Page<SysConfig>> list(SysConfig config){
 
 - pageHelper
 
-也可以引入pageHelper，其对mybatis分页操作进行了简化，只要检测到请求参数中传入了`page`和`pageSize`，就会自动进行分页查询
+也可以引入pageHelper，其对mybatis分页操作进行了简化，只要检测到分页参数，就会自动进行分页查询
 
 ```xml
 <dependency>
@@ -330,7 +433,7 @@ public Response<Page<SysConfig>> list(SysConfig config){
 </dependency>
 ```
 
-这样我们在Controller中进行分页查询时，就可以简洁如下（Response.page会自动获取到list和count）：
+这样在Controller中进行分页查询时，可以简洁如下：
 
 ```java
 @PostMapping("/list")
@@ -341,7 +444,7 @@ public Response<Response.Page<SysUser>> list(@RequestBody SysUser sysUser) {
 
 - mybatis-plus
 
-如果引入mybatis-plus，可以进一步简化sql操作，对于其分页操作，我们也声明了MybatisPlusInterceptor，可以使用PageDO来传递分页参数和接收返回结果
+如果引入mybatis-plus，可以进一步简化sql操作，对于其分页操作，也可以通过Response.page构造响应
 
 ```xml
 <dependency>
@@ -372,7 +475,7 @@ spring:
         password: 12345678
 ```
 
-默认都是对primary数据源进行操作，如果想对指定的数据源进行操作，可以如下方式指定（目前不支持跨数据源的事务）：
+默认都是对primary数据源进行操作，如果想对指定的数据源进行操作，可以如下方式指定（不支持跨数据源的事务）：
 
 ```java
 @DataSource("db_xx2")
@@ -406,7 +509,7 @@ spring默认使用的数据源是HikariDataSource，当然也可以使用阿里�
 </update>
 ```
 
-我们提供了DatabaseIdProvider实现，目前支持以下4种系列的数据库支持
+提供了DatabaseIdProvider实现，约定了对以下4种系列的数据库支持
 
 ```java
 // DB_PRODUCT.put("OSCAR", "oscar");
@@ -427,7 +530,7 @@ public String getDatabaseId(DataSource dataSource) throws SQLException {
 
 ### 2.4. 数据库版本管理
 
-对于业务数据库的版本，我们统一要求使用liquibase来进行管理，方便以增量的形式来升级应用数据库，需要自行声明依赖：
+对于业务数据库的版本，约定使用liquibase来进行管理《Java工程构建》，方便以增量的形式来升级应用数据库，需要自行声明依赖：
 
 ```xml
 <dependency>
@@ -438,7 +541,7 @@ public String getDatabaseId(DataSource dataSource) throws SQLException {
 
 - 配置
 
-对于changelog.yml的文件路径，我们统一约定如下配置：
+对于changelog.yml的文件路径，约定如下配置：
 
 ```yaml
 spring:
@@ -446,8 +549,6 @@ spring:
     enabled: true
     change-log: sql/changelog.yml
 ```
-
-至于changelog.yml中的具体配置，可以参考示例：https://gitlab.cowave.com/commons/demo/demo-sys/sys-admin/-/blob/master/src/main/resources/sql/changelog.yml
 
 
 
@@ -464,58 +565,123 @@ spring:
 
 - 配置
 
-对于单个Redis环境，按照默认配置就行。如果有两套环境，可以用private和public来区分（public实例在注入时需要指定名称）
+按照spring默认配置，如果需要连接两套Redis环境，另外约定了一组common配置（如需更多环境，可以参照common进行实现）：
 
 ```yaml
 spring:
   redis:
-    private:
-      host: 192.168.141.13
-      port: 6379
-    public:
-      host: 192.168.141.13
-      port: 6389
+    host: 10.64.4.74
+    port: 6379
+    database: 1
+
+common:
+  redis:
+    host: 10.64.4.74
+    port: 6379
+    database: 2
 ```
 
-- 操作
-
-可以直接注入RedisTemplate进行操作，不过我们也提供了RedisHelper（方便对象序列化操作）， 比如以下操作：
+使用时默认注入的是spring配置的环境，如果要使用common环境，需要同样beanName指定，比如：
 
 ```java
-redisHelper.ping();
-redisHelper.info();
-redisHelper.keys(final String pattern);                                          // Collection<String>
-redisHelper.getValue(final String key);                                          // <T>
-redisHelper.putValue(final String key, final T value);
-redisHelper.putExpireValue(final String key, final T value, final Integer timeout, final TimeUnit timeUnit);
+private final RedisHelper redisHelper;
+private final StringRedisHelper stringRedisHelper;
+private final RedisTemplate<Object, Object> redisTemplate;
+private final StringRedisTemplate stringRedisTemplate;
 
-redisHelper.getMap(final String key);                                            // Map<String, T>
-redisHelper.getMapValue(final String key, final String hKey);                    // <T>
-redisHelper.getMultiMapValue(final String key, final Collection<Object> hKeys);  // List<T>
-redisHelper.putMapValue(final String key, final String hKey, final T value);
-redisHelper.putMapAll(final String key, final Map<String, T> dataMap);
-redisHelper.deleteMapValue(final String key, final String hKey);
+@Qualifier("commonRedisHelper")
+@Autowired
+private RedisHelper commonRedisHelper;
 
-redisHelper.expire(final String key, final long timeout);                        // TimeUnit.SECONDS
-redisHelper.expire(final String key, final long timeout, final TimeUnit unit);
-redisHelper.delete(final String key);
-redisHelper.delete(final Collection<?> collection);
+@Qualifier("commonStringRedisHelper")
+@Autowired
+private StringRedisHelper commonStringRedisHelper;
 
-redisHelper.getList(final String key);                                           // range(key, 0, -1)
-redisHelper.pushList(final String key, final List<T> dataList);                  // rightPushAll
+@Qualifier("commonRedisTemplate")
+@Autowired
+private RedisTemplate<Object, Object> commonRedisTemplate;
 
-redisHelper.getSet(final String key);                                            // Set<T>
-redisHelper.putSet(final String key, final Set<T> dataSet);
-redisHelper.putSet(final String key, final T value);
+@Qualifier("commonStringRedisTemplate")
+@Autowired
+private StringRedisTemplate commonStringRedisTemplate;
+```
+
+- RedisHelper操作
+
+对于Redis的操作，提供了两个帮助类（相对RedisTemplate，主要简化了序列化相关操作），如上面注入所示
+
+```tex
+RedisHelper 对应 RedisTemplate
+可以对任意的值类型进行序列化或反序列化操作（但是只适用于Java，并且写入和读取要保持相同的类型声明）；
+
+StringRedisHelper 对应 StringRedisTemplate
+针对String类型的值，写入时Helper会序列化成json字符串，读取时如果要反序列化成对象，需要自己传入声明class类型
 ```
 
 
 
-## 4. 字典操作
+## 4. Redisson分布式锁
 
-在Redis的基础上，我们定义了一套字典操作。framework中提供一个字典接口Dict，和一组字典缓存操作DictHelper。
+需要声明依赖：
 
-具体的字典实现可以参考：《sys-admin通用管理系统设计：字典信息》
+```xml
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson-spring-boot-starter</artifactId>
+</dependency>
+```
+
+在redisson的基础上提供了一个帮助类`RedissonLockHelper`
+
+```java
+public boolean tryLock(long awaitTime, TimeUnit timeUnit, String name, String... keys);
+public boolean tryLock(long awaitTime, long leaseTime, TimeUnit timeUnit, String name, String... keys);
+public void releaseLock(String name, String... keys);
+```
+
+以及一个方法注解`@RedissonLock`
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface RedissonLock {
+
+    /**
+     * 锁名称
+     */
+    String name();
+
+    /**
+     * 锁标识信息
+     */
+    String key();
+
+    /**
+     * 等待时间
+     */
+    long await() default 3;
+
+    /**
+     * 存续时间
+     */
+    long lease() default -1;
+
+    /**
+     * 时间单位
+     */
+    TimeUnit timeUnit() default TimeUnit.SECONDS;
+}
+```
+
+
+
+
+## 5. Dict字典操作
+
+在Redis的基础上，约定了一组字典操作，在framework中定义一个字典接口Dict和一组字典缓存操作DictHelper
+
+相关的字典实现可以参考：sys-admin管理系统设计
 
 - 字典接口 Dict
 
@@ -553,7 +719,7 @@ public void removeGroup(String groupCode) {
 
 
 
-## 5. Kafka操作
+## 6. Kafka操作
 
 需要声明依赖：
 
@@ -566,17 +732,18 @@ public void removeGroup(String groupCode) {
 
 - 配置
 
-对于单个Kafka环境，按照默认配置就行。如果有两套环境，同样使用private和public区分（public实例在注入时需要指定名称）
+按照spring默认配置，类似Redis，如果需要连接两套Kafka环境，也另外约定了一组common配置，比如：
 
 ```yaml
 spring:
   kafka:
-    private:
-      bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094
-      ...
-    public:
-      bootstrap-servers: 127.0.0.1:9192,127.0.0.1:9193,127.0.0.1:9194
-      ...
+    bootstrap-servers: 127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094
+    ...
+    
+common:
+  kafka:
+    bootstrap-servers: 127.0.0.1:9192,127.0.0.1:9193,127.0.0.1:9194
+    ...
 ```
 
 - 操作
@@ -584,14 +751,14 @@ spring:
 如果是作为produce发送消息，那么可以使用KafkaTemplate
 
 ```java
-@Resource(name = "publicKafkaTemplate")
+@Resource(name = "commonKafkaTemplate")
 private KafkaTemplate<String, Object> publicKafkaTemplate;
 ```
 
 如果是作为consumer接收消息，可以使用KafkaListener
 
 ```java
-@KafkaListener(topics = "testTopic", containerFactory = "publicKafkaListenerContainerFactory")
+@KafkaListener(topics = "testTopic", containerFactory = "commonKafkaListenerContainerFactory")
 public void consume(ConsumerRecord<?, ?> record) {
     // ...
 }
@@ -599,46 +766,54 @@ public void consume(ConsumerRecord<?, ?> record) {
 
 
 
-## 6. 系统告警
+## 7. 系统告警
 
-对于告警处理，我们只提供了一组接口
+对于告警处理，约定了一组接口
 
 - 类型接口 Alarm
 
-这里只是一个标记接口，用来标记告警类型，没有做任何限制
+标记接口，用来标记告警类型，不做任何限制
 
-- 处理接口 AlarmAccepter
+- 处理接口 AlarmHandler
 
-用来接收处理Alarm告警，比如存储到数据库或者通过消息队列传输。默认提供了一个KafkaAccepter（如果引入了kafka依赖的话），对应的配置如下：
-
-```yaml
-spring:
-  application:
-    alarm:
-      kafka-enable: true
-      kafka-topic: sys-alarm
-```
-
-- 请求异常告警工厂接口：AccessAlarmFactory
-
-通过上面两个接口，我们可以将定义的告警声明为Alarm类型，然后通过AlarmAccepter来接收。不过Alarm的构造过程需要自己定义，其中对于Access请求异常是在framework中拦截的，不过它并不确定我们是否要对此产生告警，所以只能给一个接口
+处理Alarm告警，比如存储到数据库或者发送消息队列。
 
 ```java
-public interface AccessAlarmFactory<T extends Alarm> {
-
-    T newAccessAlarm(Response<Void> errorResp);
+public interface AlarmHandler<T extends Alarm> {
+    void handle(T alarm);
 }
 ```
 
+- Access异常告警工厂接口：AccessAlarmFactory
+
+对于Access的异常，可以实现一个AccessAlarmFactory实例来根据异常内容创建告警
+
+```java
+public interface AccessAlarmFactory<T extends Alarm> {
+    @NotNull
+    T createAlarm(int httpStatus, String code, String message, Object response, Exception e);
+}
+```
+
+创建的告警默认会发送kafka，framework中默认定义了一个AlarmKafkaHandler（如果引入了kafka依赖），对应的配置如下：
+
+```yaml
+spring:
+  access:
+    alarm:
+      kafka-enable: true
+      kafka-topic: access-alarm
+```
 
 
-## 7. 操作日志
 
-对于操作日志，我们也提供了一组接口，相关的实现可以参考：[《sys-admin通用管理系统设计：操作日志》](https://gitlab.cowave.com/commons/commons-doc/-/blob/main/Admin%E9%80%9A%E7%94%A8%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1.md#user-content-%E6%93%8D%E4%BD%9C%E6%97%A5%E5%BF%97)
+## 8. 操作日志
+
+对于操作日志，也约定了一组接口，相关的实现可以参考：sys-admin
 
 - 日志接口 OperationLog
 
-操作日志的具体字段交给应用自由定义，但是要能能提供以下信息：
+操作日志的具体字段交给应用自由定义，但是要能提供以下信息：
 
 ```java
 public interface OperationLog {
@@ -654,30 +829,31 @@ public interface OperationLog {
 }
 ```
 
-- 处理接口 OperationAccepter
+- 处理接口 OperationHandler
 
-同样用来接收处理操作日志，默认提供了一个KafkaAccepter（如果引入了kafka依赖的话），对应的默认配置如下：
+默认发送kafka，framework中默认定义了一个OperationKafkaHandler（如果引入了kafka依赖），对应的默认配置如下：
 
 ```yaml
 spring:
-  application:
+  access:
     oplog:
       kafka-enable: true
-      kafka-topic: sys-alarm
+      kafka-topic: access-oplog
 ```
 
-然后我们可以如下创建操作日志，以及进行处理
+具体可以如下创建和处理操作日志，以及进行处理
 
 ```java
 SysLog sysLog = new SysLog();     // OperationLog的实现
 sysLog.initialize();              // 初始化内容
 // 其它信息赋值
-operationAccepter.accept(sysLog); // 注入OperationAccepter，接收处理
+
+operationHandler.handle(sysLog); // 注入OperationHandler处理
 ```
 
 - 标记注解 @Operation
 
-为了方便日志记录，我们也提供了一个注解，但是**如果使用了@Operation，就要求必须提供一个OperationLog实现**。以下是sys-admin中的示例：
+为了方便日志记录，约定了一个注解（要求classpath中必须提供一个OperationLog实现），以下是sys-admin中的示例：
 
 ```java
 @Operation(group = "sys-admin", type = "admin_user", desc = "新增用户：#{sysUser.userName}", content = Content.REQ)
@@ -716,13 +892,13 @@ public interface OperationHandler {
 
 
 
-## 8. 文件操作
+## 9. 文件操作
 
-对于常见的文件操作，比如上传下载删除等，我们提供了FileService。相关的实现可以参考：《sys-admin通用管理系统设计：附件信息》
+对于常见的文件操作，比如上传下载删除等，我们提供了FileService。相关的实现可以参考：sys-admin
 
 
 
-### 8.1. 本地操作
+### 9.1. 本地操作
 
 ```java
 /**
@@ -742,7 +918,7 @@ public void localDownload(HttpServletResponse resp, String filename, String file
 
 
 
-### 8.2. minio操作
+### 9.2. minio操作
 
 需要声明依赖：
 
@@ -788,7 +964,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 9. Excel操作 easy-excel
+## 10. Excel操作 easy-excel
 
 对于Excel操作，我们统一使用easy-excel，需要自己声明依赖
 
@@ -801,7 +977,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 10. Elasticsearch操作 easy-es
+## 11. Elasticsearch操作 easy-es
 
 对于Elasticsearch操作，我们统一使用easy-es，需要自己声明依赖
 
@@ -814,7 +990,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 11. 异步任务 @Async / 线程池
+## 12. 异步任务 @Async / 线程池
 
 - 注解 @Async
 
@@ -831,8 +1007,6 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 - 注入 Executor
 
-  **《不要自己创建Thread或者Executor实例》**
-
   springboot中默认有一个线程池实例，请优先复用已有的线程池实例
 
   ```java
@@ -848,8 +1022,8 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
       }
   }
   ```
-
-  如果确实需要使用多个线程池实例，请统一使用dynamic-tp进行创建管理，默认已经引入了依赖，关于配置可以相关文档
+  
+  如果确实需要使用多个线程池实例，可以使用dynamic-tp进行创建管理，默认已经引入了依赖，关于配置可以相关文档
 
   ```yaml
   spring:
@@ -877,18 +1051,18 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
             taskWrapperNames: ["ttl", "mdc"]               # 任务包装器名称，继承TaskWrapper接口
             notifyEnabled: true                            # 是否开启报警，默认true
   ```
-
+  
   
 
-## 12. 定时任务
+## 13. 定时任务
 
-### 12.1. spring-scheduled
+### 13.1. spring-scheduled
 
 spring-scheduled是默认提供的定时方式，比较常用，这里不用多赘述；
 
 
 
-### 12.2. spring-fom
+### 13.2. spring-fom
 
 默认已经引入了依赖，相比spring-scheduled，做了一些应用场景的扩展，以及提供了一些运维监控上的能力，简单示例如下：
 
@@ -910,7 +1084,7 @@ public class HeartbeatScheduler {
 
 
 
-## 13. 服务调用 spring-feign
+## 14. 服务调用 spring-feign
 
 对于Http服务调用，我们自定义了一个轻量级的调用工具 spring-feign，可以解决大多数的调用场景；
 
@@ -918,9 +1092,9 @@ public class HeartbeatScheduler {
 
 
 
-## 14. 服务注册
+## 15. 服务注册
 
-### 14.1 Eureka注册
+### 15.1 Eureka注册
 
 需要声明依赖：
 
@@ -979,7 +1153,7 @@ apollo:
 
 
 
-### 14.2 Nacos注册
+### 15.2 Nacos注册
 
 需要声明依赖：
 
@@ -1024,13 +1198,11 @@ nacos可以进行配置管理，但是依赖也需要自己声明（以下是nac
 
 
 
-## 15. 服务健康 spring-boot-admin
+## 16. 服务健康 spring-boot-admin
 
-在Eureka或Nacos的服务中，我们集成了spring-boot-admin-server，所以访问：服务的http://{ip}:{port}/health可以看到所有注册的服务健康情况，对于常见的数据库/Redis/Kafka健康检查，我们进行一些重写，方便获取信息或定位问题。另外，对于info面板信息，我们也统一进行了编辑（如果使用我们约定的构建方式，服务脚本命令也可以获取：./run.sh version）
+在Eureka或Nacos的服务中，我们集成了spring-boot-admin-server，所以访问服务的http://{ip}:{port}/health可以看到所有注册的服务健康情况，对于常见的数据库/Redis/Kafka健康检查，我们进行一些重写，方便获取信息或定位问题。另外，对于info面板信息，也追加了一些信息，此外，通过服务脚本命令也可以获取：./run.sh version
 
-![info](./images/info.jpg)
-
-一般我们默认会放开所以Actuator端点，并忽略了Token校验，但是如果对于安全有比较高的要求，请根据实际情况调整
+一般默认会放开Actuator端点，并忽略Token校验（如果对于安全有比较高的要求，可以根据实际情况调整）
 
 ```yaml
 management:
@@ -1048,7 +1220,7 @@ management:
 
 
 
-## 16. socket-io
+## 17. socket-io
 
 java服务端的socketio依赖版本比较旧，这限制了前端vue所选择的socket-io版本
 
@@ -1118,7 +1290,7 @@ public interface ConnectedHandler {
 
 
 
-## 17. 地理区域关系
+## 18. 地理区域关系
 
 区域覆盖在我们的产品中是一个比较常见的场景，比如判断波束是否覆盖了某一指定区域
 
@@ -1153,8 +1325,8 @@ public static boolean containsArea(GeoArea src, GeoArea target);               /
 
 
 
-## 18. 关于Util工具类
+## 19. Commons-tools
 
-不要随意定义各种util工具类，我们已经提供了commons-tools来归纳各种工具类，并引入了Hutool依赖，并且，请优先使用已有的Util！
+不要随意定义各种util工具类，约定优先使用commons-tools中归纳的各种工具类，或者Hutool以及apacha commons中提供的；
 
-如果定义新的Util工具，请注意依赖的声明方式，尽量设置成可选依赖，避免导致其它应用引入不必要的依赖！
+如果确实要定义新的Util工具，可以评估下是否能追加到commons-tools中，但是要避免引入不必要的依赖！

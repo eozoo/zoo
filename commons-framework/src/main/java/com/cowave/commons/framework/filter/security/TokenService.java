@@ -39,8 +39,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 
-import static org.springframework.feign.codec.ResponseCode.SUCCESS;
-import static org.springframework.feign.codec.ResponseCode.UNAUTHORIZED;
+import static org.springframework.feign.codec.ResponseCode.*;
 
 /**
  *
@@ -72,6 +71,10 @@ public class TokenService {
 
     @Nullable
     private final RedisHelper redis;
+
+    boolean isAlwaysSuccess(){
+        return accessConfiguration.isAlwaysSuccess();
+    }
 
     /**
      * 赋值Token
@@ -156,7 +159,7 @@ public class TokenService {
     public AccessToken parseToken(HttpServletRequest request) {
         String jwt = getJwt(request);
         if(jwt == null) {
-            return new AccessToken(UNAUTHORIZED.getCode(), Messages.msg("frame.auth.no"));
+            return new AccessToken(UNAUTHORIZED, Messages.msg("frame.auth.no"));
         }
         return parseJwt(jwt);
     }
@@ -178,15 +181,15 @@ public class TokenService {
         try {
             claims =  Jwts.parser().setSigningKey(accessConfiguration.tokenSalt()).parseClaimsJws(jwt).getBody();
         }catch(ExpiredJwtException e) {
-            return new AccessToken(ResponseCode.TOKEN_INVALID_OR_EXPIRED.getCode(), Messages.msg("frame.auth.expired"));
+            return new AccessToken(TOKEN_INVALID_OR_EXPIRED, Messages.msg("frame.auth.expired"));
         }catch(Exception e) {
-            return new AccessToken(UNAUTHORIZED.getCode(), Messages.msg("frame.auth.invalid"));
+            return new AccessToken(UNAUTHORIZED, Messages.msg("frame.auth.invalid"));
         }
 
         // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
         if(accessConfiguration.tokenConflict() && !Objects.equals(Access.accessIp(), userIp)) {
-            return new AccessToken(ResponseCode.TOKEN_INVALID_OR_EXPIRED.getCode(), Messages.msg("frame.auth.ipchanged"));
+            return new AccessToken(TOKEN_INVALID_OR_EXPIRED, Messages.msg("frame.auth.ipchanged"));
         }
 
         AccessToken accessToken = new AccessToken();

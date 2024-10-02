@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.feign.codec.ResponseCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -156,7 +157,7 @@ public class AccessToken implements UserDetails {
 	/**
 	 * 校验码
 	 */
-	private String validCode;
+	private ResponseCode validCode;
 
 	/**
 	 * 校验描述
@@ -172,7 +173,7 @@ public class AccessToken implements UserDetails {
 
 	}
 
-	public AccessToken(String validCode, String validDesc) {
+	public AccessToken(ResponseCode validCode, String validDesc) {
 		this.validCode = validCode;
 		this.validDesc = validDesc;
 	}
