@@ -113,7 +113,7 @@ HttpException                            ## 异常msg
 
 - 响应吗设置
 
-默认返回的Http状态码是由`ResponseCode`定义的，不过在Java开发中，很多时候习惯将Http状态码全部置为200，然后通过业务code来区分，这种情况可以修改如下默认配置：
+默认返回的Http状态码是由`HttpCode`定义的，不过在Java开发中，很多时候习惯将Http状态码全部置为200，然后通过业务code来区分，这种情况可以修改如下默认配置：
 
 ```yaml
 spring:
@@ -130,7 +130,7 @@ spring:
 ```java
 public class AssertsException extends RuntimeException {
 
-	  public AssertsException(String message, Object... args) {
+    public AssertsException(String message, Object... args) {
         super(Messages.translateIfNeed(message, args));
     }
 

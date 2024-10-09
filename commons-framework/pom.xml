@@ -92,10 +92,6 @@
 			<artifactId>tools</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.cowave.commons</groupId>
-			<artifactId>spring-feign</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.dromara.dynamictp</groupId>
 			<artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
 			<version>1.2.7</version>

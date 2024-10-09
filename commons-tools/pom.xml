@@ -108,6 +108,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <!-- spring-feign -->
+        <dependency>
+            <groupId>com.cowave.commons</groupId>
+            <artifactId>spring-feign</artifactId>
+        </dependency>
         <!-- ================provided================ -->
         <!-- lombok -->
         <dependency>

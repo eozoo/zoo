@@ -217,6 +217,10 @@ public class AccessLogger {
 		LOGGER.info(format, arguments);
 	}
 
+	public static void info(String msg, Throwable t) {
+		LOGGER.info(msg, t);
+	}
+
 	public static void warn(String msg){
 		LOGGER.warn(msg);
 	}
@@ -225,11 +229,19 @@ public class AccessLogger {
 		LOGGER.warn(format, arguments);
 	}
 
+	public static void warn(String msg, Throwable t) {
+		LOGGER.warn(msg, t);
+	}
+
 	public static void error(String msg){
 		LOGGER.error(msg);
 	}
 
 	public static void error(String format, Object... arguments){
 		LOGGER.error(format, arguments);
+	}
+
+	public static void error(String msg, Throwable t) {
+		LOGGER.error(msg, t);
 	}
 }
