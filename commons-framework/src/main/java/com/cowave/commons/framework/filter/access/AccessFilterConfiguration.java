@@ -33,7 +33,7 @@ public class AccessFilterConfiguration {
     private final TransactionIdSetter transactionIdSetter;
 
     @Bean
-    public AccessIdGenerator accessIdGenerator(@Value("${info.cluster.id:}${server.port:8080}") String idPrefix){
+    public AccessIdGenerator accessIdGenerator(@Value("${info.cluster.id:10}${server.port:8080}") String idPrefix){
         return new AccessIdGenerator(idPrefix);
     }
 

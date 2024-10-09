@@ -32,7 +32,7 @@ public class CowaveBranner implements Banner {
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-        String info = "Copyright ©2017-06-30 Cowave All Rights Reserved";
+        String info = "";
         Resource resource = new DefaultResourceLoader().getResource("classpath:META-INF/git.info");
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {
@@ -42,21 +42,20 @@ public class CowaveBranner implements Banner {
                 String buildTime = (String) json.get("build.time");
                 String gitId = (String) json.get("git.commit.id");
                 String gitBranch = (String) json.get("git.branch");
-                if(StringUtils.isBlank(appName)){
-                    if(StringUtils.isBlank(gitBranch)){
-                        info = appName + " " + appVersion + " build("+ buildTime + ")" + " " + info;
-                    }else{
-                        info = appName + " " + appVersion + " build("+ buildTime + " " + gitBranch + " " + gitId + ")" + " " + info;
-                    }
-                }else{
-                    info = "Local startup, " + info;
+                if(StringUtils.isNotBlank(appName) && StringUtils.isNotBlank(gitBranch)){
+                    info = appName + " " + appVersion + " build(" + buildTime + " " + gitBranch + " " + gitId + ")";
+                }else if(StringUtils.isNotBlank(appName)){
+                    info = appName + " " + appVersion + " build(" + buildTime + ")";
+                }else if(StringUtils.isNotBlank(gitBranch)){
+                    info = "build(" + gitBranch + " " + gitId + ")";
                 }
             }catch(Exception e){
                 log.error("", e);
             }
         }else{
-            info = "Local startup, " + info;
+            info = "Local startup,";
         }
+        info = info + " Copyright ©2017-06-30 Cowave All Rights Reserved";
         out.println("  ______    ______  ____    __    ____  ___   ____    ____  _______");
         out.println(" /      |  /  __  \\ \\   \\  /  \\  /   / /   \\  \\   \\  /   / |   ____|");
         out.println("|  .----  |  |  |  | \\   \\/    \\/   / /  ^  \\  \\   \\/   /  |  |__");
