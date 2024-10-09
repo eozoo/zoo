@@ -8,10 +8,10 @@
         <relativePath>../commons-dependencies/pom.xml</relativePath>
     </parent>
 
-    <artifactId>commons-tools</artifactId>
+    <artifactId>tools</artifactId>
     <packaging>jar</packaging>
 
-    <name>commons-tools</name>
+    <name>tools</name>
     <url>https://www.cowave.com/</url>
     <description>Java-tools</description>
 

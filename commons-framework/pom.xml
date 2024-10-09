@@ -89,7 +89,7 @@
 		<!-- utils -->
 		<dependency>
 			<groupId>com.cowave.commons</groupId>
-			<artifactId>commons-tools</artifactId>
+			<artifactId>tools</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.cowave.commons</groupId>

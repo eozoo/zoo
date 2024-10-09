@@ -580,7 +580,7 @@ Unauthorized copying of this file, via any medium is strictly prohibited.
 			<!-- cowave.commons -->
 			<dependency>
 				<groupId>com.cowave.commons</groupId>
-				<artifactId>commons-tools</artifactId>
+				<artifactId>tools</artifactId>
 				<version>${cowave.commons.version}</version>
 			</dependency>
 			<dependency>
