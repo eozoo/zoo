@@ -240,12 +240,12 @@ public class HttpException extends RuntimeException {
 
 ```java
 public class Asserts {
-
-	public static void isTrue(boolean expression, String message, Object... args) {
-		if (!expression) {
-			throw new AssertsException(message, args);
-		}
-	}
+    
+    public static void isTrue(boolean expression, String message, Object... args) {
+        if (!expression) {
+            throw new AssertsException(message, args);
+        }
+    }
   
   ...
 }
@@ -390,10 +390,10 @@ public class SecurityConfiguration {
     private final TokenService tokenService;
 
     private String[] permitAll(){
-		    List<String> list = new ArrayList<>(PERMIT_ALL);
-		    list.addAll(accessConfiguration.tokenIgnoreUrls());
-		    return list.toArray(new String[0]);
-	  }
+            List<String> list = new ArrayList<>(PERMIT_ALL);
+            list.addAll(accessConfiguration.tokenIgnoreUrls());
+            return list.toArray(new String[0]);
+      }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -717,9 +717,108 @@ StringRedisHelper 对应 StringRedisTemplate
 
 
 
-## 4. Redisson分布式锁
+### 3.1. 缓存操作
 
-需要声明依赖：
+spring缓存框架默认使用的caffeine，这里只是加了一层Redis作为二级缓存
+
+- 依赖
+
+```xml
+<dependency>
+    <groupId>com.github.ben-manes.caffeine</groupId>
+    <artifactId>caffeine</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
+
+- 配置
+
+```yaml
+spring:
+  cache:
+    expireAfterAccess: -1
+    expireAfterWrite: -1
+    refreshAfterWrite: -1
+    initialCapacity: -1
+    maximumSize: -1
+    l2Enable:           ## 是否启用二级缓存（Redis）
+    l2:
+      l2First: false    ## 优先从二级缓存获取
+      expire: 0         ## Redis中过期时间
+```
+
+- 示例
+
+```java
+// 如果l2Enable=false，直接尝试从caffeine缓存获取
+// 如果l2Enable=false，l2First=false，优先从caffeine缓存获取，如果没有就从Redis缓存获取，并放入caffeine缓存
+// 如果l2Enable=false，l2First=true，优先从Redis缓存获取，如果没有就从caffeine缓存获取，并放入Redis缓存
+@Cacheable(value = "test", key = "'user_id:' + #userId")
+public UserDTO queryUser(String userId) {
+    return userMap.get(userId);
+}
+
+// 放入缓存
+@CachePut(value = "test", key = "'user_id:' + #userId")
+public UserDTO putUser(String userId, UserDTO userDTO) {
+    return userDTO;
+}
+
+// 清除缓存
+@CacheEvict(value = "orca-resource", key = "'user_id:' + #userId")
+public String evictUser(String userId) {
+    return userId;
+}
+```
+
+
+
+### 3.2. Dict字典操作
+
+基于Redis，约定了一组字典操作接口，以及DictHelper，相关实现可以参考：sys-admin
+
+- 字典接口 Dict
+
+字典的具体字段交给应用自由定义，但是要能提供以下信息：
+
+```java
+public interface Dict {
+    String getGroupCode();  // 字典分组
+    String getTypeCode();   // 字典类型
+    String getDictCode();   // 字典码
+    String getDictLabel();  // 字典名称
+    Object getDictValue();  // 字典值
+    Integer getDictOrder(); // 字典排序
+}
+```
+
+- 缓存操作 DictHelper
+
+```java
+private static final String KEY_DICT = "sys-dict:dict:";
+private static final String KEY_TYPE = "sys-dict:type:";
+private static final String KEY_GROUP = "sys-dict:group:";
+    
+public void clear() {
+public void put(Dict dict) {
+public <T extends Dict> List<T> getGroup(String groupCode) {
+public <T extends Dict> List<T> getType(String typeCode) {
+public <T extends Dict> T getDict(String dictCode) {
+public String getDictLabel(String dictCode) {
+public <T> T getDictValue(String dictCode) {
+public void removeDict(String dictCode) {
+public void removeType(String typeCode) {
+public void removeGroup(String groupCode) {
+```
+
+
+
+### 3.3. Redisson分布式锁
+
+- 依赖：
 
 ```xml
 <dependency>
@@ -728,6 +827,8 @@ StringRedisHelper 对应 StringRedisTemplate
 </dependency>
 ```
 
+- 操作
+
 在redisson的基础上提供了一个帮助类`RedissonLockHelper`
 
 ```java
@@ -735,6 +836,8 @@ public boolean tryLock(long awaitTime, TimeUnit timeUnit, String name, String...
 public boolean tryLock(long awaitTime, long leaseTime, TimeUnit timeUnit, String name, String... keys);
 public void releaseLock(String name, String... keys);
 ```
+
+- 注解
 
 以及一个方法注解`@RedissonLock`
 
@@ -773,50 +876,7 @@ public @interface RedissonLock {
 
 
 
-
-## 5. Dict字典操作
-
-在Redis的基础上，约定了一组字典操作，在framework中定义一个字典接口Dict和一组字典缓存操作DictHelper
-
-相关的字典实现可以参考：sys-admin管理系统设计
-
-- 字典接口 Dict
-
-字典的具体字段交给应用自由定义，但是要能提供以下信息：
-
-```java
-public interface Dict {
-    String getGroupCode();  // 字典分组
-    String getTypeCode();   // 字典类型
-    String getDictCode();   // 字典码
-    String getDictLabel();  // 字典名称
-    Object getDictValue();  // 字典值
-    Integer getDictOrder(); // 字典排序
-}
-```
-
-- 缓存操作 DictHelper
-
-```java
-private static final String KEY_DICT = "sys-dict:dict:";
-private static final String KEY_TYPE = "sys-dict:type:";
-private static final String KEY_GROUP = "sys-dict:group:";
-    
-public void clear() {
-public void put(Dict dict) {
-public <T extends Dict> List<T> getGroup(String groupCode) {
-public <T extends Dict> List<T> getType(String typeCode) {
-public <T extends Dict> T getDict(String dictCode) {
-public String getDictLabel(String dictCode) {
-public <T> T getDictValue(String dictCode) {
-public void removeDict(String dictCode) {
-public void removeType(String typeCode) {
-public void removeGroup(String groupCode) {
-```
-
-
-
-## 6. Kafka操作
+## 4. Kafka操作
 
 需要声明依赖：
 
@@ -863,13 +923,13 @@ public void consume(ConsumerRecord<?, ?> record) {
 
 
 
-## 7. 文件操作
+## 5. 文件操作
 
 对于常见的文件操作，比如上传下载删除等，我们提供了FileService。相关的实现可以参考：sys-admin
 
 
 
-### 7.1. 本地操作
+### 5.1. 本地操作
 
 ```java
 /**
@@ -889,7 +949,7 @@ public void localDownload(HttpServletResponse resp, String filename, String file
 
 
 
-### 7.2. minio操作
+### 5.2. minio操作
 
 需要声明依赖：
 
@@ -935,7 +995,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 8. Excel操作 easy-excel
+## 6. Excel操作 easy-excel
 
 对于Excel操作，我们统一使用easy-excel，需要自己声明依赖
 
@@ -948,7 +1008,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 9. Elasticsearch操作 easy-es
+## 7. Elasticsearch操作 easy-es
 
 对于Elasticsearch操作，我们统一使用easy-es，需要自己声明依赖
 
@@ -961,7 +1021,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 10. 异步任务 @Async / 线程池
+## 8. 异步任务 @Async / 线程池
 
 - 注解 @Async
 
@@ -1025,15 +1085,15 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
   
   
 
-## 11. 定时任务
+## 9. 定时任务
 
-### 11.1. spring-scheduled
+### 9.1. spring-scheduled
 
 spring-scheduled是默认提供的定时方式，比较常用，这里不用多赘述；
 
 
 
-### 11.2. spring-fom
+### 9.2. spring-fom
 
 默认已经引入了依赖，相比spring-scheduled，做了一些应用场景的扩展，以及提供了一些运维监控上的能力，简单示例如下：
 
@@ -1043,19 +1103,19 @@ spring-scheduled是默认提供的定时方式，比较常用，这里不用多�
 @Fom(fixedDelay = 30000, remark = "心跳")
 public class HeartbeatScheduler {
 
-	@Autowired
-	private HeartbeatClient heartbeatClient;
+    @Autowired
+    private HeartbeatClient heartbeatClient;
 
-	@Schedule
-	public void heartbeat() {
-		heartbeatClient.sendHeartbeat();
-	}
+    @Schedule
+    public void heartbeat() {
+        heartbeatClient.sendHeartbeat();
+    }
 }
 ```
 
 
 
-## 12. 服务调用 spring-feign
+## 10. 服务调用 spring-feign
 
 对于Http服务调用，我们自定义了一个轻量级的调用工具 spring-feign，可以解决大多数的调用场景；
 
@@ -1063,9 +1123,9 @@ public class HeartbeatScheduler {
 
 
 
-## 13. 服务注册
+## 11. 服务注册
 
-### 13.1 Eureka注册
+### 11.1 Eureka注册
 
 需要声明依赖：
 
@@ -1124,7 +1184,7 @@ apollo:
 
 
 
-### 13.2 Nacos注册
+### 11.2 Nacos注册
 
 需要声明依赖：
 
@@ -1169,7 +1229,7 @@ nacos可以进行配置管理，但是依赖也需要自己声明（以下是nac
 
 
 
-## 14. 服务健康 spring-boot-admin
+## 12. 服务健康 spring-boot-admin
 
 在Eureka或Nacos的服务中，我们集成了spring-boot-admin-server，所以访问服务的http://{ip}:{port}/health可以看到所有注册的服务健康情况，对于常见的数据库/Redis/Kafka健康检查，我们进行一些重写，方便获取信息或定位问题。另外，对于info面板信息，也追加了一些信息，此外，通过服务脚本命令也可以获取：./run.sh version
 
@@ -1191,7 +1251,7 @@ management:
 
 
 
-## 15. socket-io
+## 13. socket-io
 
 java服务端的socketio依赖版本比较旧，这限制了前端vue所选择的socket-io版本
 
@@ -1199,8 +1259,8 @@ java服务端的socketio依赖版本比较旧，这限制了前端vue所选择�
 
 ```xml
 <dependency>
-	<groupId>com.corundumstudio.socketio</groupId>
-	<artifactId>netty-socketio</artifactId>
+    <groupId>com.corundumstudio.socketio</groupId>
+    <artifactId>netty-socketio</artifactId>
 </dependency>
 ```
 
@@ -1261,7 +1321,7 @@ public interface ConnectedHandler {
 
 
 
-## 16. 地理区域关系
+## 14. 地理区域关系
 
 区域覆盖在我们的产品中是一个比较常见的场景，比如判断波束是否覆盖了某一指定区域
 
@@ -1296,7 +1356,7 @@ public static boolean containsArea(GeoArea src, GeoArea target);               /
 
 
 
-## 17. Commons-tools
+## 15. Commons-tools
 
 不要随意定义各种util工具类，约定优先使用commons-tools中归纳的各种工具类，或者Hutool以及apacha commons中提供的；
 

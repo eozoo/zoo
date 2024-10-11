@@ -6,7 +6,7 @@
  * This code is proprietary and confidential.
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  */
-package com.cowave.commons.framework.support.cache;
+package com.cowave.commons.framework.support.redis.cache;
 
 import com.cowave.commons.framework.support.redis.RedisHelper;
 import lombok.RequiredArgsConstructor;

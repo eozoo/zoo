@@ -6,7 +6,7 @@
  * This code is proprietary and confidential.
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  */
-package com.cowave.commons.framework.support.cache;
+package com.cowave.commons.framework.support.redis.cache;
 
 import com.cowave.commons.framework.support.redis.RedisHelper;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -90,7 +90,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     protected Object lookup(Object key) {
         if(!cacheProperties.isL2Enable()){
             Object value = local.getIfPresent(key);
-            log.debug("Lv1 cache get, key={}, value={}", key, value);
+            log.debug("L1 cache get, key={}, value={}", key, value);
             return value;
         }
 
@@ -109,7 +109,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         }
         // L1获取
         value = local.getIfPresent(key);
-        log.debug("Lv1 cache get, key={}, value={}", key, value);
+        log.debug("L1 cache get, key={}, value={}", key, value);
         // L1同步到L2
         if (value != null) {
             redisPut(key, value);
@@ -120,7 +120,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     private Object l1FirstLookup(Object key) {
         // L1获取
         Object value = local.getIfPresent(key);
-        log.debug("Lv1 cache get, key={}, value={}", key, value);
+        log.debug("L1 cache get, key={}, value={}", key, value);
         if (value != null) {
             return value;
         }
@@ -128,7 +128,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         value = redisGet(key);
         // L2同步到L1
         if (value != null) {
-            log.debug("Lv1 cache put, key={}, value={}", key, value);
+            log.debug("L1 cache put, key={}, value={}", key, value);
             local.put(key, toStoreValue(value));
         }
         return value;
@@ -140,7 +140,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
           return;
         }
         local.put(key, toStoreValue(value));
-        log.debug("Lv1 cache put, key={}, value={}", key, value);
+        log.debug("L1 cache put, key={}, value={}", key, value);
         if(cacheProperties.isL2Enable()){
             redisPut(key, value);
         }
@@ -166,7 +166,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         Object value = null;
         try{
             value = redisHelper.getValue(redisKey);
-            log.debug("Lv2 cache get, key={}, value={}", redisKey, value);
+            log.debug("L2 cache get, key={}, value={}", redisKey, value);
         }catch (Exception e){
             log.error("L2 cache get failed, key={}", redisKey);
         }
@@ -182,7 +182,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
             } else {
                 redisHelper.putValue(redisKey, toStoreValue(value));
             }
-            log.debug("Lv2 cache put, key={}, value={}", redisKey, value);
+            log.debug("L2 cache put, key={}, value={}", redisKey, value);
         }catch(Exception e){
             log.error("L2 cache put failed, key={}", redisKey);
         }
