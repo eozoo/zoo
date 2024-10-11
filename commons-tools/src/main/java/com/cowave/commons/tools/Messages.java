@@ -48,7 +48,7 @@ public class Messages {
         if(local != null){
             return local;
         }
-        return Locale.getDefault();
+        return Locale.CHINA;
     }
 
     public static void clearLanguage() {

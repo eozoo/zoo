@@ -20,7 +20,6 @@ import org.slf4j.MDC;
 import org.springframework.feign.codec.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConversionException;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +67,7 @@ public class AccessFilter implements Filter {
         AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest);
         try{
             accessRequestWrapper.recordAccessParams();
-        }catch (HttpMessageConversionException e){
+        }catch (Exception e){
             int httpStatus = BAD_REQUEST.getStatus();
             if(isAlwaysSuccess){
                 httpStatus = SUCCESS.getStatus();

@@ -27,29 +27,37 @@ public @interface Operation {
     /**
      * 操作类型
      */
-    String type();
+    String type() default "";
 
     /**
      * 操作动作
      */
-    String action();
+    String action() default "";
 
     /**
-     * 处理表达式，可用参数：
+     * 操作描述，支持SPEL，可用参数
+     * <p> 1.方法入参
+     * <p> 2.resp: 返回值
+     * <p> 3.exception: 异常对象
+     */
+    String summary() default "";
+
+    /**
+     * 操作处理，支持SPEL，可用参数：
      * <p> 1.opHandler: 处理类
      * <p> 2.方法入参
-     * <p> 3.opInfo: 操作信息（类型 OperationInfo）
-     * <p> 4.resp: 返回值
-     * <p> 5.exception: 异常对象
+     * <p> 3.resp: 返回值
+     * <p> 4.exception: 异常对象
+     * <p> 5.opInfo: 操作信息（类型 OperationInfo）
      * <p>
      * <p> 示例：opHandler.handle(opInfo, resp, exception, ...)
      */
-    String opExpr();
+    String expr();
 
     /**
      * 日志处理类（spring bean）
      */
-    Class<?> handlerClass();
+    Class<?> handler();
 
     /**
      * 是否异步处理

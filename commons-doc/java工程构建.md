@@ -338,7 +338,7 @@ spring:
 
 ### 1.9. src/main/resources/META-INF/i18n
 
-国际化资源文件目录，commons-framework默认会尝试加载`META-INF/i18n/messages`，如果不是可以修改掉默认配置
+国际化资源文件目录，一般约定如下配置
 
 ```yaml
 spring:

@@ -15,6 +15,7 @@ import com.cowave.commons.framework.configuration.ClusterInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Objects;
@@ -29,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @SuppressWarnings("deprecation")
 @RequiredArgsConstructor
 @ConditionalOnClass(WebSecurityConfigurerAdapter.class)
-@Service("permit")
+@Component("permit")
 public class Permission {
 
     public static final String ROLE_ADMIN = "sysAdmin";

@@ -11,6 +11,7 @@ package com.cowave.commons.framework.helper.operation;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 操作属性
@@ -56,6 +57,11 @@ public class OperationInfo {
     private String deptCode;
 
     /**
+     * 请求参数
+     */
+    private Map<String, Object> opArgs;
+
+    /**
      * 操作类型
      */
     private String opType;
@@ -64,6 +70,16 @@ public class OperationInfo {
      * 操作动作
      */
     private String opAction;
+
+    /**
+     * 操作耗时
+     */
+    private long opCost;
+
+    /**
+     * 操作描述
+     */
+    private String summary;
 
     /**
      * 操作是否成功

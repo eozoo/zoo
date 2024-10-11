@@ -95,19 +95,19 @@ public class AccessAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public HttpResponse<Response<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String message = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, message);
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
     }
 
     @ExceptionHandler(BindException.class)
     public HttpResponse<Response<Void>> handleBindException(BindException e) {
         String message = e.getAllErrors().get(0).getDefaultMessage();
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, message);
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public HttpResponse<Response<Void>> handleConstraintViolationException(ConstraintViolationException e) {
         String message = e.getMessage().split(": ")[1];
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, message);
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
     }
 
     @ExceptionHandler(RemoteAssertsException.class)
@@ -122,17 +122,17 @@ public class AccessAdvice {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public HttpResponse<Response<Void>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
     }
 
     @ExceptionHandler(HttpMessageConversionException.class)
     public HttpResponse<Response<Void>> handleHttpMessageConversionException(HttpMessageConversionException e) {
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, Messages.msg("frame.advice.httpMessageConversionException"));
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, Messages.msg("frame.advice.httpMessageConversionException"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public HttpResponse<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
-        return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_2, Messages.msg("frame.auth.denied"));
+        return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_1, Messages.msg("frame.auth.denied"));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

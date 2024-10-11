@@ -134,7 +134,7 @@ Response.page(mybatisplus..Page<E> page); // status=200, code=200, msg="success"
 
 - 响应码设置：
 
-可以看到，Response的Http状态和响应码**（固定是200）**，而使用HttpResponse可以具体指定
+可以看到，Response的HttpStatus和错误码code都固定为【200】，使用HttpResponse则可以具体指定
 
 ```json
 HttpResponse.code(HttpCode httpCode);         // status=#{HttpCode.status}, body=#{HttpCode.msg}
@@ -150,34 +150,34 @@ HttpResponse.success(V data); // status=200, body=#{data}
 针对Restful请求，AccessAdvice会在返回时统一处理异常，根据类型进行不同的提示（支持国际化），默认进行如下转换：
 
 ```
-HttpRequestMethodNotSupportedException   ## 不支持的请求方法
-HttpMessageConversionException           ## 请求参数转换失败
-AccessDeniedException                    ## 没有访问权限
-IllegalArgumentException                 ## 非法参数:{0}
-SQLException                             ## 数据操作失败
-DuplicateKeyException                    ## 数据主键冲突
-DataAccessException                      ## 数据访问失败
-Exception                                ## 系统错误
-BindException                            ## Validation注解内容
-ConstraintViolationException             ## Validation注解内容
-MethodArgumentNotValidException          ## Validation注解内容
-RemoteException                          ## 远程调用失败
+HttpRequestMethodNotSupportedException   ##【400】不支持的请求方法
+HttpMessageConversionException           ##【400】请求参数转换失败
+AccessDeniedException                    ##【403】权限不足
+IllegalArgumentException                 ##【400】非法参数:{0}
+SQLException                             ##【500】数据操作失败
+DuplicateKeyException                    ##【500】数据主键冲突
+DataAccessException                      ##【500】数据访问失败
+Exception                                ##【500】系统错误
+BindException                            ##【400】Validation注解内容
+ConstraintViolationException             ##【400】Validation注解内容
+MethodArgumentNotValidException          ##【400】Validation注解内容
+RemoteException                          ##【500】远程调用失败
 
-RemoteAssertsException                   ## 异常msg
-AssertsException                         ## 异常msg
-HttpException                            ## 异常msg
+RemoteAssertsException                   ##【500】异常msg
+AssertsException                         ##【597】异常msg
+HttpException                            ##【指定】异常msg
 ```
 
 
 
 - 响应吗设置
 
-对应异常场景，默认返回的Http状态码是由对应`HttpCode`定义的，不过在Java开发中，很多时候习惯将Http状态码**（固定为200）**，然后通过业务code来区分，这种情况可以修改如下默认配置：
+对应异常场景，默认返回的Http状态码是由对应`HttpCode`定义的，不过在Java开发中，很多时候都习惯将HttpStatus固定为【200】，然后通过错误码code来区分，这种情况可以修改如下默认配置：
 
 ```yaml
 spring:
   access:
-    always-success: false  ## 改成true，http状态码永远返回200
+    always-success: false  ## 改成true，httpStatus永远返回200
 ```
 
 
@@ -200,7 +200,7 @@ public class AssertsException extends RuntimeException {
 }
 ```
 
-类似的，AssertsException的Http状态和响应码**（固定为597）**，而使用HttpException可以具体指定
+类似的，AssertsException的HttpStatus和错误码code都固定为【597】，使用HttpException则可以具体指定
 
 ```java
 public class HttpException extends RuntimeException {
@@ -279,15 +279,16 @@ public interface AccessExceptionHandler {
 
 ### 1.5. 国际化处理 Accept-Language
 
-对于国际化参数，约定在Http Header中通过Accept-Language来传递，默认取值为：Locale.getDefault()
+对于国际化参数，约定在Http Header中通过Accept-Language来传递，默认取值为：`Locale.CHINA`
 
 
 
 - 国际化资源
 
-在《Java工程构建》中已有描述，约定为：`META-INF/i18n/messages`，或者自行修改默认配置
+在《Java工程构建》中已有描述，一般资源文件配置为：`META-INF/i18n/messages`
 
 ```yaml
+## framework中定义了一个国际化资源文件：META-INF/i18n/messages-frame，不要重名就行
 spring:
   messages:
     basename: META-INF/i18n/messages
@@ -416,26 +417,53 @@ public class SecurityConfiguration {
 
 
 
-- 接口权限
+- 操作权限 / 数据权限【403】
 
-以上讨论是针对访问鉴权，要求用户在访问之前先进行登录。
+上面讨论的是针对访问鉴权，要求用户在访问之前先进行登录，在登录之后可能还要限制操作权限或数据权限；
 
-如果在已经登录的基础上，需要限制用户的操作权限，则对应提供的一个permit鉴权实例（spring bean）
+对于【操作权限】，默认定义的"permit"提供了一些常见的鉴权判断（不满足，可以再自行定义）：
 
 ```java
-public boolean isAdmin();                     // 是否管理员
-public boolean hasRole(String role);          // 是否拥有角色
-public boolean hasPermit(String permission);  // 是否拥有权限/菜单
-public boolean isCurrentCluster();            // 是否登录的当前集群
+@Component("permit")
+public class Permission {
+    public boolean isAdmin();                     // 是否管理员
+    public boolean hasRole(String role);          // 是否拥有角色
+    public boolean hasPermit(String permission);  // 是否拥有权限/菜单
+    public boolean isCurrentCluster();            // 是否登录的当前集群
+}
 ```
 
-这样在Controller接口上可以通过`@PreAuthorize`对接口操作进行一些鉴权判断，不满足会返回403
+这样在Controller接口上可以通过`@PreAuthorize`对接口操作进行一些鉴权判断
 
 ```java
 @PreAuthorize("@permit.hasRole('sysAdmin')")
 @GetMapping("/list")
 public Response<Page<SysConfig>> list(SysConfig config){
    return Response.page(configService.selectConfigList(config));
+}
+```
+
+
+
+类似的，对于【数据权限】，也可以自行定义一些判断处理，比如：
+
+```java
+@Component("scope")
+public class ScopeHandler {
+    public boolean isDataOwner(Oplog oplog){
+        return Objects.equals(oplog.getId(), Access.userId());
+    }
+}
+```
+
+然后在接口上添加数据权限判断：
+
+```java
+@PreAuthorize("@scope.isDataOwner(#oplog)")
+@PostMapping("/post")
+public Response<Void> post(@RequestBody Oplog oplog) {
+    testService.post(oplog);
+    return Response.success();
 }
 ```
 
@@ -448,48 +476,63 @@ public Response<Page<SysConfig>> list(SysConfig config){
 ```java
 public @interface Operation {
 
-    /**
-     * 操作类型
-     */
-    String type();
+  /**
+   * 操作类型
+   */
+  String type() default "";
 
-    /**
-     * 操作动作
-     */
-    String action();
+  /**
+   * 操作动作
+   */
+  String action() default "";
 
-    /**
-     * 处理表达式，可用参数：
-     * <p> 1.opHandler: 处理类
-     * <p> 2.方法入参
-     * <p> 3.opInfo: 操作信息（类型 OperationInfo）
-     * <p> 4.resp: 返回值
-     * <p> 5.exception: 异常对象
-     * <p>
-     * <p> 示例：opHandler.xx(opInfo, resp, exception, ...方法其它参数)
-     */
-    String opExpr();
+  /**
+   * 操作描述，支持SPEL，可用参数
+   * <p> 1.方法入参
+   * <p> 2.resp: 返回值
+   * <p> 3.exception: 异常对象
+   */
+  String summary() default "";
 
-    /**
-     * 日志处理类（spring bean）
-     */
-    Class<?> handlerClass();
+  /**
+   * 操作处理，支持SPEL，可用参数：
+   * <p> 1.opHandler: 处理类
+   * <p> 2.方法入参
+   * <p> 3.resp: 返回值
+   * <p> 4.exception: 异常对象
+   * <p> 5.opInfo: 操作信息（类型 OperationInfo）
+   * <p>
+   * <p> 示例：opHandler.handle(opInfo, resp, exception, ...)
+   */
+  String expr();
 
-    /**
-     * 是否异步处理
-     */
-    boolean isAsync() default false;
+  /**
+   * 日志处理类（spring bean）
+   */
+  Class<?> handler();
+
+  /**
+   * 是否异步处理
+   */
+  boolean isAsync() default false;
 }
 ```
 
 - 示例
 
 ```java
-// 可以通过handlerClass指定一个自定义的springBean，在expr中引用自定义方法来处理，约定的参数见上面注释说明
-@Operation(type = "test", action = "get", opExpr = "#opHandler.xxx(#id, #opInfo, #resp, #exception)", handlerClass = OplogHandler.class)
+// summary和expr支持SPEL表达式，可以通过handler指定一个自定义的springBean，然后在expr中通过#opHandler引用其方法处理
+@Operation(type = "test", action = "get", summary = "获取：#{#id}", expr = "#opHandler.xxx(#id, #opInfo, #resp, #exception)", handler = OplogHandler.class)
 @GetMapping("/get")
 public Response<String> get(String id) {
     return Response.success(testService.get(id));
+}
+
+@Operation(type = "test", action = "get", summary = "新增：#{#oplog.name}", expr = "#opHandler.xxx(#oplog, #opInfo, #resp, #exception)", handler = OplogHandler.class)
+@PostMapping("/post")
+public Response<Void> post(@RequestBody Oplog oplog) {
+    testService.post(oplog);
+    return Response.success();
 }
 ```
 

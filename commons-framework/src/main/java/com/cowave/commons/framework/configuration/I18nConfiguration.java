@@ -8,6 +8,7 @@
  */
 package com.cowave.commons.framework.configuration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.HibernateValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -32,11 +33,15 @@ public class I18nConfiguration {
     private static final String FRAMEWORK_MESSAGES = "META-INF/i18n/messages-frame";
 
     @Bean
-    public ResourceBundleMessageSource messageSource(
-            @Value("${spring.messages.basename:META-INF/i18n/messages}") String messages) {
+    public ResourceBundleMessageSource messageSource(@Value("${spring.messages.basename:}") String messages) {
+        String[] array;
+        if(StringUtils.isNotBlank(messages)){
+            array = Stream.concat(
+                    Arrays.stream(messages.split(",")), Stream.of(FRAMEWORK_MESSAGES)).toArray(String[]::new);
+        }else{
+            array = new String[]{FRAMEWORK_MESSAGES};
+        }
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        String[] array = Stream.concat(
-                Arrays.stream(messages.split(",")), Stream.of(FRAMEWORK_MESSAGES)).toArray(String[]::new);
         messageSource.setBasenames(array);
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
