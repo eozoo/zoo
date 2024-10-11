@@ -2078,20 +2078,6 @@
       "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$AlarmConfig",
-      "type": "java.lang.Boolean",
-      "name": "spring.access.alarm.kafka-enable",
-      "description": "access异常告警是否发kafka",
-      "defaultValue": true
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$AlarmConfig",
-      "type": "java.lang.String",
-      "name": "spring.access.alarm.kafka-topic",
-      "description": "access异常告警的Topic",
-      "defaultValue": "access-alarm"
-    },
-    {
       "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.header",

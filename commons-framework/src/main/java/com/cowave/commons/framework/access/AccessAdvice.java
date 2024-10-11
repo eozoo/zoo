@@ -10,9 +10,6 @@ package com.cowave.commons.framework.access;
 
 import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.tools.Messages;
-import com.cowave.commons.framework.helper.alarm.AccessAlarmFactory;
-import com.cowave.commons.framework.helper.alarm.Alarm;
-import com.cowave.commons.framework.helper.alarm.AlarmHandler;
 import com.cowave.commons.tools.AssertsException;
 import com.cowave.commons.tools.DateUtils;
 import com.cowave.commons.tools.HttpException;
@@ -39,7 +36,6 @@ import javax.validation.ConstraintViolationException;
 import java.beans.PropertyEditorSupport;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import static org.springframework.feign.codec.ResponseCode.*;
@@ -67,15 +63,10 @@ public class AccessAdvice {
 
     private final AccessLogger accessLogger;
 
-    private final ThreadPoolExecutor applicationExecutor;
-
     private final AccessConfiguration accessConfiguration;
 
     @Nullable
-    private final AlarmHandler alarmHandler;
-
-    @Nullable
-    private final AccessAlarmFactory<? extends Alarm> accessAlarmFactory;
+    private final AccessExceptionHandler accessExceptionHandler;
 
     /**
      * 参数转换
@@ -194,14 +185,14 @@ public class AccessAdvice {
         }
         HttpResponse<Response<Void>> httpResponse = new HttpResponse<>(httpStatus, null, response);
         httpResponse.setMessage(String.format("{code=%s, msg=%s}", code, message));
-        // log & alarm
+        // 打印log
         accessLogger.logResponse(httpResponse);
-        if (alarmHandler != null && accessAlarmFactory != null) {
-            Alarm alarm = accessAlarmFactory.createAlarm(httpStatus, code, message, response, e);
-            if(alarm.isAsync()){
-                applicationExecutor.execute(() -> alarmHandler.handle(alarm));
-            }else{
-                alarmHandler.handle(alarm);
+        // 自定义处理，比如生成告警
+        if(accessExceptionHandler != null){
+            try{
+                accessExceptionHandler.handler(e, httpStatus, response);
+            }catch(Exception ex){
+                AccessLogger.error("", ex);
             }
         }
         return httpResponse;

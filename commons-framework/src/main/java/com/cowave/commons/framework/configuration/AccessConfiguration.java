@@ -40,11 +40,6 @@ public class AccessConfiguration {
      */
     private TokenConfig token;
 
-    /**
-     * Access异常告警
-     */
-    private AlarmConfig alarm;
-
     public String tokenHeader(){
         if(token != null){
             return token.header;
@@ -86,21 +81,6 @@ public class AccessConfiguration {
         return new ArrayList<>();
     }
 
-    public boolean alarmKafkaEnable(){
-        if(alarm != null){
-            return alarm.kafkaEnable;
-        }
-        return true;
-    }
-
-    public String alarmKafkaTopic(){
-        if(alarm != null){
-            return alarm.kafkaTopic;
-        }
-        return "access-alarm";
-    }
-
-
     @Data
     public static class TokenConfig {
 
@@ -133,13 +113,5 @@ public class AccessConfiguration {
          * 忽略鉴权的url
          */
         private List<String> ignoreUrls = new ArrayList<>();
-    }
-
-    @Data
-    public static class AlarmConfig {
-
-        private boolean kafkaEnable = true;
-
-        private String kafkaTopic = "access-alarm";
     }
 }

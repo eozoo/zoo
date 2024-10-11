@@ -10,7 +10,7 @@
 
 ## 1. 请求处理
 
-Access对应定义了一套默认配置，具体作用会在下面分别进行说明
+Access对应定义了一组默认配置，具体在下面遇到会进行说明
 
 ```yaml
 spring:
@@ -25,9 +25,6 @@ spring:
       accessExpire: 3600
       refreshExpire: 6400
       ignoreUrls:
-    alarm:
-      kafka-enable: true
-      kafka-topic: access-alarm
 ```
 
 
@@ -83,7 +80,72 @@ warn    只打印非200响应(附带请求信息)
 
 
 
-### 1.3. 异常处理 AccessAdvice
+### 1.3. 请求响应 Response
+
+- 响应头
+
+对于在`AccessFilter`中拦截到的请求，都会在响应Header中设置`Access-Id`，方便根据响应排查请求处理的过程日志（access.log）
+
+
+
+- 响应结构
+
+一般的响应结构：
+
+```json
+{
+  "code": "",      // 响应码 
+  "msg": "",       // 响应描述
+  "cause": "",     // 异常堆栈信息
+  "data": {}       // 响应内容
+}
+```
+
+分页请求的响应（关于分页参数的约定：页码可以使用`page`、`pageIndex`、`pageNum`，条目数使用`pageSize`）
+
+```java
+{
+  "code": "",      // 响应码 
+  "msg": "",       // 响应描述
+  "cause": "",     // 异常堆栈信息
+  "data": {
+    "total": 100,  // 分页总数
+    "list": []     // 分页条目
+  }       
+}
+```
+
+为了方便，提供了对应的静态构造器（这样Controller接口的代码尽量简洁些）：
+
+```java
+Response.code(HttpCode code);             // status=200, code=#{code.code}, msg=#{code.msg}, data=null   
+Response.data(HttpCode code, V data);     // status=200, code=#{code.code}, msg=#{code.msg}, data=#{data}
+Response.msg(HttpCode code, String msg);  // status=200, code=#{code.code}, msg=#{msg}, data=null
+Response.success();                   // status=200, code=200, msg="success", data=null
+Response.success(V data);             // status=200, code=200, msg="success", data=#{data}
+Response.success(V data, String msg); // status=200, code=200, msg=#{msg}, data=#{data}
+Response.error();            // status=200, code=500, msg="Internal Server Error", data=null
+Response.error(String msg);  // status=200, code=500, msg=#{msg}, data=null
+Response.page(List<E> list);              // status=200, code=200, msg="success", data=#{page}
+Response.page(mybatisplus..Page<E> page); // status=200, code=200, msg="success", data=#{page}
+```
+
+
+
+- 响应码设置：
+
+可以看到，Response的Http状态和响应码**（固定是200）**，而使用HttpResponse可以具体指定
+
+```json
+HttpResponse.code(HttpCode httpCode);         // status=#{HttpCode.status}, body=#{HttpCode.msg}
+HttpResponse.body(HttpCode httpCode, V data); // status=#{HttpCode.status}, body=#{data}
+HttpResponse.success();       // status=200, body=null
+HttpResponse.success(V data); // status=200, body=#{data}
+```
+
+
+
+### 1.4. 异常处理 AccessAdvice
 
 针对Restful请求，AccessAdvice会在返回时统一处理异常，根据类型进行不同的提示（支持国际化），默认进行如下转换：
 
@@ -110,7 +172,7 @@ HttpException                            ## 异常msg
 
 - 响应吗设置
 
-默认返回的Http状态码是由`HttpCode`定义的，不过在Java开发中，很多时候习惯将Http状态码全部置为200，然后通过业务code来区分，这种情况可以修改如下默认配置：
+对应异常场景，默认返回的Http状态码是由对应`HttpCode`定义的，不过在Java开发中，很多时候习惯将Http状态码**（固定为200）**，然后通过业务code来区分，这种情况可以修改如下默认配置：
 
 ```yaml
 spring:
@@ -138,7 +200,7 @@ public class AssertsException extends RuntimeException {
 }
 ```
 
-AssertsException的Http状态和错误码固定为597，使用HttpException可以具体指定
+类似的，AssertsException的Http状态和响应码**（固定为597）**，而使用HttpException可以具体指定
 
 ```java
 public class HttpException extends RuntimeException {
@@ -146,6 +208,18 @@ public class HttpException extends RuntimeException {
     private final int status;
 
     private final String code;
+
+    public HttpException(HttpCode httpCode) {
+        super(httpCode.getMsg());
+        this.code = httpCode.getCode();
+        this.status = httpCode.getStatus();
+    }
+
+    public HttpException(HttpCode httpCode, String message, Object... args) {
+        super(Messages.translateIfNeed(message, args));
+        this.code = httpCode.getCode();
+        this.status = httpCode.getStatus();
+    }
 
     public HttpException(int status, String code, String message, Object... args) {
         super(Messages.translateIfNeed(message, args));
@@ -162,11 +236,48 @@ public class HttpException extends RuntimeException {
 }
 ```
 
-另外，为了使用方便也提供了对应的断言类`Asserts` 和 `HttpAsserts`
+为了方便使用，也提供了对应的断言类`Asserts` 和 `HttpAsserts`
+
+```java
+public class Asserts {
+
+	public static void isTrue(boolean expression, String message, Object... args) {
+		if (!expression) {
+			throw new AssertsException(message, args);
+		}
+	}
+  
+  ...
+}
+
+public class HttpAsserts {
+
+    public static void isTrue(boolean expression, int status, String code, String message, Object... args) {
+        if (!expression) {
+            throw new HttpException(status, code, message, args);
+        }
+    }
+  
+    ...
+}
+```
 
 
 
-### 1.4. 国际化处理 Accept-Language
+- 定义异常处理
+
+如果需要根据异常做一些处理，比如生成告警之类，可以声明一个AccessExceptionHandler实例
+
+```java
+public interface AccessExceptionHandler {
+
+    void handler(Exception e, int status, Response<Void> response);
+}
+```
+
+
+
+### 1.5. 国际化处理 Accept-Language
 
 对于国际化参数，约定在Http Header中通过Accept-Language来传递，默认取值为：Locale.getDefault()
 
@@ -223,71 +334,6 @@ throw new HttpException(400, "400", "{user.notnull.account}", args);
 或者
 Asserts.notNull(userAccount, "{user.notnull.account}", args);
 HttpAsserts.notNull(userAccount, 400, "400", "{user.notnull.account}", args);
-```
-
-
-
-### 1.5. 请求响应 Response
-
-- 响应头
-
-对于在`AccessFilter`中拦截到的请求，都会在响应头中设置`Access-Id`，这样方便根据响应反查请求处理的过程日志（access.log）
-
-
-
-- 响应结构
-
-一般的响应结构：
-
-```json
-{
-  "code": "",      // 响应码 
-  "msg": "",       // 响应描述
-  "cause": "",     // 异常堆栈信息
-  "data": {}       // 响应内容
-}
-```
-
-分页的响应结构（关于分页参数的约定：页码可以使用`page`、`pageIndex`、`pageNum`，每页条目数使用`pageSize`）
-
-```java
-{
-  "code": "",      // 响应码 
-  "msg": "",       // 响应描述
-  "cause": "",     // 异常堆栈信息
-  "data": {
-    "total": 100,  // 分页总数
-    "list": []     // 分页条目
-  }       
-}
-```
-
-为了方便，对应提供了静态的响应构造器（尽量保证Controller接口的代码简洁）：
-
-```java
-Response.code(HttpCode code);             // status=200, code=#{code.code}, msg=#{code.msg}, data=null   
-Response.data(HttpCode code, V data);     // status=200, code=#{code.code}, msg=#{code.msg}, data=#{data}
-Response.msg(HttpCode code, String msg);  // status=200, code=#{code.code}, msg=#{msg}, data=null
-Response.success();                   // status=200, code=200, msg="success", data=null
-Response.success(V data);             // status=200, code=200, msg="success", data=#{data}
-Response.success(V data, String msg); // status=200, code=200, msg=#{msg}, data=#{data}
-Response.error();            // status=200, code=500, msg="Internal Server Error", data=null
-Response.error(String msg);  // status=200, code=500, msg=#{msg}, data=null
-Response.page(List<E> list);              // status=200, code=200, msg="success", data=#{page}
-Response.page(mybatisplus..Page<E> page); // status=200, code=200, msg="success", data=#{page}
-```
-
-
-
-- 响应码设置：
-
-上面的Response返回Http状态永远是200，如果使用HttpResponse，可以自行设置响应的Http状态，也提供了对应的静态构造器： 
-
-```json
-HttpResponse.code(HttpCode httpCode);         // status=#{HttpCode.status}, body=#{HttpCode.msg}
-HttpResponse.body(HttpCode httpCode, V data); // status=#{HttpCode.status}, body=#{data}
-HttpResponse.success();       // status=200, body=null
-HttpResponse.success(V data); // status=200, body=#{data}
 ```
 
 
@@ -390,6 +436,60 @@ public boolean isCurrentCluster();            // 是否登录的当前集群
 @GetMapping("/list")
 public Response<Page<SysConfig>> list(SysConfig config){
    return Response.page(configService.selectConfigList(config));
+}
+```
+
+
+
+### 1.7. 操作日志 Operation
+
+对于操作日志，定义了如下注解
+
+```java
+public @interface Operation {
+
+    /**
+     * 操作类型
+     */
+    String type();
+
+    /**
+     * 操作动作
+     */
+    String action();
+
+    /**
+     * 处理表达式，可用参数：
+     * <p> 1.opHandler: 处理类
+     * <p> 2.方法入参
+     * <p> 3.opInfo: 操作信息（类型 OperationInfo）
+     * <p> 4.resp: 返回值
+     * <p> 5.exception: 异常对象
+     * <p>
+     * <p> 示例：opHandler.xx(opInfo, resp, exception, ...方法其它参数)
+     */
+    String opExpr();
+
+    /**
+     * 日志处理类（spring bean）
+     */
+    Class<?> handlerClass();
+
+    /**
+     * 是否异步处理
+     */
+    boolean isAsync() default false;
+}
+```
+
+- 示例
+
+```java
+// 可以通过handlerClass指定一个自定义的springBean，在expr中引用自定义方法来处理，约定的参数见上面注释说明
+@Operation(type = "test", action = "get", opExpr = "#opHandler.xxx(#id, #opInfo, #resp, #exception)", handlerClass = OplogHandler.class)
+@GetMapping("/get")
+public Response<String> get(String id) {
+    return Response.success(testService.get(id));
 }
 ```
 
@@ -763,108 +863,13 @@ public void consume(ConsumerRecord<?, ?> record) {
 
 
 
-## 7. 系统告警
-
-对于告警处理，约定了一组接口
-
-- 类型接口 Alarm
-
-标记接口，用来标记告警类型，不做任何限制
-
-- 处理接口 AlarmHandler
-
-处理Alarm告警，比如存储到数据库或者发送消息队列。
-
-```java
-public interface AlarmHandler<T extends Alarm> {
-    void handle(T alarm);
-}
-```
-
-- Access异常告警工厂接口：AccessAlarmFactory
-
-对于Access的异常，可以实现一个AccessAlarmFactory实例来根据异常内容创建告警
-
-```java
-public interface AccessAlarmFactory<T extends Alarm> {
-    @NotNull
-    T createAlarm(int httpStatus, String code, String message, Object response, Exception e);
-}
-```
-
-创建的告警默认会发送kafka，framework中默认定义了一个AlarmKafkaHandler（如果引入了kafka依赖），对应的配置如下：
-
-```yaml
-spring:
-  access:
-    alarm:
-      kafka-enable: true
-      kafka-topic: access-alarm
-```
-
-
-
-## 8. 操作日志
-
-对于操作日志，定义了如下注解
-
-```java
-public @interface Operation {
-
-    /**
-     * 操作类型
-     */
-    String type();
-
-    /**
-     * 操作动作
-     */
-    String action();
-
-    /**
-     * 处理表达式，可用参数：
-     * <p> 1.opHandler: 处理类
-     * <p> 2.方法入参
-     * <p> 3.opInfo: 操作信息（类型 OperationInfo）
-     * <p> 4.resp: 返回值
-     * <p> 5.exception: 异常对象
-     * <p>
-     * <p> 示例：opHandler.xx(opInfo, resp, exception, ...方法其它参数)
-     */
-    String opExpr();
-
-    /**
-     * 日志处理类（spring bean）
-     */
-    Class<?> handlerClass();
-
-    /**
-     * 是否异步处理
-     */
-    boolean isAsync() default false;
-}
-```
-
-- 示例
-
-```java
-// 可以通过handlerClass指定一个自定义的springBean，在expr中引用自定义方法来处理，约定的参数见上面注释说明
-@Operation(type = "test", action = "get", opExpr = "#opHandler.xxx(#id, #opInfo, #resp, #exception)", handlerClass = OplogHandler.class)
-@GetMapping("/get")
-public Response<String> get(String id) {
-    return Response.success(testService.get(id));
-}
-```
-
-
-
-## 9. 文件操作
+## 7. 文件操作
 
 对于常见的文件操作，比如上传下载删除等，我们提供了FileService。相关的实现可以参考：sys-admin
 
 
 
-### 9.1. 本地操作
+### 7.1. 本地操作
 
 ```java
 /**
@@ -884,7 +889,7 @@ public void localDownload(HttpServletResponse resp, String filename, String file
 
 
 
-### 9.2. minio操作
+### 7.2. minio操作
 
 需要声明依赖：
 
@@ -930,7 +935,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 10. Excel操作 easy-excel
+## 8. Excel操作 easy-excel
 
 对于Excel操作，我们统一使用easy-excel，需要自己声明依赖
 
@@ -943,7 +948,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 11. Elasticsearch操作 easy-es
+## 9. Elasticsearch操作 easy-es
 
 对于Elasticsearch操作，我们统一使用easy-es，需要自己声明依赖
 
@@ -956,7 +961,7 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
 
 
 
-## 12. 异步任务 @Async / 线程池
+## 10. 异步任务 @Async / 线程池
 
 - 注解 @Async
 
@@ -1020,15 +1025,15 @@ public void minioDownloadTgz(HttpServletResponse resp, String bucket, Map<String
   
   
 
-## 13. 定时任务
+## 11. 定时任务
 
-### 13.1. spring-scheduled
+### 11.1. spring-scheduled
 
 spring-scheduled是默认提供的定时方式，比较常用，这里不用多赘述；
 
 
 
-### 13.2. spring-fom
+### 11.2. spring-fom
 
 默认已经引入了依赖，相比spring-scheduled，做了一些应用场景的扩展，以及提供了一些运维监控上的能力，简单示例如下：
 
@@ -1050,7 +1055,7 @@ public class HeartbeatScheduler {
 
 
 
-## 14. 服务调用 spring-feign
+## 12. 服务调用 spring-feign
 
 对于Http服务调用，我们自定义了一个轻量级的调用工具 spring-feign，可以解决大多数的调用场景；
 
@@ -1058,9 +1063,9 @@ public class HeartbeatScheduler {
 
 
 
-## 15. 服务注册
+## 13. 服务注册
 
-### 15.1 Eureka注册
+### 13.1 Eureka注册
 
 需要声明依赖：
 
@@ -1119,7 +1124,7 @@ apollo:
 
 
 
-### 15.2 Nacos注册
+### 13.2 Nacos注册
 
 需要声明依赖：
 
@@ -1164,7 +1169,7 @@ nacos可以进行配置管理，但是依赖也需要自己声明（以下是nac
 
 
 
-## 16. 服务健康 spring-boot-admin
+## 14. 服务健康 spring-boot-admin
 
 在Eureka或Nacos的服务中，我们集成了spring-boot-admin-server，所以访问服务的http://{ip}:{port}/health可以看到所有注册的服务健康情况，对于常见的数据库/Redis/Kafka健康检查，我们进行一些重写，方便获取信息或定位问题。另外，对于info面板信息，也追加了一些信息，此外，通过服务脚本命令也可以获取：./run.sh version
 
@@ -1186,7 +1191,7 @@ management:
 
 
 
-## 17. socket-io
+## 15. socket-io
 
 java服务端的socketio依赖版本比较旧，这限制了前端vue所选择的socket-io版本
 
@@ -1256,7 +1261,7 @@ public interface ConnectedHandler {
 
 
 
-## 18. 地理区域关系
+## 16. 地理区域关系
 
 区域覆盖在我们的产品中是一个比较常见的场景，比如判断波束是否覆盖了某一指定区域
 
@@ -1291,7 +1296,7 @@ public static boolean containsArea(GeoArea src, GeoArea target);               /
 
 
 
-## 19. Commons-tools
+## 17. Commons-tools
 
 不要随意定义各种util工具类，约定优先使用commons-tools中归纳的各种工具类，或者Hutool以及apacha commons中提供的；
 

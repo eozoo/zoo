@@ -41,6 +41,7 @@ public class HttpException extends RuntimeException {
         this.status = status;
     }
 
+    // 异常放在前面，避免方法签名混淆
     public HttpException(Throwable cause, int status, String code, String message, Object... args) {
         super(Messages.translateIfNeed(message, args), cause);
         this.code = code;
