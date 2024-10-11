@@ -35,40 +35,24 @@ public @interface Operation {
     String action();
 
     /**
-     * 操作描述
+     * 处理表达式，可用参数：
+     * <p> 1.opHandler: 处理类
+     * <p> 2.方法入参
+     * <p> 3.opInfo: 操作信息（类型 OperationInfo）
+     * <p> 4.resp: 返回值
+     * <p> 5.exception: 异常对象
+     * <p>
+     * <p> 示例：opHandler.handle(opInfo, resp, exception, ...)
      */
-    String desc() default "";
+    String opExpr();
 
     /**
-     * 操作内容
+     * 日志处理类（spring bean）
      */
-    Content content() default Content.EMPTY;
+    Class<?> handlerClass();
 
     /**
-     * 详情处理
+     * 是否异步处理
      */
-    Class<? extends OperationParser> contentHandler() default EmptyOperationParser.class;
-
-    enum Content {
-
-        /**
-         * 填空
-         */
-        EMPTY,
-
-        /**
-         * 请求
-         */
-        REQ,
-
-        /**
-         * 响应
-         */
-        RESP,
-
-        /**
-         * 请求&响应
-         */
-        ALL
-    }
+    boolean isAsync() default false;
 }

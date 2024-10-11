@@ -25,9 +25,6 @@ spring:
       accessExpire: 3600
       refreshExpire: 6400
       ignoreUrls:
-    oplog:
-      kafka-enable: true
-      kafka-topic: access-oplog
     alarm:
       kafka-enable: true
       kafka-topic: access-alarm
@@ -809,84 +806,53 @@ spring:
 
 ## 8. 操作日志
 
-对于操作日志，也约定了一组接口，相关的实现可以参考：sys-admin
-
-- 日志接口 OperationLog
-
-操作日志的具体字段交给应用自由定义，但是要能提供以下信息：
+对于操作日志，定义了如下注解
 
 ```java
-public interface OperationLog {
-    void initialize();                     // 日志初始化
-    void setTypeCode(String typeCode);     // 日志类型
-    void setActionCode(String actionCode); // 日志动作
-    void setLogStatus(Integer logStatus);  // 日志状态
-    void setLogDesc(String logDesc);       // 日志描述
-    void setRequest(Map<String, Object> request); // 设置请求内容
-    void setResponse(Object response);            // 设置响应内容
-    Object getResponse();                         // 获取响应内容
-    void putContent(String key, Object obj);      // 设置日志内容 key-value
+public @interface Operation {
+
+    /**
+     * 操作类型
+     */
+    String type();
+
+    /**
+     * 操作动作
+     */
+    String action();
+
+    /**
+     * 处理表达式，可用参数：
+     * <p> 1.opHandler: 处理类
+     * <p> 2.方法入参
+     * <p> 3.opInfo: 操作信息（类型 OperationInfo）
+     * <p> 4.resp: 返回值
+     * <p> 5.exception: 异常对象
+     * <p>
+     * <p> 示例：opHandler.xx(opInfo, resp, exception, ...方法其它参数)
+     */
+    String opExpr();
+
+    /**
+     * 日志处理类（spring bean）
+     */
+    Class<?> handlerClass();
+
+    /**
+     * 是否异步处理
+     */
+    boolean isAsync() default false;
 }
 ```
 
-- 处理接口 OperationHandler
-
-默认发送kafka，framework中默认定义了一个OperationKafkaHandler（如果引入了kafka依赖），对应的默认配置如下：
-
-```yaml
-spring:
-  access:
-    oplog:
-      kafka-enable: true
-      kafka-topic: access-oplog
-```
-
-具体可以如下创建和处理操作日志，以及进行处理
+- 示例
 
 ```java
-SysLog sysLog = new SysLog();     // OperationLog的实现
-sysLog.initialize();              // 初始化内容
-// 其它信息赋值
-
-operationHandler.handle(sysLog); // 注入OperationHandler处理
-```
-
-- 标记注解 @Operation
-
-为了方便日志记录，约定了一个注解（要求classpath中必须提供一个OperationLog实现），以下是sys-admin中的示例：
-
-```java
-@Operation(group = "sys-admin", type = "admin_user", desc = "新增用户：#{sysUser.userName}", content = Content.REQ)
-@PostMapping("/add")
-public Response<Void> add(@Validated @RequestBody SysUser sysUser) {
-    sysUserService.add(sysUser);
-    return Response.success();
-}
-
-@Operation(group = "sys-admin", type = "admin_user", desc = "修改用户：#{sysUser.userName}", content = Content.ALL)
-@PostMapping("/edit")
-public Response<SysUser> edit(@Validated @RequestBody SysUser sysUser) {
-    return Response.success(sysUserService.edit(sysUser));
-}
-
-@Operation(group = "sys-admin", type = "admin_user", desc = "删除用户：#{resp.userName}", content = Content.RESP)
-@GetMapping(value = {"/delete"})
-public Response<SysUser> delete(@NotNull(message = "valid.notnull.user.id") Long userId) {
-    return Response.success(sysUserService.delete(userId));
-}
-```
-
-对于desc提供了简单的spel能力，可以通过`#{}`的方式获取参数(同名)以及响应(resp)中的一些信息；
-
-对于content，可以选择保存请求或者响应，这里有点麻烦的是对于删除和编辑的场景，如果保存删除内容，只能从返回中获取；
-
-也可以手动对日志内容进行一些调整，所以提供了下面接口（日志构造之后其实就放在ThreadLocal中）
-
-```java
-public interface OperationHandler {
-	void pareseRequestContent(Method method, Map<String, Object> args, OperationLog log);
-	void pareseResponseContent(Method method, Object resp, OperationLog log);
-	void pareseExceptionContent(Method method, Exception e, OperationLog log);
+// 可以通过handlerClass指定一个自定义的springBean，在expr中引用自定义方法来处理，约定的参数见上面注释说明
+@Operation(type = "test", action = "get", opExpr = "#opHandler.xxx(#id, #opInfo, #resp, #exception)", handlerClass = OplogHandler.class)
+@GetMapping("/get")
+public Response<String> get(String id) {
+    return Response.success(testService.get(id));
 }
 ```
 

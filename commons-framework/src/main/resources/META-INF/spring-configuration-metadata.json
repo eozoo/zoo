@@ -2092,20 +2092,6 @@
       "defaultValue": "access-alarm"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$OplogConfig",
-      "type": "java.lang.Boolean",
-      "name": "spring.access.oplog.kafka-enable",
-      "description": "access操作日志是否发kafka",
-      "defaultValue": true
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$OplogConfig",
-      "type": "java.lang.String",
-      "name": "spring.access.oplog.kafka-topic",
-      "description": "access操作日志的Topic",
-      "defaultValue": "access-oplog"
-    },
-    {
       "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.header",

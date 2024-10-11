@@ -41,11 +41,6 @@ public class AccessConfiguration {
     private TokenConfig token;
 
     /**
-     * Access操作日志
-     */
-    private OplogConfig oplog;
-
-    /**
      * Access异常告警
      */
     private AlarmConfig alarm;
@@ -105,19 +100,6 @@ public class AccessConfiguration {
         return "access-alarm";
     }
 
-    public boolean oplogKafkaEnable(){
-        if(oplog != null){
-            return oplog.kafkaEnable;
-        }
-        return true;
-    }
-
-    public String oplogKafkaTopic(){
-        if(oplog != null){
-            return oplog.kafkaTopic;
-        }
-        return "access-alarm";
-    }
 
     @Data
     public static class TokenConfig {
@@ -151,14 +133,6 @@ public class AccessConfiguration {
          * 忽略鉴权的url
          */
         private List<String> ignoreUrls = new ArrayList<>();
-    }
-
-    @Data
-    public static class OplogConfig {
-
-        private boolean kafkaEnable = true;
-
-        private String kafkaTopic = "access-oplog";
     }
 
     @Data
