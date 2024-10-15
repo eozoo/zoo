@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2024 Cowave All Rights Reserved.
  *
- * For licensing information, please contact: https://www.cowave.com.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
- * This code is proprietary and confidential.
- * Unauthorized copying of this file, via any medium is strictly prohibited.
+ * http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 package com.cowave.commons.framework.configuration;
 
 import com.cowave.commons.framework.filter.xss.XssFilter;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.dynamictp.core.spring.EnableDynamicTp;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContextInitializer;
@@ -38,7 +38,6 @@ import java.util.List;
  */
 @Slf4j
 @Data
-@EnableDynamicTp
 @EnableAspectJAutoProxy(exposeProxy = true)
 @FeignScan(basePackages = "com.cowave")
 @ComponentScan(basePackages = "com.cowave")

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2017～2099 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2024 Cowave All Rights Reserved.
  *
- * For licensing information, please contact: https://www.cowave.com.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
- * This code is proprietary and confidential.
- * Unauthorized copying of this file, via any medium is strictly prohibited.
+ * http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 package com.cowave.commons.framework.access;
 
@@ -57,12 +58,11 @@ public class AccessLogger {
 	@Nullable
 	private final AccessUserParser accessUserParser;
 
-	@Pointcut("execution(public * com.cowave..*.*(..)) " +
-			"&& (@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
+	@Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
 			"|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
 			"|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
 			"|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.DeleteMapping))")
+			"|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
 	public void request() {
 
 	}
@@ -72,6 +72,18 @@ public class AccessLogger {
 		Access access = Access.get();
 		if(access == null){
 			// 请求没有经过AccessFilter
+			HttpServletRequest httpServletRequest = Access.httpRequest();
+			assert httpServletRequest != null;
+			String accessUrl = httpServletRequest.getRequestURI();
+			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
+			String httpMethod = httpServletRequest.getMethod();
+			String contentType = httpServletRequest.getContentType();
+			access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
+			if ("/error".equals(httpServletRequest.getRequestURI())) {
+				Access.set(access);
+				return; // error路径直接跳过
+			}
+
 			MethodSignature signature = (MethodSignature)point.getSignature();
 			String[] paramNames = signature.getParameterNames();
 			Object[] args = point.getArgs();
@@ -96,14 +108,6 @@ public class AccessLogger {
 					}
 				}
 			}
-
-			HttpServletRequest httpServletRequest = Access.httpRequest();
-			assert httpServletRequest != null;
-			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
-			String accessUrl = httpServletRequest.getRequestURI();
-			String httpMethod = httpServletRequest.getMethod();
-			String contentType = httpServletRequest.getContentType();
-			access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
 			access.setRequestParam(map);
 			Access.set(access);
 
@@ -140,6 +144,10 @@ public class AccessLogger {
 		}
 
 		Access access = Access.get();
+		if ("/error".equals(access.getAccessUrl())){
+			return;
+		}
+
 		access.setResponseLogged(true);
 		int status = servletResponse.getStatus();
 		long cost = System.currentTimeMillis() - access.getAccessTime();
