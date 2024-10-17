@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguratio
 import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -36,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @EnableAsync
 @AutoConfigureBefore(TaskExecutionAutoConfiguration.class)
-@Configuration
 @EnableConfigurationProperties(TaskExecutionProperties.class)
 public class AsyncConfiguration implements AsyncConfigurer {
 
