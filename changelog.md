@@ -1,3 +1,13 @@
+## [2.7.2](https://github.com/cowave5/commons/-/tags/2.7.2) (2024-10-17)
+
+
+
+
+
+    ### Bug Fixes
+
+  -  [<font style="font-family: monospace;">[`2e180943263fb6c`](https://github.com/cowave5/commons/commit/2e180943263fb6c)</font>] (**asyn**)   asyn注入失败
+
 ## [2.7.1](https://github.com/cowave5/commons/-/tags/2.7.1) (2024-10-16)
 
 

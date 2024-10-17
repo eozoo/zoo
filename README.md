@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/cowave5/commons/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/cowave5/commons/actions)
 ![Static Badge](https://img.shields.io/badge/Java-17-brightgreen)
-![Maven central](https://img.shields.io/badge/maven--central-2.7.1-brightgreen)
+![Maven central](https://img.shields.io/badge/maven--central-2.7.2-brightgreen)
 [![License](https://img.shields.io/badge/license-Apache--2.0-brightgreen)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## commons
@@ -16,7 +16,7 @@ springboot工程框架
     <parent>
         <groupId>com.cowave.commons</groupId>
         <artifactId>commons-parent</artifactId>
-        <version>2.7.1</version>
+        <version>2.7.2</version>
     </parent>
 
     <groupId>com.xxx</groupId>
@@ -38,3 +38,4 @@ springboot工程框架
 ```
 
 - 文档说明：[wiki](https://github.com/cowave5/commons/wiki)
+- 问题建议：[issues](https://github.com/cowave5/commons/issues)
