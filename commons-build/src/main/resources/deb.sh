@@ -3,28 +3,25 @@
 ## app_version 默认从pom.xml获取，可以在env.properties中设置覆盖
 ## app_source="$app_name"_"$app_version"
 
-## app_source目录已创建，已包括内容：
-## target/app_source
+## 默认打包内容：
+## ${app_name}_${app_version}
 ##   ├─bin
 ##   │  └─env.properties
 ##   │  └─run.sh
 ##   │  └─setenv.sh
 ##   ├─lib
 ##   │  └─${app_name}_${app_version}.jar
-##   ├─config
-##   │  └─application.yml
-##   │  └─...
-##   ├─install.sh
-##   └─changelog.md
+##   └─config
+##      └─application.yml
+##      └─...
 
 ## 工作目录为target
 build(){
-## 复制文件
-mkdir -p dpkg/opt/cowave/${app_name}
-cp -rf ${app_source}/bin dpkg/opt/cowave/${app_name}
-cp -rf ${app_source}/lib dpkg/opt/cowave/${app_name}
-cp -rf ${app_source}/config dpkg/opt/cowave/${app_name}
-cp -rf ${app_source}/changelog.md dpkg/opt/cowave/${app_name}
+## 准备文件
+mkdir -p dpkg/opt/cowave/${app_name}/lib
+mv bin dpkg/opt/cowave/${app_name}
+mv "$app_name"-"$app_version".jar dpkg/opt/cowave/${app_name}/lib
+cp -rf classes/config dpkg/opt/cowave/${app_name}
 
 ## 覆盖文件
 cat <<EOF > dpkg/conffiles

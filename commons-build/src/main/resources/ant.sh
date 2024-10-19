@@ -83,10 +83,6 @@ EOF
 
 tar_build(){
   . "./bin/setenv.sh"
-  export app_source="$app_name"_"$app_version"
-  ## /lib
-  mkdir -p "$app_source"/lib
-  ## 拷贝jar包
   ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
@@ -97,24 +93,13 @@ tar_build(){
   if [ -z "$jar_version" ]; then
       jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
   fi
+
   ## 如果使用了classfinal加密，重新命名下
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
-      cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
   else
-      cp "$jar_name"-"$jar_version".jar "$app_source"/lib/"$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar
   fi
-  ## /bin
-  mv bin "$app_source"
-  ## /config
-  cp -rf classes/config "$app_source"
-  ## changelog.md
-  if [ -f ../changelog.md ];then
-      cp -f ../changelog.md "$app_source"
-  else
-      touch "$app_source"/changelog.md
-  fi
-  ## install.sh
-  mv "$app_source"/bin/install.sh "$app_source"
 
   . "./tar.sh"
   build
@@ -122,10 +107,6 @@ tar_build(){
 
 docker_build(){
   . "./bin/setenv.sh"
-  export app_source="$app_name"_"$app_version"
-  ## /lib
-  mkdir -p "$app_source"/lib
-  ## 拷贝jar包
   ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
@@ -136,24 +117,15 @@ docker_build(){
   if [ -z "$jar_version" ]; then
       jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
   fi
+
   ## 如果使用了classfinal加密，重新命名下
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
-      cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
   else
-      cp "$jar_name"-"$jar_version".jar "$app_source"/lib/"$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar
   fi
-  ## /bin
-  mv bin "$app_source"
-  ## /config
-  cp -rf classes/config "$app_source"
-  ## changelog.md
-  if [ -f ../changelog.md ];then
-      cp -f ../changelog.md "$app_source"
-  else
-      touch "$app_source"/changelog.md
-  fi
-  ## install.sh
-  mv "$app_source"/bin/install.sh "$app_source"
+
+  rm -f bin/install.sh
 
   . "./docker.sh"
   build
@@ -161,10 +133,6 @@ docker_build(){
 
 deb_build(){
   . "./bin/setenv.sh"
-  export app_source="$app_name"_"$app_version"
-  ## /lib
-  mkdir -p "$app_source"/lib
-  ## 拷贝jar包
   ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
   jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
@@ -175,24 +143,15 @@ deb_build(){
   if [ -z "$jar_version" ]; then
       jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
   fi
+
   ## 如果使用了classfinal加密，重新命名下
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
-      cp "$jar_name"-"$jar_version"-encrypted.jar "$app_source"/lib/"$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
   else
-      cp "$jar_name"-"$jar_version".jar "$app_source"/lib/"$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar
   fi
-  ## /bin
-  mv bin "$app_source"
-  ## /config
-  cp -rf classes/config "$app_source"
-  ## changelog.md
-  if [ -f ../changelog.md ];then
-      cp -f ../changelog.md "$app_source"
-  else
-      touch "$app_source"/changelog.md
-  fi
-  ## install.sh
-  mv "$app_source"/bin/install.sh "$app_source"
+
+  rm -f bin/install.sh
 
   . "./deb.sh"
   build

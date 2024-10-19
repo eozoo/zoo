@@ -3,8 +3,8 @@
 ## app_version 默认从pom.xml获取，可以在env.properties中设置覆盖
 ## app_source="$app_name"_"$app_version"
 
-## app_source目录已创建，内容包括：
-## target/app_source
+## 默认打包内容：
+## ${app_name}_${app_version}
 ##   ├─bin
 ##   │  └─env.properties
 ##   │  └─run.sh
@@ -14,11 +14,17 @@
 ##   ├─config
 ##   │  └─application.yml
 ##   │  └─...
-##   ├─install.sh
-##   └─changelog.md
+##   └─install.sh
 
 ## 工作目录为target
 build(){
+    app_source="$app_name"_"$app_version"
+    mkdir -p "$app_source"/lib
+    mv bin "$app_source"
+    mv "$app_source"/bin/install.sh "$app_source"
+    mv "$app_name"-"$app_version".jar "$app_source"/lib
+    cp -rf classes/config "$app_source"
+
     build_date=$(date "+%Y%m%d")
     build_tar="$app_name"_"$app_version"_"$build_date".tar.gz
     tar zcvf "$build_tar" "$app_source"

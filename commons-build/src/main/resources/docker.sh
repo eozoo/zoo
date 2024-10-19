@@ -3,19 +3,17 @@
 ## app_version 默认从pom.xml获取，可以在env.properties中设置覆盖
 ## app_source="$app_name"_"$app_version"
 
-## app_source目录已创建，内容包括：
-## target/app_source
+## 默认打包内容：
+## ${app_name}_${app_version}
 ##   ├─bin
 ##   │  └─env.properties
 ##   │  └─run.sh
 ##   │  └─setenv.sh
 ##   ├─lib
 ##   │  └─${app_name}_${app_version}.jar
-##   ├─config
-##   │  └─application.yml
-##   │  └─...
-##   ├─install.sh
-##   └─changelog.md
+##   └─config
+##      └─application.yml
+##      └─...
 
 ## 工作目录为target
 build(){
@@ -24,10 +22,9 @@ FROM openjdk:17-oracle
 
 WORKDIR /opt/cowave/${app_name}
 
-ADD ${app_source}/bin /opt/cowave/${app_name}/bin/
-ADD ${app_source}/lib /opt/cowave/${app_name}/lib/
-ADD ${app_source}/config /opt/cowave/${app_name}/config/
-ADD ${app_source}/changelog.md /opt/cowave/${app_name}/
+ADD bin /opt/cowave/${app_name}/bin/
+ADD classes/config /opt/cowave/${app_name}/config/
+ADD "$app_name"-"$app_version".jar /opt/cowave/${app_name}/lib/
 
 ENTRYPOINT ["bin/run.sh", "up"]
 EOF
