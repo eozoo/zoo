@@ -6,7 +6,7 @@ ${symbol_pound}${symbol_pound} ${artifactId}
 ${symbol_pound}${symbol_pound}${symbol_pound} 工程目录
 
 <pre>
-{项目}-{应用}
+${artifactId}
    ├─bin
    │  ├─env.properties                         ${symbol_pound}${symbol_pound}（默认）环境变量定义
    │  ├─setenv.sh                              ${symbol_pound}${symbol_pound}（默认）运行前设置

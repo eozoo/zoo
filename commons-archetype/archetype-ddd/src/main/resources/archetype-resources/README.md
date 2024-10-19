@@ -6,7 +6,7 @@ ${symbol_pound}${symbol_pound} ${artifactId}
 ${symbol_pound}${symbol_pound}${symbol_pound} 工程目录
 
 <pre>
-{项目}-{应用}
+${rootArtifactId}
    ├─${rootArtifactId}-api       ${symbol_pound}${symbol_pound} 应用接口，比如controller接口定义，service层业务处理，依赖${rootArtifactId}-core；
    ├─${rootArtifactId}-core      ${symbol_pound}${symbol_pound} 核心处理，比如持久层、缓存、消息中间件等处理，依赖${rootArtifactId}-model；
    ├─${rootArtifactId}-model     ${symbol_pound}${symbol_pound} 模型定义，各个领域的模型，定义模型的属性和行为；

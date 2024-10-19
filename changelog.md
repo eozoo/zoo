@@ -1,3 +1,14 @@
+## [2.7.3](https://github.com/cowave5/commons/-/tags/2.7.3) (2024-10-19)
+
+
+
+    ### Features
+
+  -  [<font style="font-family: monospace;">[`e8b08f47533de29`](https://github.com/cowave5/commons/commit/e8b08f47533de29)</font>] (**archetype**)   ddd工程模板
+  -  [<font style="font-family: monospace;">[`a0f9da984345212`](https://github.com/cowave5/commons/commit/a0f9da984345212)</font>] (**archetype**)   mvc工程模板
+
+
+
 ## [2.7.2](https://github.com/cowave5/commons/-/tags/2.7.2) (2024-10-17)
 
 
