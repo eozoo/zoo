@@ -17,6 +17,7 @@
         <module>commons-parent</module>
         <module>commons-tools</module>
         <module>commons-framework</module>
+        <module>commons-archetype</module>
     </modules>
 
     <build>

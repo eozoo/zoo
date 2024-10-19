@@ -1,0 +1,11 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+server:
+  port: $symbol_dollar{app_port:${serverPort}}
+  servlet:
+    context-path: ${serverPath}
+
+spring:
+  application:
+    name: ${artifactId}

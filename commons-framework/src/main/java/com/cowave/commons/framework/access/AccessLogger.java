@@ -71,16 +71,10 @@ public class AccessLogger {
 	public void logRequest(JoinPoint point) {
 		Access access = Access.get();
 		if(access == null){
-			// 请求没有经过AccessFilter
+			// 请求未经过AccessFilter
 			HttpServletRequest httpServletRequest = Access.httpRequest();
 			assert httpServletRequest != null;
-			String accessUrl = httpServletRequest.getRequestURI();
-			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
-			String httpMethod = httpServletRequest.getMethod();
-			String contentType = httpServletRequest.getContentType();
-			access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
-			if ("/error".equals(httpServletRequest.getRequestURI())) {
-				Access.set(access);
+			if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
 				return; // error路径直接跳过
 			}
 
@@ -108,9 +102,15 @@ public class AccessLogger {
 					}
 				}
 			}
+
+			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
+			String accessUrl = httpServletRequest.getRequestURI();
+			access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
 			access.setRequestParam(map);
 			Access.set(access);
 
+			String httpMethod = httpServletRequest.getMethod();
+			String contentType = httpServletRequest.getContentType();
 			StringBuilder builder = new StringBuilder();
 			builder.append(">> ").append(httpMethod).append(" ").append(accessUrl).append(" [").append(accessIp);
 			if(StringUtils.isNotBlank(contentType)){
@@ -144,7 +144,7 @@ public class AccessLogger {
 		}
 
 		Access access = Access.get();
-		if ("/error".equals(access.getAccessUrl())){
+		if(access == null){
 			return;
 		}
 
