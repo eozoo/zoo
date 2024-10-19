@@ -1,0 +1,25 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+$symbol_pound$symbol_pound eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+$symbol_pound$symbol_pound IntelliJ
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+target/
+log/
+.DS_Store
+
+dist/
+node/
+node_modules/

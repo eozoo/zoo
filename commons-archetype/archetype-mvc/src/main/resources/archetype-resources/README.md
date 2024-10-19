@@ -5,9 +5,6 @@ ${symbol_pound}${symbol_pound} ${artifactId}
 
 ${symbol_pound}${symbol_pound}${symbol_pound} 工程目录
 
-> 目录中（默认）的文件，表示已提供了默认的文件定义，如果需要可以自己修改和覆盖（但是不要改变文件位置）；
-> 在 mvn compile 后，能够在target中目录中找到默认的文件，可以拷贝出来进行修改；
-
 <pre>
 {项目}-{应用}
    ├─bin
@@ -43,3 +40,13 @@ ${symbol_pound}${symbol_pound}${symbol_pound} 工程目录
    └─README.md   
 </pre>
 
+- 目录中（默认）的文件，表示已提供了默认的文件定义，如果需要也可以进行修改和覆盖；
+
+> mvn compile 后，能够在target中目录中找到默认的文件，可以拷贝出来进行修改（拷贝到约定的路径）；
+
+- 应用打包
+
+`maven clean install -Dbuild=jar` springboot默认的打包方式，整个打成一个jar包，使用命令行自行启动；    
+`maven clean install -Dbuild=tar` 打成Tar包，针对Linux环境下的裸机安装；    
+`maven clean install -Dbuild=deb` 打成Deb包，针对ubuntu环境下的裸机安装；    
+`maven clean install -Dbuild=docker` 打成Docker镜像

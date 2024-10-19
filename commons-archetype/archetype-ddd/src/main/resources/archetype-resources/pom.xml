@@ -8,23 +8,26 @@
     </parent>
 
     <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
+    <artifactId>${rootArtifactId}</artifactId>
     <version>${version}</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>${artifactId}</name>
-    <description>mvc工程模板</description>
+    <description>DDD工程模板</description>
     <url>https://www.cowave.com</url>
+
+    <modules>
+        <module>${rootArtifactId}-api</module>
+        <module>${rootArtifactId}-core</module>
+        <module>${rootArtifactId}-model</module>
+        <module>${rootArtifactId}-remote</module>
+        <module>${rootArtifactId}-starter</module>
+    </modules>
 
     <dependencies>
         <dependency>
             <groupId>com.cowave.commons</groupId>
             <artifactId>commons-framework</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

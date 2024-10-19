@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - dev\application.yml
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - prod\application.yml
