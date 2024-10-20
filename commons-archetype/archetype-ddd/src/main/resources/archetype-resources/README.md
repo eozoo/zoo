@@ -40,8 +40,8 @@ ${rootArtifactId}
    │   │    
    │   ├─pom.xml  
    │   ├─tar.sh                                    ${symbol_pound}${symbol_pound}（默认）Tar构建
-   │   ├─deb.sh                                    ${symbol_pound}${symbol_pound}（默认）Deb构建脚本
-   │   └─docker.sh                                 ${symbol_pound}${symbol_pound}（默认）Docker构建脚本
+   │   ├─deb.sh                                    ${symbol_pound}${symbol_pound}（默认）Deb构建
+   │   └─docker.sh                                 ${symbol_pound}${symbol_pound}（默认）Docker构建
    ├─pom.xml    
    └─README.md   
 </pre>
