@@ -9,7 +9,6 @@
  */
 package com.cowave.commons.framework.support.limiter;
 
-import com.google.common.util.concurrent.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
