@@ -11,7 +11,6 @@ package com.cowave.commons.framework.helper.operation;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
@@ -24,6 +23,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.common.TemplateParserContext;
@@ -51,7 +51,7 @@ public class OperationAspect {
 
 	private final ApplicationContext applicationContext;
 
-	private final ThreadPoolExecutor applicationExecutor;
+	private final TaskExecutor taskExecutor;
 
 	@Pointcut("@annotation(com.cowave.commons.framework.helper.operation.Operation)")
 	public void oplog() {
@@ -147,7 +147,7 @@ public class OperationAspect {
 
 	private void handleOperation(Operation operation, EvaluationContext context){
 		if(operation.isAsync()){
-			applicationExecutor.execute(() -> exprParser.parseExpression(operation.expr()).getValue(context));
+			taskExecutor.execute(() -> exprParser.parseExpression(operation.expr()).getValue(context));
 		}else{
 			try{
 				exprParser.parseExpression(operation.expr()).getValue(context);

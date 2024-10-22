@@ -9,24 +9,29 @@
  */
 package com.cowave.commons.framework.configuration;
 
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
-import org.springframework.context.annotation.Bean;
+import com.alibaba.ttl.TtlRunnable;
+import org.slf4j.MDC;
 import org.springframework.core.task.TaskDecorator;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.annotation.EnableAsync;
+
+import java.util.Map;
 
 /**
  *
  * @author shanhuiming
  *
  */
-@EnableAsync
-@AutoConfigureBefore(TaskExecutionAutoConfiguration.class)
-public class AsyncConfiguration implements AsyncConfigurer {
+public class AsyncTaskDecorator implements TaskDecorator {
 
-    @Bean
-    public TaskDecorator myTaskDecorator() {
-        return new AsyncTaskDecorator();
+    @Override
+    public Runnable decorate(Runnable runnable) {
+        Map<String, String> mdcMap = MDC.getCopyOfContextMap();
+        return TtlRunnable.get(() -> {
+            if(mdcMap != null){
+                MDC.setContextMap(mdcMap);
+            }else {
+                MDC.clear(); // 避免线程复用导致问题
+            }
+            runnable.run();
+        }, true, true);
     }
 }

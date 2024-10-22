@@ -13,6 +13,8 @@ springboot工程框架
 
 ## 工程模板
 
+> Windows环境如果cmd执行报错，可以用git bash执行
+
 - 参数说明
 
 ```text
