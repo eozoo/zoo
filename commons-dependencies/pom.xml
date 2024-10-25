@@ -31,10 +31,15 @@
 
     <developers>
         <developer>
-            <name>shanhm1991</name>
-            <email>shanhm1991@163.com</email>
+            <name>shanhuiming</name>
+            <email>huiming.shan@cowave.com</email>
         </developer>
     </developers>
+
+    <organization>
+        <name>Cowave</name>
+        <url>https://github.com/cowave5</url>
+    </organization>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

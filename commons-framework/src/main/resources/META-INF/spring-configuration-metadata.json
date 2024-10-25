@@ -2115,6 +2115,13 @@
     {
       "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
+      "name": "spring.access.token.namespace",
+      "description": "Token的缓存namespace",
+      "defaultValue": ""
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "type": "java.lang.String",
       "name": "spring.access.token.header",
       "description": "Token在header中的名称",
       "defaultValue": "Authorization"

@@ -10,6 +10,7 @@
 package com.cowave.commons.framework.configuration;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -52,6 +53,17 @@ public class AccessConfiguration {
      * Access鉴权配置
      */
     private TokenConfig token;
+
+    public String tokenKey(){
+        if(token == null || StringUtils.isBlank(token.namespace)){
+            return "token:";
+        }
+        if(token.namespace.endsWith(":")){
+            return token.namespace + "token:";
+        }else{
+            return token.namespace + ":token:";
+        }
+    }
 
     public String tokenHeader(){
         if(token != null){
@@ -120,6 +132,11 @@ public class AccessConfiguration {
 
     @Data
     public static class TokenConfig {
+
+        /**
+         * 缓存Key
+         */
+        private String namespace;
 
         /**
          * header名称

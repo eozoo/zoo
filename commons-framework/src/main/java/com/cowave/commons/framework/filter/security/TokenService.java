@@ -71,7 +71,7 @@ public class TokenService {
     private final AccessConfiguration accessConfiguration;
 
     @Nullable
-    private final RedisHelper redis;
+    private final RedisHelper redisHelper;
 
     boolean isAlwaysSuccess(){
         return accessConfiguration.isAlwaysSuccess();
@@ -110,9 +110,9 @@ public class TokenService {
                 .compact();
         token.setRefreshToken(refreshToken);
 
-        assert redis != null;
-        String key = AccessToken.KEY + token.getType() + ":" + token.getUsername();
-        redis.putExpireValue(key, token, accessConfiguration.tokenRefreshExpire(), TimeUnit.SECONDS);
+        assert redisHelper != null;
+        String key = accessConfiguration.tokenKey() + token.getType() + ":" + token.getUsername();
+        redisHelper.putExpireValue(key, token, accessConfiguration.tokenRefreshExpire(), TimeUnit.SECONDS);
 
         Access access = Access.get();
         if(access != null){
@@ -132,9 +132,9 @@ public class TokenService {
             return;
         }
         // 获取服务保存的Token
-        assert redis != null;
+        assert redisHelper != null;
         String userAccount = (String)claims.get(CLAIM_USER_ACCOUNT);
-        AccessToken accessToken = redis.getValue(getKey(claims) + userAccount);
+        AccessToken accessToken = redisHelper.getValue(getKey(claims) + userAccount);
         if(accessToken == null) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.notexist");
             return;
@@ -246,14 +246,14 @@ public class TokenService {
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
             return;
         }
-        assert redis != null;
+        assert redisHelper != null;
         String userAccount = (String)claims.get(CLAIM_USER_ACCOUNT);
-        redis.delete((getKey(claims) + userAccount));
+        redisHelper.delete((getKey(claims) + userAccount));
     }
 
     private String getKey(Claims claims){
         String tokenType = (String)claims.get(CLAIM_TYPE);
-        return AccessToken.KEY + tokenType + ":";
+        return accessConfiguration.tokenKey() + tokenType + ":";
     }
 
     public boolean validAccessToken(String accessToken) {
