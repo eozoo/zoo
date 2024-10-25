@@ -20,9 +20,9 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.feign.annotation.FeignScan;
 
 import lombok.Data;
+import org.springframework.feign.annotation.EnableFeign;
 
 import java.util.List;
 
@@ -33,8 +33,8 @@ import java.util.List;
  */
 @Slf4j
 @Data
+@EnableFeign
 @EnableAspectJAutoProxy(exposeProxy = true)
-@FeignScan(basePackages = "com.cowave")
 @ComponentScan(basePackages = "com.cowave")
 @ConfigurationProperties(prefix = "spring.application")
 public class ApplicationConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
