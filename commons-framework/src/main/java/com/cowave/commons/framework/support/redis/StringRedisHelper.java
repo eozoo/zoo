@@ -32,6 +32,17 @@ import java.util.function.Consumer;
  */
 public class StringRedisHelper {
 
+    public static final String LUA_CLEAN = """
+            local cursor = "0"
+            repeat
+                local result = redis.call("SCAN", cursor, "MATCH", ARGV[1], "COUNT", 100)
+                cursor = result[1]
+                for _, key in ipairs(result[2]) do
+                    redis.call("DEL", key)
+                end
+            until cursor == "0"
+            """;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     public StringRedisHelper(StringRedisTemplate stringRedisTemplate){
@@ -294,11 +305,11 @@ public class StringRedisHelper {
         return operationResult;
     }
 
-    public <T> T execLua(String lua, List<String> keys, Class<T> resultType, Object... args){
-        DefaultRedisScript<T> luaScript = new DefaultRedisScript<>();
-        luaScript.setScriptText(lua);
-        luaScript.setResultType(resultType);
-        return stringRedisTemplate.execute(luaScript, keys, args);
+    public void luaClean(String pattern){
+        DefaultRedisScript<Void> luaScript = new DefaultRedisScript<>();
+        luaScript.setScriptText(LUA_CLEAN);
+        luaScript.setResultType(Void.class);
+        stringRedisTemplate.execute(luaScript, java.util.Collections.emptyList(), pattern);
     }
 
     public static StringRedisHelper newStringRedisHelper(StringRedisTemplate stringRedisTemplate){

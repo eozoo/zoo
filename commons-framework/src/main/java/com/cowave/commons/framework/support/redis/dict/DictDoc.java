@@ -7,42 +7,16 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.helper.dict;
+package com.cowave.commons.framework.support.redis.dict;
 
 /**
- * 字典
+ * 字典文档
  *
  * @author shanhuiming
  */
-public interface Dict {
+public interface DictDoc {
 
-    /**
-     * 字典分组
-     */
-    String getGroupCode();
+	int getCode();
 
-    /**
-     * 字典类型
-     */
-    String getTypeCode();
-
-    /**
-     * 字典码
-     */
-    String getDictCode();
-
-    /**
-     * 字典名称
-     */
-    String getDictLabel();
-
-    /**
-     * 字典值
-     */
-    Object getDictValue();
-
-    /**
-     * 字典排序
-     */
-    Integer getDictOrder();
+	String getDesc();
 }

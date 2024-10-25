@@ -7,9 +7,10 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.helper.dict;
+package com.cowave.commons.framework.support.redis.dict;
 
 import com.cowave.commons.framework.support.redis.RedisHelper;
+import com.cowave.commons.framework.support.redis.StringRedisHelper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,10 +23,10 @@ import org.springframework.data.redis.core.RedisOperations;
  */
 @ConditionalOnClass(RedisOperations.class)
 @Configuration(proxyBeanMethods = false)
-public class DictAutoConfiguration {
+public class DictConfiguration {
 
     @Bean
-    public DictHelper dictHelper(RedisHelper redisHelper){
-        return new DictHelper(redisHelper);
+    public DictHelper dictHelper(RedisHelper redisHelper, StringRedisHelper stringRedisHelper){
+        return new DictHelper(redisHelper, stringRedisHelper);
     }
 }

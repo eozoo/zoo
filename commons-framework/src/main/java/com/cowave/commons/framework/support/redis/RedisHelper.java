@@ -219,13 +219,6 @@ public class RedisHelper{
 		return operationResult;
 	}
 
-	public <T> T execLua(String lua, List<String> keys, Class<T> resultType, Object... args){
-		DefaultRedisScript<T> luaScript = new DefaultRedisScript<>();
-		luaScript.setScriptText(lua);
-		luaScript.setResultType(resultType);
-		return (T) redisTemplate.execute(luaScript, keys, args);
-	}
-
 	public static RedisHelper newRedisHelper(RedisTemplate<Object, Object> template){
 		return new RedisHelper(template);
 	}
