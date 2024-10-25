@@ -9,13 +9,11 @@
  */
 package com.cowave.commons.framework.configuration;
 
-import com.cowave.commons.framework.filter.xss.XssFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -23,9 +21,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.feign.annotation.FeignScan;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import lombok.Data;
 
@@ -67,23 +62,5 @@ public class ApplicationConfiguration implements ApplicationContextInitializer<C
             log.error("failed to load: META-INF/common.yml", e);
             System.exit(-1);
         }
-    }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");              // 任意地址
-        config.addAllowedHeader("*");                     // 任意请求头
-        config.addAllowedMethod("*");                     // 任意请求方法
-        config.setMaxAge(1800L);                          // 有效期 1800秒
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);  // 任意url
-        return new CorsFilter(source);
-    }
-
-    // @Bean
-    public XssFilter xssFilter() {
-        return new XssFilter();
     }
 }

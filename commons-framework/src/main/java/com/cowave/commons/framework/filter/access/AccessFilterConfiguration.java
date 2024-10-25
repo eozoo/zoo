@@ -41,10 +41,10 @@ public class AccessFilterConfiguration {
     @Bean
     public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator, AccessConfiguration accessConfiguration){
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessConfiguration.isAlwaysSuccess()));
+        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessConfiguration));
         registration.setName("accessFilter");
         registration.addUrlPatterns(accessConfiguration.getPatterns());
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
         return registration;
     }
 }

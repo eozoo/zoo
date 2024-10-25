@@ -37,6 +37,18 @@ public class AccessConfiguration {
     private String[] patterns = {"/*"};
 
     /**
+     * CSP白名单
+     * <p/> script-src 'self'
+     * <p/> default-src * data: blob: 'unsafe-inline' 'unsafe-eval'
+     */
+    private String contentSecurityPolicy;
+
+    /**
+     * 跨域设置
+     */
+    private CrossControl control = new CrossControl();
+
+    /**
      * Access鉴权配置
      */
     private TokenConfig token;
@@ -80,6 +92,30 @@ public class AccessConfiguration {
             return token.ignoreUrls;
         }
         return new ArrayList<>();
+    }
+
+    @Data
+    public static class CrossControl {
+
+        /**
+         * 跨域调用允许的域名
+         */
+        private String allowOrigin = "*";
+
+        /**
+         * 跨域调用允许的方法
+         */
+        private String allowMethods = "*";
+
+        /**
+         * 跨域调用允许的Header
+         */
+        private String allowHeaders = "*";
+
+        /**
+         * 跨域调用允许包含用户凭据
+         */
+        private boolean allowCredentials = true;
     }
 
     @Data

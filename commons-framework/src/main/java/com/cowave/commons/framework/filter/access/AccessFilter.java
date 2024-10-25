@@ -12,6 +12,7 @@ package com.cowave.commons.framework.filter.access;
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
+import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
@@ -43,34 +44,55 @@ public class AccessFilter implements Filter {
 
     private final AccessIdGenerator accessIdGenerator;
 
-    private final boolean isAlwaysSuccess;
+    private final AccessConfiguration accessConfiguration;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        // 检查获取accessId，设置请求和响应Header
+        // 获取accessId
         String accessId = httpServletRequest.getHeader("Access-Id");
         if (StringUtils.isBlank(accessId)) {
             accessId = accessIdGenerator.newAccessId();
         }
+        // 获取国际化
+        String language = httpServletRequest.getHeader("Accept-Language");
+        // 获取Seata事务id
+        String xid = httpServletRequest.getHeader("xid");
+
+        // 设置响应头 Access-Id
         httpServletResponse.setHeader("Access-Id", accessId);
-        // MDC设置accessId
+        // 设置响应头 Content-Security-Policy
+        if(StringUtils.isNotBlank(accessConfiguration.getContentSecurityPolicy())){
+            httpServletResponse.setHeader("Content-Security-Policy", accessConfiguration.getContentSecurityPolicy());
+        }
+        // 设置响应头 Access-Control
+        AccessConfiguration.CrossControl crossControl = accessConfiguration.getControl();
+        httpServletResponse.setHeader("Access-Control-Allow-Origin", crossControl.getAllowOrigin());
+        httpServletResponse.setHeader("Access-Control-Allow-Methods", crossControl.getAllowMethods());
+        httpServletResponse.setHeader("Access-Control-Allow-Headers", crossControl.getAllowHeaders());
+        httpServletResponse.setHeader("Access-Control-Allow-Credentials", String.valueOf(crossControl.isAllowCredentials()));
+
+        // 设置MDC.accessId
         MDC.put("accessId", accessId);
-        // Access设置
+        // 设置国际化
+        Messages.setLanguage(language);
+        // 设置Seata事务id
+        if(transactionIdSetter != null && xid != null){
+            transactionIdSetter.setXid(xid);
+        }
+        // 设置Access
         String accessIp = ServletUtils.getRequestIp(httpServletRequest);
         String accessUrl = httpServletRequest.getRequestURI();
         Access.set(new Access(accessId, accessIp, accessUrl, System.currentTimeMillis()));
-        // 国际化设置
-        String language = httpServletRequest.getHeader("Accept-Language");
-        Messages.setLanguage(language);
-        // 拦截记录请求信息，顺便获取设置下分页参数
+
+        // 记录请求日志，顺便获取设置下分页参数
         AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest);
         try{
             accessRequestWrapper.recordAccessParams();
         }catch (Exception e){
             int httpStatus = BAD_REQUEST.getStatus();
-            if(isAlwaysSuccess){
+            if(accessConfiguration.isAlwaysSuccess()){
                 httpStatus = SUCCESS.getStatus();
             }
             HttpServletResponse httpResponse = (HttpServletResponse)response;
@@ -81,13 +103,10 @@ public class AccessFilter implements Filter {
                     Response.msg(BAD_REQUEST, Messages.msg("frame.advice.httpMessageConversionException"))));
             return;
         }
-        // 尝试获取设置Seata事务id
-        String xid = httpServletRequest.getHeader("xid");
-        if(transactionIdSetter != null && xid != null){
-            transactionIdSetter.setXid(xid);
-        }
+
         // servlet处理
         chain.doFilter(accessRequestWrapper, response);
+
         // 拦截打印响应（AccessLogger中没有拦截到的）
         Access access = Access.get();
         if(!access.isResponseLogged()){
@@ -99,6 +118,7 @@ public class AccessFilter implements Filter {
                 AccessLogger.warn("<< {} {}ms", status, cost);
             }
         }
+
         // 清除access
         Access.remove();
         MDC.remove("accessId");

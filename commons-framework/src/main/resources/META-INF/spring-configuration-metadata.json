@@ -2078,6 +2078,41 @@
       "defaultValue": false
     },
     {
+      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration",
+      "type": "java.lang.String",
+      "name": "spring.access.content-security-policy",
+      "description": "CSP白名单",
+      "defaultValue": ""
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "type": "java.lang.String",
+      "name": "spring.access.control.allow-origin",
+      "description": "跨域调用允许的域名",
+      "defaultValue": "*"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "type": "java.lang.String",
+      "name": "spring.access.control.allow-methods",
+      "description": "跨域调用允许的方法",
+      "defaultValue": "*"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "type": "java.lang.String",
+      "name": "spring.access.control.allow-headers",
+      "description": "跨域调用允许的Header",
+      "defaultValue": "*"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "type": "java.lang.Boolean",
+      "name": "spring.access.control.allow-credentials",
+      "description": "跨域调用允许包含用户凭据",
+      "defaultValue": true
+    },
+    {
       "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.header",
