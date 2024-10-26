@@ -9,7 +9,6 @@
  */
 package com.cowave.commons.framework.access;
 
-import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.AssertsException;
 import com.cowave.commons.tools.DateUtils;

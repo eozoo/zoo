@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.cowave.commons.framework.filter.security.TokenService;
+import com.cowave.commons.framework.access.security.TokenService;
 
 import lombok.Data;
 

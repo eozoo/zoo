@@ -11,7 +11,7 @@ package com.cowave.commons.framework.access;
 
 import java.util.Collection;
 
-import com.cowave.commons.framework.filter.security.AccessToken;
+import com.cowave.commons.framework.access.security.AccessToken;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Component;

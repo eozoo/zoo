@@ -13,8 +13,8 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cowave.commons.framework.filter.access.AccessIdGenerator;
-import com.cowave.commons.framework.filter.access.AccessRequestWrapper;
+import com.cowave.commons.framework.access.filter.AccessIdGenerator;
+import com.cowave.commons.framework.access.filter.AccessRequestWrapper;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

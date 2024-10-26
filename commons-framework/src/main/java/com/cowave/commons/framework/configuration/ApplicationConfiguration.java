@@ -10,7 +10,7 @@
 package com.cowave.commons.framework.configuration;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -36,12 +36,8 @@ import java.util.List;
 @EnableFeign
 @EnableAspectJAutoProxy(exposeProxy = true)
 @ComponentScan(basePackages = "com.cowave")
-@ConfigurationProperties(prefix = "spring.application")
+@EnableConfigurationProperties({ApplicationProperties.class})
 public class ApplicationConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-    private String name;
-
-    private String version;
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {

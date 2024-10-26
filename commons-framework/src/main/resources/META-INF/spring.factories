@@ -2,15 +2,17 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.cowave.commons.framework.configuration.ApplicationConfiguration,\
 com.cowave.commons.framework.configuration.AsyncConfiguration,\
 com.cowave.commons.framework.configuration.I18nConfiguration,\
-com.cowave.commons.framework.support.datasource.DynamicDataSourceConfiguration,\
-com.cowave.commons.framework.support.datasource.druid.DruidDynamicDataSourceConfiguration,\
-com.cowave.commons.framework.support.redis.connection.LettuceAutoConfiguration,\
-com.cowave.commons.framework.support.redis.connection.JedisAutoConfiguration,\
-com.cowave.commons.framework.support.redis.RedisAutoConfiguration,\
-com.cowave.commons.framework.support.redis.redisson.RedissonAutoConfiguration,\
-com.cowave.commons.framework.support.kafka.KafkaAutoConfiguration,\
+com.cowave.commons.framework.helper.datasource.DynamicDataSourceConfiguration,\
+com.cowave.commons.framework.helper.datasource.druid.DruidDynamicDataSourceConfiguration,\
+com.cowave.commons.framework.helper.redis.connection.LettuceAutoConfiguration,\
+com.cowave.commons.framework.helper.redis.connection.JedisAutoConfiguration,\
+com.cowave.commons.framework.helper.redis.RedisAutoConfiguration,\
+com.cowave.commons.framework.helper.redis.redisson.RedissonAutoConfiguration,\
+com.cowave.commons.framework.helper.kafka.KafkaAutoConfiguration,\
 com.cowave.commons.framework.support.mybatis.logger.SqlLoggerMybatisConfiguration,\
-com.cowave.commons.framework.filter.repeat.RepeatConfiguration
+com.cowave.commons.framework.access.limit.AccessLimitConfiguration,\
+com.cowave.commons.framework.access.limit.limiter.RedisAccessLimiterConfiguration,\
+com.cowave.commons.framework.access.limit.limiter.GuavaAccessLimiterConfiguration
 
 org.springframework.context.ApplicationContextInitializer=\
 com.cowave.commons.framework.configuration.ApplicationConfiguration

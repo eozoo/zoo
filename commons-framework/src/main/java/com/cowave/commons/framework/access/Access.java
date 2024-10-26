@@ -17,7 +17,7 @@ import java.util.*;
 import cn.hutool.core.net.NetUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cowave.commons.framework.filter.security.AccessToken;
+import com.cowave.commons.framework.access.security.AccessToken;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
@@ -178,7 +178,7 @@ public class Access {
         return (pageIndex - 1) * pageSize;
     }
 
-    public static AccessToken accessToken() {
+    public static AccessToken token() {
         Access access = get();
         if(access == null) {
             return null;
@@ -187,23 +187,23 @@ public class Access {
     }
 
     public static String tokenType() {
-        AccessToken token = accessToken();
+        AccessToken token = token();
         if(token == null) {
             return null;
         }
         return token.getType();
     }
 
-    public static String tokenAccessValue() {
-        AccessToken token = accessToken();
+    public static String accessToken() {
+        AccessToken token = token();
         if(token == null) {
             return null;
         }
         return token.getAccessToken();
     }
 
-    public static String tokenRefreshValue() {
-        AccessToken token = accessToken();
+    public static String refreshToken() {
+        AccessToken token = token();
         if(token == null) {
             return null;
         }
@@ -221,7 +221,7 @@ public class Access {
     }
 
     public static Long userId() {
-        AccessToken token = accessToken();
+        AccessToken token = token();
         if(token == null) {
             return null;
         }
@@ -229,7 +229,7 @@ public class Access {
     }
 
     public static String userCode() {
-        AccessToken token = accessToken();
+        AccessToken token = token();
         if(token == null) {
             return null;
         }
@@ -237,7 +237,7 @@ public class Access {
     }
 
     public static String userName() {
-        AccessToken token = accessToken();
+        AccessToken token = token();
         if(token == null) {
             return null;
         }
@@ -245,7 +245,7 @@ public class Access {
     }
 
     public static String userAccount() {
-        AccessToken token = accessToken();
+        AccessToken token = token();
         if(token == null) {
             return null;
         }

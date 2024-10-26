@@ -12,23 +12,23 @@
     },
     {
       "name": "spring.access",
-      "type": "com.cowave.commons.framework.configuration.AccessConfiguration",
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration"
+      "type": "com.cowave.commons.framework.access.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration"
     },
     {
       "name": "spring.datasource",
-      "type": "com.cowave.commons.framework.support.datasource.DynamicDataSourceProperties",
-      "sourceType": "com.cowave.commons.framework.support.datasource.DynamicDataSourceProperties"
+      "type": "com.cowave.commons.framework.helper.datasource.DynamicDataSourceProperties",
+      "sourceType": "com.cowave.commons.framework.helper.datasource.DynamicDataSourceProperties"
     },
     {
       "name": "spring.datasource.druid",
-      "type": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "type": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper",
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.minio",
-      "type": "com.cowave.commons.framework.helper.file.MinioConfiguration",
-      "sourceType": "com.cowave.commons.framework.helper.file.MinioConfiguration"
+      "type": "com.cowave.commons.framework.helper.minio.MinioProperties",
+      "sourceType": "com.cowave.commons.framework.helper.minio.MinioProperties"
     },
     {
       "name": "spring.socket-io",
@@ -37,7 +37,7 @@
     },
     {
       "name": "spring.cache.l2",
-      "type": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties"
+      "type": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties"
     }
   ],
   "properties": [
@@ -83,465 +83,465 @@
     {
       "name": "spring.datasource.druid.access-to-underlying-connection-allowed",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.active-connection-stack-trace",
       "type": "java.util.List<java.lang.String>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.active-connections",
       "type": "java.util.Set<com.alibaba.druid.pool.DruidPooledConnection>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.async-close-connection-enable",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.async-init",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.break-after-acquire-failure",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.check-execute-time",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.clear-filters-enable",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.connect-properties",
       "type": "java.util.Properties",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.connection-error-retry-attempts",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.connection-init-sqls",
       "type": "java.util.Collection<java.lang.String>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.create-scheduler",
       "type": "java.util.concurrent.ScheduledExecutorService",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.db-type",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.default-auto-commit",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.default-catalog",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.default-read-only",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.default-transaction-isolation",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.destroy-scheduler",
       "type": "java.util.concurrent.ScheduledExecutorService",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.driver",
       "type": "java.sql.Driver",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.driver-class-name",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.dup-close-log-enable",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.enable",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.exception-sorter",
       "type": "com.alibaba.druid.pool.ExceptionSorter",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.exception-sorter-class-name",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.fail-fast",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.filter-class-names",
       "type": "java.util.List<java.lang.String>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.init-exception-throw",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.init-global-variants",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.init-variants",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.initial-size",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.keep-alive",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.keep-alive-between-time-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.kill-when-socket-read-timeout",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.log-abandoned",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.log-different-thread",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.login-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-active",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-create-task-count",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-evictable-idle-time-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-open-prepared-statements",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-pool-prepared-statement-per-connection-size",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-wait",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.max-wait-thread-count",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.min-evictable-idle-time-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.min-idle",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.name",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.not-full-timeout-retry-count",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.object-name",
       "type": "javax.management.ObjectName",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.on-fatal-error-max-active",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.oracle",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.password",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.password-callback",
       "type": "javax.security.auth.callback.PasswordCallback",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.phy-max-use-count",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.phy-timeout-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.pool-prepared-statements",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.pooling-connection-info",
       "type": "java.util.List<java.util.Map<java.lang.String,java.lang.Object>>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.proxy-filters",
       "type": "java.util.List<com.alibaba.druid.filter.Filter>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.query-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.remove-abandoned",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.remove-abandoned-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.remove-abandoned-timeout-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.reset-stat-enable",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.share-prepared-statements",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.sql-stat-map",
       "type": "java.util.Map<java.lang.String,com.alibaba.druid.stat.JdbcSqlStat>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.stat-data",
       "type": "java.util.Map<java.lang.String,java.lang.Object>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.stat-data-for-m-bean",
       "type": "java.util.Map<java.lang.String,java.lang.Object>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.stat-logger",
       "type": "com.alibaba.druid.pool.DruidDataSourceStatLogger",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.test-on-borrow",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.test-on-return",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.test-while-idle",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.time-between-connect-error-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.time-between-eviction-runs-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.time-between-log-stats-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.transaction-query-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.transaction-threshold-millis",
       "type": "java.lang.Long",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.url",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.use-global-data-source-stat",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.use-local-session-state",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.use-oracle-implicit-cache",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.use-ping-method",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.use-unfair-lock",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.user-callback",
       "type": "javax.security.auth.callback.NameCallback",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.username",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.valid-connection-checker",
       "type": "com.alibaba.druid.pool.ValidConnectionChecker",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.valid-connection-checker-class-name",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.validation-query",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.validation-query-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.druid.wall-stat-map",
       "type": "java.util.Map<java.lang.String,java.lang.Object>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper"
     },
     {
       "name": "spring.datasource.dynamic",
       "type": "java.util.Map<java.lang.String,org.springframework.boot.autoconfigure.jdbc.DataSourceProperties>",
-      "sourceType": "com.cowave.commons.framework.support.datasource.DynamicDataSourceProperties"
+      "sourceType": "com.cowave.commons.framework.helper.datasource.DynamicDataSourceProperties"
     },
     {
       "name": "spring.minio.access-key",
       "type": "java.lang.String",
       "description": "访问key",
-      "sourceType": "com.cowave.commons.framework.helper.file.MinioConfiguration"
+      "sourceType": "com.cowave.commons.framework.helper.minio.MinioProperties"
     },
     {
       "name": "spring.minio.endpoint",
       "type": "java.lang.String",
       "description": "Minio地址：127.0.0.1:9000",
-      "sourceType": "com.cowave.commons.framework.helper.file.MinioConfiguration"
+      "sourceType": "com.cowave.commons.framework.helper.minio.MinioProperties"
     },
     {
       "name": "spring.minio.secret-key",
       "type": "java.lang.String",
       "description": "访问秘钥",
-      "sourceType": "com.cowave.commons.framework.helper.file.MinioConfiguration"
+      "sourceType": "com.cowave.commons.framework.helper.minio.MinioProperties"
     },
     {
       "name": "spring.socket-io.allow-custom-requests",
@@ -611,14 +611,14 @@
     {
       "name": "spring.datasource.druid.max-idle",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper",
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper",
       "deprecated": true,
       "deprecation": {}
     },
     {
       "name": "spring.datasource.druid.num-tests-per-eviction-run",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.support.datasource.druid.DruidDataSourceWrapper",
+      "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper",
       "deprecated": true,
       "deprecation": {}
     },
@@ -2068,174 +2068,174 @@
       "description": "Redis连接失败是否退出进程"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration",
       "type": "java.util.List<java.lang.String>",
       "name": "spring.access.filter-patterns",
       "description": "AccessFilter拦截的urlPattern",
       "defaultValue": "/*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration",
       "type": "java.lang.Boolean",
       "name": "spring.access.always-success",
       "description": "Http响应码永远返回200",
       "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration",
       "type": "java.lang.String",
       "name": "spring.access.content-security-policy",
       "description": "CSP白名单",
       "defaultValue": ""
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
       "type": "java.lang.String",
       "name": "spring.access.control.allow-origin",
       "description": "跨域调用允许的域名",
       "defaultValue": "*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
       "type": "java.lang.String",
       "name": "spring.access.control.allow-methods",
       "description": "跨域调用允许的方法",
       "defaultValue": "*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
       "type": "java.lang.String",
       "name": "spring.access.control.allow-headers",
       "description": "跨域调用允许的Header",
       "defaultValue": "*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
       "type": "java.lang.Boolean",
       "name": "spring.access.control.allow-credentials",
       "description": "跨域调用允许包含用户凭据",
       "defaultValue": true
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.namespace",
       "description": "Token的缓存namespace",
       "defaultValue": ""
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.header",
       "description": "Token在header中的名称",
       "defaultValue": "Authorization"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.util.List<java.lang.String>",
       "name": "spring.access.token.ignore-urls",
       "description": "忽略鉴权的url"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.lang.Boolean",
       "name": "spring.access.token.conflict",
       "description": "是否检查冲突",
       "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.salt",
       "description": "秘钥",
       "defaultValue": "admin@cowave.com"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.lang.Integer",
       "name": "spring.access.token.accessExpire",
       "description": "access token超时[单位秒]",
       "defaultValue": 3600
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
       "type": "java.lang.Integer",
       "name": "spring.access.token.refreshExpire",
       "description": "refresh token超时[单位秒]",
       "defaultValue": 604800
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties",
       "type": "java.lang.Boolean",
       "name": "spring.cache.log-enable",
       "description": "打印缓存过程日志",
       "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
       "type": "java.lang.Boolean",
       "name": "spring.cache.l1.enable",
       "description": "启用本地缓存",
       "defaultValue": true
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
       "type": "java.lang.Long",
       "name": "spring.cache.l1.expire-after-access",
       "description": "访问后过期时间，单位秒",
       "defaultValue": -1
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
       "type": "java.lang.Long",
       "name": "spring.cache.l1.expire-after-write",
       "description": "写入后过期时间，单位秒",
       "defaultValue": -1
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
       "type": "java.lang.Long",
       "name": "spring.cache.l1.refresh-after-write",
       "description": "写入后刷新时间，单位秒",
       "defaultValue": -1
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
       "type": "java.lang.Integer",
       "name": "spring.cache.l1.initial-capacity",
       "description": "初始化大小",
       "defaultValue": -1
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
       "type": "java.lang.Integer",
       "name": "spring.cache.l1.maximum-size",
       "description": "最大缓存对象个数，超过此数量时之前放入的缓存将失效",
       "defaultValue": -1
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
       "name": "spring.cache.l2[enable]",
       "type": "java.lang.Boolean",
       "defaultValue": true,
       "description": "启用本地缓存"
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
       "name": "spring.cache.l2[first]",
       "type": "java.lang.Boolean",
       "defaultValue": false,
       "description": "优先二级缓存"
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
       "name": "spring.cache.l2[expireAfterAccess]",
       "type": "java.lang.Integer",
       "defaultValue": 60,
       "description": "访问后过期时间，单位秒"
     },
     {
-      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
       "name": "spring.cache.l2[expireAfterWrite]",
       "type": "java.lang.Integer",
       "defaultValue": 60,
