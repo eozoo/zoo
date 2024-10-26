@@ -111,7 +111,7 @@ public class Access {
     public static <T> Page<T> page(){
         Access access;
         if((access = get()) == null) {
-            return new Page<>();
+            return new Page<>(); // current=1, size=10
         }
         int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
         int pageSize = access.pageSize != null ? access.pageSize : 10;
@@ -121,7 +121,7 @@ public class Access {
     public static <T> Page<T> page(int defaultSize){
         Access access;
         if((access = get()) == null) {
-            return new Page<>();
+            return new Page<>(1, defaultSize);
         }
         int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
         int pageSize = access.pageSize != null ? access.pageSize : defaultSize;
