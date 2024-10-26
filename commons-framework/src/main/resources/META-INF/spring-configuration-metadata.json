@@ -34,6 +34,10 @@
       "name": "spring.socket-io",
       "type": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration"
+    },
+    {
+      "name": "spring.cache.l2",
+      "type": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties"
     }
   ],
   "properties": [
@@ -2159,6 +2163,83 @@
       "name": "spring.access.token.refreshExpire",
       "description": "refresh token超时[单位秒]",
       "defaultValue": 604800
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties",
+      "type": "java.lang.Boolean",
+      "name": "spring.cache.log-enable",
+      "description": "打印缓存过程日志",
+      "defaultValue": false
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "type": "java.lang.Boolean",
+      "name": "spring.cache.l1.enable",
+      "description": "启用本地缓存",
+      "defaultValue": true
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "type": "java.lang.Long",
+      "name": "spring.cache.l1.expire-after-access",
+      "description": "访问后过期时间，单位秒",
+      "defaultValue": -1
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "type": "java.lang.Long",
+      "name": "spring.cache.l1.expire-after-write",
+      "description": "写入后过期时间，单位秒",
+      "defaultValue": -1
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "type": "java.lang.Long",
+      "name": "spring.cache.l1.refresh-after-write",
+      "description": "写入后刷新时间，单位秒",
+      "defaultValue": -1
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "type": "java.lang.Integer",
+      "name": "spring.cache.l1.initial-capacity",
+      "description": "初始化大小",
+      "defaultValue": -1
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L1Properties",
+      "type": "java.lang.Integer",
+      "name": "spring.cache.l1.maximum-size",
+      "description": "最大缓存对象个数，超过此数量时之前放入的缓存将失效",
+      "defaultValue": -1
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "name": "spring.cache.l2[enable]",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "启用本地缓存"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "name": "spring.cache.l2[first]",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "优先二级缓存"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "name": "spring.cache.l2[expireAfterAccess]",
+      "type": "java.lang.Integer",
+      "defaultValue": 60,
+      "description": "访问后过期时间，单位秒"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.support.redis.cache.CacheProperties$L2Properties",
+      "name": "spring.cache.l2[expireAfterWrite]",
+      "type": "java.lang.Integer",
+      "defaultValue": 60,
+      "description": "写入后过期时间，单位秒"
     }
   ],
   "hints": []

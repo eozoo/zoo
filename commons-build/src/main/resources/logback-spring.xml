@@ -4,7 +4,7 @@
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%clr(%5level)| %X{accessId} [%t] %m%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%clr(%5level)| %X{accessId} [%t] %logger{0}:%L %m%n</pattern>
 		</encoder>
 	</appender>
 
@@ -17,7 +17,7 @@
             <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%5level| [%t] %m%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%5level| [%t] %logger{0}:%L %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
@@ -37,7 +37,7 @@
             <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%5level| %X{accessId} [%23t] %m%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%5level| %X{accessId} [%23t] %logger{0}:%L %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">

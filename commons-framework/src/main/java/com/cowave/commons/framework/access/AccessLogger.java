@@ -17,6 +17,7 @@ import com.cowave.commons.framework.filter.access.AccessIdGenerator;
 import com.cowave.commons.framework.filter.access.AccessRequestWrapper;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -24,8 +25,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.feign.codec.HttpResponse;
 import org.springframework.feign.codec.Response;
 import org.springframework.feign.codec.ResponseCode;
@@ -46,12 +45,11 @@ import java.util.Objects;
  * @author shanhuiming
  *
  */
-@RequiredArgsConstructor
+@Slf4j
 @Aspect
+@RequiredArgsConstructor
 @Component
 public class AccessLogger {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogger.class);
 
 	private final AccessIdGenerator accessIdGenerator;
 
@@ -119,7 +117,7 @@ public class AccessLogger {
 				builder.append("]");
 			}
 			builder.append(" args=").append(JSON.toJSONString(map, new AccessRequestWrapper.PasswordFilter()));
-			LOGGER.info(builder.toString());
+			log.info(builder.toString());
 		}else{
 			// 请求经过AccessFilter
 			if (accessUserParser != null) {
@@ -171,85 +169,49 @@ public class AccessLogger {
 			}
 		}
 
-		if(resp == null || !LOGGER.isDebugEnabled()){
+		if(resp == null || !log.isDebugEnabled()){
 			if(response != null) {
 				// Response
 				if(Objects.equals(code, ResponseCode.SUCCESS.getCode())){
-					LOGGER.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+					log.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
 				}else{
-					if(!LOGGER.isInfoEnabled()){
-						LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+					if(!log.isInfoEnabled()){
+						log.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
 					}else{
-						LOGGER.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+						log.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
 					}
 				}
 			}else if(httpResponse != null){
 				// HttpResponse
 				if(status == HttpStatus.OK.value()){
-					LOGGER.info("<< {} {}ms {}", status, cost, msg);
+					log.info("<< {} {}ms {}", status, cost, msg);
 				}else{
-					if(!LOGGER.isInfoEnabled()){
-						LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+					if(!log.isInfoEnabled()){
+						log.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
 					}else{
-						LOGGER.warn("<< {} {}ms {}", status, cost, msg);
+						log.warn("<< {} {}ms {}", status, cost, msg);
 					}
 				}
 			}else{
 				// Others
 				if(status == HttpStatus.OK.value()){
-					LOGGER.info("<< {} {}ms", status, cost);
+					log.info("<< {} {}ms", status, cost);
 				}else{
-					if(!LOGGER.isInfoEnabled()){
-						LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+					if(!log.isInfoEnabled()){
+						log.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
 					}else{
-						LOGGER.info("<< {} {}ms", status, cost);
+						log.info("<< {} {}ms", status, cost);
 					}
 				}
 			}
 		}else{
 			if(response != null) {
-				LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
+				log.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
 			}else if(httpResponse != null){
-				LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
+				log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
 			}else{
-				LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
+				log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
 			}
 		}
-	}
-
-	public static void info(String msg){
-		LOGGER.info(msg);
-	}
-
-	public static void info(String format, Object... arguments){
-		LOGGER.info(format, arguments);
-	}
-
-	public static void info(String msg, Throwable t) {
-		LOGGER.info(msg, t);
-	}
-
-	public static void warn(String msg){
-		LOGGER.warn(msg);
-	}
-
-	public static void warn(String format, Object... arguments){
-		LOGGER.warn(format, arguments);
-	}
-
-	public static void warn(String msg, Throwable t) {
-		LOGGER.warn(msg, t);
-	}
-
-	public static void error(String msg){
-		LOGGER.error(msg);
-	}
-
-	public static void error(String format, Object... arguments){
-		LOGGER.error(format, arguments);
-	}
-
-	public static void error(String msg, Throwable t) {
-		LOGGER.error(msg, t);
 	}
 }

@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessLogger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -42,8 +42,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author shanhuiming
  *
  */
-@RequiredArgsConstructor
+@Slf4j
 @Aspect
+@RequiredArgsConstructor
 @Component
 public class OperationAspect {
 
@@ -140,7 +141,7 @@ public class OperationAspect {
 		try{
 			return exprParser.parseExpression(summarySpel, new TemplateParserContext()).getValue(context, String.class);
 		}catch(Exception e){
-			AccessLogger.error("", e);
+			log.error("", e);
 			return "";
 		}
 	}
@@ -152,7 +153,7 @@ public class OperationAspect {
 			try{
 				exprParser.parseExpression(operation.expr()).getValue(context);
 			}catch (Exception ex){
-				AccessLogger.error("", ex);
+				log.error("", ex);
 			}
 		}
 	}

@@ -179,6 +179,10 @@ public class StringRedisHelper {
         stringRedisTemplate.opsForValue().set(key, toStringValue(value), timeout, timeUnit);
     }
 
+    public Boolean updateExpire(final String key, final Integer timeout, final TimeUnit timeUnit) {
+        return stringRedisTemplate.expire(key, timeout, timeUnit);
+    }
+
     public void putMap(final String key, final String hKey, final Object value){
         stringRedisTemplate.opsForHash().put(key, hKey, toStringValue(value));
     }

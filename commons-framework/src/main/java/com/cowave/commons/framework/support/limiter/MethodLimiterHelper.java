@@ -27,10 +27,7 @@ public class MethodLimiterHelper {
         if (limiter != null) {
             return limiter;
         }
-
-        limiter = RateLimiter.create(permitsPerSecond);
-        RateLimiter currentLimiter = RATE_LIMITER.putIfAbsent(key, limiter);
-        return currentLimiter == null ? limiter : currentLimiter;
+        return RATE_LIMITER.computeIfAbsent(key, k -> RateLimiter.create(permitsPerSecond));
     }
 
     public static void acquire(String name, double permitsPerSecond) {

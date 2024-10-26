@@ -11,11 +11,11 @@ package com.cowave.commons.framework.filter.access;
 
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.framework.configuration.AccessConfiguration;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
@@ -37,6 +37,7 @@ import static org.springframework.feign.codec.ResponseCode.SUCCESS;
  * @author shanhuiming
  *
  */
+@Slf4j
 @RequiredArgsConstructor
 public class AccessFilter implements Filter {
 
@@ -113,9 +114,9 @@ public class AccessFilter implements Filter {
             int status = httpServletResponse.getStatus();
             long cost = System.currentTimeMillis() - access.getAccessTime();
             if(status == HttpStatus.OK.value()){
-                AccessLogger.info("<< {} {}ms", status, cost);
+                log.info("<< {} {}ms", status, cost);
             }else{
-                AccessLogger.warn("<< {} {}ms", status, cost);
+                log.warn("<< {} {}ms", status, cost);
             }
         }
 
@@ -141,7 +142,7 @@ public class AccessFilter implements Filter {
             mine.addValue("Access-Id").setString(value);
         } catch (Exception e) {
             // never will happened
-            AccessLogger.error("", e);
+            log.error("", e);
         }
     }
 }

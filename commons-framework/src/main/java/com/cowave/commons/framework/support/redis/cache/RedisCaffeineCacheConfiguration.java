@@ -10,6 +10,7 @@
 package com.cowave.commons.framework.support.redis.cache;
 
 import com.cowave.commons.framework.support.redis.RedisHelper;
+import com.cowave.commons.framework.support.redis.StringRedisHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,9 +38,12 @@ public class RedisCaffeineCacheConfiguration {
     @Nullable
     private final RedisHelper redisHelper;
 
+    @Nullable
+    private final StringRedisHelper stringRedisHelper;
+
     @ConditionalOnMissingBean(RedisCaffeineCacheManager.class)
     @Bean
     public RedisCaffeineCacheManager cacheManager() {
-        return new RedisCaffeineCacheManager(cacheProperties, redisHelper);
+        return new RedisCaffeineCacheManager(cacheProperties, redisHelper, stringRedisHelper);
     }
 }

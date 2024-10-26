@@ -10,6 +10,7 @@
 package com.cowave.commons.framework.support.redis.cache;
 
 import com.cowave.commons.framework.support.redis.RedisHelper;
+import com.cowave.commons.framework.support.redis.StringRedisHelper;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
@@ -34,6 +35,8 @@ public class RedisCaffeineCacheManager implements CacheManager {
 
     private final RedisHelper redisHelper;
 
+    private final StringRedisHelper stringRedisHelper;
+
     @Override
     public Collection<String> getCacheNames() {
         return caches.keySet();
@@ -46,25 +49,25 @@ public class RedisCaffeineCacheManager implements CacheManager {
             return cache;
         }
         return caches.computeIfAbsent(cacheName,
-                k -> new RedisCaffeineCache(cacheName, cacheProperties, redisHelper, caffeine()));
+                k -> new RedisCaffeineCache(caffeine(), cacheName, cacheProperties, redisHelper, stringRedisHelper));
     }
 
     private com.github.benmanes.caffeine.cache.Cache<Object, Object> caffeine(){
         Caffeine<Object, Object> caffeineBuilder = Caffeine.newBuilder();
-        if(cacheProperties.getExpireAfterAccess() > 0){
-            caffeineBuilder.expireAfterAccess(cacheProperties.getExpireAfterAccess(), TimeUnit.SECONDS);
+        if(cacheProperties.l1ExpireAfterAccess() > 0){
+            caffeineBuilder.expireAfterAccess(cacheProperties.l1ExpireAfterAccess(), TimeUnit.SECONDS);
         }
-        if(cacheProperties.getExpireAfterWrite() > 0){
-            caffeineBuilder.expireAfterWrite(cacheProperties.getExpireAfterWrite(), TimeUnit.SECONDS);
+        if(cacheProperties.l1ExpireAfterWrite() > 0){
+            caffeineBuilder.expireAfterWrite(cacheProperties.l1ExpireAfterWrite(), TimeUnit.SECONDS);
         }
-        if(cacheProperties.getInitialCapacity() > 0){
-            caffeineBuilder.initialCapacity(cacheProperties.getInitialCapacity());
+        if(cacheProperties.l1InitialCapacity() > 0){
+            caffeineBuilder.initialCapacity(cacheProperties.l1InitialCapacity());
         }
-        if(cacheProperties.getMaximumSize() > 0){
-            caffeineBuilder.maximumSize(cacheProperties.getMaximumSize());
+        if(cacheProperties.l1MaximumSize() > 0){
+            caffeineBuilder.maximumSize(cacheProperties.l1MaximumSize());
         }
-        if(cacheProperties.getRefreshAfterWrite() > 0){
-            caffeineBuilder.refreshAfterWrite(cacheProperties.getRefreshAfterWrite(), TimeUnit.SECONDS);
+        if(cacheProperties.l1RefreshAfterWrite() > 0){
+            caffeineBuilder.refreshAfterWrite(cacheProperties.l1RefreshAfterWrite(), TimeUnit.SECONDS);
         }
         return caffeineBuilder.build();
     }

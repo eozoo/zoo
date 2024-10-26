@@ -94,6 +94,10 @@ public class RedisHelper{
 		redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
 	}
 
+	public Boolean updateExpire(final String key, final Integer timeout, final TimeUnit timeUnit) {
+        return redisTemplate.expire(key, timeout, timeUnit);
+    }
+
 	public <T> void putMap(final String key, final String hKey, final T value){
 		Asserts.notNull(value, "redis value can't be bull");
 		redisTemplate.opsForHash().put(key, hKey, value);

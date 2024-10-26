@@ -24,9 +24,9 @@
     </issueManagement>
 
     <scm>
-        <url>https://github.com/cowave5/commons</url>
-        <connection>scm:git:https://github.com/cowave5/commons.git</connection>
-        <developerConnection>scm:git:https://github.com/cowave5/commons.git</developerConnection>
+        <url>git@github.com:cowave5/commons.git</url>
+        <connection>scm:git@github.com:cowave5/commons.git</connection>
+        <developerConnection>scm:git@github.com:cowave5/commons.git</developerConnection>
     </scm>
 
     <developers>
@@ -35,11 +35,6 @@
             <email>huiming.shan@cowave.com</email>
         </developer>
     </developers>
-
-    <organization>
-        <name>Cowave</name>
-        <url>https://github.com/cowave5</url>
-    </organization>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
