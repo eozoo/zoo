@@ -7,9 +7,9 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.support.limiter;
+package com.cowave.commons.framework.support.limit;
 
-import com.cowave.commons.tools.HttpException;
+import com.cowave.commons.tools.AssertsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,39 +23,38 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import static org.springframework.feign.codec.ResponseCode.TOO_MANY_REQUESTS;
-
 /**
+ *
  * @author aKuang
+ *
  */
 @Slf4j
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class MethodLimiterAspect {
+public class CallerLimitAspect {
 
-    @Pointcut("@annotation(com.cowave.commons.framework.support.limiter.MethodLimiter)")
+    @Pointcut("@annotation(com.cowave.commons.framework.support.limit.CallerLimit)")
     public void pointCut() {
+
     }
 
     @Around("pointCut()")
     public Object around(ProceedingJoinPoint point) throws Throwable {
         MethodSignature signature = (MethodSignature) point.getSignature();
-        MethodLimiter methodLimiter = signature.getMethod().getAnnotation(MethodLimiter.class);
-        String name = methodLimiter.name();
+        CallerLimit limit = signature.getMethod().getAnnotation(CallerLimit.class);
+        String name = limit.name();
         if (StringUtils.isBlank(name)) {
             String className = Optional.ofNullable(point.getTarget()).map(Object::getClass).map(Class::getSimpleName).orElse("");
             String methodName = Optional.ofNullable(signature.getMethod()).map(Method::getName).orElse("");
             name = className + "_" + methodName;
         }
 
-        long waitTime = methodLimiter.waitTime();
+        long waitTime = limit.waitTime();
         if (waitTime == -1) {
-            MethodLimiterHelper.acquire(name, methodLimiter.permitsPerSecond());
-        } else {
-            if (!MethodLimiterHelper.tryAcquire(name, methodLimiter.permitsPerSecond(), waitTime, methodLimiter.timeUnit())) {
-                throw new HttpException(TOO_MANY_REQUESTS, "{frame.operation.limit}");
-            }
+            LimitHelper.acquire(name, limit.permitsPerSecond());
+        } else if (!LimitHelper.tryAcquire(name, limit.permitsPerSecond(), waitTime, limit.timeUnit())) {
+            throw new AssertsException("{frame.caller.limit}");
         }
         return point.proceed();
     }

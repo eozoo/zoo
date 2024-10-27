@@ -7,7 +7,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.support.limiter;
+package com.cowave.commons.framework.support.limit;
 
 import com.google.common.util.concurrent.RateLimiter;
 
@@ -18,24 +18,24 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author aKuang
  */
-public class MethodLimiterHelper {
+public class LimitHelper {
 
-    private static final Map<String, RateLimiter> RATE_LIMITER = new ConcurrentHashMap<>();
+    private static final Map<String, RateLimiter> LIMITERS = new ConcurrentHashMap<>();
 
     static RateLimiter getLimiter(String key, double permitsPerSecond) {
-        RateLimiter limiter = RATE_LIMITER.get(key);
+        RateLimiter limiter = LIMITERS.get(key);
         if (limiter != null) {
             return limiter;
         }
-        return RATE_LIMITER.computeIfAbsent(key, k -> RateLimiter.create(permitsPerSecond));
+        return LIMITERS.computeIfAbsent(key, k -> RateLimiter.create(permitsPerSecond));
     }
 
     public static void acquire(String name, double permitsPerSecond) {
-        MethodLimiterHelper.getLimiter(name, permitsPerSecond).acquire();
+        LimitHelper.getLimiter(name, permitsPerSecond).acquire();
     }
 
     public static boolean tryAcquire(String name, double permitsPerSecond) {
-        return MethodLimiterHelper.getLimiter(name, permitsPerSecond).tryAcquire();
+        return LimitHelper.getLimiter(name, permitsPerSecond).tryAcquire();
     }
 
     public static boolean tryAcquire(String name, double permitsPerSecond, long waitTime, TimeUnit timeUnit) {
