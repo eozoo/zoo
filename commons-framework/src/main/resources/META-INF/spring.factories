@@ -10,9 +10,8 @@ com.cowave.commons.framework.helper.redis.RedisAutoConfiguration,\
 com.cowave.commons.framework.helper.redis.redisson.RedissonAutoConfiguration,\
 com.cowave.commons.framework.helper.kafka.KafkaAutoConfiguration,\
 com.cowave.commons.framework.support.mybatis.logger.SqlLoggerMybatisConfiguration,\
-com.cowave.commons.framework.access.limit.AccessLimitConfiguration,\
-com.cowave.commons.framework.access.limit.limiter.RedisAccessLimiterConfiguration,\
-com.cowave.commons.framework.access.limit.limiter.GuavaAccessLimiterConfiguration
+com.cowave.commons.framework.access.limit.RedisAccessLimiterConfiguration,\
+com.cowave.commons.framework.access.limit.GuavaAccessLimiterConfiguration
 
 org.springframework.context.ApplicationContextInitializer=\
 com.cowave.commons.framework.configuration.ApplicationConfiguration

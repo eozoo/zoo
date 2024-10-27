@@ -9,18 +9,12 @@
  */
 package com.cowave.commons.framework.access.limit;
 
-import com.cowave.commons.framework.access.limit.limiter.AccessLimiter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 /**
  *
  * @author shanhuiming
  *
  */
-@RequiredArgsConstructor
-public class AccessLimitHelper {
+public interface AccessLimiter {
 
-    private final AccessLimiter accessLimiter;
-
+    boolean throughLimit(String limitKey, long period, long limits);
 }

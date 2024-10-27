@@ -81,7 +81,7 @@ public class TokenService {
     }
 
     /**
-     * 赋值Token TODO
+     * 赋值Token
      */
     public void assignToken(AccessToken token) {
         String accessToken = Jwts.builder()

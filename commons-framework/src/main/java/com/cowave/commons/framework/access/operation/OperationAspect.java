@@ -54,7 +54,12 @@ public class OperationAspect {
 
 	private final TaskExecutor taskExecutor;
 
-	@Pointcut("@annotation(com.cowave.commons.framework.access.operation.Operation)")
+	@Pointcut("@annotation(com.cowave.commons.framework.access.operation.Operation) " +
+			"&& (@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
+			"|| @annotation(org.springframework.web.bind.annotation.DeleteMapping))")
 	public void oplog() {
 
 	}

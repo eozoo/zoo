@@ -39,6 +39,6 @@ public class MethodLimiterHelper {
     }
 
     public static boolean tryAcquire(String name, double permitsPerSecond, long waitTime, TimeUnit timeUnit) {
-        return MethodLimiterHelper.getLimiter(name, permitsPerSecond).tryAcquire(waitTime, timeUnit);
+        return getLimiter(name, permitsPerSecond).tryAcquire(waitTime, timeUnit);
     }
 }

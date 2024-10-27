@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 public @interface AccessLimit {
 
     /**
-     * 时间窗口(ms)
+     * 滑动窗口时间(ms)
      */
     long period() default 1000;
 
@@ -40,7 +40,7 @@ public @interface AccessLimit {
     /**
      * 提示消息
      */
-    String message() default "{frame.advice.repeat}";
+    String message() default "{frame.access.limit}";
 
     /**
      * 区分ip

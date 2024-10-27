@@ -7,14 +7,23 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.access.limit.limiter;
+package com.cowave.commons.framework.access.limit;
+
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 
 /**
  *
  * @author shanhuiming
  *
  */
-public interface AccessLimiter {
+@AutoConfigureAfter(RedisAccessLimiterConfiguration.class)
+public class GuavaAccessLimiterConfiguration {
 
-    boolean limit();
+    @ConditionalOnMissingBean(AccessLimiter.class)
+    @Bean
+    public AccessLimiter accessLimiter(){
+        return new GuavaAccessLimiter();
+    }
 }
