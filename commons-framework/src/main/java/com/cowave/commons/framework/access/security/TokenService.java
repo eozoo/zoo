@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +71,8 @@ public class TokenService {
 
     private final AccessConfiguration accessConfiguration;
 
+    private final ApplicationProperties applicationProperties;
+
     @Nullable
     private final RedisHelper redisHelper;
 
@@ -78,7 +81,7 @@ public class TokenService {
     }
 
     /**
-     * 赋值Token
+     * 赋值Token TODO
      */
     public void assignToken(AccessToken token) {
         String accessToken = Jwts.builder()
@@ -89,9 +92,9 @@ public class TokenService {
                 .claim(CLAIM_DEPT_ID,       String.valueOf(token.getDeptId()))
                 .claim(CLAIM_DEPT_CODE,     token.getDeptCode())
                 .claim(CLAIM_DEPT_NAME,     token.getDeptName())
-                .claim(CLAIM_CLUSTER_ID,    token.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, token.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME,  token.getClusterName())
+                .claim(CLAIM_CLUSTER_ID,    applicationProperties.getClusterId())
+                .claim(CLAIM_CLUSTER_LEVEL, applicationProperties.getClusterLevel())
+                .claim(CLAIM_CLUSTER_NAME,  applicationProperties.getClusterName())
                 .claim(CLAIM_USER_ROLE,     token.getRoles())
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
                 .claim(CLAIM_TYPE,          token.getType())
@@ -111,7 +114,7 @@ public class TokenService {
         token.setRefreshToken(refreshToken);
 
         assert redisHelper != null;
-        String key = accessConfiguration.tokenKey() + token.getType() + ":" + token.getUsername();
+        String key = applicationProperties.getTokenNamespace() + token.getType() + ":" + token.getUsername();
         redisHelper.putExpireValue(key, token, accessConfiguration.tokenRefreshExpire(), TimeUnit.SECONDS);
 
         Access access = Access.get();
@@ -253,7 +256,7 @@ public class TokenService {
 
     private String getKey(Claims claims){
         String tokenType = (String)claims.get(CLAIM_TYPE);
-        return accessConfiguration.tokenKey() + tokenType + ":";
+        return applicationProperties.getTokenNamespace() + tokenType + ":";
     }
 
     public boolean validAccessToken(String accessToken) {
@@ -283,9 +286,9 @@ public class TokenService {
                 .claim(CLAIM_DEPT_ID,       String.valueOf(token.getDeptId()))
                 .claim(CLAIM_DEPT_CODE,     token.getDeptCode())
                 .claim(CLAIM_DEPT_NAME,     token.getDeptName())
-                .claim(CLAIM_CLUSTER_ID,    token.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, token.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME,  token.getClusterName())
+                .claim(CLAIM_CLUSTER_ID,    applicationProperties.getClusterId())
+                .claim(CLAIM_CLUSTER_LEVEL, applicationProperties.getClusterLevel())
+                .claim(CLAIM_CLUSTER_NAME,  applicationProperties.getClusterName())
                 .claim(CLAIM_USER_ROLE,     token.getRoles())
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
                 .setIssuedAt(new Date())

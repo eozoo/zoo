@@ -36,16 +36,16 @@ public class RedissonLockAspect {
         MethodSignature signature = (MethodSignature) point.getSignature();
         RedissonLock redissonLock = signature.getMethod().getAnnotation(RedissonLock.class);
         String lockName = redissonLock.name();
-        String lockKey = redissonLock.key();
+        String[] lockKeys = redissonLock.keys();
         long awaitTime = redissonLock.await();
         long leaseTime = redissonLock.lease();
         try{
-            if(lockHelper.tryLock(awaitTime, leaseTime, redissonLock.timeUnit(), lockName, lockKey)){
+            if(lockHelper.tryLock(awaitTime, leaseTime, redissonLock.timeUnit(), lockName, lockKeys)){
                 return point.proceed();
             }
         }finally {
             if(leaseTime != -1){
-                lockHelper.releaseLock(lockName, lockKey);
+                lockHelper.releaseLock(lockName, lockKeys);
             }
         }
         return null;

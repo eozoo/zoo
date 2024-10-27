@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.helper.redis.redisson;
 
+import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.redis.connection.CommonRedisCondition;
 import com.cowave.commons.framework.helper.redis.connection.JedisAutoConfiguration;
 import com.cowave.commons.framework.helper.redis.connection.LettuceAutoConfiguration;
@@ -100,8 +101,9 @@ public class RedissonAutoConfiguration {
 
     @ConditionalOnBean(RedissonClient.class)
     @Bean
-    public RedissonLockHelper redissonLockHelper(RedissonClient redissonClient){
-        return new RedissonLockHelper(redissonClient);
+    public RedissonLockHelper redissonLockHelper(
+            RedissonClient redissonClient, ApplicationProperties applicationProperties){
+        return new RedissonLockHelper(redissonClient, applicationProperties);
     }
 
     @ConditionalOnBean(RedissonLockHelper.class)

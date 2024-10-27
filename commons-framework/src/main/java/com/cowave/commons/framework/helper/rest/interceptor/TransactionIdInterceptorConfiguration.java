@@ -12,6 +12,7 @@ package com.cowave.commons.framework.helper.rest.interceptor;
 import com.cowave.commons.framework.access.AccessConfiguration;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.TokenService;
+import feign.RequestInterceptor;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,13 @@ public class TransactionIdInterceptorConfiguration {
     private final TokenService tokenService;
 
     @Bean
-    public ClientHttpRequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
+    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
+            ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
+        return new TransactionIdInterceptor(port, tokenService, accessConfiguration, applicationProperties);
+    }
+
+    @Bean
+    public RequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
         return new TransactionIdInterceptor(port, tokenService, accessConfiguration, applicationProperties);
     }

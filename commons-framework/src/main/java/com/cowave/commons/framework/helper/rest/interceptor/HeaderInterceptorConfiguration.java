@@ -41,7 +41,13 @@ public class HeaderInterceptorConfiguration {
     private final TokenService tokenService;
 
     @Bean
-    public ClientHttpRequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
+    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
+            ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
+        return new HeaderInterceptor(port, tokenService, accessConfiguration, applicationProperties);
+    }
+
+    @Bean
+    public RequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
         return new HeaderInterceptor(port, tokenService, accessConfiguration, applicationProperties);
     }

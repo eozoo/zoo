@@ -12,6 +12,7 @@ package com.cowave.commons.framework.helper.redis.dict;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.cowave.commons.framework.helper.redis.StringRedisHelper;
 import com.cowave.commons.tools.AssertsException;
@@ -29,44 +30,43 @@ public class DictHelper {
 
     private final Map<String, DictValueParser> parserMap = new ConcurrentHashMap<>();
 
+    private final ApplicationProperties applicationProperties;
+
     private final RedisHelper redisHelper;
 
     private final StringRedisHelper stringRedisHelper;
 
-    private String getGroupKey(String namespace){
-        if(StringUtils.isBlank(namespace)){
-            return "dict:group:";
-        }else if(namespace.endsWith(":")){
-            return namespace + "dict:group:";
-        }else{
-            return namespace + ":dict:group:";
-        }
+    private String getGroupKey(){
+        return applicationProperties.getDictNamespace() + "group:";
     }
 
-    private String getTypeKey(String namespace){
-        if(StringUtils.isBlank(namespace)){
-            return "dict:type:";
-        }else if(namespace.endsWith(":")){
-            return namespace + "dict:type:";
-        }else{
-            return namespace + ":dict:type:";
-        }
+    private String getTypeKey(){
+        return applicationProperties.getDictNamespace() + "type:";
     }
 
-    private String getDictKey(String namespace){
+    private String getDictKey(){
+        return applicationProperties.getDictNamespace() + "code:";
+    }
+
+    /**
+     * 清空字典
+     */
+    public void clear() {
+        String namespace = applicationProperties.getNamespace();
         if(StringUtils.isBlank(namespace)){
-            return "dict:code:";
+            namespace = "dict:*:";
         }else if(namespace.endsWith(":")){
-            return namespace + "dict:code:";
+            namespace = namespace + "dict:*";
         }else{
-            return namespace + ":dict:code:";
+            namespace = namespace + ":dict:*";
         }
+        stringRedisHelper.luaClean(namespace);
     }
 
     /**
      * 存入字典缓存
      */
-    public void put(String namespace, Dict dict) {
+    public void put(Dict dict) {
         if(dict.getGroupCode() == null){
             throw new AssertsException("{frame.dict.notnull.groupcode}");
         }
@@ -93,22 +93,22 @@ public class DictHelper {
         }
 
         if(!"dict_root".equals(dict.getTypeCode())){
-            redisHelper.putMap(getGroupKey(namespace) + dict.getGroupCode(), dict.getDictCode(), dict);
+            redisHelper.putMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode(), dict);
             if(!"dict_root".equals(dict.getGroupCode())){
-                redisHelper.putMap(getTypeKey(namespace) + dict.getTypeCode(), dict.getDictCode(), dict);
+                redisHelper.putMap(getTypeKey() + dict.getTypeCode(), dict.getDictCode(), dict);
             }
         }
-        redisHelper.putValue(getDictKey(namespace) + dict.getDictCode(), dict);
+        redisHelper.putValue(getDictKey() + dict.getDictCode(), dict);
     }
 
     /**
      * 获取某个分组字典
      */
-    public <T extends Dict> List<T> getGroup(String namespace, String groupCode) {
+    public <T extends Dict> List<T> getGroup(String groupCode) {
         if(StringUtils.isBlank(groupCode)){
             return new ArrayList<>();
         }
-        Map<String, T> map = redisHelper.getMap(getGroupKey(namespace) + groupCode);
+        Map<String, T> map = redisHelper.getMap(getGroupKey() + groupCode);
         if(map == null){
             return new ArrayList<>();
         }
@@ -120,11 +120,11 @@ public class DictHelper {
     /**
      * 获取某个类型字典
      */
-    public <T extends Dict> List<T> getType(String namespace, String typeCode) {
+    public <T extends Dict> List<T> getType(String typeCode) {
         if(StringUtils.isBlank(typeCode)){
             return new ArrayList<>();
         }
-        Map<String, T> map = redisHelper.getMap(getTypeKey(namespace) + typeCode);
+        Map<String, T> map = redisHelper.getMap(getTypeKey() + typeCode);
         if(map == null){
             return new ArrayList<>();
         }
@@ -136,18 +136,18 @@ public class DictHelper {
     /**
      * 获取字典
      */
-    public <T extends Dict> T getDict(String namespace, String dictCode) {
+    public <T extends Dict> T getDict(String dictCode) {
         if(StringUtils.isBlank(dictCode)){
             return null;
         }
-        return redisHelper.getValue(getDictKey(namespace) + dictCode);
+        return redisHelper.getValue(getDictKey() + dictCode);
     }
 
     /**
      * 获取字典Label
      */
-    public String getDictLabel(String namespace, String dictCode) {
-        Dict dict = getDict(namespace, dictCode);
+    public String getDictLabel(String dictCode) {
+        Dict dict = getDict(dictCode);
         if(dict == null){
             return null;
         }
@@ -157,8 +157,8 @@ public class DictHelper {
     /**
      * 获取字典值
      */
-    public <T> T getDictValue(String namespace, String dictCode) {
-        Dict dict = getDict(namespace, dictCode);
+    public <T> T getDictValue(String dictCode) {
+        Dict dict = getDict(dictCode);
         if(dict == null){
             return null;
         }
@@ -168,17 +168,17 @@ public class DictHelper {
     /**
      * 删除字典
      */
-    public void removeDict(String namespace, String dictCode) {
+    public void removeDict(String dictCode) {
         if(StringUtils.isBlank(dictCode)){
             return;
         }
-        Dict dict = redisHelper.getValue(getDictKey(namespace) + dictCode);
+        Dict dict = redisHelper.getValue(getDictKey() + dictCode);
         if(dict == null){
             return;
         }
-        redisHelper.delete(getDictKey(namespace) + dictCode);
-        redisHelper.deleteMap(getTypeKey(namespace) + dict.getTypeCode(), dictCode);
-        redisHelper.deleteMap(getGroupKey(namespace) + dict.getGroupCode(), dictCode);
+        redisHelper.delete(getDictKey() + dictCode);
+        redisHelper.deleteMap(getTypeKey() + dict.getTypeCode(), dictCode);
+        redisHelper.deleteMap(getGroupKey() + dict.getGroupCode(), dictCode);
     }
 
     /**
@@ -190,19 +190,19 @@ public class DictHelper {
      * <p>删除sys-dict:type:{typeCode}
      * <p>从sys-dict:group:dict_group中删除类型
      */
-    public void removeType(String namespace, String typeCode) {
+    public void removeType(String typeCode) {
         if(StringUtils.isBlank(typeCode)){
             return;
         }
-        Map<String, Dict> dictMap = redisHelper.getMap(getTypeKey(namespace) + typeCode);
+        Map<String, Dict> dictMap = redisHelper.getMap(getTypeKey() + typeCode);
         if(dictMap != null){
             for(Dict dict : dictMap.values()){
-                redisHelper.delete(getDictKey(namespace) + dict.getDictCode());
-                redisHelper.deleteMap(getGroupKey(namespace) + dict.getGroupCode(), dict.getDictCode());
+                redisHelper.delete(getDictKey() + dict.getDictCode());
+                redisHelper.deleteMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode());
             }
         }
-        redisHelper.delete(getTypeKey(namespace) + typeCode);
-        redisHelper.deleteMap(getGroupKey(namespace) + "dict_group", typeCode);
+        redisHelper.delete(getTypeKey() + typeCode);
+        redisHelper.deleteMap(getGroupKey() + "dict_group", typeCode);
     }
 
     /**
@@ -216,38 +216,24 @@ public class DictHelper {
      * <p>删除sys-dict:group:{groupCode}
      * <p>从sys-dict:group:dict_root中删除分组
      */
-    public void removeGroup(String namespace, String groupCode) {
+    public void removeGroup(String groupCode) {
         if(StringUtils.isBlank(groupCode)){
             return;
         }
-        Map<String, Dict> typeMap = redisHelper.getMap(getTypeKey(namespace) + groupCode);
+        Map<String, Dict> typeMap = redisHelper.getMap(getTypeKey() + groupCode);
         if(typeMap != null){
-            redisHelper.delete(getTypeKey(namespace) + groupCode);
+            redisHelper.delete(getTypeKey() + groupCode);
             for(Dict type : typeMap.values()){
-                redisHelper.deleteMap(getGroupKey(namespace) + "dict_group", type.getDictCode());
+                redisHelper.deleteMap(getGroupKey() + "dict_group", type.getDictCode());
             }
         }
-        Map<String, Dict> dictMap = redisHelper.getMap(getGroupKey(namespace) + groupCode);
+        Map<String, Dict> dictMap = redisHelper.getMap(getGroupKey() + groupCode);
         if(dictMap != null){
             for(Dict dict : dictMap.values()){ //
-                redisHelper.delete(getDictKey(namespace) + dict.getDictCode());
+                redisHelper.delete(getDictKey() + dict.getDictCode());
             }
         }
-        redisHelper.delete(getGroupKey(namespace) + groupCode);
-        redisHelper.deleteMap(getGroupKey(namespace) + "dict_root", groupCode);
-    }
-
-    /**
-     * 清空字典
-     */
-    public void clear(String namespace) {
-        if(StringUtils.isBlank(namespace)){
-            namespace = "dict:*:";
-        }else if(namespace.endsWith(":")){
-            namespace = namespace + "dict:*";
-        }else{
-            namespace = namespace + ":dict:*";
-        }
-        stringRedisHelper.luaClean(namespace);
+        redisHelper.delete(getGroupKey() + groupCode);
+        redisHelper.deleteMap(getGroupKey() + "dict_root", groupCode);
     }
 }

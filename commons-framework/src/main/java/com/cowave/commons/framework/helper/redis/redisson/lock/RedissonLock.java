@@ -30,7 +30,7 @@ public @interface RedissonLock {
     /**
      * 锁标识信息
      */
-    String key();
+    String[] keys() default {};
 
     /**
      * 等待时间

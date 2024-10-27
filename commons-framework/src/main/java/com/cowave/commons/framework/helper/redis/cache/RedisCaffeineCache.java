@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.helper.redis.cache;
 
+import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.cowave.commons.framework.helper.redis.StringRedisHelper;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -29,18 +30,21 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     private final Map<String, ReentrantLock> locks = new ConcurrentHashMap<>();
-    private final CacheProperties cacheProperties;
     private final String cacheName;
+    private final CacheProperties cacheProperties;
+    private final ApplicationProperties applicationProperties;
+    private final Cache<Object, Object> local;
     private final RedisHelper redisHelper;
     private final StringRedisHelper stringRedisHelper;
-    private final Cache<Object, Object> local;
 
-    protected RedisCaffeineCache(Cache<Object, Object> local, String cacheName, CacheProperties cacheProperties,
+    protected RedisCaffeineCache(String cacheName, CacheProperties cacheProperties,
+                                 ApplicationProperties applicationProperties, Cache<Object, Object> local,
                                  RedisHelper redisHelper, StringRedisHelper stringRedisHelper) {
         super(true);
-        this.local = local;
         this.cacheName = cacheName;
         this.cacheProperties = cacheProperties;
+        this.applicationProperties = applicationProperties;
+        this.local = local;
         this.redisHelper = redisHelper;
         this.stringRedisHelper = stringRedisHelper;
     }
@@ -188,7 +192,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     }
 
     private String redisKey(Object key) {
-        return this.cacheName.concat(":").concat(key.toString());
+        return applicationProperties.getCacheNamespace() + cacheName + ":" + key.toString();
     }
 
     @Override

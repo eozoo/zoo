@@ -45,18 +45,26 @@ public class TransactionIdInterceptor implements RequestInterceptor, ClientHttpR
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
+        // Header Access-Id
         String accessId = Access.accessId();
-        String authorization = Access.accessToken();
-        String xid = RootContext.getXID(); // Seata事务id
         if(StringUtils.isBlank(accessId)) {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
-             requestTemplate.header("Access-Id", accessId);
         }
-        if(StringUtils.isBlank(authorization) && tokenService != null) {
+        requestTemplate.header("Access-Id", accessId);
+
+        // Header Token
+        String authorization = Access.accessToken();
+        if(StringUtils.isNotBlank(authorization)){
+            requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
+        }
+        if(tokenService != null){
             authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
             requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
         }
+
+        // Header Seata事务id
+        String xid = RootContext.getXID();
         if(StringUtils.isNotBlank(xid)){
             requestTemplate.header(RootContext.KEY_XID, xid);
         }
@@ -64,18 +72,26 @@ public class TransactionIdInterceptor implements RequestInterceptor, ClientHttpR
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        // Header Access-Id
         String accessId = Access.accessId();
-        String authorization = Access.accessToken();
-        String xid = RootContext.getXID(); // Seata事务id
         if(StringUtils.isBlank(accessId)) {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
-            request.getHeaders().add("Access-Id", accessId);
         }
-        if(StringUtils.isBlank(authorization) && tokenService != null) {
+        request.getHeaders().add("Access-Id", accessId);
+
+        // Header Token
+        String authorization = Access.accessToken();
+        if(StringUtils.isNotBlank(authorization)){
+            request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
+        }
+        if(tokenService != null){
             authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
             request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
         }
+
+        // Header Seata事务id
+        String xid = RootContext.getXID();
         if(StringUtils.isNotBlank(xid)){
             request.getHeaders().add(RootContext.KEY_XID, xid);
         }

@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.helper.redis.redisson.lock;
 
+import com.cowave.commons.framework.configuration.ApplicationProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -27,10 +28,12 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedissonLockHelper {
 
+    // 进程为单位，未区分线程
+    private final Map<String, RLock> lockMap = new ConcurrentHashMap<>();
+
     private final RedissonClient redisson;
 
-    // 以进程为单位，不区分线程
-    private final Map<String, RLock> lockMap = new ConcurrentHashMap<>();
+    private final ApplicationProperties applicationProperties;
 
     /**
      * 永久加锁
@@ -85,6 +88,9 @@ public class RedissonLockHelper {
     }
 
     private String key(String name, String... keys) {
-        return String.join(":", name, String.join(":", keys));
+        if(keys != null && keys.length > 0){
+            return applicationProperties.getLockNamespace() + name + ":" + String.join(":", keys);
+        }
+        return applicationProperties.getLockNamespace() + name;
     }
 }

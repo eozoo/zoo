@@ -49,14 +49,20 @@ public class HeaderInterceptor implements RequestInterceptor, ClientHttpRequestI
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
+        // Header Access-Id
         String accessId = Access.accessId();
-        String authorization = Access.accessToken();
         if(StringUtils.isBlank(accessId)) {
             accessId = newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
-            requestTemplate.header("Access-Id", accessId);
         }
-        if(StringUtils.isBlank(authorization) && tokenService != null) {
+        requestTemplate.header("Access-Id", accessId);
+
+        // Header Token
+        String authorization = Access.accessToken();
+        if(StringUtils.isNotBlank(authorization)){
+            requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
+        }
+        if(tokenService != null){
             authorization = newAuthorization(tokenService, applicationProperties);
             requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
         }
@@ -64,14 +70,20 @@ public class HeaderInterceptor implements RequestInterceptor, ClientHttpRequestI
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        // Header Access-Id
         String accessId = Access.accessId();
-        String authorization = Access.accessToken();
         if(StringUtils.isBlank(accessId)) {
             accessId = newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
-            request.getHeaders().add("Access-Id", accessId);
         }
-        if(StringUtils.isBlank(authorization) && tokenService != null) {
+        request.getHeaders().add("Access-Id", accessId);
+
+        // Header Token
+        String authorization = Access.accessToken();
+        if(StringUtils.isNotBlank(authorization)){
+            request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
+        }
+        if(tokenService != null){
             authorization = newAuthorization(tokenService, applicationProperties);
             request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
         }
@@ -89,9 +101,6 @@ public class HeaderInterceptor implements RequestInterceptor, ClientHttpRequestI
         appToken.setUserId(-1L);
         appToken.setDeptId(-1L);
         appToken.setUsername(applicationProperties.getName());
-        appToken.setClusterId(applicationProperties.getClusterId());
-        appToken.setClusterName(applicationProperties.getClusterName());
-        appToken.setClusterLevel(applicationProperties.getClusterLevel());
         return tokenService.createAccessToken(appToken, 300);
     }
 }

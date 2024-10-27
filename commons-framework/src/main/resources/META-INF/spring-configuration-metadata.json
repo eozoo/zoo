@@ -1,14 +1,9 @@
 {
   "groups": [
     {
-      "name": "info.cluster",
-      "type": "com.cowave.commons.framework.configuration.ClusterConfiguration",
-      "sourceType": "com.cowave.commons.framework.configuration.ClusterConfiguration"
-    },
-    {
       "name": "spring.application",
-      "type": "com.cowave.commons.framework.configuration.ApplicationConfiguration",
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationConfiguration"
+      "type": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
     },
     {
       "name": "spring.access",
@@ -42,43 +37,49 @@
   ],
   "properties": [
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ClusterConfiguration",
-      "name": "info.cluster.id",
-      "type": "java.lang.Integer",
-      "defaultValue": 10,
-      "description": "集群id"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.configuration.ClusterConfiguration",
-      "name": "info.cluster.level",
-      "type": "java.lang.Integer",
-      "defaultValue": 1,
-      "description": "集群Level"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.configuration.ClusterConfiguration",
-      "name": "info.cluster.name",
-      "type": "java.lang.String",
-      "defaultValue": "default",
-      "description": "集群名称"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.configuration.ClusterConfiguration",
-      "name": "info.cluster.properties",
-      "type": "java.util.Map<java.lang.String,java.lang.Object>",
-      "description": "集群属性"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationConfiguration",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
       "name": "spring.application.name",
       "type": "java.lang.String",
       "description": "应用名称"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationConfiguration",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
       "name": "spring.application.version",
       "type": "java.lang.String",
       "description": "应用版本"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "name": "spring.application.namespace",
+      "type": "java.lang.String",
+      "description": "命名空间 Redis缓存"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "name": "spring.application.cluster-id",
+      "type": "java.lang.Integer",
+      "defaultValue": 10,
+      "description": "集群id"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "name": "spring.application.cluster-level",
+      "type": "java.lang.Integer",
+      "defaultValue": 1,
+      "description": "集群Level"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "name": "spring.application.cluster-name",
+      "type": "java.lang.String",
+      "defaultValue": "default",
+      "description": "集群名称"
+    },
+    {
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "name": "spring.application.cluster-properties",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "description": "集群属性"
     },
     {
       "name": "spring.datasource.druid.access-to-underlying-connection-allowed",

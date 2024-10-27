@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.helper.redis.cache;
 
+import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.cowave.commons.framework.helper.redis.StringRedisHelper;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -33,6 +34,8 @@ public class RedisCaffeineCacheManager implements CacheManager {
 
     private final CacheProperties cacheProperties;
 
+    private final ApplicationProperties applicationProperties;
+
     private final RedisHelper redisHelper;
 
     private final StringRedisHelper stringRedisHelper;
@@ -49,7 +52,8 @@ public class RedisCaffeineCacheManager implements CacheManager {
             return cache;
         }
         return caches.computeIfAbsent(cacheName,
-                k -> new RedisCaffeineCache(caffeine(), cacheName, cacheProperties, redisHelper, stringRedisHelper));
+                k -> new RedisCaffeineCache(cacheName, cacheProperties,
+                        applicationProperties, caffeine(), redisHelper, stringRedisHelper));
     }
 
     private com.github.benmanes.caffeine.cache.Cache<Object, Object> caffeine(){
