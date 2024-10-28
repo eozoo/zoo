@@ -9,7 +9,7 @@
  */
 package com.cowave.commons.framework.helper.rest.interceptor;
 
-import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.TokenService;
 import feign.RequestInterceptor;
@@ -39,13 +39,13 @@ public class TransactionIdInterceptorConfiguration {
 
     @Bean
     public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
-        return new TransactionIdInterceptor(port, tokenService, accessConfiguration, applicationProperties);
+            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
+        return new TransactionIdInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 
     @Bean
     public RequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
-        return new TransactionIdInterceptor(port, tokenService, accessConfiguration, applicationProperties);
+            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
+        return new TransactionIdInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 }

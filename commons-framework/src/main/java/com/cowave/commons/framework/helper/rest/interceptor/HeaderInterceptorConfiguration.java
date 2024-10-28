@@ -9,7 +9,7 @@
  */
 package com.cowave.commons.framework.helper.rest.interceptor;
 
-import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,13 +42,13 @@ public class HeaderInterceptorConfiguration {
 
     @Bean
     public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
-        return new HeaderInterceptor(port, tokenService, accessConfiguration, applicationProperties);
+            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
+        return new HeaderInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 
     @Bean
     public RequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessConfiguration accessConfiguration) {
-        return new HeaderInterceptor(port, tokenService, accessConfiguration, applicationProperties);
+            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
+        return new HeaderInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 }

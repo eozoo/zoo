@@ -9,10 +9,11 @@
  */
 package com.cowave.commons.framework.access.filter;
 
-import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.access.AccessProperties;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,24 +27,25 @@ import javax.annotation.Nullable;
  *
  */
 @Data
-@Configuration
 @RequiredArgsConstructor
+@Configuration
+@EnableConfigurationProperties(AccessProperties.class)
 public class AccessFilterConfiguration {
 
     @Nullable
     private final TransactionIdSetter transactionIdSetter;
 
     @Bean
-    public AccessIdGenerator accessIdGenerator(@Value("${info.cluster.id:10}${server.port:8080}") String idPrefix){
+    public AccessIdGenerator accessIdGenerator(@Value("${spring.application.cluster-id:10}${server.port:8080}") String idPrefix){
         return new AccessIdGenerator(idPrefix);
     }
 
     @Bean
-    public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator, AccessConfiguration accessConfiguration){
+    public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator, AccessProperties accessProperties){
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessConfiguration));
+        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessProperties));
         registration.setName("accessFilter");
-        registration.addUrlPatterns(accessConfiguration.getPatterns());
+        registration.addUrlPatterns(accessProperties.getPatterns());
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
         return registration;
     }

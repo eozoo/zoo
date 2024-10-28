@@ -1,25 +1,14 @@
-/*
- * Copyright (c) 2017～2024 Cowave All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
- */
 package com.cowave.commons.framework.helper.socketio;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.access.security.TokenService;
-
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Nullable;
 
@@ -29,10 +18,9 @@ import javax.annotation.Nullable;
  *
  */
 @ConditionalOnClass(SocketIOServer.class)
-@ConfigurationProperties(prefix = "spring.socket-io")
-@Data
 @RequiredArgsConstructor
 @Configuration
+@EnableConfigurationProperties(SocketIoProperties.class)
 public class SocketConfiguration {
 
     @Nullable
@@ -44,68 +32,27 @@ public class SocketConfiguration {
     @Nullable
     private final ConnectedHandler connectedHandler;
 
-    private String host;
-
-    /**
-     * socket端口，默认复用Http端口
-     */
-    private Integer port;
-
-    /**
-     * socket路径
-     */
-    private String contextPath = "/socket.io";
-
-    /**
-     * 每帧处理数据的最大长度，防止他人利用大数据来攻击服务器
-     */
-    private int maxFramePayloadLength = 1048576;
-
-    /**
-     * http交互最大内容长度
-     */
-    private int maxHttpContentLength = 1048576;
-
-    /**
-     * HTTP握手升级为ws协议超时时间，默认10秒
-     */
-    private int upgradeTimeout = 1000000;
-
-    /**
-     * 客户端向服务器发送心跳周期
-     */
-    private int pingInterval = 25000;
-
-    /**
-     * 间隔内没有接收到心跳就会发送超时事件
-     */
-    private int pingTimeout = 6000000;
-
-    private int bossCount = 1;
-
-    private int workCount = 100;
-
-    private boolean allowCustomRequests = true;
+    private final AccessProperties accessProperties;
 
     @Bean
-    public SocketServer socketServer() {
+    public SocketIoHelper socketServer(SocketIoProperties properties) {
         com.corundumstudio.socketio.Configuration configuration = new com.corundumstudio.socketio.Configuration();
-        if(host != null){
-            configuration.setHostname(host);
+        if(properties.getHost() != null){
+            configuration.setHostname(properties.getHost());
         }
-        configuration.setPort(port);
-        configuration.setContext(contextPath);
-        configuration.setBossThreads(bossCount);
-        configuration.setWorkerThreads(workCount);
-        configuration.setUpgradeTimeout(upgradeTimeout);
-        configuration.setPingTimeout(pingTimeout);
-        configuration.setPingInterval(pingInterval);
-        configuration.setAllowCustomRequests(allowCustomRequests);
-        configuration.setMaxHttpContentLength(maxHttpContentLength);
-        configuration.setMaxFramePayloadLength(maxFramePayloadLength);
+        configuration.setPort(properties.getPort());
+        configuration.setContext(properties.getContextPath());
+        configuration.setBossThreads(properties.getBossCount());
+        configuration.setWorkerThreads(properties.getWorkCount());
+        configuration.setUpgradeTimeout(properties.getUpgradeTimeout());
+        configuration.setPingTimeout(properties.getPingTimeout());
+        configuration.setPingInterval(properties.getPingInterval());
+        configuration.setAllowCustomRequests(properties.isAllowCustomRequests());
+        configuration.setMaxHttpContentLength(properties.getMaxHttpContentLength());
+        configuration.setMaxFramePayloadLength(properties.getMaxFramePayloadLength());
         if(tokenService != null) {
             configuration.setAuthorizationListener(data -> {
-                String authorization = data.getSingleUrlParam("Authorization");
+                String authorization = data.getSingleUrlParam(accessProperties.tokenHeader());
                 return tokenService.validAccessToken(authorization);
             });
         }
@@ -114,6 +61,6 @@ public class SocketConfiguration {
         socket.setTcpNoDelay(true);
         socket.setSoLinger(0);
         configuration.setSocketConfig(socket);
-        return new SocketServer(clientMsgHandler, connectedHandler, new SocketIOServer(configuration));
+        return new SocketIoHelper(clientMsgHandler, connectedHandler, new SocketIOServer(configuration));
     }
 }

@@ -7,8 +7,8 @@
     },
     {
       "name": "spring.access",
-      "type": "com.cowave.commons.framework.access.AccessConfiguration",
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration"
+      "type": "com.cowave.commons.framework.access.AccessProperties",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
     {
       "name": "spring.datasource",
@@ -27,8 +27,8 @@
     },
     {
       "name": "spring.socket-io",
-      "type": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration"
+      "type": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties"
     },
     {
       "name": "spring.cache.l2",
@@ -547,66 +547,66 @@
     {
       "name": "spring.socket-io.allow-custom-requests",
       "type": "java.lang.Boolean",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": true
     },
     {
       "name": "spring.socket-io.boss-count",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1
     },
     {
       "name": "spring.socket-io.host",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration"
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties"
     },
     {
       "name": "spring.socket-io.max-frame-payload-length",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1048576
     },
     {
       "name": "spring.socket-io.max-http-content-length",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1048576
     },
     {
       "name": "spring.socket-io.ping-interval",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 25000
     },
     {
       "name": "spring.socket-io.ping-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 6000000
     },
     {
       "name": "spring.socket-io.port",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 0
     },
     {
       "name": "spring.socket-io.context-path",
       "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": "/socket.io"
     },
     {
       "name": "spring.socket-io.upgrade-timeout",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1000000
     },
     {
       "name": "spring.socket-io.work-count",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketConfiguration",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 100
     },
     {
@@ -2069,97 +2069,97 @@
       "description": "Redis连接失败是否退出进程"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
       "type": "java.util.List<java.lang.String>",
       "name": "spring.access.filter-patterns",
       "description": "AccessFilter拦截的urlPattern",
       "defaultValue": "/*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
       "type": "java.lang.Boolean",
       "name": "spring.access.always-success",
       "description": "Http响应码永远返回200",
       "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
       "type": "java.lang.String",
       "name": "spring.access.content-security-policy",
       "description": "CSP白名单",
       "defaultValue": ""
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "type": "java.lang.String",
       "name": "spring.access.control.allow-origin",
       "description": "跨域调用允许的域名",
       "defaultValue": "*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "type": "java.lang.String",
       "name": "spring.access.control.allow-methods",
       "description": "跨域调用允许的方法",
       "defaultValue": "*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "type": "java.lang.String",
       "name": "spring.access.control.allow-headers",
       "description": "跨域调用允许的Header",
       "defaultValue": "*"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "type": "java.lang.Boolean",
       "name": "spring.access.control.allow-credentials",
       "description": "跨域调用允许包含用户凭据",
       "defaultValue": true
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.namespace",
       "description": "Token的缓存namespace",
       "defaultValue": ""
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.header",
       "description": "Token在header中的名称",
       "defaultValue": "Authorization"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.util.List<java.lang.String>",
       "name": "spring.access.token.ignore-urls",
       "description": "忽略鉴权的url"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.lang.Boolean",
       "name": "spring.access.token.conflict",
       "description": "是否检查冲突",
       "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.lang.String",
       "name": "spring.access.token.salt",
       "description": "秘钥",
       "defaultValue": "admin@cowave.com"
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.lang.Integer",
       "name": "spring.access.token.accessExpire",
       "description": "access token超时[单位秒]",
       "defaultValue": 3600
     },
     {
-      "sourceType": "com.cowave.commons.framework.access.AccessConfiguration$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
       "type": "java.lang.Integer",
       "name": "spring.access.token.refreshExpire",
       "description": "refresh token超时[单位秒]",

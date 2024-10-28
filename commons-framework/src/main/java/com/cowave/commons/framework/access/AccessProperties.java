@@ -11,7 +11,6 @@ package com.cowave.commons.framework.access;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +21,8 @@ import java.util.List;
  *
  */
 @Data
-@Configuration(proxyBeanMethods = false)
 @ConfigurationProperties("spring.access")
-public class AccessConfiguration {
+public class AccessProperties {
 
     /**
      * AccessResponse是否永远200

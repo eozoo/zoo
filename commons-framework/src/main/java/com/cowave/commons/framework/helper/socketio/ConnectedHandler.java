@@ -16,5 +16,5 @@ package com.cowave.commons.framework.helper.socketio;
  */
 public interface ConnectedHandler {
 
-    void onConnected(Long userId, SocketServer socketServer);
+    void onConnected(Long userId, SocketIoHelper socketIoHelper);
 }

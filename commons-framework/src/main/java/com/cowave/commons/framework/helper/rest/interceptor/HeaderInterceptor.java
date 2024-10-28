@@ -10,7 +10,7 @@
 package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.access.security.TokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.AccessToken;
@@ -43,7 +43,7 @@ public class HeaderInterceptor implements RequestInterceptor, ClientHttpRequestI
 
     private final TokenService tokenService;
 
-    private final AccessConfiguration accessConfiguration;
+    private final AccessProperties accessProperties;
 
     private final ApplicationProperties applicationProperties;
 
@@ -60,11 +60,11 @@ public class HeaderInterceptor implements RequestInterceptor, ClientHttpRequestI
         // Header Token
         String authorization = Access.accessToken();
         if(StringUtils.isNotBlank(authorization)){
-            requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
+            requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
             authorization = newAuthorization(tokenService, applicationProperties);
-            requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
+            requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
     }
 
@@ -81,11 +81,11 @@ public class HeaderInterceptor implements RequestInterceptor, ClientHttpRequestI
         // Header Token
         String authorization = Access.accessToken();
         if(StringUtils.isNotBlank(authorization)){
-            request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
+            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
             authorization = newAuthorization(tokenService, applicationProperties);
-            request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
+            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
         }
         return execution.execute(request, body);
     }

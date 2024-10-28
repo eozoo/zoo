@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
  *
  */
 @RequiredArgsConstructor
-public class SocketServer {
+public class SocketIoHelper {
 
     private static Map<Long, SocketIOClient> socketclientMap = new ConcurrentHashMap<>();
 
@@ -46,7 +46,7 @@ public class SocketServer {
                 Long userId = getUserId(client);
                 if (userId != null) {
                     socketclientMap.put(userId, client);
-                    connectedHandler.onConnected(userId, SocketServer.this);
+                    connectedHandler.onConnected(userId, SocketIoHelper.this);
                 }
             });
         }

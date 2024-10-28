@@ -10,7 +10,7 @@
 package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.TokenService;
 import feign.RequestInterceptor;
@@ -39,7 +39,7 @@ public class TransactionIdInterceptor implements RequestInterceptor, ClientHttpR
 
     private final TokenService tokenService;
 
-    private final AccessConfiguration accessConfiguration;
+    private final AccessProperties accessProperties;
 
     private final ApplicationProperties applicationProperties;
 
@@ -56,11 +56,11 @@ public class TransactionIdInterceptor implements RequestInterceptor, ClientHttpR
         // Header Token
         String authorization = Access.accessToken();
         if(StringUtils.isNotBlank(authorization)){
-            requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
+            requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
             authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
-            requestTemplate.header(accessConfiguration.tokenHeader(), authorization);
+            requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
 
         // Header Seata事务id
@@ -83,11 +83,11 @@ public class TransactionIdInterceptor implements RequestInterceptor, ClientHttpR
         // Header Token
         String authorization = Access.accessToken();
         if(StringUtils.isNotBlank(authorization)){
-            request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
+            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
             authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
-            request.getHeaders().add(accessConfiguration.tokenHeader(), authorization);
+            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
         }
 
         // Header Seata事务id

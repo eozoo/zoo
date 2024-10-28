@@ -11,7 +11,7 @@ package com.cowave.commons.framework.access.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessConfiguration;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class AccessFilter implements Filter {
 
     private final AccessIdGenerator accessIdGenerator;
 
-    private final AccessConfiguration accessConfiguration;
+    private final AccessProperties accessProperties;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -64,11 +64,11 @@ public class AccessFilter implements Filter {
         // 设置响应头 Access-Id
         httpServletResponse.setHeader("Access-Id", accessId);
         // 设置响应头 Content-Security-Policy
-        if(StringUtils.isNotBlank(accessConfiguration.getContentSecurityPolicy())){
-            httpServletResponse.setHeader("Content-Security-Policy", accessConfiguration.getContentSecurityPolicy());
+        if(StringUtils.isNotBlank(accessProperties.getContentSecurityPolicy())){
+            httpServletResponse.setHeader("Content-Security-Policy", accessProperties.getContentSecurityPolicy());
         }
         // 设置响应头 Access-Control
-        AccessConfiguration.CrossControl crossControl = accessConfiguration.getControl();
+        AccessProperties.CrossControl crossControl = accessProperties.getControl();
         httpServletResponse.setHeader("Access-Control-Allow-Origin", crossControl.getAllowOrigin());
         httpServletResponse.setHeader("Access-Control-Allow-Methods", crossControl.getAllowMethods());
         httpServletResponse.setHeader("Access-Control-Allow-Headers", crossControl.getAllowHeaders());
@@ -93,7 +93,7 @@ public class AccessFilter implements Filter {
             accessRequestWrapper.recordAccessParams();
         }catch (Exception e){
             int httpStatus = BAD_REQUEST.getStatus();
-            if(accessConfiguration.isAlwaysSuccess()){
+            if(accessProperties.isAlwaysSuccess()){
                 httpStatus = SUCCESS.getStatus();
             }
             HttpServletResponse httpResponse = (HttpServletResponse)response;

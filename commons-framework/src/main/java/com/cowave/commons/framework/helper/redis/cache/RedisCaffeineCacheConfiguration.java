@@ -30,8 +30,8 @@ import javax.annotation.Nullable;
 @EnableCaching
 @RequiredArgsConstructor
 @ConditionalOnClass(name = {"com.github.benmanes.caffeine.cache.Cache", "org.springframework.data.redis.core.RedisTemplate"})
-@EnableConfigurationProperties(CacheProperties.class)
 @Configuration
+@EnableConfigurationProperties(CacheProperties.class)
 public class RedisCaffeineCacheConfiguration {
 
     private final CacheProperties cacheProperties;

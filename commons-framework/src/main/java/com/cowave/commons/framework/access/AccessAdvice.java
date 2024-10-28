@@ -65,7 +65,7 @@ public class AccessAdvice {
 
     private final AccessLogger accessLogger;
 
-    private final AccessConfiguration accessConfiguration;
+    private final AccessProperties accessProperties;
 
     @Nullable
     private final AccessExceptionHandler accessExceptionHandler;
@@ -182,7 +182,7 @@ public class AccessAdvice {
             response.setCause(List.of(e.getMessage()));
         }
         // HttpResponse
-        if(accessConfiguration.isAlwaysSuccess()){
+        if(accessProperties.isAlwaysSuccess()){
             httpStatus = SUCCESS.getStatus();
         }
         HttpResponse<Response<Void>> httpResponse = new HttpResponse<>(httpStatus, null, response);
