@@ -10,6 +10,9 @@
 package com.cowave.commons.framework.access.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,17 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-import com.alibaba.fastjson.JSON;
-import org.springframework.feign.codec.HttpCode;
-import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.feign.codec.ResponseCode.SUCCESS;
 
 /**
  *
@@ -38,39 +35,33 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 	private final TokenService tokenService;
 
-	public TokenAuthenticationFilter(TokenService tokenService) {
+	private final List<AntPathRequestMatcher> permitAllMatchers = new ArrayList<>();
+
+	public TokenAuthenticationFilter(TokenService tokenService, String... ignoreUrls) {
 		this.tokenService = tokenService;
+		if(ignoreUrls != null && ignoreUrls.length > 0){
+			Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
+		}
 	}
 
 	@Override
 	protected void doFilterInternal(
 			@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain chain) throws ServletException, IOException {
-		AccessToken accessToken = tokenService.parseToken(request);
+		for (AntPathRequestMatcher matcher : permitAllMatchers) {
+			if (matcher.matches(request)) {
+				chain.doFilter(request, response);
+				return;
+			}
+		}
+
+		AccessToken accessToken = tokenService.parseToken(request, response);
+		if (accessToken == null) {
+			return;
+		}
+
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
 		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		ResponseCode validCode = accessToken.getValidCode();
-		if(validCode != null) {
-			response.setCharacterEncoding("UTF-8");
-			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			if(tokenService.isAlwaysSuccess()){
-				response.setStatus(SUCCESS.getStatus());
-			}else{
-				response.setStatus(validCode.getStatus());
-			}
-			response.getWriter().write(JSON.toJSONString(Response.code(new HttpCode() {
-						@Override
-						public String getCode() {
-							return validCode.getCode();
-						}
-
-						@Override
-						public String getMsg() {
-							return accessToken.getValidDesc();
-						}
-					})));
-			return;
-		}
 		chain.doFilter(request, response);
 	}
 }

@@ -76,10 +76,6 @@ public class TokenService {
     @Nullable
     private final RedisHelper redisHelper;
 
-    boolean isAlwaysSuccess(){
-        return accessProperties.isAlwaysSuccess();
-    }
-
     /**
      * 赋值Token
      */
@@ -160,12 +156,13 @@ public class TokenService {
     /**
      * 解析Token
      */
-    public AccessToken parseToken(HttpServletRequest request) {
+    public AccessToken parseToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String jwt = getJwt(request);
-        if(jwt == null) {
-            return new AccessToken(UNAUTHORIZED, Messages.msg("frame.auth.no"));
+        if(jwt != null) {
+            return parseJwt(jwt, response);
         }
-        return parseJwt(jwt);
+        writeResponse(response, UNAUTHORIZED, "frame.auth.no");
+        return null;
     }
 
     public String getJwt(HttpServletRequest request) {
@@ -180,28 +177,29 @@ public class TokenService {
     }
 
     @SuppressWarnings("unchecked")
-    public AccessToken parseJwt(String jwt) {
+    public AccessToken parseJwt(String jwt, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
             claims =  Jwts.parser().setSigningKey(accessProperties.tokenSalt()).parseClaimsJws(jwt).getBody();
         }catch(ExpiredJwtException e) {
-            return new AccessToken(TOKEN_INVALID_OR_EXPIRED, Messages.msg("frame.auth.expired"));
+            writeResponse(response, TOKEN_INVALID_OR_EXPIRED, "frame.auth.expired");
+            return null;
         }catch(Exception e) {
-            return new AccessToken(UNAUTHORIZED, Messages.msg("frame.auth.invalid"));
+            writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
+            return null;
         }
 
         // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
         if(accessProperties.tokenConflict() && !Objects.equals(Access.accessIp(), userIp)) {
-            return new AccessToken(TOKEN_INVALID_OR_EXPIRED, Messages.msg("frame.auth.ipchanged"));
+            writeResponse(response, TOKEN_INVALID_OR_EXPIRED, "frame.auth.ipchanged");
+            return null;
         }
 
         AccessToken accessToken = new AccessToken();
-        // token
         accessToken.setAccessToken(jwt);
         accessToken.setId((String)claims.get(CLAIM_ID));
         accessToken.setType((String)claims.get(CLAIM_TYPE));
-
         // user
         String userId = (String)claims.get(CLAIM_USER_ID);
         if(StringUtils.isNotBlank(userId) && !"null".equals(userId)) {
@@ -210,7 +208,6 @@ public class TokenService {
         accessToken.setUserCode((String)claims.get(CLAIM_USER_CODE));
         accessToken.setUsername((String)claims.get(CLAIM_USER_ACCOUNT));
         accessToken.setUserNick((String)claims.get(CLAIM_USER_NAME));
-
         // dept
         String deptId = (String)claims.get(CLAIM_DEPT_ID);
         if(StringUtils.isNotBlank(deptId) && !"null".equals(deptId)) {
@@ -218,12 +215,10 @@ public class TokenService {
         }
         accessToken.setDeptCode((String)claims.get(CLAIM_DEPT_CODE));
         accessToken.setDeptName((String)claims.get(CLAIM_DEPT_NAME));
-
         // cluster
         accessToken.setClusterId((Integer)claims.get(CLAIM_CLUSTER_ID));
         accessToken.setClusterLevel((Integer)claims.get(CLAIM_CLUSTER_LEVEL));
         accessToken.setClusterName((String)claims.get(CLAIM_CLUSTER_NAME));
-
         // roles
         accessToken.setRoles((List<String>)claims.get(CLAIM_USER_ROLE));
         // permits

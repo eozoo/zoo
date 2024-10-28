@@ -12,9 +12,6 @@ package com.cowave.commons.framework.access;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author shanhuiming
@@ -85,11 +82,14 @@ public class AccessProperties {
         return 3600 * 24 * 7;
     }
 
-    public List<String> tokenIgnoreUrls(){
-        if(token != null){
-            return token.ignoreUrls;
+    public String[] tokenIgnoreUrls(){
+        if(token == null){
+            return new String[0];
         }
-        return new ArrayList<>();
+        if(token.ignoreUrls == null){
+            return new String[0];
+        }
+        return token.ignoreUrls;
     }
 
     @Data
@@ -147,6 +147,6 @@ public class AccessProperties {
         /**
          * 忽略鉴权的url
          */
-        private List<String> ignoreUrls = new ArrayList<>();
+        private String[] ignoreUrls;
     }
 }
