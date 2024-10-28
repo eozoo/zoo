@@ -12,10 +12,10 @@ package com.cowave.commons.framework.helper.redis;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.cowave.commons.tools.Asserts;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.core.*;
@@ -30,11 +30,11 @@ import javax.validation.constraints.NotNull;
 @SuppressWarnings(value = { "unchecked", "rawtypes" })
 public class RedisHelper{
 
-	static {
-		ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
-	}
-
 	private final RedisTemplate redisTemplate;
+
+	public static RedisHelper newRedisHelper(RedisTemplate<Object, Object> template){
+		return new RedisHelper(template);
+	}
 
 	public RedisHelper(RedisTemplate redisTemplate){
 		this.redisTemplate = redisTemplate;
@@ -44,6 +44,48 @@ public class RedisHelper{
 		return redisTemplate;
 	}
 
+	public Properties info(){
+		return (Properties) redisTemplate.execute((RedisCallback<Properties>) RedisServerCommands::info);
+	}
+
+	public void ping(){
+		redisTemplate.execute((RedisCallback<String>) RedisConnectionCommands::ping);
+	}
+
+	public Collection<String> keys(final String pattern){
+		return redisTemplate.keys(pattern);
+	}
+
+	public void delete(final String key){
+		redisTemplate.delete(key);
+	}
+
+	public void delete(final Collection<String> collection){
+		redisTemplate.delete(collection);
+	}
+
+	public Boolean expire(final String key, final long timeout, final TimeUnit unit){
+		return redisTemplate.expire(key, timeout, unit);
+	}
+
+	public <T> Map<String, T> pipeline(Map<String, Consumer<RedisOperations<String, Object>>> operationMap) {
+		List<String> keys = new ArrayList<>(operationMap.keySet());
+		List<T> results = redisTemplate.executePipelined(new SessionCallback<>() {
+			@Override
+			public Object execute(@NotNull RedisOperations redisOperations) {
+				operationMap.forEach((key, consumer) -> {
+					consumer.accept(redisOperations);
+				});
+				return null;
+			}
+		});
+		return IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get, results::get));
+	}
+
+	/* ******************************************
+	 * opsForValue
+	 * ******************************************/
+
 	public <T> T getValue(final String key){
 		ValueOperations<String, T> operation = redisTemplate.opsForValue();
 		return operation.get(key);
@@ -52,31 +94,6 @@ public class RedisHelper{
 	public <T> List<T> getMultiValue(final Collection<String> keys){
 		ValueOperations<String, T> operation = redisTemplate.opsForValue();
 		return operation.multiGet(keys);
-	}
-
-	public <T> Map<String, T> getMap(final String key){
-		return redisTemplate.opsForHash().entries(key);
-	}
-
-	public <T> T getMap(final String key, final String hKey){
-		HashOperations<String, String, T> opsForHash = redisTemplate.opsForHash();
-		return opsForHash.get(key, hKey);
-	}
-
-	public <T> List<T> getMultiMap(final String key, final Collection<String> hKeys){
-		return redisTemplate.opsForHash().multiGet(key, hKeys);
-	}
-
-	public <T> List<T> getList(final String key, int start, int end){
-		return redisTemplate.opsForList().range(key, start, end);
-	}
-
-	public <T> Set<T> getSet(final String key){
-		return redisTemplate.opsForSet().members(key);
-	}
-
-	public <T> List<T> popSet(final String key, final int count){
-		return redisTemplate.opsForSet().pop(key, count);
 	}
 
 	public <T> void putValue(final String key, final T value){
@@ -93,9 +110,39 @@ public class RedisHelper{
 		redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
 	}
 
-	public Boolean updateExpire(final String key, final Integer timeout, final TimeUnit timeUnit) {
-        return redisTemplate.expire(key, timeout, timeUnit);
-    }
+	public Long increment(final String key, final int step){
+		return redisTemplate.opsForValue().increment(key, step);
+	}
+
+	public Long decrement(final String key, final int step){
+		return redisTemplate.opsForValue().decrement(key, step);
+	}
+
+	/* ******************************************
+	 * opsForHash
+	 * ******************************************/
+
+	public Long sizeOfMap(String key) {
+		return redisTemplate.opsForHash().size(key);
+	}
+
+	public <T> Cursor<Map.Entry<String, T>> scanMap(String key, ScanOptions scanOptions) {
+		HashOperations<String, String, T> hashOps = redisTemplate.opsForHash();
+		return hashOps.scan(key, scanOptions);
+	}
+
+	public <T> Map<String, T> getMap(final String key){
+		return redisTemplate.opsForHash().entries(key);
+	}
+
+	public <T> T getMap(final String key, final String hKey){
+		HashOperations<String, String, T> opsForHash = redisTemplate.opsForHash();
+		return opsForHash.get(key, hKey);
+	}
+
+	public <T> List<T> getMultiMap(final String key, final Collection<String> hKeys){
+		return redisTemplate.opsForHash().multiGet(key, hKeys);
+	}
 
 	public <T> void putMap(final String key, final String hKey, final T value){
 		Asserts.notNull(value, "redis value can't be bull");
@@ -109,10 +156,46 @@ public class RedisHelper{
 		redisTemplate.opsForHash().putAll(key, dataMap);
 	}
 
-	public <T> void offerSet(final String key, final T value){
-		Asserts.notNull(value, "redis value can't be bull");
-		BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
-		setOperation.add(value);
+	public void deleteMap(final String key, final String hKey){
+		HashOperations hashOperations = redisTemplate.opsForHash();
+		hashOperations.delete(key, hKey);
+	}
+
+	/* ******************************************
+	 * opsForList
+	 * ******************************************/
+
+	public Long sizeOfList(String key) {
+		return redisTemplate.opsForList().size(key);
+	}
+
+	public <T> List<T> getList(final String key, int start, int end){
+		return redisTemplate.opsForList().range(key, start, end);
+	}
+
+	public <T> long pushList(final String key, final List<T> dataList){
+		Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
+		return count == null ? 0 : count;
+	}
+
+	/* ******************************************
+	 * opsForSet
+	 * ******************************************/
+
+	public Long sizeOfSet(String key) {
+		return redisTemplate.opsForSet().size(key);
+	}
+
+	public <T> Cursor<T> scanSet(String key, ScanOptions scanOptions) {
+		return redisTemplate.opsForSet().scan(key, scanOptions);
+	}
+
+	public Boolean memberOfSet(String key, Object member) {
+		return redisTemplate.opsForSet().isMember(key, member);
+	}
+
+	public <T> Set<T> getSet(final String key){
+		return redisTemplate.opsForSet().members(key);
 	}
 
 	public <T> void putSet(final String key, final Set<T> dataSet){
@@ -122,22 +205,14 @@ public class RedisHelper{
 		}
 	}
 
-	public <T> long pushList(final String key, final List<T> dataList){
-		Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
-		return count == null ? 0 : count;
+	public <T> List<T> popSet(final String key, final int count){
+		return redisTemplate.opsForSet().pop(key, count);
 	}
 
-	public void delete(final String key){
-		redisTemplate.delete(key);
-	}
-
-	public void delete(final Collection<String> collection){
-		redisTemplate.delete(collection);
-	}
-
-	public void deleteMap(final String key, final String hKey){
-		HashOperations hashOperations = redisTemplate.opsForHash();
-		hashOperations.delete(key, hKey);
+	public <T> void offerSet(final String key, final T value){
+		Asserts.notNull(value, "redis value can't be bull");
+		BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
+		setOperation.add(value);
 	}
 
 	public void deleteSet(final String key, final Object... values){
@@ -145,84 +220,43 @@ public class RedisHelper{
 		setOperation.remove(values);
 	}
 
-	public Properties info(){
-		return (Properties) redisTemplate.execute((RedisCallback<Properties>) RedisServerCommands::info);
-	}
+	/* ******************************************
+	 * opsForSet
+	 * ******************************************/
 
-	public void ping(){
-		redisTemplate.execute((RedisCallback<String>) RedisConnectionCommands::ping);
-	}
-
-	public Collection<String> keys(final String pattern){
-		return redisTemplate.keys(pattern);
-	}
-
-	public boolean expire(final String key, final long timeout){
-		return expire(key, timeout, TimeUnit.SECONDS);
-	}
-
-	public Boolean expire(final String key, final long timeout, final TimeUnit unit){
-		return redisTemplate.expire(key, timeout, unit);
-	}
-
-	public Long increment(final String key, final int step){
-		return redisTemplate.opsForValue().increment(key, step);
-	}
-
-	public Long decrement(final String key, final int step){
-		return redisTemplate.opsForValue().decrement(key, step);
-	}
-
-	public Boolean memberOfSet(String key, Object member) {
-		return redisTemplate.opsForSet().isMember(key, member);
-	}
-
-	public <T> Cursor<T> scanSet(String key, ScanOptions scanOptions) {
-		return redisTemplate.opsForSet().scan(key, scanOptions);
-	}
-
-	public <T> Cursor<Map.Entry<String, T>> scanMap(String key, ScanOptions scanOptions) {
-		HashOperations<String, String, T> hashOps = redisTemplate.opsForHash();
-		return hashOps.scan(key, scanOptions);
-	}
-
-	public Long sizeOfList(String key) {
-		return redisTemplate.opsForList().size(key);
-	}
-
-	public Long sizeOfMap(String key) {
-		return redisTemplate.opsForHash().size(key);
-	}
-
-	public Long sizeOfSet(String key) {
-		return redisTemplate.opsForSet().size(key);
-	}
-
-	public Long sizeOfSortedSet(String key) {
+	public Long sizeOfZset(final String key) {
 		return redisTemplate.opsForZSet().size(key);
 	}
 
-	public <T> Map<String, T> pipeline(Map<String, Consumer<RedisOperations<String, Object>>> operationMap){
-		List<String> keys = new ArrayList<>();
-		List<T> results = redisTemplate.executePipelined(new SessionCallback<>() {
-			@Override
-			public Object execute(@NotNull RedisOperations redisOperations) throws DataAccessException {
-				operationMap.forEach((key, consumer) -> {
-					keys.add(key);
-					consumer.accept(redisOperations);
-				});
-				return null;
-			}
-		});
+	public Boolean memberOfZset(final String key, final String value) {
+        return redisTemplate.opsForZSet().score(key, value) != null;
+    }
 
-		Map<String, T> operationResult = new HashMap<>();
-		for(int i = 0; i < keys.size(); i++){
-			operationResult.put(keys.get(i), results.get(i));
-		}
-		return operationResult;
-	}
+    public <T> T firstOfZset(final String key){
+        Set<T> set = redisTemplate.opsForZSet().range(key, 0, 0);
+        if (set != null && !set.isEmpty()) {
+            return set.iterator().next();
+        }
+        return null;
+    }
 
-	public static RedisHelper newRedisHelper(RedisTemplate<Object, Object> template){
-		return new RedisHelper(template);
-	}
+    public Long rankOfZset(final String key, final String value){
+        return redisTemplate.opsForZSet().rank(key, value);
+    }
+
+	public <T> Set<T> getZset(final String key, final long start, final long end){
+        return redisTemplate.opsForZSet().range(key, start, end);
+    }
+
+    public void putZset(final String key, final String value, final double score){
+        redisTemplate.opsForZSet().add(key, value, score);
+    }
+
+    public void deleteZset(final String key, final String... values){
+        redisTemplate.opsForZSet().remove(key, values);
+    }
+
+    public void deleteZsetByScore(final String key, final double min, final double max){
+        redisTemplate.opsForZSet().removeRangeByScore(key, min, max);
+    }
 }

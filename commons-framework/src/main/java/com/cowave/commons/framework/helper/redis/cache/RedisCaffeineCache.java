@@ -163,7 +163,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         try{
             value = redisHelper.getValue(redisKey);
             if(value != null){
-                redisHelper.updateExpire(redisKey, cacheProperties.l2ExpireAfterAccess(cacheName), TimeUnit.SECONDS);
+                redisHelper.expire(redisKey, cacheProperties.l2ExpireAfterAccess(cacheName), TimeUnit.SECONDS);
             }
             if(cacheProperties.isLogEnable()){
                 log.info("L2-cache get, key={}, value={}", redisKey, value);
