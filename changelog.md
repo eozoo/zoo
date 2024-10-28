@@ -1,3 +1,14 @@
+## [2.7.4](https://github.com/cowave5/commons/-/tags/2.7.4) (2024-10-28)
+
+
+
+
+
+    ### Bug Fixes
+
+  -  [<font style="font-family: monospace;">[`469884df6d32e3a`](https://github.com/cowave5/commons/commit/469884df6d32e3a)</font>] (**access**)   Access.page(int defaultSize)设置错误
+  -  [<font style="font-family: monospace;">[`558115211f6c8a7`](https://github.com/cowave5/commons/commit/558115211f6c8a7)</font>] (**Async**)   解决默认类型被Async定义覆盖了问题
+
 ## [2.7.3](https://github.com/cowave5/commons/-/tags/2.7.3) (2024-10-19)
 
 
