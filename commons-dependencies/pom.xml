@@ -655,7 +655,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <version>1.4</version>
+                <version>1.5</version>
             </dependency>
             <!-- cowave.commons -->
             <dependency>
