@@ -772,11 +772,6 @@ Unless required by applicable law or agreed to in writing, software distributed 
             </dependency>
             <!-- other -->
             <dependency>
-                <groupId>com.github.penggle</groupId>
-                <artifactId>kaptcha</artifactId>
-                <version>2.3.2</version>
-            </dependency>
-            <dependency>
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
                 <version>1.19.0</version>
