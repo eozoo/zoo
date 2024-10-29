@@ -809,7 +809,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>31.0.1-jre</version>
+                <version>32.0.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>eu.bitwalker</groupId>
