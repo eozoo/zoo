@@ -7,7 +7,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.support.indicator;
+package com.cowave.commons.framework.support.actuator.health;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
@@ -27,9 +27,9 @@ import java.util.*;
  */
 @RequiredArgsConstructor
 @ConditionalOnClass(DiscoveryClient.class)
-@ConditionalOnEnabledHealthIndicator("application")
+@ConditionalOnEnabledHealthIndicator("discovery")
 @AutoConfiguration
-public class ApplicationHealthIndicator extends AbstractHealthIndicator {
+public class DiscoveryHealthIndicator extends AbstractHealthIndicator {
 
     private final DiscoveryClient discoveryClient;
 

@@ -177,8 +177,8 @@ public class DictHelper {
             return;
         }
         redisHelper.delete(getDictKey() + dictCode);
-        redisHelper.deleteMap(getTypeKey() + dict.getTypeCode(), dictCode);
-        redisHelper.deleteMap(getGroupKey() + dict.getGroupCode(), dictCode);
+        redisHelper.removeFromMap(getTypeKey() + dict.getTypeCode(), dictCode);
+        redisHelper.removeFromMap(getGroupKey() + dict.getGroupCode(), dictCode);
     }
 
     /**
@@ -198,11 +198,11 @@ public class DictHelper {
         if(dictMap != null){
             for(Dict dict : dictMap.values()){
                 redisHelper.delete(getDictKey() + dict.getDictCode());
-                redisHelper.deleteMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode());
+                redisHelper.removeFromMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode());
             }
         }
         redisHelper.delete(getTypeKey() + typeCode);
-        redisHelper.deleteMap(getGroupKey() + "dict_group", typeCode);
+        redisHelper.removeFromMap(getGroupKey() + "dict_group", typeCode);
     }
 
     /**
@@ -224,7 +224,7 @@ public class DictHelper {
         if(typeMap != null){
             redisHelper.delete(getTypeKey() + groupCode);
             for(Dict type : typeMap.values()){
-                redisHelper.deleteMap(getGroupKey() + "dict_group", type.getDictCode());
+                redisHelper.removeFromMap(getGroupKey() + "dict_group", type.getDictCode());
             }
         }
         Map<String, Dict> dictMap = redisHelper.getMap(getGroupKey() + groupCode);
@@ -234,6 +234,6 @@ public class DictHelper {
             }
         }
         redisHelper.delete(getGroupKey() + groupCode);
-        redisHelper.deleteMap(getGroupKey() + "dict_root", groupCode);
+        redisHelper.removeFromMap(getGroupKey() + "dict_root", groupCode);
     }
 }

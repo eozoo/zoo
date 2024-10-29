@@ -179,7 +179,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         int expire = cacheProperties.l2ExpireAfterWrite(cacheName);
         try{
             if (expire > 0) {
-                redisHelper.putExpireValue(redisKey, toStoreValue(value), expire, TimeUnit.SECONDS);
+                redisHelper.putValue(redisKey, toStoreValue(value), expire, TimeUnit.SECONDS);
             } else {
                 redisHelper.putValue(redisKey, toStoreValue(value));
             }

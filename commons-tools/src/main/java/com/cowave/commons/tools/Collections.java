@@ -140,6 +140,26 @@ public class Collections {
     }
 
     /**
+     * 复制数组 -> List
+     */
+    public static <T> List<T> copyArrayToList(Object[] array, Function<Object, T> mapper) {
+        if (array == null || array.length == 0) {
+            return java.util.Collections.emptyList();
+        }
+        return Arrays.stream(array).map(mapper).collect(Collectors.toList());
+    }
+
+    /**
+     * 复制集合 -> set
+     */
+    public static <F, T> Set<T> copyToSet(Collection<F> collection, Function<F, T> mapper) {
+        if (CollectionUtils.isEmpty(collection)) {
+            return java.util.Collections.emptySet();
+        }
+        return collection.stream().map(mapper).collect(Collectors.toSet());
+    }
+
+    /**
      * 复制集合 -> 新类型的List
      */
     public static <F, T> List<T> copyToList(Collection<F> collection, Function<F, T> mapper) {

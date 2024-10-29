@@ -111,7 +111,7 @@ public class TokenService {
 
         assert redisHelper != null;
         String key = applicationProperties.getTokenNamespace() + token.getType() + ":" + token.getUsername();
-        redisHelper.putExpireValue(key, token, accessProperties.tokenRefreshExpire(), TimeUnit.SECONDS);
+        redisHelper.putValue(key, token, accessProperties.tokenRefreshExpire(), TimeUnit.SECONDS);
 
         Access access = Access.get();
         if(access != null){
