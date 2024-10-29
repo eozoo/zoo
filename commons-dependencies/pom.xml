@@ -47,9 +47,9 @@
         <cowave.commons.version>2.7.4</cowave.commons.version>
         <spring.boot.version>2.7.0</spring.boot.version>
         <spring.cloud.version>3.1.5</spring.cloud.version>
-        <grpc.version>1.48.0</grpc.version>
-        <proto.java.version>3.21.2</proto.java.version>
-        <proto.java.util.version>3.21.2</proto.java.util.version>
+        <grpc.version>1.48.2</grpc.version>
+        <proto.java.version>3.25.5</proto.java.version>
+        <proto.java.util.version>3.25.5</proto.java.util.version>
         <spring.starter.druid.version>1.2.9</spring.starter.druid.version>
         <spring.starter.grpc.version>2.13.1.RELEASE</spring.starter.grpc.version>
         <flowable.version>6.8.0</flowable.version>
