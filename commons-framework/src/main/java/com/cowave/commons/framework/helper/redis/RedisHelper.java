@@ -73,9 +73,7 @@ public class RedisHelper{
 		List<T> results = redisTemplate.executePipelined(new SessionCallback<>() {
 			@Override
 			public Object execute(@NotNull RedisOperations redisOperations) {
-				operationMap.forEach((key, consumer) -> {
-					consumer.accept(redisOperations);
-				});
+				operationMap.forEach((key, consumer) -> consumer.accept(redisOperations));
 				return null;
 			}
 		});
@@ -169,7 +167,7 @@ public class RedisHelper{
 		return redisTemplate.opsForList().size(key);
 	}
 
-	public <T> List<T> getList(final String key, int start, int end){
+	public <T> List<T> rangeOfList(final String key, int start, int end){
 		return redisTemplate.opsForList().range(key, start, end);
 	}
 
@@ -244,7 +242,7 @@ public class RedisHelper{
         return redisTemplate.opsForZSet().rank(key, value);
     }
 
-	public <T> Set<T> getZset(final String key, final long start, final long end){
+	public <T> Set<T> rangeOfZset(final String key, final long start, final long end){
         return redisTemplate.opsForZSet().range(key, start, end);
     }
 

@@ -87,9 +87,7 @@ public class StringRedisHelper {
         List<Object> results = stringRedisTemplate.executePipelined(new SessionCallback<>() {
             @Override
 			public Object execute(@NotNull RedisOperations redisOperations) {
-				operationMap.forEach((key, consumer) -> {
-					consumer.accept(redisOperations);
-				});
+				operationMap.forEach((key, consumer) -> consumer.accept(redisOperations));
 				return null;
 			}
         });
@@ -249,11 +247,11 @@ public class StringRedisHelper {
         return stringRedisTemplate.opsForList().size(key);
     }
 
-    public List<String> getList(final String key, int start, int end){
+    public List<String> rangeOfList(final String key, int start, int end){
         return stringRedisTemplate.opsForList().range(key, start, end);
     }
 
-    public <T> List<T> getList(final String key, int start, int end, final Class<T> clazz){
+    public <T> List<T> rangeOfList(final String key, int start, int end, final Class<T> clazz){
         List<String> values = stringRedisTemplate.opsForList().range(key, start, end);
         return Collections.copyToList(values, value -> JSON.parseObject(value, clazz));
     }
@@ -353,11 +351,11 @@ public class StringRedisHelper {
         return stringRedisTemplate.opsForZSet().rank(key, value);
     }
 
-    public Set<String> getZset(final String key, final long start, final long end) {
+    public Set<String> rangeOfZset(final String key, final long start, final long end) {
         return stringRedisTemplate.opsForZSet().range(key, start, end);
     }
 
-	public <T> Set<T> getZset(final String key, final long start, final long end, final Class<T> clazz){
+	public <T> Set<T> rangeOfZset(final String key, final long start, final long end, final Class<T> clazz){
         Set<String> values = stringRedisTemplate.opsForZSet().range(key, start, end);
         Set<T> set = new HashSet<>();
         if(CollectionUtils.isNotEmpty(values)){
