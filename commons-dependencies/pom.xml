@@ -481,12 +481,6 @@ Unless required by applicable law or agreed to in writing, software distributed 
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!-- oauth2 -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-authorization-server</artifactId>
-                <version>0.2.3</version>
-            </dependency>
             <!-- nacos -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
