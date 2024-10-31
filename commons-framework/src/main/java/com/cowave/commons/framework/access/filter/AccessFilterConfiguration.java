@@ -10,6 +10,7 @@
 package com.cowave.commons.framework.access.filter;
 
 import com.cowave.commons.framework.access.AccessProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +33,8 @@ import javax.annotation.Nullable;
 @EnableConfigurationProperties(AccessProperties.class)
 public class AccessFilterConfiguration {
 
+    private final ObjectMapper objectMapper;
+
     @Nullable
     private final TransactionIdSetter transactionIdSetter;
 
@@ -43,7 +46,7 @@ public class AccessFilterConfiguration {
     @Bean
     public FilterRegistrationBean<AccessFilter> accessFilterRegistration(AccessIdGenerator accessIdGenerator, AccessProperties accessProperties){
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessProperties));
+        registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessProperties, objectMapper));
         registration.setName("accessFilter");
         registration.addUrlPatterns(accessProperties.getPatterns());
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);

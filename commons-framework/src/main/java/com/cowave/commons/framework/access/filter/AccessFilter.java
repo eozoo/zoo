@@ -9,12 +9,12 @@
  */
 package com.cowave.commons.framework.access.filter;
 
-import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.ServletUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
@@ -45,6 +45,8 @@ public class AccessFilter implements Filter {
     private final AccessIdGenerator accessIdGenerator;
 
     private final AccessProperties accessProperties;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -87,7 +89,7 @@ public class AccessFilter implements Filter {
         Access.set(new Access(accessId, accessIp, accessUrl, System.currentTimeMillis()));
 
         // 记录请求日志，顺便获取设置下分页参数
-        AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest);
+        AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest, objectMapper);
         try{
             accessRequestWrapper.recordAccessParams();
         }catch (Exception e){
@@ -99,7 +101,7 @@ public class AccessFilter implements Filter {
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
             httpResponse.setStatus(httpStatus);
-            response.getWriter().write(JSON.toJSONString(
+            response.getWriter().write(objectMapper.writeValueAsString(
                     Response.msg(BAD_REQUEST, Messages.msg("frame.advice.httpMessageConversionException"))));
             return;
         }
@@ -116,7 +118,8 @@ public class AccessFilter implements Filter {
                 AccessLogger.info("<< {} {}ms", status, cost);
             } else {
                 if (!AccessLogger.isInfoEnabled()) {
-                    AccessLogger.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    AccessLogger.warn("<< {} {}ms {} {}", status, cost,
+                            access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
                 }else{
                     AccessLogger.warn("<< {} {}ms", status, cost);
                 }

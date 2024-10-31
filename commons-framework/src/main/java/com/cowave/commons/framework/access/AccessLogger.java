@@ -14,8 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cowave.commons.framework.access.filter.AccessIdGenerator;
-import com.cowave.commons.framework.access.filter.AccessRequestWrapper;
 import com.cowave.commons.tools.ServletUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -32,7 +33,6 @@ import org.springframework.feign.codec.ResponseCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSON;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
@@ -53,6 +53,8 @@ public class AccessLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogger.class);
 
+    private final ObjectMapper objectMapper;
+
     private final AccessIdGenerator accessIdGenerator;
 
     @Nullable
@@ -68,7 +70,7 @@ public class AccessLogger {
     }
 
     @Before("request()")
-    public void logRequest(JoinPoint point) {
+    public void logRequest(JoinPoint point) throws JsonProcessingException {
         Access access = Access.get();
         if(access == null){
             // 请求未经过AccessFilter
@@ -118,7 +120,8 @@ public class AccessLogger {
             }else{
                 builder.append("]");
             }
-            builder.append(" args=").append(JSON.toJSONString(map, new AccessRequestWrapper.PasswordFilter()));
+            builder.append(" args=").append(objectMapper.writeValueAsString(map));
+
             LOGGER.info(builder.toString());
         }else{
             // 请求经过AccessFilter
@@ -137,7 +140,7 @@ public class AccessLogger {
     }
 
     @AfterReturning(pointcut = "request()", returning = "resp")
-    public void logResponse(Object resp) {
+    public void logResponse(Object resp) throws JsonProcessingException {
         HttpServletResponse servletResponse = Access.httpResponse();
         if(servletResponse == null){
             return;
@@ -178,7 +181,7 @@ public class AccessLogger {
                     LOGGER.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                 }else{
                     if(!LOGGER.isInfoEnabled()){
-                        LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                        LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
                     }else{
                         LOGGER.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                     }
@@ -189,7 +192,7 @@ public class AccessLogger {
                     LOGGER.info("<< {} {}ms {}", status, cost, msg);
                 }else{
                     if(!LOGGER.isInfoEnabled()){
-                        LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                        LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
                     }else{
                         LOGGER.warn("<< {} {}ms {}", status, cost, msg);
                     }
@@ -200,7 +203,7 @@ public class AccessLogger {
                     LOGGER.info("<< {} {}ms", status, cost);
                 }else{
                     if(!LOGGER.isInfoEnabled()){
-                        LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                        LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
                     }else{
                         LOGGER.info("<< {} {}ms", status, cost);
                     }
@@ -208,11 +211,11 @@ public class AccessLogger {
             }
         }else{
             if(response != null) {
-                LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
+                LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, objectMapper.writeValueAsString(data));
             }else if(httpResponse != null){
-                LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
+                LOGGER.debug("<< {} {}ms {}", status, cost, objectMapper.writeValueAsString(data));
             }else{
-                LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
+                LOGGER.debug("<< {} {}ms {}", status, cost, objectMapper.writeValueAsString(resp));
             }
         }
     }
@@ -222,14 +225,14 @@ public class AccessLogger {
     }
 
 	public static void info(String format, Object... arguments){
-		LOGGER.info(format, arguments);
+        LOGGER.info(format, arguments);
 	}
 
     public static void warn(String format, Object... arguments){
-		LOGGER.warn(format, arguments);
+        LOGGER.warn(format, arguments);
 	}
 
     public static void error(String format, Object... arguments){
-		LOGGER.error(format, arguments);
+        LOGGER.error(format, arguments);
 	}
 }

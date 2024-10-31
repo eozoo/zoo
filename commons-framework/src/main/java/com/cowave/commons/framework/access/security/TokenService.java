@@ -20,12 +20,12 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.feign.codec.Response;
@@ -75,6 +75,8 @@ public class TokenService {
 
     @Nullable
     private final RedisHelper redisHelper;
+
+    private final ObjectMapper objectMapper;
 
     /**
      * 赋值Token
@@ -150,7 +152,7 @@ public class TokenService {
         accessToken.setAccessIp(Access.accessIp());
         // 刷新Token并返回
         assignToken(accessToken);
-        response.getWriter().write(JSON.toJSONString(Response.success(accessToken)));
+        response.getWriter().write(objectMapper.writeValueAsString(Response.success(accessToken)));
     }
 
     /**
@@ -301,7 +303,7 @@ public class TokenService {
         response.setCharacterEncoding("UTF-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         try(PrintWriter writer = response.getWriter()){
-            writer.write(JSON.toJSONString(Response.msg(responseCode, Messages.msg(messageKey))));
+            writer.write(objectMapper.writeValueAsString(Response.msg(responseCode, Messages.msg(messageKey))));
         }
     }
 }

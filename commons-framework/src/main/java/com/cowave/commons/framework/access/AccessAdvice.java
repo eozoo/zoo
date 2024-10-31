@@ -185,15 +185,16 @@ public class AccessAdvice {
         }
         HttpResponse<Response<Void>> httpResponse = new HttpResponse<>(httpStatus, null, response);
         httpResponse.setMessage(String.format("{code=%s, msg=%s}", code, message));
-        // 打印log
-        accessLogger.logResponse(httpResponse);
-        // 自定义处理，比如生成告警
-        if(accessExceptionHandler != null){
-            try{
+
+        try {
+            // 打印log
+            accessLogger.logResponse(httpResponse);
+            // 自定义处理，比如生成告警
+            if (accessExceptionHandler != null) {
                 accessExceptionHandler.handler(e, httpStatus, response);
-            }catch(Exception ex){
-                AccessLogger.error("", ex);
             }
+        } catch (Exception ex) {
+            AccessLogger.error("", ex);
         }
         return httpResponse;
     }
