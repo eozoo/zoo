@@ -17,7 +17,6 @@ import com.cowave.commons.framework.access.filter.AccessIdGenerator;
 import com.cowave.commons.framework.access.filter.AccessRequestWrapper;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -25,6 +24,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.feign.codec.HttpResponse;
 import org.springframework.feign.codec.Response;
 import org.springframework.feign.codec.ResponseCode;
@@ -45,11 +46,12 @@ import java.util.Objects;
  * @author shanhuiming
  *
  */
-@Slf4j
 @Aspect
 @RequiredArgsConstructor
 @Component
 public class AccessLogger {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogger.class);
 
     private final AccessIdGenerator accessIdGenerator;
 
@@ -117,7 +119,7 @@ public class AccessLogger {
                 builder.append("]");
             }
             builder.append(" args=").append(JSON.toJSONString(map, new AccessRequestWrapper.PasswordFilter()));
-            log.info(builder.toString());
+            LOGGER.info(builder.toString());
         }else{
             // 请求经过AccessFilter
             if (accessUserParser != null) {
@@ -169,49 +171,65 @@ public class AccessLogger {
             }
         }
 
-        if(resp == null || !log.isDebugEnabled()){
+        if(resp == null || !LOGGER.isDebugEnabled()){
             if(response != null) {
                 // Response
                 if(Objects.equals(code, ResponseCode.SUCCESS.getCode())){
-                    log.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+                    LOGGER.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                 }else{
-                    if(!log.isInfoEnabled()){
-                        log.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    if(!LOGGER.isInfoEnabled()){
+                        LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
                     }else{
-                        log.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+                        LOGGER.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                     }
                 }
             }else if(httpResponse != null){
                 // HttpResponse
                 if(status == HttpStatus.OK.value()){
-                    log.info("<< {} {}ms {}", status, cost, msg);
+                    LOGGER.info("<< {} {}ms {}", status, cost, msg);
                 }else{
-                    if(!log.isInfoEnabled()){
-                        log.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    if(!LOGGER.isInfoEnabled()){
+                        LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
                     }else{
-                        log.warn("<< {} {}ms {}", status, cost, msg);
+                        LOGGER.warn("<< {} {}ms {}", status, cost, msg);
                     }
                 }
             }else{
                 // Others
                 if(status == HttpStatus.OK.value()){
-                    log.info("<< {} {}ms", status, cost);
+                    LOGGER.info("<< {} {}ms", status, cost);
                 }else{
-                    if(!log.isInfoEnabled()){
-                        log.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    if(!LOGGER.isInfoEnabled()){
+                        LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
                     }else{
-                        log.info("<< {} {}ms", status, cost);
+                        LOGGER.info("<< {} {}ms", status, cost);
                     }
                 }
             }
         }else{
             if(response != null) {
-                log.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
+                LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
             }else if(httpResponse != null){
-                log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
+                LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
             }else{
-                log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
+                LOGGER.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
             }
         }
     }
+
+    public static boolean isInfoEnabled(){
+        return LOGGER.isInfoEnabled();
+    }
+
+	public static void info(String format, Object... arguments){
+		LOGGER.info(format, arguments);
+	}
+
+    public static void warn(String format, Object... arguments){
+		LOGGER.warn(format, arguments);
+	}
+
+    public static void error(String format, Object... arguments){
+		LOGGER.error(format, arguments);
+	}
 }

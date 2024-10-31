@@ -14,7 +14,6 @@ import com.cowave.commons.tools.AssertsException;
 import com.cowave.commons.tools.DateUtils;
 import com.cowave.commons.tools.HttpException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -46,7 +45,6 @@ import static org.springframework.feign.codec.ResponseCode.*;
  * @author shanhuiming
  *
  */
-@Slf4j
 @RequiredArgsConstructor
 @RestControllerAdvice
 public class AccessAdvice {
@@ -164,9 +162,9 @@ public class AccessAdvice {
 
     private HttpResponse<Response<Void>> error(Exception e, int httpStatus, String code, int errLevel, String message) {
         if(errLevel >= ERR_LEVEL_3){
-            log.error("", e);
+            AccessLogger.error("", e);
         }else if(errLevel == ERR_LEVEL_2){
-            log.error(e.getMessage());
+            AccessLogger.error(e.getMessage());
         }
         // Response
         Response<Void> response = new Response<>(code, message, null);
@@ -176,7 +174,7 @@ public class AccessAdvice {
                 cause.addFirst(e.getMessage());
                 response.setCause(cause);
             } catch (Exception ex) {
-                log.error("", ex);
+                AccessLogger.error("", ex);
             }
         }else if(errLevel >= ERR_LEVEL_1){
             response.setCause(List.of(e.getMessage()));
@@ -194,7 +192,7 @@ public class AccessAdvice {
             try{
                 accessExceptionHandler.handler(e, httpStatus, response);
             }catch(Exception ex){
-                log.error("", ex);
+                AccessLogger.error("", ex);
             }
         }
         return httpResponse;

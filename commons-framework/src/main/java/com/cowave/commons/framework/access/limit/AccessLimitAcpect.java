@@ -15,7 +15,6 @@ import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.tools.HttpException;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -40,7 +39,6 @@ import static org.springframework.feign.codec.ResponseCode.*;
  * @author shanhuiming
  *
  */
-@Slf4j
 @Aspect
 @RequiredArgsConstructor
 @Component

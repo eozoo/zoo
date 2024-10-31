@@ -13,10 +13,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.cowave.commons.framework.access.Access;
+import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.tools.Converts;
 import com.cowave.commons.tools.ServletUtils;
 import com.github.pagehelper.page.PageMethod;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
@@ -37,7 +37,6 @@ import java.util.*;
  * @author shanhuiming
  *
  */
-@Slf4j
 public class AccessRequestWrapper extends HttpServletRequestWrapper {
     private static final String PAGE = "page";
     private static final String PAGE_NUM = "pageNum";
@@ -151,7 +150,7 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
             requestParams.put("body", bodyArray);
             logBuilder.append(" body=").append(JSON.toJSONString(bodyArray, new PasswordFilter()));
         }
-        log.info(logBuilder.toString());
+        AccessLogger.info(logBuilder.toString());
 
         // 记录请求参数
         Access access = Access.get();

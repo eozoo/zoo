@@ -11,11 +11,11 @@ package com.cowave.commons.framework.access.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.cowave.commons.framework.access.Access;
+import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.tools.Messages;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
@@ -37,7 +37,6 @@ import static org.springframework.feign.codec.ResponseCode.SUCCESS;
  * @author shanhuiming
  *
  */
-@Slf4j
 @RequiredArgsConstructor
 public class AccessFilter implements Filter {
 
@@ -110,13 +109,17 @@ public class AccessFilter implements Filter {
 
         // 拦截打印响应（AccessLogger中没有拦截到的）
         Access access = Access.get();
-        if(!access.isResponseLogged()){
+        if (!access.isResponseLogged()) {
             int status = httpServletResponse.getStatus();
             long cost = System.currentTimeMillis() - access.getAccessTime();
-            if(status == HttpStatus.OK.value()){
-                log.info("<< {} {}ms", status, cost);
-            }else{
-                log.warn("<< {} {}ms", status, cost);
+            if (status == HttpStatus.OK.value()) {
+                AccessLogger.info("<< {} {}ms", status, cost);
+            } else {
+                if (!AccessLogger.isInfoEnabled()) {
+                    AccessLogger.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                }else{
+                    AccessLogger.warn("<< {} {}ms", status, cost);
+                }
             }
         }
 
@@ -142,7 +145,7 @@ public class AccessFilter implements Filter {
             mine.addValue("Access-Id").setString(value);
         } catch (Exception e) {
             // never will happened
-            log.error("", e);
+            AccessLogger.error("", e);
         }
     }
 }
