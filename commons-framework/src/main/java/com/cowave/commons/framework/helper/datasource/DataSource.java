@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface DataSource {
 
-	String value() default "primary";
+    String value() default "primary";
 }

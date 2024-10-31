@@ -16,7 +16,7 @@ package com.cowave.commons.tools;
  */
 public class AssertsException extends RuntimeException {
 
-	public AssertsException(String message, Object... args) {
+    public AssertsException(String message, Object... args) {
         super(Messages.translateIfNeed(message, args));
     }
 

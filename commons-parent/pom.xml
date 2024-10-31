@@ -13,7 +13,7 @@
 
     <name>commons-parent</name>
     <description>工程-parent</description>
-	<url>https://github.com/cowave5/commons.git</url>
+    <url>https://github.com/cowave5/commons.git</url>
 
     <properties>
         <skip.smart.doc>false</skip.smart.doc>
@@ -507,13 +507,13 @@
         </profile>
     </profiles>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.cowave.commons</groupId>
-				<artifactId>commons-framework</artifactId>
-				<version>${cowave.commons.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.cowave.commons</groupId>
+                <artifactId>commons-framework</artifactId>
+                <version>${cowave.commons.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

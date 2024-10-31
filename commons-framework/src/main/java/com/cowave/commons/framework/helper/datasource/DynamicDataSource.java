@@ -50,6 +50,6 @@ public class DynamicDataSource extends AbstractRoutingDataSource{
     }
 
     public static void clear(){
-    	HOLDER.remove();
+        HOLDER.remove();
     }
 }

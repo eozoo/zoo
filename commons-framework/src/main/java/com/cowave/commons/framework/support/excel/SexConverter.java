@@ -23,31 +23,31 @@ import com.alibaba.excel.metadata.property.ExcelContentProperty;
  */
 public class SexConverter implements Converter<Integer> {
 
-	@Override
-	public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
-		Integer status = context.getValue();
-		if (status != null) {
-			if (status == 0) {
-				return new WriteCellData<>("男");
-			} else if (status == 1) {
-				return new WriteCellData<>("女");
-			} else if (status == 2) {
-				return new WriteCellData<>("未知");
-			}
-		}
-		return new WriteCellData<>("");
-	}
+    @Override
+    public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
+        Integer status = context.getValue();
+        if (status != null) {
+            if (status == 0) {
+                return new WriteCellData<>("男");
+            } else if (status == 1) {
+                return new WriteCellData<>("女");
+            } else if (status == 2) {
+                return new WriteCellData<>("未知");
+            }
+        }
+        return new WriteCellData<>("");
+    }
 
-	@Override
-	public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
-		String stringValue = cellData.getStringValue();
-		if ("男".equals(stringValue)) {
-			return 0;
-		} else if ("女".equals(stringValue)) {
-			return 1;
-		} else if ("未知".equals(stringValue)) {
-			return 2;
-		}
-		return null;
-	}
+    @Override
+    public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+        String stringValue = cellData.getStringValue();
+        if ("男".equals(stringValue)) {
+            return 0;
+        } else if ("女".equals(stringValue)) {
+            return 1;
+        } else if ("未知".equals(stringValue)) {
+            return 2;
+        }
+        return null;
+    }
 }

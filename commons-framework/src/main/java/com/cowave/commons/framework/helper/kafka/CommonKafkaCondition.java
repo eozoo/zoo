@@ -24,9 +24,9 @@ import javax.validation.constraints.NotNull;
  */
 public class CommonKafkaCondition implements Condition {
 
-	@Override
-	public boolean matches(ConditionContext context, @NotNull AnnotatedTypeMetadata metadata) {
-		return Binder.get(context.getEnvironment()).bind(
-				"common.kafka", KafkaProperties.class).orElse(null) != null;
-	}
+    @Override
+    public boolean matches(ConditionContext context, @NotNull AnnotatedTypeMetadata metadata) {
+        return Binder.get(context.getEnvironment()).bind(
+                "common.kafka", KafkaProperties.class).orElse(null) != null;
+    }
 }

@@ -21,12 +21,12 @@ import com.alibaba.fastjson.JSON;
  */
 public class JsonConverter implements Converter<Object> {
 
-	public WriteCellData<String> convertToExcelData(WriteConverterContext<Object> context) throws Exception {
-		String value = "{}";
-		Object obj = context.getValue();
-		if(obj != null) {
-			value = JSON.toJSONString(obj);
-		}
-		return new WriteCellData<>(value);
-	}
+    public WriteCellData<String> convertToExcelData(WriteConverterContext<Object> context) throws Exception {
+        String value = "{}";
+        Object obj = context.getValue();
+        if(obj != null) {
+            value = JSON.toJSONString(obj);
+        }
+        return new WriteCellData<>(value);
+    }
 }

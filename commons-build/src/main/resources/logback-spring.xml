@@ -3,12 +3,12 @@
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%clr(%5level)| %X{accessId} [%t] %logger{0}:%L %m%n</pattern>
-		</encoder>
-	</appender>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%clr(%5level)| %X{accessId} [%t] %logger{0}:%L %m%n</pattern>
+        </encoder>
+    </appender>
 
-	<appender name="root" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="root" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/log/root.log</file>
         <rollingPolicy class="com.cowave.commons.framework.support.logging.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${user.dir}/log/root.log.%d{yyyy-MM-dd}.%i.zip</fileNamePattern>

@@ -16,7 +16,7 @@ package com.cowave.commons.framework.helper.redis.dict;
  */
 public interface DictDoc {
 
-	int getCode();
+    int getCode();
 
-	String getDesc();
+    String getDesc();
 }

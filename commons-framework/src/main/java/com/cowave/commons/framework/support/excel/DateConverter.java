@@ -22,15 +22,15 @@ import com.alibaba.excel.metadata.data.WriteCellData;
  * 
  */
 public class DateConverter implements Converter<Date> {
-	
-	private static final String FORMAT = "yyyy-MM-dd HH:mm:ss"; 
+    
+    private static final String FORMAT = "yyyy-MM-dd HH:mm:ss"; 
 
-	public WriteCellData<String> convertToExcelData(WriteConverterContext<Date> context) {
-		String value = ""; 
-		Date date = context.getValue();
-		if(date != null) {
-			value = new SimpleDateFormat(FORMAT).format(date);
-		}
-		return new WriteCellData<>(value);
-	}
+    public WriteCellData<String> convertToExcelData(WriteConverterContext<Date> context) {
+        String value = ""; 
+        Date date = context.getValue();
+        if(date != null) {
+            value = new SimpleDateFormat(FORMAT).format(date);
+        }
+        return new WriteCellData<>(value);
+    }
 }

@@ -23,29 +23,29 @@ import com.alibaba.excel.metadata.property.ExcelContentProperty;
  */
 public class YesNoConverter implements Converter<Integer> {
 
-	@Override
-	public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
-		String value = "";
-		Integer status = context.getValue();
-		if(status != null) {
-			if(status == 1) {
-				value = "是";
-			}else if(status == 0) {
-				value = "否";
-			}
-		}
-		return new WriteCellData<>(value);
-	}
+    @Override
+    public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
+        String value = "";
+        Integer status = context.getValue();
+        if(status != null) {
+            if(status == 1) {
+                value = "是";
+            }else if(status == 0) {
+                value = "否";
+            }
+        }
+        return new WriteCellData<>(value);
+    }
 
-	@Override
-	public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
-		String stringValue = cellData.getStringValue();
-		if("是".equals(stringValue) || "Yes".equalsIgnoreCase(stringValue)){
-			return 1;
-		}
-		if("否".equals(stringValue) || "No".equalsIgnoreCase(stringValue)){
-			return 0;
-		}
-		return null;
-	}
+    @Override
+    public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+        String stringValue = cellData.getStringValue();
+        if("是".equals(stringValue) || "Yes".equalsIgnoreCase(stringValue)){
+            return 1;
+        }
+        if("否".equals(stringValue) || "No".equalsIgnoreCase(stringValue)){
+            return 0;
+        }
+        return null;
+    }
 }

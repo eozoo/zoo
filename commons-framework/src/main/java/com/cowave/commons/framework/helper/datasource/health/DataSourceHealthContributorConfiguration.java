@@ -42,38 +42,38 @@ import javax.sql.DataSource;
 public class DataSourceHealthContributorConfiguration
 extends CompositeHealthContributorConfiguration<DataSourceHealthIndicator, DataSourceBean> {
 
-	@Resource
-	private DataSourceProperties dataSourceProperties;
+    @Resource
+    private DataSourceProperties dataSourceProperties;
 
-	@Resource
-	private DynamicDataSourceProperties dynamicDataSourceProperties;
+    @Resource
+    private DynamicDataSourceProperties dynamicDataSourceProperties;
 
-	@Bean
-	public HealthContributor dbHealthContributor(DataSource dataSource) {
-		Map<String, DataSourceBean> map = new HashMap<>();
-		Map<String, DataSourceProperties> propertiesMap = dynamicDataSourceProperties.getDynamic();
-		if(propertiesMap != null && !propertiesMap.isEmpty()){
-			for(Map.Entry<String, DataSourceProperties> entry : propertiesMap.entrySet()){
-				String dataSourceName = entry.getKey();
-				DataSourceBean dataSourceBean = new DataSourceBean();
-				dataSourceBean.setDataSourceProperties(entry.getValue());
-				if(dataSource instanceof DynamicDataSource dynamicDataSource){
-					dataSourceBean.setDataSource((DataSource)dynamicDataSource.getDataSourceMap().get(dataSourceName));
-				}else{
-					dataSourceBean.setDataSource(dataSource);
-				}
-				map.put(dataSourceName, dataSourceBean);
-			}
-		}else{
-			DataSourceBean dataSourceBean = new DataSourceBean();
-			dataSourceBean.setDataSourceProperties(dataSourceProperties);
-			if(dataSource instanceof DynamicDataSource dynamicDataSource){
-				dataSourceBean.setDataSource((DataSource)dynamicDataSource.getDataSourceMap().get("primary"));
-			}else{
-				dataSourceBean.setDataSource(dataSource);
-			}
-			map.put("primary", dataSourceBean);
-		}
-		return createContributor(map);
-	}
+    @Bean
+    public HealthContributor dbHealthContributor(DataSource dataSource) {
+        Map<String, DataSourceBean> map = new HashMap<>();
+        Map<String, DataSourceProperties> propertiesMap = dynamicDataSourceProperties.getDynamic();
+        if(propertiesMap != null && !propertiesMap.isEmpty()){
+            for(Map.Entry<String, DataSourceProperties> entry : propertiesMap.entrySet()){
+                String dataSourceName = entry.getKey();
+                DataSourceBean dataSourceBean = new DataSourceBean();
+                dataSourceBean.setDataSourceProperties(entry.getValue());
+                if(dataSource instanceof DynamicDataSource dynamicDataSource){
+                    dataSourceBean.setDataSource((DataSource)dynamicDataSource.getDataSourceMap().get(dataSourceName));
+                }else{
+                    dataSourceBean.setDataSource(dataSource);
+                }
+                map.put(dataSourceName, dataSourceBean);
+            }
+        }else{
+            DataSourceBean dataSourceBean = new DataSourceBean();
+            dataSourceBean.setDataSourceProperties(dataSourceProperties);
+            if(dataSource instanceof DynamicDataSource dynamicDataSource){
+                dataSourceBean.setDataSource((DataSource)dynamicDataSource.getDataSourceMap().get("primary"));
+            }else{
+                dataSourceBean.setDataSource(dataSource);
+            }
+            map.put("primary", dataSourceBean);
+        }
+        return createContributor(map);
+    }
 }

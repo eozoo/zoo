@@ -45,10 +45,10 @@ public class CellWidthHandler extends AbstractColumnWidthStyleStrategy {
 
     @Override
     protected void setColumnWidth(WriteSheetHolder writeSheetHolder,
-    		List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead) {
-    	if(relativeRowIndex > 0) {
-    		return;
-    	}
+            List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead) {
+        if(relativeRowIndex > 0) {
+            return;
+        }
 
         if(fixedWidth!=null){
             int columnWidth = this.fixedWidth;

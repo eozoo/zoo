@@ -45,17 +45,17 @@ public final class SpringContext implements BeanFactoryPostProcessor, Applicatio
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> List<T> getBeanList(Class<T> clz) throws BeansException{
-    	String[] beanNames = beanFactory.getBeanNamesForType(clz);
-    	List list = new ArrayList<>();
-    	if(ObjectUtils.isEmpty(beanNames)){
-    		return list;
-    	}
+    public static <T> List<T> getBeanList(Class<T> clz) throws BeansException{
+        String[] beanNames = beanFactory.getBeanNamesForType(clz);
+        List list = new ArrayList<>();
+        if(ObjectUtils.isEmpty(beanNames)){
+            return list;
+        }
 
-    	for(String beanName : beanNames){
-    		list.add(getBean(beanName));
-    	}
-    	return list;
+        for(String beanName : beanNames){
+            list.add(getBean(beanName));
+        }
+        return list;
     }
 
     /**
@@ -63,18 +63,18 @@ public final class SpringContext implements BeanFactoryPostProcessor, Applicatio
      */
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) throws BeansException{
-    	try{
-    		return (T) beanFactory.getBean(name);
-    	}catch(NoSuchBeanDefinitionException e){
-    		return null;
-    	}
+        try{
+            return (T) beanFactory.getBean(name);
+        }catch(NoSuchBeanDefinitionException e){
+            return null;
+        }
     }
 
     /**
      * 获取bean
      */
     public static <T> T getBean(Class<T> clz) throws BeansException{
-    	return beanFactory.getBean(clz);
+        return beanFactory.getBean(clz);
     }
 
     /**
@@ -132,10 +132,10 @@ public final class SpringContext implements BeanFactoryPostProcessor, Applicatio
      * 获取环境变量
      */
     @SuppressWarnings("unchecked")
-	public static <T> T getProperty(String key, T defaultValue) {
+    public static <T> T getProperty(String key, T defaultValue) {
         T value = (T)applicationContext.getEnvironment().getProperty(key);
         if(value != null) {
-        	return value;
+            return value;
         }
         return defaultValue;
     }

@@ -43,43 +43,43 @@ import org.springframework.context.annotation.Primary;
  */
 @ConditionalOnClass(DruidSpringAopConfiguration.class)
 @Import({DruidSpringAopConfiguration.class, DruidStatViewServletConfiguration.class,
-		DruidWebStatFilterConfiguration.class, DruidFilterConfiguration.class})
+        DruidWebStatFilterConfiguration.class, DruidFilterConfiguration.class})
 @EnableConfigurationProperties({DataSourceProperties.class, DynamicDataSourceProperties.class, DruidStatProperties.class})
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)
 @RequiredArgsConstructor
 public class DruidDynamicDataSourceConfiguration {
 
-	private final DataSourceProperties dataSourceProperties;
+    private final DataSourceProperties dataSourceProperties;
 
-	private final DynamicDataSourceProperties dynamicDataSourceProperties;
+    private final DynamicDataSourceProperties dynamicDataSourceProperties;
 
-	private final ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-	@ConditionalOnMissingBean(DataSource.class)
-	@Primary
-	@Bean
-	public DataSource dataSource() throws Exception {
-		Map<String, DataSourceProperties> propertiesMap = dynamicDataSourceProperties.getDynamic();
-		if(propertiesMap != null && !propertiesMap.isEmpty()){
-			DruidDataSource primary = null;
-			Map<Object, Object> dataSourceMap = new HashMap<>();
-			for(Map.Entry<String, DataSourceProperties> entry : propertiesMap.entrySet()){
-				DruidDataSourceWrapper dataSource = applicationContext.getBean(DruidDataSourceWrapper.class, entry.getValue());
-				dataSource.afterPropertiesSet();
-				dataSource.init();
-				dataSourceMap.put(entry.getKey(), dataSource);
-				if(Objects.equals(entry.getKey(), "primary")){
-					primary = dataSource;
-				}
-			}
-			return new DynamicDataSource(primary, dataSourceMap);
-		}else{
-			DruidDataSourceWrapper dataSource = applicationContext.getBean(DruidDataSourceWrapper.class, dataSourceProperties);
-			dataSource.afterPropertiesSet();
-			dataSource.init();
-			Map<Object, Object> dataSourceMap = new HashMap<>();
-			dataSourceMap.put("primary", dataSource);
-			return new DynamicDataSource(dataSource, dataSourceMap);
-		}
-	}
+    @ConditionalOnMissingBean(DataSource.class)
+    @Primary
+    @Bean
+    public DataSource dataSource() throws Exception {
+        Map<String, DataSourceProperties> propertiesMap = dynamicDataSourceProperties.getDynamic();
+        if(propertiesMap != null && !propertiesMap.isEmpty()){
+            DruidDataSource primary = null;
+            Map<Object, Object> dataSourceMap = new HashMap<>();
+            for(Map.Entry<String, DataSourceProperties> entry : propertiesMap.entrySet()){
+                DruidDataSourceWrapper dataSource = applicationContext.getBean(DruidDataSourceWrapper.class, entry.getValue());
+                dataSource.afterPropertiesSet();
+                dataSource.init();
+                dataSourceMap.put(entry.getKey(), dataSource);
+                if(Objects.equals(entry.getKey(), "primary")){
+                    primary = dataSource;
+                }
+            }
+            return new DynamicDataSource(primary, dataSourceMap);
+        }else{
+            DruidDataSourceWrapper dataSource = applicationContext.getBean(DruidDataSourceWrapper.class, dataSourceProperties);
+            dataSource.afterPropertiesSet();
+            dataSource.init();
+            Map<Object, Object> dataSourceMap = new HashMap<>();
+            dataSourceMap.put("primary", dataSource);
+            return new DynamicDataSource(dataSource, dataSourceMap);
+        }
+    }
 }

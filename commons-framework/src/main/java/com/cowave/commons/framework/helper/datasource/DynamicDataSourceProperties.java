@@ -22,13 +22,13 @@ import java.util.Map;
 @ConfigurationProperties("spring.datasource")
 public class DynamicDataSourceProperties {
 
-	private Map<String, DataSourceProperties> dynamic;
+    private Map<String, DataSourceProperties> dynamic;
 
-	public Map<String, DataSourceProperties> getDynamic() {
-		return dynamic;
-	}
+    public Map<String, DataSourceProperties> getDynamic() {
+        return dynamic;
+    }
 
-	public void setDynamic(Map<String, DataSourceProperties> dynamic) {
-		this.dynamic = dynamic;
-	}
+    public void setDynamic(Map<String, DataSourceProperties> dynamic) {
+        this.dynamic = dynamic;
+    }
 }

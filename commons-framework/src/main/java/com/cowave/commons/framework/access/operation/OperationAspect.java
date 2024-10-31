@@ -48,118 +48,118 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class OperationAspect {
 
-	private final ExpressionParser exprParser = new SpelExpressionParser();
+    private final ExpressionParser exprParser = new SpelExpressionParser();
 
-	private final ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-	private final TaskExecutor taskExecutor;
+    private final TaskExecutor taskExecutor;
 
-	@Pointcut("@annotation(com.cowave.commons.framework.access.operation.Operation) " +
-			"&& (@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.DeleteMapping))")
-	public void oplog() {
+    @Pointcut("@annotation(com.cowave.commons.framework.access.operation.Operation) " +
+            "&& (@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping))")
+    public void oplog() {
 
-	}
+    }
 
-	@AfterReturning(pointcut = "oplog() && @annotation(operation)", returning = "resp")
-	public void doAfter(JoinPoint joinPoint, Operation operation, Object resp) {
-		OperationInfo operationInfo = new OperationInfo();
-		EvaluationContext context = new StandardEvaluationContext();
-		prepareOperation(joinPoint, operation, operationInfo, context);
-		// Evaluation参数
-		context.setVariable("resp", resp);
-		context.setVariable("exception", null);
-		// 操作信息
-		operationInfo.setSuccess(true);
-		operationInfo.setSummary(parseSummary(operation, context));
-		context.setVariable("opInfo", operationInfo);
-		// 处理日志
-		handleOperation(operation, context);
-	}
+    @AfterReturning(pointcut = "oplog() && @annotation(operation)", returning = "resp")
+    public void doAfter(JoinPoint joinPoint, Operation operation, Object resp) {
+        OperationInfo operationInfo = new OperationInfo();
+        EvaluationContext context = new StandardEvaluationContext();
+        prepareOperation(joinPoint, operation, operationInfo, context);
+        // Evaluation参数
+        context.setVariable("resp", resp);
+        context.setVariable("exception", null);
+        // 操作信息
+        operationInfo.setSuccess(true);
+        operationInfo.setSummary(parseSummary(operation, context));
+        context.setVariable("opInfo", operationInfo);
+        // 处理日志
+        handleOperation(operation, context);
+    }
 
-	@AfterThrowing(pointcut = "oplog() && @annotation(operation)", throwing = "e")
-	public void doThrow(JoinPoint joinPoint, Operation operation, Exception e) {
-		OperationInfo operationInfo = new OperationInfo();
-		EvaluationContext context = new StandardEvaluationContext();
-		prepareOperation(joinPoint, operation, operationInfo, context);
-		// Evaluation参数
-		context.setVariable("resp", null);
-		context.setVariable("exception", e);
-		// 操作信息
-		operationInfo.setSuccess(false);
-		operationInfo.setSummary(parseSummary(operation, context));
-		context.setVariable("opInfo", operationInfo);
-		// 处理日志
-		handleOperation(operation, context);
-	}
+    @AfterThrowing(pointcut = "oplog() && @annotation(operation)", throwing = "e")
+    public void doThrow(JoinPoint joinPoint, Operation operation, Exception e) {
+        OperationInfo operationInfo = new OperationInfo();
+        EvaluationContext context = new StandardEvaluationContext();
+        prepareOperation(joinPoint, operation, operationInfo, context);
+        // Evaluation参数
+        context.setVariable("resp", null);
+        context.setVariable("exception", e);
+        // 操作信息
+        operationInfo.setSuccess(false);
+        operationInfo.setSummary(parseSummary(operation, context));
+        context.setVariable("opInfo", operationInfo);
+        // 处理日志
+        handleOperation(operation, context);
+    }
 
-	private void prepareOperation(JoinPoint joinPoint, Operation operation, OperationInfo opInfo, EvaluationContext context){
-		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-		// 方法参数
-		Object[] args = joinPoint.getArgs();
-		// 方法参数名
-		String[] paramNames = signature.getParameterNames();
-		// 设置EvaluationContext
-		Map<String, Object> argMap = new HashMap<>();
-		if(paramNames != null) {
-			for (int i = 0; i < args.length; i++) {
-				context.setVariable(paramNames[i], args[i]);
-				if (args[i] != null) {
-					// 去掉一些不能序列化的参数，避免后面一些对argMap的操作失败
-					Class<?> clazz = args[i].getClass();
-					if (MultipartFile.class.isAssignableFrom(clazz)
-							|| MultipartFile[].class.isAssignableFrom(clazz)
-							|| HttpServletRequest.class.isAssignableFrom(clazz)
-							|| HttpServletResponse.class.isAssignableFrom(clazz)
-							|| BeanPropertyBindingResult.class.isAssignableFrom(clazz)
-							|| ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)) {
-						continue;
-					}
-				}
-				argMap.put(paramNames[i], args[i]);
-			}
-		}
-		context.setVariable("opHandler", applicationContext.getBean(operation.handler()));
-		// 设置OperationInfo
-		opInfo.setAccessTime(Access.accessTime());
-		opInfo.setAccessIp(Access.accessIp());
-		opInfo.setAccessUrl(Access.accessUrl());
-		opInfo.setUserId(Access.userId());
-		opInfo.setUserCode(Access.userCode());
-		opInfo.setDeptId(Access.deptId());
-		opInfo.setDeptCode(Access.deptCode());
-		opInfo.setOpType(operation.type());
-		opInfo.setOpAction(operation.action());
-		opInfo.setOpArgs(argMap);
-		opInfo.setOpCost(System.currentTimeMillis() - Access.accessTime().getTime());
-	}
+    private void prepareOperation(JoinPoint joinPoint, Operation operation, OperationInfo opInfo, EvaluationContext context){
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        // 方法参数
+        Object[] args = joinPoint.getArgs();
+        // 方法参数名
+        String[] paramNames = signature.getParameterNames();
+        // 设置EvaluationContext
+        Map<String, Object> argMap = new HashMap<>();
+        if(paramNames != null) {
+            for (int i = 0; i < args.length; i++) {
+                context.setVariable(paramNames[i], args[i]);
+                if (args[i] != null) {
+                    // 去掉一些不能序列化的参数，避免后面一些对argMap的操作失败
+                    Class<?> clazz = args[i].getClass();
+                    if (MultipartFile.class.isAssignableFrom(clazz)
+                            || MultipartFile[].class.isAssignableFrom(clazz)
+                            || HttpServletRequest.class.isAssignableFrom(clazz)
+                            || HttpServletResponse.class.isAssignableFrom(clazz)
+                            || BeanPropertyBindingResult.class.isAssignableFrom(clazz)
+                            || ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)) {
+                        continue;
+                    }
+                }
+                argMap.put(paramNames[i], args[i]);
+            }
+        }
+        context.setVariable("opHandler", applicationContext.getBean(operation.handler()));
+        // 设置OperationInfo
+        opInfo.setAccessTime(Access.accessTime());
+        opInfo.setAccessIp(Access.accessIp());
+        opInfo.setAccessUrl(Access.accessUrl());
+        opInfo.setUserId(Access.userId());
+        opInfo.setUserCode(Access.userCode());
+        opInfo.setDeptId(Access.deptId());
+        opInfo.setDeptCode(Access.deptCode());
+        opInfo.setOpType(operation.type());
+        opInfo.setOpAction(operation.action());
+        opInfo.setOpArgs(argMap);
+        opInfo.setOpCost(System.currentTimeMillis() - Access.accessTime().getTime());
+    }
 
-	private String parseSummary(Operation operation, EvaluationContext context){
-		String summarySpel = operation.summary();
-		if(StringUtils.isBlank(summarySpel)){
-			return "";
-		}
+    private String parseSummary(Operation operation, EvaluationContext context){
+        String summarySpel = operation.summary();
+        if(StringUtils.isBlank(summarySpel)){
+            return "";
+        }
 
-		try{
-			return exprParser.parseExpression(summarySpel, new TemplateParserContext()).getValue(context, String.class);
-		}catch(Exception e){
-			log.error("", e);
-			return "";
-		}
-	}
+        try{
+            return exprParser.parseExpression(summarySpel, new TemplateParserContext()).getValue(context, String.class);
+        }catch(Exception e){
+            log.error("", e);
+            return "";
+        }
+    }
 
-	private void handleOperation(Operation operation, EvaluationContext context){
-		if(operation.isAsync()){
-			taskExecutor.execute(() -> exprParser.parseExpression(operation.expr()).getValue(context));
-		}else{
-			try{
-				exprParser.parseExpression(operation.expr()).getValue(context);
-			}catch (Exception ex){
-				log.error("", ex);
-			}
-		}
-	}
+    private void handleOperation(Operation operation, EvaluationContext context){
+        if(operation.isAsync()){
+            taskExecutor.execute(() -> exprParser.parseExpression(operation.expr()).getValue(context));
+        }else{
+            try{
+                exprParser.parseExpression(operation.expr()).getValue(context);
+            }catch (Exception ex){
+                log.error("", ex);
+            }
+        }
+    }
 }

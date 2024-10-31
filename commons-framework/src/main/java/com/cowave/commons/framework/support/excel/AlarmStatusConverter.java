@@ -20,18 +20,18 @@ import com.alibaba.excel.metadata.data.WriteCellData;
  */
 public class AlarmStatusConverter implements Converter<Integer> {
 
-	public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
-		String value = ""; 
-		Integer status = context.getValue();
-		if(status != null) {
-		    if(status == 0) {
+    public WriteCellData<String> convertToExcelData(WriteConverterContext<Integer> context) {
+        String value = ""; 
+        Integer status = context.getValue();
+        if(status != null) {
+            if(status == 0) {
                 value = "未处理"; 
             }else if(status == 1) {
-				value = "确认"; 
-			}else if(status == 2) {
-				value = "误报";
-			}
-		}
-		return new WriteCellData<>(value);
-	}
+                value = "确认"; 
+            }else if(status == 2) {
+                value = "误报";
+            }
+        }
+        return new WriteCellData<>(value);
+    }
 }

@@ -43,12 +43,12 @@ public class DataSourceAspect{
     public Object around(ProceedingJoinPoint point) throws Throwable{
         DataSource dataSource = getDataSource(point);
         if (ObjectUtils.isNotEmpty(dataSource)){
-        	DynamicDataSource.set(dataSource.value());
+            DynamicDataSource.set(dataSource.value());
         }
         try{
             return point.proceed();
         }finally{
-        	DynamicDataSource.clear();
+            DynamicDataSource.clear();
         }
     }
 

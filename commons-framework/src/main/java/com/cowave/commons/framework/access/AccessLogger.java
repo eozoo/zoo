@@ -51,167 +51,167 @@ import java.util.Objects;
 @Component
 public class AccessLogger {
 
-	private final AccessIdGenerator accessIdGenerator;
+    private final AccessIdGenerator accessIdGenerator;
 
-	@Nullable
-	private final AccessUserParser accessUserParser;
+    @Nullable
+    private final AccessUserParser accessUserParser;
 
-	@Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-			"|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
-	public void request() {
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
+    public void request() {
 
-	}
+    }
 
-	@Before("request()")
-	public void logRequest(JoinPoint point) {
-		Access access = Access.get();
-		if(access == null){
-			// 请求未经过AccessFilter
-			HttpServletRequest httpServletRequest = Access.httpRequest();
-			assert httpServletRequest != null;
-			if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
-				return; // error路径直接跳过
-			}
+    @Before("request()")
+    public void logRequest(JoinPoint point) {
+        Access access = Access.get();
+        if(access == null){
+            // 请求未经过AccessFilter
+            HttpServletRequest httpServletRequest = Access.httpRequest();
+            assert httpServletRequest != null;
+            if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
+                return; // error路径直接跳过
+            }
 
-			MethodSignature signature = (MethodSignature)point.getSignature();
-			String[] paramNames = signature.getParameterNames();
-			Object[] args = point.getArgs();
-			Map<String, Object> map = new HashMap<>();
-			if(paramNames != null) {
-				for (int i = 0; i < args.length; i++) {
-					if (args[i] == null) {
-						map.put(paramNames[i], null);
-					} else {
-						Class<?> clazz = args[i].getClass();
-						if (MultipartFile.class.isAssignableFrom(clazz) || MultipartFile[].class.isAssignableFrom(clazz)
-								|| HttpServletRequest.class.isAssignableFrom(clazz) || HttpServletResponse.class.isAssignableFrom(clazz)
-								|| BeanPropertyBindingResult.class.isAssignableFrom(clazz)
-								|| ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)) {
-							continue;
-						}
+            MethodSignature signature = (MethodSignature)point.getSignature();
+            String[] paramNames = signature.getParameterNames();
+            Object[] args = point.getArgs();
+            Map<String, Object> map = new HashMap<>();
+            if(paramNames != null) {
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i] == null) {
+                        map.put(paramNames[i], null);
+                    } else {
+                        Class<?> clazz = args[i].getClass();
+                        if (MultipartFile.class.isAssignableFrom(clazz) || MultipartFile[].class.isAssignableFrom(clazz)
+                                || HttpServletRequest.class.isAssignableFrom(clazz) || HttpServletResponse.class.isAssignableFrom(clazz)
+                                || BeanPropertyBindingResult.class.isAssignableFrom(clazz)
+                                || ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)) {
+                            continue;
+                        }
 
-						if (accessUserParser != null) {
-							accessUserParser.parse(clazz, args[i]);
-						}
-						map.put(paramNames[i], args[i]);
-					}
-				}
-			}
+                        if (accessUserParser != null) {
+                            accessUserParser.parse(clazz, args[i]);
+                        }
+                        map.put(paramNames[i], args[i]);
+                    }
+                }
+            }
 
-			String accessIp = ServletUtils.getRequestIp(httpServletRequest);
-			String accessUrl = httpServletRequest.getRequestURI();
-			access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
-			access.setRequestParam(map);
-			Access.set(access);
+            String accessIp = ServletUtils.getRequestIp(httpServletRequest);
+            String accessUrl = httpServletRequest.getRequestURI();
+            access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
+            access.setRequestParam(map);
+            Access.set(access);
 
-			String httpMethod = httpServletRequest.getMethod();
-			String contentType = httpServletRequest.getContentType();
-			StringBuilder builder = new StringBuilder();
-			builder.append(">> ").append(httpMethod).append(" ").append(accessUrl).append(" [").append(accessIp);
-			if(StringUtils.isNotBlank(contentType)){
-				builder.append(" ").append(contentType).append("]");
-			}else{
-				builder.append("]");
-			}
-			builder.append(" args=").append(JSON.toJSONString(map, new AccessRequestWrapper.PasswordFilter()));
-			log.info(builder.toString());
-		}else{
-			// 请求经过AccessFilter
-			if (accessUserParser != null) {
-				MethodSignature signature = (MethodSignature) point.getSignature();
-				String[] paramNames = signature.getParameterNames();
-				if (paramNames != null) {
-					for (Object arg : point.getArgs()) {
-						if (arg != null) {
-							accessUserParser.parse(arg.getClass(), arg);
-						}
-					}
-				}
-			}
-		}
-	}
+            String httpMethod = httpServletRequest.getMethod();
+            String contentType = httpServletRequest.getContentType();
+            StringBuilder builder = new StringBuilder();
+            builder.append(">> ").append(httpMethod).append(" ").append(accessUrl).append(" [").append(accessIp);
+            if(StringUtils.isNotBlank(contentType)){
+                builder.append(" ").append(contentType).append("]");
+            }else{
+                builder.append("]");
+            }
+            builder.append(" args=").append(JSON.toJSONString(map, new AccessRequestWrapper.PasswordFilter()));
+            log.info(builder.toString());
+        }else{
+            // 请求经过AccessFilter
+            if (accessUserParser != null) {
+                MethodSignature signature = (MethodSignature) point.getSignature();
+                String[] paramNames = signature.getParameterNames();
+                if (paramNames != null) {
+                    for (Object arg : point.getArgs()) {
+                        if (arg != null) {
+                            accessUserParser.parse(arg.getClass(), arg);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	@AfterReturning(pointcut = "request()", returning = "resp")
-	public void logResponse(Object resp) {
-		HttpServletResponse servletResponse = Access.httpResponse();
-		if(servletResponse == null){
-			return;
-		}
+    @AfterReturning(pointcut = "request()", returning = "resp")
+    public void logResponse(Object resp) {
+        HttpServletResponse servletResponse = Access.httpResponse();
+        if(servletResponse == null){
+            return;
+        }
 
-		Access access = Access.get();
-		if(access == null){
-			return;
-		}
+        Access access = Access.get();
+        if(access == null){
+            return;
+        }
 
-		access.setResponseLogged(true);
-		int status = servletResponse.getStatus();
-		long cost = System.currentTimeMillis() - access.getAccessTime();
+        access.setResponseLogged(true);
+        int status = servletResponse.getStatus();
+        long cost = System.currentTimeMillis() - access.getAccessTime();
 
-		String code = null;
-		String msg = null;
-		Object data = null;
-		Response<?> response = null;
-		HttpResponse<?> httpResponse = null;
-		if (resp != null) {
-			if(Response.class.isAssignableFrom(resp.getClass())){
-				response = (Response<?>) resp;
-				data = response.getData();
-				code = response.getCode();
-				msg = response.getMsg() != null ? response.getMsg() : "";
-			}else if(HttpResponse.class.isAssignableFrom(resp.getClass())){
-				httpResponse = (HttpResponse<?>) resp;
-				data = httpResponse.getBody();
-				status = httpResponse.getStatusCodeValue();
-				msg = httpResponse.getMessage() != null ? httpResponse.getMessage() : "";
-			}
-		}
+        String code = null;
+        String msg = null;
+        Object data = null;
+        Response<?> response = null;
+        HttpResponse<?> httpResponse = null;
+        if (resp != null) {
+            if(Response.class.isAssignableFrom(resp.getClass())){
+                response = (Response<?>) resp;
+                data = response.getData();
+                code = response.getCode();
+                msg = response.getMsg() != null ? response.getMsg() : "";
+            }else if(HttpResponse.class.isAssignableFrom(resp.getClass())){
+                httpResponse = (HttpResponse<?>) resp;
+                data = httpResponse.getBody();
+                status = httpResponse.getStatusCodeValue();
+                msg = httpResponse.getMessage() != null ? httpResponse.getMessage() : "";
+            }
+        }
 
-		if(resp == null || !log.isDebugEnabled()){
-			if(response != null) {
-				// Response
-				if(Objects.equals(code, ResponseCode.SUCCESS.getCode())){
-					log.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
-				}else{
-					if(!log.isInfoEnabled()){
-						log.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
-					}else{
-						log.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
-					}
-				}
-			}else if(httpResponse != null){
-				// HttpResponse
-				if(status == HttpStatus.OK.value()){
-					log.info("<< {} {}ms {}", status, cost, msg);
-				}else{
-					if(!log.isInfoEnabled()){
-						log.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
-					}else{
-						log.warn("<< {} {}ms {}", status, cost, msg);
-					}
-				}
-			}else{
-				// Others
-				if(status == HttpStatus.OK.value()){
-					log.info("<< {} {}ms", status, cost);
-				}else{
-					if(!log.isInfoEnabled()){
-						log.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
-					}else{
-						log.info("<< {} {}ms", status, cost);
-					}
-				}
-			}
-		}else{
-			if(response != null) {
-				log.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
-			}else if(httpResponse != null){
-				log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
-			}else{
-				log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
-			}
-		}
-	}
+        if(resp == null || !log.isDebugEnabled()){
+            if(response != null) {
+                // Response
+                if(Objects.equals(code, ResponseCode.SUCCESS.getCode())){
+                    log.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+                }else{
+                    if(!log.isInfoEnabled()){
+                        log.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    }else{
+                        log.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
+                    }
+                }
+            }else if(httpResponse != null){
+                // HttpResponse
+                if(status == HttpStatus.OK.value()){
+                    log.info("<< {} {}ms {}", status, cost, msg);
+                }else{
+                    if(!log.isInfoEnabled()){
+                        log.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    }else{
+                        log.warn("<< {} {}ms {}", status, cost, msg);
+                    }
+                }
+            }else{
+                // Others
+                if(status == HttpStatus.OK.value()){
+                    log.info("<< {} {}ms", status, cost);
+                }else{
+                    if(!log.isInfoEnabled()){
+                        log.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), JSON.toJSONString(access.getRequestParam()));
+                    }else{
+                        log.info("<< {} {}ms", status, cost);
+                    }
+                }
+            }
+        }else{
+            if(response != null) {
+                log.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, JSON.toJSONString(data));
+            }else if(httpResponse != null){
+                log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(data));
+            }else{
+                log.debug("<< {} {}ms {}", status, cost, JSON.toJSONString(resp));
+            }
+        }
+    }
 }

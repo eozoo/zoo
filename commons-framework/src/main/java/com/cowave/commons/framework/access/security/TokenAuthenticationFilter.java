@@ -33,35 +33,35 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-	private final TokenService tokenService;
+    private final TokenService tokenService;
 
-	private final List<AntPathRequestMatcher> permitAllMatchers = new ArrayList<>();
+    private final List<AntPathRequestMatcher> permitAllMatchers = new ArrayList<>();
 
-	public TokenAuthenticationFilter(TokenService tokenService, String... ignoreUrls) {
-		this.tokenService = tokenService;
-		if(ignoreUrls != null && ignoreUrls.length > 0){
-			Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
-		}
-	}
+    public TokenAuthenticationFilter(TokenService tokenService, String... ignoreUrls) {
+        this.tokenService = tokenService;
+        if(ignoreUrls != null && ignoreUrls.length > 0){
+            Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
+        }
+    }
 
-	@Override
-	protected void doFilterInternal(
-			@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain chain) throws ServletException, IOException {
-		for (AntPathRequestMatcher matcher : permitAllMatchers) {
-			if (matcher.matches(request)) {
-				chain.doFilter(request, response);
-				return;
-			}
-		}
+    @Override
+    protected void doFilterInternal(
+            @NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain chain) throws ServletException, IOException {
+        for (AntPathRequestMatcher matcher : permitAllMatchers) {
+            if (matcher.matches(request)) {
+                chain.doFilter(request, response);
+                return;
+            }
+        }
 
-		AccessToken accessToken = tokenService.parseToken(request, response);
-		if (accessToken == null) {
-			return;
-		}
+        AccessToken accessToken = tokenService.parseToken(request, response);
+        if (accessToken == null) {
+            return;
+        }
 
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
-		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		chain.doFilter(request, response);
-	}
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        chain.doFilter(request, response);
+    }
 }

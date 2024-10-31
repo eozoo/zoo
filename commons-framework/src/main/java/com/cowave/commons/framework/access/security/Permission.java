@@ -97,6 +97,6 @@ public class Permission {
 
     public boolean isCurrentCluster() {
         Integer clusterId = Access.clusterId();
-    	return clusterId != null && Objects.equal(clusterId, applicationProperties.getClusterId());
+        return clusterId != null && Objects.equal(clusterId, applicationProperties.getClusterId());
     }
 }

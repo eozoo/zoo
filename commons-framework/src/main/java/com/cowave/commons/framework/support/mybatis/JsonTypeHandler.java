@@ -73,7 +73,7 @@ public class JsonTypeHandler<T> extends BaseTypeHandler<T> {
     }
 
     @SuppressWarnings("unchecked")
-	private T toObject(String content, Class<?> clazz) {
+    private T toObject(String content, Class<?> clazz) {
         if (content != null && !content.isEmpty()) {
             try {
                 return (T) JSON.parseObject(content,clazz);

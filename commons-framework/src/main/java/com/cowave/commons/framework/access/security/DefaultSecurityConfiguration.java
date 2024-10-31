@@ -29,12 +29,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class DefaultSecurityConfiguration {
 
-	@ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-		return httpSecurity.csrf().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.authorizeRequests().anyRequest().authenticated().and()
-				.formLogin().disable().logout().permitAll().and().build();
-	}
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity.csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .authorizeRequests().anyRequest().authenticated().and()
+                .formLogin().disable().logout().permitAll().and().build();
+    }
 }

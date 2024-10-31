@@ -20,12 +20,12 @@ import com.alibaba.excel.metadata.data.WriteCellData;
  */
 public class StringConverter implements Converter<Object> {
 
-	public WriteCellData<String> convertToExcelData(WriteConverterContext<Object> context) {
-		String value = "";
-		Object object = context.getValue();
-		if(object != null) {
-			value = object.toString();
-		}
-		return new WriteCellData<>(value);
-	}
+    public WriteCellData<String> convertToExcelData(WriteConverterContext<Object> context) {
+        String value = "";
+        Object object = context.getValue();
+        if(object != null) {
+            value = object.toString();
+        }
+        return new WriteCellData<>(value);
+    }
 }
