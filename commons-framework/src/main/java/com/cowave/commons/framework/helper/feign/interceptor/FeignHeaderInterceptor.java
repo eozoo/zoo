@@ -7,24 +7,19 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.helper.rest.interceptor;
+package com.cowave.commons.framework.helper.feign.interceptor;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
+import com.cowave.commons.framework.access.security.AccessToken;
 import com.cowave.commons.framework.access.security.TokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.access.security.AccessToken;
 import com.cowave.commons.tools.ids.IdGenerator;
-
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.ClientHttpResponse;
-
-import java.io.IOException;
 
 /**
  *
@@ -33,7 +28,7 @@ import java.io.IOException;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class HeaderInterceptor implements ClientHttpRequestInterceptor {
+public class FeignHeaderInterceptor implements RequestInterceptor {
 
     private static final IdGenerator GENERATOR = new IdGenerator();
 
@@ -46,33 +41,32 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
     private final ApplicationProperties applicationProperties;
 
     @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+    public void apply(RequestTemplate requestTemplate) {
         // Header Access-Id
         String accessId = Access.accessId();
         if(StringUtils.isBlank(accessId)) {
             accessId = newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
         }
-        request.getHeaders().add("Access-Id", accessId);
+        requestTemplate.header("Access-Id", accessId);
 
         // Header Token
         String authorization = Access.accessToken();
         if(StringUtils.isNotBlank(authorization)){
-            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
+            requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
             authorization = newAuthorization(tokenService, applicationProperties);
-            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
+            requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
-        return execution.execute(request, body);
     }
 
-    public static String newAccessId(String port, ApplicationProperties applicationProperties) {
+    static String newAccessId(String port, ApplicationProperties applicationProperties) {
         String prefix = "#" + applicationProperties.getClusterId() + port;
         return GENERATOR.generateIdWithDate(prefix, "", "yyyyMMddHHmmss", 1000);
     }
 
-    public static String newAuthorization(TokenService tokenService, ApplicationProperties applicationProperties) {
+    static String newAuthorization(TokenService tokenService, ApplicationProperties applicationProperties) {
         AccessToken appToken = AccessToken.newToken();
         appToken.setType(AccessToken.TYPE_APP);
         appToken.setUserId(-1L);

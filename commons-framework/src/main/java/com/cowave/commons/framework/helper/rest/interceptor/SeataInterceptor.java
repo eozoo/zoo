@@ -11,11 +11,9 @@ package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.access.security.AccessToken;
-import com.cowave.commons.tools.ids.IdGenerator;
-
+import com.cowave.commons.framework.access.security.TokenService;
+import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -33,9 +31,7 @@ import java.io.IOException;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class HeaderInterceptor implements ClientHttpRequestInterceptor {
-
-    private static final IdGenerator GENERATOR = new IdGenerator();
+public class SeataInterceptor implements ClientHttpRequestInterceptor {
 
     private final String port;
 
@@ -50,7 +46,7 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         // Header Access-Id
         String accessId = Access.accessId();
         if(StringUtils.isBlank(accessId)) {
-            accessId = newAccessId(port, applicationProperties);
+            accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
         }
         request.getHeaders().add("Access-Id", accessId);
@@ -61,23 +57,15 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
             request.getHeaders().add(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
-            authorization = newAuthorization(tokenService, applicationProperties);
+            authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
             request.getHeaders().add(accessProperties.tokenHeader(), authorization);
         }
+
+        // Header Seata事务id
+        String xid = RootContext.getXID();
+        if(StringUtils.isNotBlank(xid)){
+            request.getHeaders().add(RootContext.KEY_XID, xid);
+        }
         return execution.execute(request, body);
-    }
-
-    public static String newAccessId(String port, ApplicationProperties applicationProperties) {
-        String prefix = "#" + applicationProperties.getClusterId() + port;
-        return GENERATOR.generateIdWithDate(prefix, "", "yyyyMMddHHmmss", 1000);
-    }
-
-    public static String newAuthorization(TokenService tokenService, ApplicationProperties applicationProperties) {
-        AccessToken appToken = AccessToken.newToken();
-        appToken.setType(AccessToken.TYPE_APP);
-        appToken.setUserId(-1L);
-        appToken.setDeptId(-1L);
-        appToken.setUsername(applicationProperties.getName());
-        return tokenService.createAccessToken(appToken, 300);
     }
 }

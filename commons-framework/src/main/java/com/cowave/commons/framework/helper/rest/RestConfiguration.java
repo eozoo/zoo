@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 /**
  *
  * @author shanhuiming
@@ -26,7 +28,7 @@ public class RestConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(RestTemplate.class)
-    public RestTemplate restTemplate(RestTemplateBuilder builder, ClientHttpRequestInterceptor requestInterceptor) {
-        return builder.additionalInterceptors(requestInterceptor).build();
+    public RestTemplate restTemplate(RestTemplateBuilder builder, List<ClientHttpRequestInterceptor> interceptors) {
+        return builder.additionalInterceptors(interceptors).build();
     }
 }

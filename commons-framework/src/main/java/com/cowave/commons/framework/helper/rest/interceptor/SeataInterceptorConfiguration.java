@@ -12,6 +12,7 @@ package com.cowave.commons.framework.helper.rest.interceptor;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.helper.feign.interceptor.FeignSeataInterceptor;
 import feign.RequestInterceptor;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
@@ -32,20 +33,22 @@ import javax.annotation.Nullable;
 @ConditionalOnClass({FeignClient.class, RootContext.class})
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
-public class TransactionIdInterceptorConfiguration {
+public class SeataInterceptorConfiguration {
 
     @Nullable
     private final TokenService tokenService;
 
     @Bean
-    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
+    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(
+            @Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new TransactionIdInterceptor(port, tokenService, accessProperties, applicationProperties);
+        return new SeataInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 
     @Bean
-    public RequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
+    public RequestInterceptor requestInterceptor(
+            @Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new TransactionIdInterceptor(port, tokenService, accessProperties, applicationProperties);
+        return new FeignSeataInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 }
