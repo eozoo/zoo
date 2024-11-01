@@ -9,7 +9,7 @@
  */
 package com.cowave.commons.framework.support.limit;
 
-import com.cowave.commons.tools.AssertsException;
+import com.cowave.commons.response.exception.AssertsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

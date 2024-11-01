@@ -654,6 +654,11 @@ Unless required by applicable law or agreed to in writing, software distributed 
             <!-- cowave.commons -->
             <dependency>
                 <groupId>com.cowave.commons</groupId>
+                <artifactId>commons-response</artifactId>
+                <version>${cowave.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cowave.commons</groupId>
                 <artifactId>commons-tools</artifactId>
                 <version>${cowave.commons.version}</version>
             </dependency>
@@ -687,6 +692,11 @@ Unless required by applicable law or agreed to in writing, software distributed 
                 <groupId>javax.resource</groupId>
                 <artifactId>javax.resource-api</artifactId>
                 <version>1.7.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>4.8.6</version>
             </dependency>
             <!-- apollo -->
             <dependency>

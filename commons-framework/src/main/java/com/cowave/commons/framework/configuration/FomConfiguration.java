@@ -19,8 +19,8 @@ import org.springframework.fom.annotation.EnableFom;
  * @author shanhuiming
  *
  */
-@ConditionalOnClass(ScheduleContext.class)
 @EnableFom
+@ConditionalOnClass(ScheduleContext.class)
 @Configuration
 public class FomConfiguration {
 

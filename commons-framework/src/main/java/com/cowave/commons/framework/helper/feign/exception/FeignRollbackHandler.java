@@ -32,7 +32,7 @@ public class FeignRollbackHandler implements FeignExceptionHandler {
             try {
                 GlobalTransactionContext.reload(xid).rollback();
             } catch (TransactionException ex) {
-                log.error("Rollback faile[" + xid + "]", ex);
+                log.error("Rollback failed[" + xid + "]", ex);
             }
         }
     }

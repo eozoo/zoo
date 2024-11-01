@@ -12,15 +12,12 @@ package com.cowave.commons.framework.helper.rest.interceptor;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.TokenService;
-import com.cowave.commons.framework.helper.feign.interceptor.FeignSeataInterceptor;
-import feign.RequestInterceptor;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.feign.annotation.FeignClient;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 
 import javax.annotation.Nullable;
@@ -30,7 +27,7 @@ import javax.annotation.Nullable;
  * @author shanhuiming
  *
  */
-@ConditionalOnClass({FeignClient.class, RootContext.class})
+@ConditionalOnClass({RootContext.class})
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 public class SeataInterceptorConfiguration {
@@ -45,10 +42,5 @@ public class SeataInterceptorConfiguration {
         return new SeataInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 
-    @Bean
-    public RequestInterceptor requestInterceptor(
-            @Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new FeignSeataInterceptor(port, tokenService, accessProperties, applicationProperties);
-    }
+
 }

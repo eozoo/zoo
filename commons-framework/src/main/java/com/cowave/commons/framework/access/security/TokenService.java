@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.tools.Messages;
+import com.cowave.commons.response.Response;
+import com.cowave.commons.response.ResponseCode;
+import com.cowave.commons.response.exception.Messages;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 
-import static org.springframework.feign.codec.ResponseCode.*;
+import static com.cowave.commons.response.HttpResponseCode.*;
 
 /**
  *
@@ -184,7 +184,7 @@ public class TokenService {
         try {
             claims =  Jwts.parser().setSigningKey(accessProperties.tokenSalt()).parseClaimsJws(jwt).getBody();
         }catch(ExpiredJwtException e) {
-            writeResponse(response, TOKEN_INVALID_OR_EXPIRED, "frame.auth.expired");
+            writeResponse(response, INVALID_TOKEN, "frame.auth.expired");
             return null;
         }catch(Exception e) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
@@ -194,7 +194,7 @@ public class TokenService {
         // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
         if(accessProperties.tokenConflict() && !Objects.equals(Access.accessIp(), userIp)) {
-            writeResponse(response, TOKEN_INVALID_OR_EXPIRED, "frame.auth.ipchanged");
+            writeResponse(response, INVALID_TOKEN, "frame.auth.ipchanged");
             return null;
         }
 

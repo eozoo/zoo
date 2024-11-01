@@ -9,11 +9,13 @@
  */
 package com.cowave.commons.framework.configuration;
 
+import com.cowave.commons.response.exception.Messages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -22,7 +24,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import lombok.Data;
-import org.springframework.feign.annotation.EnableFeign;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
  */
 @Slf4j
 @Data
-@EnableFeign
+//@EnableFeign TODO
 @EnableAspectJAutoProxy(exposeProxy = true)
 @ComponentScan(basePackages = "com.cowave")
 @EnableConfigurationProperties({ApplicationProperties.class})
@@ -58,5 +59,10 @@ public class ApplicationConfiguration implements ApplicationContextInitializer<C
             log.error("failed to load: META-INF/common.yml", e);
             System.exit(-1);
         }
+    }
+
+    @javax.annotation.Resource
+    public void setMessageSource(MessageSource messageSource) {
+        Messages.setMessageSource(messageSource);
     }
 }

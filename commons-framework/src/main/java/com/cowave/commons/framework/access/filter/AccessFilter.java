@@ -12,14 +12,14 @@ package com.cowave.commons.framework.access.filter;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.tools.Messages;
+import com.cowave.commons.response.Response;
+import com.cowave.commons.response.exception.Messages;
 import com.cowave.commons.tools.ServletUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
-import org.springframework.feign.codec.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import static org.springframework.feign.codec.ResponseCode.BAD_REQUEST;
-import static org.springframework.feign.codec.ResponseCode.SUCCESS;
+import static com.cowave.commons.response.HttpResponseCode.BAD_REQUEST;
+import static com.cowave.commons.response.HttpResponseCode.SUCCESS;
 
 /**
  *

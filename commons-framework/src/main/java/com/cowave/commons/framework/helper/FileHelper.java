@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.cowave.commons.tools.AssertsException;
+import com.cowave.commons.response.exception.AssertsException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;

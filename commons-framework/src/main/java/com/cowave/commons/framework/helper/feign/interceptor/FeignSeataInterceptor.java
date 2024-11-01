@@ -46,7 +46,7 @@ public class FeignSeataInterceptor implements RequestInterceptor {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
         }
-        requestTemplate.header("Access-Id", accessId);
+        requestTemplate.header("X-Request-ID", accessId);
 
         // Header Token
         String authorization = Access.accessToken();

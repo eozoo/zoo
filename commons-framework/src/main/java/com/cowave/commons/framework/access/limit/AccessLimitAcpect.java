@@ -12,7 +12,7 @@ package com.cowave.commons.framework.access.limit;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.tools.HttpHintException;
+import com.cowave.commons.response.exception.HttpHintException;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
-import static org.springframework.feign.codec.ResponseCode.*;
+import static com.cowave.commons.response.HttpResponseCode.SUCCESS;
+import static com.cowave.commons.response.HttpResponseCode.TOO_MANY_REQUESTS;
 
 /**
  *

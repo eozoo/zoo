@@ -13,14 +13,14 @@
 package ${package}.api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.feign.codec.Response;
+import com.cowave.commons.response.Response;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * Hello
  *
  * @author ${author}
- *
  */
 @Validated
 @RequiredArgsConstructor
@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/hello")
 public class HelloController {
 
+    /**
+     * mvc
+     */
     @GetMapping("/mvc")
     public Response<String> mvc() {
         return Response.success("Hello Mvc!");

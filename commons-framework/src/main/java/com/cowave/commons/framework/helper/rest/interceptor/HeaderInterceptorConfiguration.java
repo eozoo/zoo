@@ -11,15 +11,11 @@ package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.helper.feign.interceptor.FeignHeaderInterceptor;
-import feign.RequestInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.feign.annotation.FeignClient;
 
 import com.cowave.commons.framework.access.security.TokenService;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -31,7 +27,6 @@ import javax.annotation.Nullable;
  * @author shanhuiming
  *
  */
-@ConditionalOnClass(FeignClient.class)
 @ConditionalOnMissingClass("io.seata.core.context.RootContext")
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
@@ -45,12 +40,5 @@ public class HeaderInterceptorConfiguration {
             @Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessProperties accessProperties) {
         return new HeaderInterceptor(port, tokenService, accessProperties, applicationProperties);
-    }
-
-    @Bean
-    public RequestInterceptor requestInterceptor(
-            @Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new FeignHeaderInterceptor(port, tokenService, accessProperties, applicationProperties);
     }
 }

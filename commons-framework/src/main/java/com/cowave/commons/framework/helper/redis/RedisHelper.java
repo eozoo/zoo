@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.cowave.commons.tools.Asserts;
+import com.cowave.commons.response.exception.Asserts;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisListCommands;

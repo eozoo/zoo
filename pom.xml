@@ -15,6 +15,7 @@
         <module>commons-build</module>
         <module>commons-dependencies</module>
         <module>commons-parent</module>
+        <module>commons-response</module>
         <module>commons-tools</module>
         <module>commons-framework</module>
         <module>commons-archetype</module>

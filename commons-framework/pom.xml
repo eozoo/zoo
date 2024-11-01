@@ -78,6 +78,10 @@
             <groupId>javax.resource</groupId>
             <artifactId>javax.resource-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+        </dependency>
         <!-- utils -->
         <dependency>
             <groupId>com.cowave.commons</groupId>
@@ -100,6 +104,10 @@
             <artifactId>fastjson</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
         </dependency>
@@ -111,12 +119,13 @@
             <optional>true</optional>
         </dependency>
         -->
+        <!-- spring-feign -->
         <dependency>
-            <groupId>org.dromara.dynamictp</groupId>
-            <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
+            <groupId>com.cowave.commons</groupId>
+            <artifactId>spring-feign</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- fom -->
+        <!-- spring-fom -->
         <dependency>
             <groupId>com.cowave.commons</groupId>
             <artifactId>spring-fom</artifactId>
@@ -131,6 +140,11 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dromara.dynamictp</groupId>
+            <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
             <scope>provided</scope>
         </dependency>
         <!-- seata -->

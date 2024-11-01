@@ -9,18 +9,18 @@
  */
 package com.cowave.commons.framework.access;
 
+import com.cowave.commons.response.HttpResponse;
+import com.cowave.commons.response.exception.HttpWarnException;
+import com.cowave.commons.response.Response;
+import com.cowave.commons.response.exception.Messages;
 import com.cowave.commons.tools.*;
-import com.cowave.commons.tools.AssertsException;
-import com.cowave.commons.tools.HttpHintException;
-import com.cowave.commons.tools.HttpException;
+import com.cowave.commons.response.exception.AssertsException;
+import com.cowave.commons.response.exception.HttpHintException;
+import com.cowave.commons.response.exception.HttpException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.feign.codec.HttpResponse;
-import org.springframework.feign.codec.Response;
-import org.springframework.feign.invoke.RemoteAssertsException;
-import org.springframework.feign.invoke.RemoteException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
@@ -38,7 +38,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.springframework.feign.codec.ResponseCode.*;
+import static com.cowave.commons.response.HttpResponseCode.*;
 
 /**
  *
@@ -82,17 +82,6 @@ public class AccessAdvice {
      * ERR_LEVEL_0 不打印异常日志，Response不记录cause
      * ***************************************************************************/
 
-    @ExceptionHandler(HttpHintException.class)
-    public HttpResponse<Response<Void>> handleHttpHintException(HttpHintException e) {
-        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_0, e.getMessage());
-    }
-
-    @ExceptionHandler(RemoteAssertsException.class)
-    public HttpResponse<Response<Void>> handleRemoteAssertsException(RemoteAssertsException e) {
-        // 下层服务返回的异常信息，直接透传
-        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_0, e.getMessage());
-    }
-
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public HttpResponse<Response<Void>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
@@ -112,9 +101,9 @@ public class AccessAdvice {
      * ERR_LEVEL_1 不打印异常日志，Response.cause记录e.getMessage()
      * ***************************************************************************/
 
-    @ExceptionHandler(RemoteException.class)
-    public HttpResponse<Response<Void>> handleRemoteException(RemoteException e) {
-        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_1, Messages.msg("frame.remote.failed"));
+    @ExceptionHandler(HttpHintException.class)
+    public HttpResponse<Response<Void>> handleHttpHintException(HttpHintException e) {
+        return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_1, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -141,7 +130,7 @@ public class AccessAdvice {
 
     @ExceptionHandler(HttpWarnException.class)
     public HttpResponse<Response<Void>> handleHttpHttpWarnException(HttpWarnException e) {
-        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_2, e.getMessage());
+        return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_2, e.getMessage());
     }
 
     /* ***************************************************************************
@@ -155,7 +144,7 @@ public class AccessAdvice {
 
     @ExceptionHandler(AssertsException.class)
     public HttpResponse<Response<Void>> handleAssertsException(AssertsException e) {
-        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_3, e.getMessage());
+        return error(e, SERVICE_ERROR.getStatus(), SERVICE_ERROR.getCode(), ERR_LEVEL_3, e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

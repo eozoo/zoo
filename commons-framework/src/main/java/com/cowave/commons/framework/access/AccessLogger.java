@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cowave.commons.framework.access.filter.AccessIdGenerator;
+import com.cowave.commons.response.HttpResponse;
+import com.cowave.commons.response.Response;
 import com.cowave.commons.tools.ServletUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,9 +29,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.feign.codec.HttpResponse;
-import org.springframework.feign.codec.Response;
-import org.springframework.feign.codec.ResponseCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +39,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequ
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.cowave.commons.response.HttpResponseCode.SUCCESS;
 
 /**
  *
@@ -177,7 +178,7 @@ public class AccessLogger {
         if(resp == null || !LOGGER.isDebugEnabled()){
             if(response != null) {
                 // Response
-                if(Objects.equals(code, ResponseCode.SUCCESS.getCode())){
+                if(Objects.equals(code, SUCCESS.getCode())){
                     LOGGER.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                 }else{
                     if(!LOGGER.isInfoEnabled()){

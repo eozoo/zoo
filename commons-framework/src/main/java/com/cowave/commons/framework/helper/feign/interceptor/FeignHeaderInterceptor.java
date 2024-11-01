@@ -11,10 +11,9 @@ package com.cowave.commons.framework.helper.feign.interceptor;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.AccessToken;
 import com.cowave.commons.framework.access.security.TokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.tools.ids.IdGenerator;
+import com.cowave.commons.framework.helper.rest.interceptor.HeaderInterceptor;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 @RequiredArgsConstructor
 public class FeignHeaderInterceptor implements RequestInterceptor {
 
-    private static final IdGenerator GENERATOR = new IdGenerator();
-
     private final String port;
 
     private final TokenService tokenService;
@@ -45,10 +42,10 @@ public class FeignHeaderInterceptor implements RequestInterceptor {
         // Header Access-Id
         String accessId = Access.accessId();
         if(StringUtils.isBlank(accessId)) {
-            accessId = newAccessId(port, applicationProperties);
+            accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
         }
-        requestTemplate.header("Access-Id", accessId);
+        requestTemplate.header("X-Request-ID", accessId);
 
         // Header Token
         String authorization = Access.accessToken();
@@ -56,22 +53,8 @@ public class FeignHeaderInterceptor implements RequestInterceptor {
             requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
         if(tokenService != null){
-            authorization = newAuthorization(tokenService, applicationProperties);
+            authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
             requestTemplate.header(accessProperties.tokenHeader(), authorization);
         }
-    }
-
-    static String newAccessId(String port, ApplicationProperties applicationProperties) {
-        String prefix = "#" + applicationProperties.getClusterId() + port;
-        return GENERATOR.generateIdWithDate(prefix, "", "yyyyMMddHHmmss", 1000);
-    }
-
-    static String newAuthorization(TokenService tokenService, ApplicationProperties applicationProperties) {
-        AccessToken appToken = AccessToken.newToken();
-        appToken.setType(AccessToken.TYPE_APP);
-        appToken.setUserId(-1L);
-        appToken.setDeptId(-1L);
-        appToken.setUsername(applicationProperties.getName());
-        return tokenService.createAccessToken(appToken, 300);
     }
 }

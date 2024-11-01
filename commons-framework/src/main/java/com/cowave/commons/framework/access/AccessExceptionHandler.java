@@ -9,7 +9,7 @@
  */
 package com.cowave.commons.framework.access;
 
-import org.springframework.feign.codec.Response;
+import com.cowave.commons.response.Response;
 
 /**
  *
