@@ -11,39 +11,34 @@ package com.cowave.commons.tools;
 
 import lombok.Getter;
 import org.springframework.feign.codec.HttpCode;
+import org.springframework.feign.codec.ResponseCode;
 
 /**
+ * 不打印异常日志
  *
  * @author shanhuiming
- *
  */
 @Getter
-public class HttpException extends RuntimeException {
+public class HttpHintException extends RuntimeException {
 
     private final int status;
 
     private final String code;
 
-    public HttpException(HttpCode httpCode) {
-        super(httpCode.getMsg());
-        this.code = httpCode.getCode();
-        this.status = httpCode.getStatus();
+    public HttpHintException(String message, Object... args) {
+        super(Messages.translateIfNeed(message, args));
+        this.code = ResponseCode.SYS_ERROR.getCode();
+        this.status = ResponseCode.SYS_ERROR.getStatus();
     }
 
-    public HttpException(HttpCode httpCode, String message, Object... args) {
+    public HttpHintException(HttpCode httpCode, String message, Object... args) {
         super(Messages.translateIfNeed(message, args));
         this.code = httpCode.getCode();
         this.status = httpCode.getStatus();
     }
 
-    public HttpException(int status, String code, String message, Object... args) {
+    public HttpHintException(int status, String code, String message, Object... args) {
         super(Messages.translateIfNeed(message, args));
-        this.code = code;
-        this.status = status;
-    }
-
-    public HttpException(Throwable cause, int status, String code, String message, Object... args) {
-        super(Messages.translateIfNeed(message, args), cause);
         this.code = code;
         this.status = status;
     }

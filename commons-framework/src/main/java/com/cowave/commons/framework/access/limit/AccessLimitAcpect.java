@@ -12,7 +12,7 @@ package com.cowave.commons.framework.access.limit;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.tools.HttpException;
+import com.cowave.commons.tools.HttpHintException;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -109,9 +109,9 @@ public class AccessLimitAcpect {
         long retryAfter = accessLimit.period() / 1000;
         httpServletResponse.setHeader("Retry-After", String.valueOf(retryAfter > 0 ? retryAfter : 1));
         if(accessProperties.isAlwaysSuccess()){
-            throw new HttpException(SUCCESS.getStatus(), TOO_MANY_REQUESTS.getCode(), accessLimit.message());
+            throw new HttpHintException(SUCCESS.getStatus(), TOO_MANY_REQUESTS.getCode(), accessLimit.message());
         }else{
-            throw new HttpException(TOO_MANY_REQUESTS, accessLimit.message());
+            throw new HttpHintException(TOO_MANY_REQUESTS, accessLimit.message());
         }
     }
 }

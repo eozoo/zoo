@@ -53,7 +53,7 @@ public class AccessFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         // 获取accessId
-        String accessId = httpServletRequest.getHeader("Access-Id");
+        String accessId = httpServletRequest.getHeader("X-Request-ID");
         if (StringUtils.isBlank(accessId)) {
             accessId = accessIdGenerator.newAccessId();
         }
@@ -63,7 +63,7 @@ public class AccessFilter implements Filter {
         String xid = httpServletRequest.getHeader("xid");
 
         // 设置响应头 Access-Id
-        httpServletResponse.setHeader("Access-Id", accessId);
+        httpServletResponse.setHeader("X-Request-ID", accessId);
         // 设置响应头 Content-Security-Policy
         if(StringUtils.isNotBlank(accessProperties.getContentSecurityPolicy())){
             httpServletResponse.setHeader("Content-Security-Policy", accessProperties.getContentSecurityPolicy());

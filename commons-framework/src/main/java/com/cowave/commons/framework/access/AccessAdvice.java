@@ -9,9 +9,9 @@
  */
 package com.cowave.commons.framework.access;
 
-import com.cowave.commons.tools.Messages;
+import com.cowave.commons.tools.*;
 import com.cowave.commons.tools.AssertsException;
-import com.cowave.commons.tools.DateUtils;
+import com.cowave.commons.tools.HttpHintException;
 import com.cowave.commons.tools.HttpException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -49,16 +49,12 @@ import static org.springframework.feign.codec.ResponseCode.*;
 @RestControllerAdvice
 public class AccessAdvice {
 
-    // ErrorLog和Response.cause都不记内容
     private static final int ERR_LEVEL_0 = 0;
 
-    // ErrorLog不记，Response.cause记录e.msg
     private static final int ERR_LEVEL_1 = 1;
 
-    // ErrorLog和Response.cause都记e.msg
     private static final int ERR_LEVEL_2 = 2;
 
-    // ErrorLog和Response.cause都记e.stack
     private static final int ERR_LEVEL_3 = 3;
 
     private final AccessLogger accessLogger;
@@ -82,14 +78,43 @@ public class AccessAdvice {
         });
     }
 
-    @ExceptionHandler(HttpException.class)
-    public HttpResponse<Response<Void>> handleHttpException(HttpException e) {
-        return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_3, e.getMessage());
+    /* ***************************************************************************
+     * ERR_LEVEL_0 不打印异常日志，Response不记录cause
+     * ***************************************************************************/
+
+    @ExceptionHandler(HttpHintException.class)
+    public HttpResponse<Response<Void>> handleHttpHintException(HttpHintException e) {
+        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_0, e.getMessage());
     }
 
-    @ExceptionHandler(AssertsException.class)
-    public HttpResponse<Response<Void>> handleAssertsException(AssertsException e) {
-        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_3, e.getMessage());
+    @ExceptionHandler(RemoteAssertsException.class)
+    public HttpResponse<Response<Void>> handleRemoteAssertsException(RemoteAssertsException e) {
+        // 下层服务返回的异常信息，直接透传
+        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_0, e.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public HttpResponse<Response<Void>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
+    }
+
+    @ExceptionHandler(HttpMessageConversionException.class)
+    public HttpResponse<Response<Void>> handleHttpMessageConversionException(HttpMessageConversionException e) {
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, Messages.msg("frame.advice.httpMessageConversionException"));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public HttpResponse<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
+        return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_0, Messages.msg("frame.auth.denied"));
+    }
+
+    /* ***************************************************************************
+     * ERR_LEVEL_1 不打印异常日志，Response.cause记录e.getMessage()
+     * ***************************************************************************/
+
+    @ExceptionHandler(RemoteException.class)
+    public HttpResponse<Response<Void>> handleRemoteException(RemoteException e) {
+        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_1, Messages.msg("frame.remote.failed"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -110,34 +135,32 @@ public class AccessAdvice {
         return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
     }
 
-    @ExceptionHandler(RemoteAssertsException.class)
-    public HttpResponse<Response<Void>> handleRemoteAssertsException(RemoteAssertsException e) {
-        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_0, e.getMessage());
+    /* ***************************************************************************
+     * ERR_LEVEL_2 异常日志打印e.getMessage()，Response.cause记录e.getMessage()
+     * ***************************************************************************/
+
+    @ExceptionHandler(HttpWarnException.class)
+    public HttpResponse<Response<Void>> handleHttpHttpWarnException(HttpWarnException e) {
+        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_2, e.getMessage());
     }
 
-    @ExceptionHandler(RemoteException.class)
-    public HttpResponse<Response<Void>> handleRemoteException(RemoteException e) {
-        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_1, Messages.msg("frame.remote.failed"));
+    /* ***************************************************************************
+     * ERR_LEVEL_3 异常日志打印堆栈，Response.cause记录堆栈信息
+     * ***************************************************************************/
+
+    @ExceptionHandler(HttpException.class)
+    public HttpResponse<Response<Void>> handleHttpException(HttpException e) {
+        return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_3, e.getMessage());
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public HttpResponse<Response<Void>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
-    }
-
-    @ExceptionHandler(HttpMessageConversionException.class)
-    public HttpResponse<Response<Void>> handleHttpMessageConversionException(HttpMessageConversionException e) {
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, Messages.msg("frame.advice.httpMessageConversionException"));
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public HttpResponse<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
-        return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_1, Messages.msg("frame.auth.denied"));
+    @ExceptionHandler(AssertsException.class)
+    public HttpResponse<Response<Void>> handleAssertsException(AssertsException e) {
+        return error(e, SYS_ERROR.getStatus(), SYS_ERROR.getCode(), ERR_LEVEL_3, e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public HttpResponse<Response<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_3, Messages.msg("frame.advice.illegalArgumentException"));
+        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_3, Messages.msg("frame.advice.illegalArgumentException"));
     }
 
     @ExceptionHandler(SQLException.class)
@@ -161,24 +184,29 @@ public class AccessAdvice {
     }
 
     private HttpResponse<Response<Void>> error(Exception e, int httpStatus, String code, int errLevel, String message) {
-        if(errLevel >= ERR_LEVEL_3){
+        // 异常日志
+        if(errLevel == ERR_LEVEL_3){
             AccessLogger.error("", e);
-        }else if(errLevel == ERR_LEVEL_2){
+        }else if(errLevel == ERR_LEVEL_2 && e.getMessage() != null){
             AccessLogger.error(e.getMessage());
         }
+
         // Response
         Response<Void> response = new Response<>(code, message, null);
-        if(errLevel >= ERR_LEVEL_3){
+        if(errLevel == ERR_LEVEL_3){
             try {
                 LinkedList<String> cause = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toCollection(LinkedList::new));
-                cause.addFirst(e.getMessage());
+                if(e.getMessage() != null){
+                    cause.addFirst(e.getMessage());
+                }
                 response.setCause(cause);
             } catch (Exception ex) {
                 AccessLogger.error("", ex);
             }
-        }else if(errLevel >= ERR_LEVEL_1){
+        }else if(errLevel >= ERR_LEVEL_1 && e.getMessage() != null){
             response.setCause(List.of(e.getMessage()));
         }
+
         // HttpResponse
         if(accessProperties.isAlwaysSuccess()){
             httpStatus = SUCCESS.getStatus();
@@ -187,9 +215,9 @@ public class AccessAdvice {
         httpResponse.setMessage(String.format("{code=%s, msg=%s}", code, message));
 
         try {
-            // 打印log
+            // 响应日志
             accessLogger.logResponse(httpResponse);
-            // 自定义处理，比如生成告警
+            // 自定义处理，比如告警
             if (accessExceptionHandler != null) {
                 accessExceptionHandler.handler(e, httpStatus, response);
             }
