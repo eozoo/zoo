@@ -13,6 +13,7 @@ import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.response.exception.Messages;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,13 +44,16 @@ public class SeataInterceptor implements ClientHttpRequestInterceptor {
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        // Header Access-Id
+        // Header X-Request-ID
         String accessId = Access.accessId();
         if(StringUtils.isBlank(accessId)) {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
         }
         request.getHeaders().add("X-Request-ID", accessId);
+
+        // Header Accept-Language
+        request.getHeaders().add("Accept-Language", Messages.getLanguage().getLanguage());
 
         // Header Token
         String authorization = Access.accessToken();

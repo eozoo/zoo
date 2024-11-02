@@ -9,13 +9,13 @@
  */
 package com.cowave.commons.framework.helper.feign.exception;
 
+import com.cowave.commons.response.exception.HttpException;
 import io.seata.core.context.RootContext;
 import io.seata.core.exception.TransactionException;
 import io.seata.tm.api.GlobalTransactionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.feign.FeignExceptionHandler;
-import org.springframework.feign.invoke.RemoteException;
 
 /**
  *
@@ -26,7 +26,7 @@ import org.springframework.feign.invoke.RemoteException;
 public class FeignRollbackHandler implements FeignExceptionHandler {
 
     @Override
-    public void handle(RemoteException e) {
+    public void handle(HttpException e) {
         String xid = RootContext.getXID();
         if(StringUtils.isNotBlank(xid)){
             try {

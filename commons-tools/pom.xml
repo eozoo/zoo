@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.cowave.commons</groupId>
         <artifactId>commons-dependencies</artifactId>
-        <version>2.7.4</version>
+        <version>2.7.5</version>
         <relativePath>../commons-dependencies/pom.xml</relativePath>
     </parent>
 
@@ -85,14 +85,12 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
             <scope>provided</scope>
         </dependency>
         <!-- ssh -->
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.55</version>
             <scope>provided</scope>
         </dependency>
         <!-- geospatial -->

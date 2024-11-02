@@ -3,7 +3,7 @@
 
     <groupId>com.cowave.commons</groupId>
     <artifactId>commons-dependencies</artifactId>
-    <version>2.7.4</version>
+    <version>2.7.5</version>
     <packaging>pom</packaging>
 
     <name>commons-dependencies</name>
@@ -44,7 +44,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skip.pmd>false</skip.pmd>
         <skip.changelog>true</skip.changelog>
-        <cowave.commons.version>2.7.4</cowave.commons.version>
+        <cowave.commons.version>2.7.5</cowave.commons.version>
         <spring.boot.version>2.7.0</spring.boot.version>
         <spring.cloud.version>3.1.5</spring.cloud.version>
         <grpc.version>1.48.2</grpc.version>
@@ -664,18 +664,23 @@ Unless required by applicable law or agreed to in writing, software distributed 
             </dependency>
             <dependency>
                 <groupId>com.cowave.commons</groupId>
+                <artifactId>commons-framework</artifactId>
+                <version>${cowave.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cowave.commons</groupId>
                 <artifactId>dtm-client</artifactId>
-                <version>2.7.3</version>
+                <version>2.7.5</version>
             </dependency>
             <dependency>
                 <groupId>com.cowave.commons</groupId>
                 <artifactId>spring-feign</artifactId>
-                <version>2.7.3</version>
+                <version>2.7.4</version>
             </dependency>
             <dependency>
                 <groupId>com.cowave.commons</groupId>
                 <artifactId>spring-fom</artifactId>
-                <version>2.7.1</version>
+                <version>2.7.2</version>
             </dependency>
             <!-- javax -->
             <dependency>
@@ -773,6 +778,18 @@ Unless required by applicable law or agreed to in writing, software distributed 
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>8.4.3</version>
+            </dependency>
+            <!-- reflections -->
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.10</version>
+            </dependency>
+            <!-- ssh -->
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>0.1.55</version>
             </dependency>
             <!-- other -->
             <dependency>
