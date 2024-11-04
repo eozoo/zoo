@@ -75,6 +75,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- dynamic-tp -->
+        <dependency>
+            <groupId>org.dromara.dynamictp</groupId>
+            <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- reactor -->
         <dependency>
             <groupId>io.projectreactor</groupId>

@@ -49,7 +49,7 @@ import static com.cowave.commons.response.HttpResponseCode.*;
  *
  */
 @SuppressWarnings("deprecation")
-@ConditionalOnClass(WebSecurityConfigurerAdapter.class)
+@ConditionalOnClass({WebSecurityConfigurerAdapter.class, Jwts.class})
 @RequiredArgsConstructor
 @Service
 public class TokenService {

@@ -66,44 +66,81 @@ public class OperationAspect {
 
     @AfterReturning(pointcut = "oplog() && @annotation(operation)", returning = "resp")
     public void doAfter(JoinPoint joinPoint, Operation operation, Object resp) {
-        OperationInfo operationInfo = new OperationInfo();
         EvaluationContext context = new StandardEvaluationContext();
-        prepareOperation(joinPoint, operation, operationInfo, context);
-        // Evaluation参数
-        context.setVariable("resp", resp);
-        context.setVariable("exception", null);
-        // 操作信息
-        operationInfo.setSuccess(true);
-        operationInfo.setSummary(parseSummary(operation, context));
-        context.setVariable("opInfo", operationInfo);
-        // 处理日志
-        handleOperation(operation, context);
+        OperationInfo operationInfo = new OperationInfo();
+        Map<String, Object> argMap = new HashMap<>();
+        if (prepareOperation(joinPoint, operation, argMap, operationInfo, context)) {
+            // Evaluation参数
+            context.setVariable("resp", resp);
+            context.setVariable("exception", null);
+            // 操作信息
+            operationInfo.setSuccess(true);
+            operationInfo.setDesc(parseDesc(operation, context));
+            context.setVariable("opInfo", operationInfo);
+            // 处理日志
+            handleOperation(operation, context);
+        } else {
+            defaultHandle(operationInfo, argMap, resp, null);
+        }
     }
 
     @AfterThrowing(pointcut = "oplog() && @annotation(operation)", throwing = "e")
     public void doThrow(JoinPoint joinPoint, Operation operation, Exception e) {
-        OperationInfo operationInfo = new OperationInfo();
         EvaluationContext context = new StandardEvaluationContext();
-        prepareOperation(joinPoint, operation, operationInfo, context);
-        // Evaluation参数
-        context.setVariable("resp", null);
-        context.setVariable("exception", e);
-        // 操作信息
-        operationInfo.setSuccess(false);
-        operationInfo.setSummary(parseSummary(operation, context));
-        context.setVariable("opInfo", operationInfo);
-        // 处理日志
-        handleOperation(operation, context);
+        OperationInfo operationInfo = new OperationInfo();
+        Map<String, Object> argMap = new HashMap<>();
+        if (prepareOperation(joinPoint, operation, argMap, operationInfo, context)) {
+            // Evaluation参数
+            context.setVariable("resp", null);
+            context.setVariable("exception", e);
+            // 操作信息
+            operationInfo.setSuccess(false);
+            operationInfo.setDesc(parseDesc(operation, context));
+            context.setVariable("opInfo", operationInfo);
+            // 处理日志
+            handleOperation(operation, context);
+        } else {
+            defaultHandle(operationInfo, argMap, null, e);
+        }
     }
 
-    private void prepareOperation(JoinPoint joinPoint, Operation operation, OperationInfo opInfo, EvaluationContext context){
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    public void defaultHandle(OperationInfo operationInfo, Map<String, Object> argMap, Object resp, Exception e){
+        OperationHandler operationHandler;
+        try{
+            operationHandler = applicationContext.getBean(OperationHandler.class);
+        }catch (Exception ex){
+            throw new RuntimeException("Neither 'handleExpr' is specified nor 'OperationHandler' is implemented");
+        }
+        operationHandler.handle(operationInfo, argMap, resp, e);
+    }
+
+    private boolean prepareOperation(JoinPoint joinPoint, Operation operation,
+                                     Map<String, Object> argMap, OperationInfo opInfo, EvaluationContext context){
+        String handleExpr = operation.handleExpr();
+        if(StringUtils.isBlank(handleExpr)){
+            return false;
+        }
+
+        int startIndex = handleExpr.indexOf("#") + 1;
+        int endIndex = handleExpr.indexOf(".");
+        if(startIndex == 0 || endIndex == -1){
+            throw new RuntimeException("invalid handleExpr: " + handleExpr);
+        }
+
+        String handlerBean = handleExpr.substring(startIndex, endIndex);
+        if(!applicationContext.containsBean(handlerBean)){
+            throw new RuntimeException(" can't found bean of " + handlerBean + " in handleExpr: " + handleExpr);
+        }
+
+        // 处理方法
+        context.setVariable(handlerBean, applicationContext.getBean(handlerBean));
+
         // 方法参数
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Object[] args = joinPoint.getArgs();
         // 方法参数名
         String[] paramNames = signature.getParameterNames();
         // 设置EvaluationContext
-        Map<String, Object> argMap = new HashMap<>();
         if(paramNames != null) {
             for (int i = 0; i < args.length; i++) {
                 context.setVariable(paramNames[i], args[i]);
@@ -122,7 +159,7 @@ public class OperationAspect {
                 argMap.put(paramNames[i], args[i]);
             }
         }
-        context.setVariable("opHandler", applicationContext.getBean(operation.handler()));
+
         // 设置OperationInfo
         opInfo.setAccessTime(Access.accessTime());
         opInfo.setAccessIp(Access.accessIp());
@@ -135,16 +172,17 @@ public class OperationAspect {
         opInfo.setOpAction(operation.action());
         opInfo.setOpArgs(argMap);
         opInfo.setOpCost(System.currentTimeMillis() - Access.accessTime().getTime());
+        return true;
     }
 
-    private String parseSummary(Operation operation, EvaluationContext context){
-        String summarySpel = operation.summary();
-        if(StringUtils.isBlank(summarySpel)){
+    private String parseDesc(Operation operation, EvaluationContext context){
+        String descSpel = operation.desc();
+        if(StringUtils.isBlank(descSpel)){
             return "";
         }
 
         try{
-            return exprParser.parseExpression(summarySpel, new TemplateParserContext()).getValue(context, String.class);
+            return exprParser.parseExpression(descSpel, new TemplateParserContext()).getValue(context, String.class);
         }catch(Exception e){
             log.error("", e);
             return "";
@@ -153,10 +191,10 @@ public class OperationAspect {
 
     private void handleOperation(Operation operation, EvaluationContext context){
         if(operation.isAsync()){
-            taskExecutor.execute(() -> exprParser.parseExpression(operation.expr()).getValue(context));
+            taskExecutor.execute(() -> exprParser.parseExpression(operation.handleExpr()).getValue(context));
         }else{
             try{
-                exprParser.parseExpression(operation.expr()).getValue(context);
+                exprParser.parseExpression(operation.handleExpr()).getValue(context);
             }catch (Exception ex){
                 log.error("", ex);
             }

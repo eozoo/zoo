@@ -7,27 +7,34 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.response;
+package com.cowave.commons.framework.access.security;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author shanhuiming
  *
  */
-public interface ResponseCode {
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class SecurityUser {
 
     /**
-     * 状态
+     * 用户名
      */
-    int getStatus();
+    private String username;
 
     /**
-     * 响应码
+     * 用户密码
      */
-    String getCode();
+    private String password;
 
     /**
-     * 响应描述
+     * 用户角色
      */
-    String getMsg();
+    private String[] roles = new String[]{"guest"};
 }

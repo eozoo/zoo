@@ -41,7 +41,7 @@ public @interface Operation {
      * <p> 2.resp: 返回值
      * <p> 3.exception: 异常对象
      */
-    String summary() default "";
+    String desc() default "";
 
     /**
      * 操作处理，支持SPEL，可用参数：
@@ -51,14 +51,9 @@ public @interface Operation {
      * <p> 4.exception: 异常对象
      * <p> 5.opInfo: 操作信息（类型 OperationInfo）
      * <p>
-     * <p> 示例：opHandler.handle(opInfo, resp, exception, ...)
+     * <p> 示例：xxxHandler.doSomething(opInfo, resp, exception, ...)
      */
-    String expr();
-
-    /**
-     * 日志处理类（spring bean）
-     */
-    Class<?> handler();
+    String handleExpr() default "";
 
     /**
      * 是否异步处理

@@ -40,11 +40,11 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
 
     private final String port;
 
-    private final TokenService tokenService;
+    private final ApplicationProperties applicationProperties;
 
     private final AccessProperties accessProperties;
 
-    private final ApplicationProperties applicationProperties;
+    private final TokenService tokenService;
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
@@ -60,13 +60,14 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         request.getHeaders().add("Accept-Language", Messages.getLanguage().getLanguage());
 
         // Header Token
-        String authorization = Access.accessToken();
-        if(StringUtils.isNotBlank(authorization)){
-            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
-        }
-        if(tokenService != null){
-            authorization = newAuthorization(tokenService, applicationProperties);
-            request.getHeaders().add(accessProperties.tokenHeader(), authorization);
+        if (!request.getHeaders().containsKey(accessProperties.tokenHeader())) {
+            String authorization = Access.accessToken();
+            if (StringUtils.isNotBlank(authorization)) {
+                request.getHeaders().add(accessProperties.tokenHeader(), authorization);
+            } else if (tokenService != null) {
+                authorization = newAuthorization(tokenService, applicationProperties);
+                request.getHeaders().add(accessProperties.tokenHeader(), authorization);
+            }
         }
         return execution.execute(request, body);
     }

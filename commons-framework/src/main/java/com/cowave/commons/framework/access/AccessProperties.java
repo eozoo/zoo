@@ -9,8 +9,11 @@
  */
 package com.cowave.commons.framework.access;
 
+import com.cowave.commons.framework.access.security.SecurityUser;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
 
 /**
  *
@@ -47,6 +50,16 @@ public class AccessProperties {
      * Access鉴权配置
      */
     private TokenConfig token;
+
+    /**
+     * security默认用户
+     */
+    private List<SecurityUser> securityUsers = List.of(new SecurityUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
+
+    /**
+     * security默认需要认证的url
+     */
+    private String[] securityUrls = new String[]{"/actuator/**"};
 
     public String tokenHeader(){
         if(token != null){

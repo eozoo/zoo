@@ -23,8 +23,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import lombok.Data;
-
 import java.util.List;
 
 /**
@@ -33,10 +31,8 @@ import java.util.List;
  *
  */
 @Slf4j
-@Data
-//@EnableFeign TODO
-@EnableAspectJAutoProxy(exposeProxy = true)
 @ComponentScan(basePackages = "com.cowave")
+@EnableAspectJAutoProxy(exposeProxy = true)
 @EnableConfigurationProperties({ApplicationProperties.class})
 public class ApplicationConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 

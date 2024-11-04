@@ -41,20 +41,21 @@ public class FeignHeaderInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate requestTemplate) {
         // Header Access-Id
         String accessId = Access.accessId();
-        if(StringUtils.isBlank(accessId)) {
+        if (StringUtils.isBlank(accessId)) {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
             log.debug(">< new access-id: {}", accessId);
         }
         requestTemplate.header("X-Request-ID", accessId);
 
         // Header Token
-        String authorization = Access.accessToken();
-        if(StringUtils.isNotBlank(authorization)){
-            requestTemplate.header(accessProperties.tokenHeader(), authorization);
-        }
-        if(tokenService != null){
-            authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
-            requestTemplate.header(accessProperties.tokenHeader(), authorization);
+        if (!requestTemplate.headers().containsKey(accessProperties.tokenHeader())) {
+            String authorization = Access.accessToken();
+            if (StringUtils.isNotBlank(authorization)) {
+                requestTemplate.header(accessProperties.tokenHeader(), authorization);
+            } else if (tokenService != null) {
+                authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
+                requestTemplate.header(accessProperties.tokenHeader(), authorization);
+            }
         }
     }
 }

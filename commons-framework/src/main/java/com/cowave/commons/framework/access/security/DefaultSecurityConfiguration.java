@@ -9,6 +9,8 @@
  */
 package com.cowave.commons.framework.access.security;
 
+import com.cowave.commons.framework.access.AccessProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -17,24 +19,59 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.List;
+
 /**
- *
  * @author shanhuiming
- *
  */
 @ConditionalOnClass(SecurityFilterChain.class)
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class DefaultSecurityConfiguration {
+
+    private final AccessProperties accessProperties;
 
     @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().anyRequest().authenticated().and()
-                .formLogin().disable().logout().permitAll().and().build();
+        // 无状态会话
+        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        // 取消X-Frame-Options，允许嵌入到<iframe>
+        httpSecurity.headers().frameOptions().disable();
+        // 允许跨域
+        httpSecurity.csrf().disable();
+        // username:password Base64编码
+        httpSecurity.httpBasic();
+        // 需要认证的Url
+        httpSecurity.authorizeRequests()
+                .antMatchers(accessProperties.getSecurityUrls()).authenticated().anyRequest().permitAll();
+        return httpSecurity.build();
+    }
+
+    @ConditionalOnMissingBean(UserDetailsService.class)
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        List<SecurityUser> userList = accessProperties.getSecurityUsers();
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        for (SecurityUser user : userList) {
+            manager.createUser(User.withUsername(user.getUsername())
+                    .password(passwordEncoder.encode(user.getPassword()))
+                    .roles(user.getRoles()).build());
+        }
+        return manager;
+    }
+
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

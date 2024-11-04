@@ -112,13 +112,12 @@
             <artifactId>janino</artifactId>
         </dependency>
         <!-- ================provided================ -->
-        <!--
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        -->
+        <!---->
         <!-- spring-feign -->
         <dependency>
             <groupId>com.cowave.commons</groupId>
@@ -137,27 +136,17 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- mybatis-plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.dromara.dynamictp</groupId>
-            <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- seata -->
         <dependency>
-            <groupId>io.seata</groupId>
+            <groupId>org.apache.seata</groupId>
             <artifactId>seata-spring-boot-starter</artifactId>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>druid</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- druid -->
         <dependency>
@@ -219,12 +208,13 @@
             <artifactId>minio</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- jwt -->
+        <!-- spring-security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- jjwt -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>

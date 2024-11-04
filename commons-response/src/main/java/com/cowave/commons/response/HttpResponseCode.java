@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2017～2024 Cowave All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ */
 package com.cowave.commons.response;
 
 /**
@@ -7,9 +16,9 @@ package com.cowave.commons.response;
  */
 public enum HttpResponseCode implements ResponseCode {
 
-    /* ******************************************
+    /* ********************************************************************************
      * 1.xx Informational
-     * ******************************************/
+     * ********************************************************************************/
 
     /**
      * @see <a href="https://http.dev/100">100 Continue</a>
@@ -31,9 +40,9 @@ public enum HttpResponseCode implements ResponseCode {
      */
     EARLY_HINTS(103, "103", "Early Hints"),
 
-    /* ******************************************
+    /* ********************************************************************************
      * 2.xx Success
-     * ******************************************/
+     * ********************************************************************************/
 
     /**
      * @see <a href="https://http.dev/200">200 Success</a>
@@ -90,9 +99,9 @@ public enum HttpResponseCode implements ResponseCode {
      */
     IM_USED(226, "226", "IM Used"),
 
-    /* ******************************************
+    /* ********************************************************************************
      * 3.xx Redirection
-     * ******************************************/
+     * ********************************************************************************/
 
     /**
      * @see <a href="https://http.dev/300">300 Multiple Choices</a>
@@ -139,9 +148,9 @@ public enum HttpResponseCode implements ResponseCode {
      */
     PERMANENT_REDIRECT(308, "308", "Permanent Redirect"),
 
-    /* ******************************************
+    /* ********************************************************************************
      * 4.xx Client Error
-     * ******************************************/
+     * ********************************************************************************/
 
     /**
      * @see <a href="https://http.dev/400">400 Bad Request</a>
@@ -368,9 +377,9 @@ public enum HttpResponseCode implements ResponseCode {
      */
     TOKEN_REQUIRED_OR_CLIENT_CLOSED_REQUEST(499, "499", "Token Required or Client Closed Request"),
 
-    /* ******************************************
+    /* ********************************************************************************
      * 5.xx Server Error
-     * ******************************************/
+     * ********************************************************************************/
 
     /**
      * @see <a href="https://http.dev/500">500 Internal Server Error</a>
@@ -497,9 +506,10 @@ public enum HttpResponseCode implements ResponseCode {
      */
     NETWORK_CONNECT_TIMEOUT_ERROR(599, "599", "Network Connect Timeout Error"),
 
-    /* ******************************************
-     * 5.xx Other Error
-     * ******************************************/
+    /* ********************************************************************************
+     * In addition to the five primary categories of HTTP status codes mentioned above,
+     * the following status codes can also be encountered on the World Wide Web
+     * ********************************************************************************/
 
     /**
      * 597 服务出错

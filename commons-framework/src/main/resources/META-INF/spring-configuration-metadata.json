@@ -1,14 +1,39 @@
 {
   "groups": [
     {
-      "name": "spring.application",
-      "type": "com.cowave.commons.framework.configuration.ApplicationProperties",
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
+      "name": "management.endpoint.git",
+      "type": "com.cowave.commons.framework.support.actuator.GitEndpoint",
+      "sourceType": "com.cowave.commons.framework.support.actuator.GitEndpoint"
     },
     {
       "name": "spring.access",
       "type": "com.cowave.commons.framework.access.AccessProperties",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.control",
+      "type": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.token",
+      "type": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.application",
+      "type": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.cache",
+      "type": "com.cowave.commons.framework.helper.redis.cache.CacheProperties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties"
+    },
+    {
+      "name": "spring.cache.l1",
+      "type": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties"
     },
     {
       "name": "spring.datasource",
@@ -29,57 +54,1444 @@
       "name": "spring.socket-io",
       "type": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties"
-    },
-    {
-      "name": "spring.cache.l2",
-      "type": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties"
     }
   ],
   "properties": [
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
-      "name": "spring.application.name",
-      "type": "java.lang.String",
-      "description": "应用名称"
+      "name": "common.kafka.admin",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getAdmin()"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
-      "name": "spring.application.version",
+      "name": "common.kafka.admin.client-id",
       "type": "java.lang.String",
-      "description": "应用版本"
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
-      "name": "spring.application.namespace",
-      "type": "java.lang.String",
-      "description": "命名空间 Redis缓存"
+      "name": "common.kafka.admin.fail-fast",
+      "type": "java.lang.Boolean",
+      "description": "Whether to fail fast if the broker is not available on startup.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "defaultValue": false
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "name": "common.kafka.admin.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional admin-specific properties used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"
+    },
+    {
+      "name": "common.kafka.admin.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "common.kafka.admin.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "common.kafka.admin.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "common.kafka.admin.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.admin.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Applies to all components unless overridden.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
+    },
+    {
+      "name": "common.kafka.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
+    },
+    {
+      "name": "common.kafka.consumer",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getConsumer()"
+    },
+    {
+      "name": "common.kafka.consumer.auto-commit-interval",
+      "type": "java.time.Duration",
+      "description": "Frequency with which the consumer offsets are auto-committed to Kafka if 'enable.auto.commit' is set to true.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.auto-offset-reset",
+      "type": "java.lang.String",
+      "description": "What to do when there is no initial offset in Kafka or if the current offset no longer exists on the server.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for consumers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.enable-auto-commit",
+      "type": "java.lang.Boolean",
+      "description": "Whether the consumer's offset is periodically committed in the background.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.fetch-max-wait",
+      "type": "java.time.Duration",
+      "description": "Maximum amount of time the server blocks before answering the fetch request if there isn't sufficient data to immediately satisfy the requirement given by \"fetch-min-size\".",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.fetch-min-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Minimum amount of data the server should return for a fetch request.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.group-id",
+      "type": "java.lang.String",
+      "description": "Unique string that identifies the consumer group to which this consumer belongs.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.heartbeat-interval",
+      "type": "java.time.Duration",
+      "description": "Expected time between heartbeats to the consumer coordinator.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.isolation-level",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$IsolationLevel",
+      "description": "Isolation level for reading messages that have been written transactionally.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "defaultValue": "read-uncommitted"
+    },
+    {
+      "name": "common.kafka.consumer.key-deserializer",
+      "type": "java.lang.Class<?>",
+      "description": "Deserializer class for keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.max-poll-records",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of records returned in a single call to poll().",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional consumer-specific properties used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.consumer.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "common.kafka.consumer.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "common.kafka.consumer.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.consumer.value-deserializer",
+      "type": "java.lang.Class<?>",
+      "description": "Deserializer class for values.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "common.kafka.jaas",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getJaas()"
+    },
+    {
+      "name": "common.kafka.jaas.control-flag",
+      "type": "org.springframework.kafka.security.jaas.KafkaJaasLoginModuleInitializer$ControlFlag",
+      "description": "Control flag for login configuration.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "defaultValue": "required"
+    },
+    {
+      "name": "common.kafka.jaas.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable JAAS configuration.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.jaas.login-module",
+      "type": "java.lang.String",
+      "description": "Login module.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "defaultValue": "com.sun.security.auth.module.Krb5LoginModule"
+    },
+    {
+      "name": "common.kafka.jaas.options",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional JAAS options.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas"
+    },
+    {
+      "name": "common.kafka.listener",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getListener()"
+    },
+    {
+      "name": "common.kafka.listener.ack-count",
+      "type": "java.lang.Integer",
+      "description": "Number of records between offset commits when ackMode is \"COUNT\" or \"COUNT_TIME\".",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.ack-mode",
+      "type": "org.springframework.kafka.listener.ContainerProperties$AckMode",
+      "description": "Listener AckMode. See the spring-kafka documentation.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.ack-time",
+      "type": "java.time.Duration",
+      "description": "Time between offset commits when ackMode is \"TIME\" or \"COUNT_TIME\".",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.client-id",
+      "type": "java.lang.String",
+      "description": "Prefix for the listener's consumer client.id property.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.concurrency",
+      "type": "java.lang.Integer",
+      "description": "Number of threads to run in the listener containers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.idle-between-polls",
+      "type": "java.time.Duration",
+      "description": "Sleep interval between Consumer.poll(Duration) calls.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.kafka.listener.idle-event-interval",
+      "type": "java.time.Duration",
+      "description": "Time between publishing idle consumer events (no data received).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.idle-partition-event-interval",
+      "type": "java.time.Duration",
+      "description": "Time between publishing idle partition consumer events (no data received for partition).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.immediate-stop",
+      "type": "java.lang.Boolean",
+      "description": "Whether the container stops after the current record is processed or after all the records from the previous poll are processed.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.listener.log-container-config",
+      "type": "java.lang.Boolean",
+      "description": "Whether to log the container configuration during initialization (INFO level).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.missing-topics-fatal",
+      "type": "java.lang.Boolean",
+      "description": "Whether the container should fail to start if at least one of the configured topics are not present on the broker.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.listener.monitor-interval",
+      "type": "java.time.Duration",
+      "description": "Time between checks for non-responsive consumers. If a duration suffix is not specified, seconds will be used.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.no-poll-threshold",
+      "type": "java.lang.Float",
+      "description": "Multiplier applied to \"pollTimeout\" to determine if a consumer is non-responsive.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.poll-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout to use when polling the consumer.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "common.kafka.listener.type",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener$Type",
+      "description": "Listener type.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": "single"
+    },
+    {
+      "name": "common.kafka.producer",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getProducer()"
+    },
+    {
+      "name": "common.kafka.producer.acks",
+      "type": "java.lang.String",
+      "description": "Number of acknowledgments the producer requires the leader to have received before considering a request complete.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.batch-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Default batch size. A small batch size will make batching less common and may reduce throughput (a batch size of zero disables batching entirely).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for producers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.buffer-memory",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Total memory size the producer can use to buffer records waiting to be sent to the server.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.compression-type",
+      "type": "java.lang.String",
+      "description": "Compression type for all data generated by the producer.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.key-serializer",
+      "type": "java.lang.Class<?>",
+      "description": "Serializer class for keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional producer-specific properties used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.retries",
+      "type": "java.lang.Integer",
+      "description": "When greater than zero, enables retrying of failed sends.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "common.kafka.producer.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "common.kafka.producer.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "common.kafka.producer.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.producer.transaction-id-prefix",
+      "type": "java.lang.String",
+      "description": "When non empty, enables transaction support for producer.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.producer.value-serializer",
+      "type": "java.lang.Class<?>",
+      "description": "Serializer class for values.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "common.kafka.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional properties, common to producers and consumers, used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
+    },
+    {
+      "name": "common.kafka.retry",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getRetry()"
+    },
+    {
+      "name": "common.kafka.retry.topic",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
+      "sourceMethod": "getTopic()"
+    },
+    {
+      "name": "common.kafka.retry.topic.attempts",
+      "type": "java.lang.Integer",
+      "description": "Total number of processing attempts made before sending the message to the DLT.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": 3
+    },
+    {
+      "name": "common.kafka.retry.topic.delay",
+      "type": "java.time.Duration",
+      "description": "Canonical backoff period. Used as an initial value in the exponential case, and as a minimum value in the uniform case.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": "1s"
+    },
+    {
+      "name": "common.kafka.retry.topic.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable topic-based non-blocking retries.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.retry.topic.max-delay",
+      "type": "java.time.Duration",
+      "description": "Maximum wait between retries. If less than the delay then the default of 30 seconds is applied.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.kafka.retry.topic.multiplier",
+      "type": "java.lang.Double",
+      "description": "Multiplier to use for generating the next backoff delay.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.kafka.retry.topic.random-back-off",
+      "type": "java.lang.Boolean",
+      "description": "Whether to have the backoff delays.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "common.kafka.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "common.kafka.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "common.kafka.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getStreams()"
+    },
+    {
+      "name": "common.kafka.streams.application-id",
+      "type": "java.lang.String",
+      "description": "Kafka streams application.id property; default spring.application.name.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.streams.auto-startup",
+      "type": "java.lang.Boolean",
+      "description": "Whether or not to auto-start the streams factory bean.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "defaultValue": true
+    },
+    {
+      "name": "common.kafka.streams.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for streams.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.streams.cache-max-size-buffering",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Maximum memory size to be used for buffering across all threads.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.streams.cleanup",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceMethod": "getCleanup()"
+    },
+    {
+      "name": "common.kafka.streams.cleanup.on-shutdown",
+      "type": "java.lang.Boolean",
+      "description": "Cleanup the application’s local state directory on shutdown.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.streams.cleanup.on-startup",
+      "type": "java.lang.Boolean",
+      "description": "Cleanup the application’s local state directory on startup.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
+      "defaultValue": false
+    },
+    {
+      "name": "common.kafka.streams.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.streams.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional Kafka properties used to configure the streams.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.streams.replication-factor",
+      "type": "java.lang.Integer",
+      "description": "The replication factor for change log topics and repartition topics created by the stream processing application.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.streams.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "common.kafka.streams.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "common.kafka.streams.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "common.kafka.streams.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "common.kafka.streams.state-dir",
+      "type": "java.lang.String",
+      "description": "Directory location for the state store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "common.kafka.template",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getTemplate()"
+    },
+    {
+      "name": "common.kafka.template.default-topic",
+      "type": "java.lang.String",
+      "description": "Default topic to which messages are sent.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template"
+    },
+    {
+      "name": "common.kafka.template.transaction-id-prefix",
+      "type": "java.lang.String",
+      "description": "Transaction id prefix, override the transaction id prefix in the producer factory.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template"
+    },
+    {
+      "name": "common.redis.client-name",
+      "type": "java.lang.String",
+      "description": "Client name to be set on connections with CLIENT SETNAME.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "common.redis.client-type",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$ClientType",
+      "description": "Type of client to use. By default, auto-detected according to the classpath.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "common.redis.cluster",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getCluster()"
+    },
+    {
+      "name": "common.redis.cluster.max-redirects",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of redirects to follow when executing commands across the cluster.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
+    },
+    {
+      "name": "common.redis.cluster.nodes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-separated list of \"host:port\" pairs to bootstrap from. This represents an \"initial\" list of cluster nodes and is required to have at least one entry.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
+    },
+    {
+      "name": "common.redis.connect-timeout",
+      "type": "java.time.Duration",
+      "description": "Connection timeout.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "common.redis.database",
+      "type": "java.lang.Integer",
+      "description": "Database index used by the connection factory.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.redis.host",
+      "type": "java.lang.String",
+      "description": "Redis server host.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "common.redis.jedis",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getJedis()"
+    },
+    {
+      "name": "common.redis.jedis.pool",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
+      "sourceMethod": "getPool()"
+    },
+    {
+      "name": "common.redis.jedis.pool.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "common.redis.jedis.pool.max-active",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "common.redis.jedis.pool.max-idle",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "common.redis.jedis.pool.max-wait",
+      "type": "java.time.Duration",
+      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": "-1ms"
+    },
+    {
+      "name": "common.redis.jedis.pool.min-idle",
+      "type": "java.lang.Integer",
+      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.redis.jedis.pool.time-between-eviction-runs",
+      "type": "java.time.Duration",
+      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "common.redis.lettuce",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getLettuce()"
+    },
+    {
+      "name": "common.redis.lettuce.cluster",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "sourceMethod": "getCluster()"
+    },
+    {
+      "name": "common.redis.lettuce.cluster.refresh",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
+      "sourceMethod": "getRefresh()"
+    },
+    {
+      "name": "common.redis.lettuce.cluster.refresh.adaptive",
+      "type": "java.lang.Boolean",
+      "description": "Whether adaptive topology refreshing using all available refresh triggers should be used.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
+      "defaultValue": false
+    },
+    {
+      "name": "common.redis.lettuce.cluster.refresh.dynamic-refresh-sources",
+      "type": "java.lang.Boolean",
+      "description": "Whether to discover and query all cluster nodes for obtaining the cluster topology. When set to false, only the initial seed nodes are used as sources for topology discovery.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
+      "defaultValue": true
+    },
+    {
+      "name": "common.redis.lettuce.cluster.refresh.period",
+      "type": "java.time.Duration",
+      "description": "Cluster topology refresh period.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh"
+    },
+    {
+      "name": "common.redis.lettuce.pool",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "sourceMethod": "getPool()"
+    },
+    {
+      "name": "common.redis.lettuce.pool.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "common.redis.lettuce.pool.max-active",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "common.redis.lettuce.pool.max-idle",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "common.redis.lettuce.pool.max-wait",
+      "type": "java.time.Duration",
+      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": "-1ms"
+    },
+    {
+      "name": "common.redis.lettuce.pool.min-idle",
+      "type": "java.lang.Integer",
+      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 0
+    },
+    {
+      "name": "common.redis.lettuce.pool.time-between-eviction-runs",
+      "type": "java.time.Duration",
+      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "common.redis.lettuce.shutdown-timeout",
+      "type": "java.time.Duration",
+      "description": "Shutdown timeout.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "defaultValue": "100ms"
+    },
+    {
+      "name": "common.redis.password",
+      "type": "java.lang.String",
+      "description": "Login password of the redis server.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "common.redis.port",
+      "type": "java.lang.Integer",
+      "description": "Redis server port.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": 6379
+    },
+    {
+      "name": "common.redis.sentinel",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getSentinel()"
+    },
+    {
+      "name": "common.redis.sentinel.master",
+      "type": "java.lang.String",
+      "description": "Name of the Redis server.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "common.redis.sentinel.nodes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-separated list of \"host:port\" pairs.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "common.redis.sentinel.password",
+      "type": "java.lang.String",
+      "description": "Password for authenticating with sentinel(s).",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "common.redis.sentinel.username",
+      "type": "java.lang.String",
+      "description": "Login username for authenticating with sentinel(s).",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "common.redis.ssl",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable SSL support.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "common.redis.timeout",
+      "type": "java.time.Duration",
+      "description": "Read timeout.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "common.redis.url",
+      "type": "java.lang.String",
+      "description": "Connection URL. Overrides host, port, and password. User is ignored. Example: redis:\/\/user:password@example.com:6379",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "common.redis.username",
+      "type": "java.lang.String",
+      "description": "Login username of the redis server.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "management.endpoint.git.cache.time-to-live",
+      "type": "java.time.Duration",
+      "description": "Maximum time that a response can be cached.",
+      "sourceType": "com.cowave.commons.framework.support.actuator.GitEndpoint",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "management.endpoint.git.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable the git endpoint.",
+      "sourceType": "com.cowave.commons.framework.support.actuator.GitEndpoint",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.always-success",
+      "type": "java.lang.Boolean",
+      "description": "AccessResponse是否永远200",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.access.content-security-policy",
+      "type": "java.lang.String",
+      "description": "CSP白名单 <p\/> script-src 'self' <p\/> default-src * data: blob: 'unsafe-inline' 'unsafe-eval'",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.control.allow-credentials",
+      "type": "java.lang.Boolean",
+      "description": "跨域调用允许包含用户凭据",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.control.allow-headers",
+      "type": "java.lang.String",
+      "description": "跨域调用允许的Header",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
+      "defaultValue": "*"
+    },
+    {
+      "name": "spring.access.control.allow-methods",
+      "type": "java.lang.String",
+      "description": "跨域调用允许的方法",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
+      "defaultValue": "*"
+    },
+    {
+      "name": "spring.access.control.allow-origin",
+      "type": "java.lang.String",
+      "description": "跨域调用允许的域名",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
+      "defaultValue": "*"
+    },
+    {
+      "name": "spring.access.patterns",
+      "type": "java.lang.String[]",
+      "description": "AccessFilter拦截的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
+      "defaultValue": [
+        "\/*"
+      ]
+    },
+    {
+      "name": "spring.access.security-urls",
+      "type": "java.lang.String[]",
+      "description": "security默认需要认证的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
+      "defaultValue": [
+        "\/actuator\/**"
+      ]
+    },
+    {
+      "name": "spring.access.security-users",
+      "type": "java.util.List<com.cowave.commons.framework.access.security.SecurityUser>",
+      "description": "security默认用户",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.token.access-expire",
+      "type": "java.lang.Integer",
+      "description": "accessToken超时",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": 3600
+    },
+    {
+      "name": "spring.access.token.accessExpire",
+      "type": "java.lang.Integer",
+      "description": "access token超时[单位秒]",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": 3600
+    },
+    {
+      "name": "spring.access.token.conflict",
+      "type": "java.lang.Boolean",
+      "description": "是否检查冲突",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.access.token.header",
+      "type": "java.lang.String",
+      "description": "header名称",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": "Authorization"
+    },
+    {
+      "name": "spring.access.token.ignore-urls",
+      "type": "java.lang.String[]",
+      "description": "忽略鉴权的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig"
+    },
+    {
+      "name": "spring.access.token.namespace",
+      "type": "java.lang.String",
+      "description": "Token的缓存namespace",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": ""
+    },
+    {
+      "name": "spring.access.token.refresh-expire",
+      "type": "java.lang.Integer",
+      "description": "refreshToken超时",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "spring.access.token.refreshExpire",
+      "type": "java.lang.Integer",
+      "description": "refresh token超时[单位秒]",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": 604800
+    },
+    {
+      "name": "spring.access.token.salt",
+      "type": "java.lang.String",
+      "description": "秘钥",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "defaultValue": "admin@cowave.com"
+    },
+    {
       "name": "spring.application.cluster-id",
       "type": "java.lang.Integer",
-      "defaultValue": 10,
-      "description": "集群id"
+      "description": "集群id",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "defaultValue": 10
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
       "name": "spring.application.cluster-level",
       "type": "java.lang.Integer",
-      "defaultValue": 1,
-      "description": "集群Level"
+      "description": "集群等级",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "defaultValue": 1
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
       "name": "spring.application.cluster-name",
       "type": "java.lang.String",
-      "defaultValue": "default",
-      "description": "集群名称"
+      "description": "集群名称",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
+      "defaultValue": "default"
     },
     {
-      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties",
       "name": "spring.application.cluster-properties",
       "type": "java.util.Map<java.lang.String,java.lang.Object>",
-      "description": "集群属性"
+      "description": "集群属性",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.application.name",
+      "type": "java.lang.String",
+      "description": "应用名称",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.application.namespace",
+      "type": "java.lang.String",
+      "description": "命名空间 Redis缓存",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.application.version",
+      "type": "java.lang.String",
+      "description": "应用版本",
+      "sourceType": "com.cowave.commons.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.cache.l1.enable",
+      "type": "java.lang.Boolean",
+      "description": "启用一级缓存",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.cache.l1.expire-after-access",
+      "type": "java.lang.Long",
+      "description": "访问后过期时间，单位秒",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.expire-after-write",
+      "type": "java.lang.Long",
+      "description": "写入后过期时间，单位秒",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.initial-capacity",
+      "type": "java.lang.Integer",
+      "description": "初始化大小",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.maximum-size",
+      "type": "java.lang.Long",
+      "description": "最大缓存对象个数，超过此数量时之前放入的缓存将失效",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.refresh-after-write",
+      "type": "java.lang.Long",
+      "description": "写入后刷新时间，单位秒",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l2",
+      "type": "java.util.Map<java.lang.Object,com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties>",
+      "description": "L2 Redis缓存配置，区分Key",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties"
+    },
+    {
+      "name": "spring.cache.l2[enable]",
+      "type": "java.lang.Boolean",
+      "description": "启用本地缓存",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.cache.l2[expireAfterAccess]",
+      "type": "java.lang.Integer",
+      "description": "访问后过期时间，单位秒",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": 60
+    },
+    {
+      "name": "spring.cache.l2[expireAfterWrite]",
+      "type": "java.lang.Integer",
+      "description": "写入后过期时间，单位秒",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": 60
+    },
+    {
+      "name": "spring.cache.l2[first]",
+      "type": "java.lang.Boolean",
+      "description": "优先二级缓存",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.cache.log-enable",
+      "type": "java.lang.Boolean",
+      "description": "打印过程日志",
+      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties",
+      "defaultValue": false
     },
     {
       "name": "spring.datasource.druid.access-to-underlying-connection-allowed",
@@ -557,6 +1969,13 @@
       "defaultValue": 1
     },
     {
+      "name": "spring.socket-io.context-path",
+      "type": "java.lang.String",
+      "description": "socket路径",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": "\/socket.io"
+    },
+    {
       "name": "spring.socket-io.host",
       "type": "java.lang.String",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties"
@@ -564,42 +1983,41 @@
     {
       "name": "spring.socket-io.max-frame-payload-length",
       "type": "java.lang.Integer",
+      "description": "每帧处理数据的最大长度，防止他人利用大数据来攻击服务器",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1048576
     },
     {
       "name": "spring.socket-io.max-http-content-length",
       "type": "java.lang.Integer",
+      "description": "http交互最大内容长度",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1048576
     },
     {
       "name": "spring.socket-io.ping-interval",
       "type": "java.lang.Integer",
+      "description": "客户端向服务器发送心跳周期",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 25000
     },
     {
       "name": "spring.socket-io.ping-timeout",
       "type": "java.lang.Integer",
+      "description": "间隔内没有接收到心跳就会发送超时事件",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 6000000
     },
     {
       "name": "spring.socket-io.port",
       "type": "java.lang.Integer",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
-      "defaultValue": 0
-    },
-    {
-      "name": "spring.socket-io.context-path",
-      "type": "java.lang.String",
-      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
-      "defaultValue": "/socket.io"
+      "description": "socket端口，默认复用Http端口",
+      "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties"
     },
     {
       "name": "spring.socket-io.upgrade-timeout",
       "type": "java.lang.Integer",
+      "description": "HTTP握手升级为ws协议超时时间，默认10秒",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 1000000
     },
@@ -608,6 +2026,17 @@
       "type": "java.lang.Integer",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "defaultValue": 100
+    },
+    {
+      "name": "common.kafka.listener.only-log-record-metadata",
+      "type": "java.lang.Boolean",
+      "description": "Whether to suppress the entire record from being written to the log when retries are being attempted.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": true,
+      "deprecated": true,
+      "deprecation": {
+        "reason": "Use KafkaUtils#setConsumerRecordFormatter instead."
+      }
     },
     {
       "name": "spring.datasource.druid.max-idle",
@@ -622,1625 +2051,6 @@
       "sourceType": "com.cowave.commons.framework.helper.datasource.druid.DruidDataSourceWrapper",
       "deprecated": true,
       "deprecation": {}
-    },
-    {
-      "name": "common.redis",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "description": "公共Redis环境."
-    },
-    {
-      "name": "common.redis.cluster",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getCluster()"
-    },
-    {
-      "name": "common.redis.jedis",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getJedis()"
-    },
-    {
-      "name": "common.redis.jedis.pool",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
-      "sourceMethod": "getPool()"
-    },
-    {
-      "name": "common.redis.lettuce",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getLettuce()"
-    },
-    {
-      "name": "common.redis.lettuce.cluster",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceMethod": "getCluster()"
-    },
-    {
-      "name": "common.redis.lettuce.cluster.refresh",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
-      "sourceMethod": "getRefresh()"
-    },
-    {
-      "name": "common.redis.lettuce.pool",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceMethod": "getPool()"
-    },
-    {
-      "name": "common.redis.sentinel",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getSentinel()"
-    },
-    {
-      "name": "common.redis.client-name",
-      "type": "java.lang.String",
-      "description": "Client name to be set on connections with CLIENT SETNAME.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.redis.client-type",
-      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$ClientType",
-      "description": "Type of client to use. By default, auto-detected according to the classpath.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.redis.cluster.max-redirects",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of redirects to follow when executing commands across the cluster.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
-    },
-    {
-      "name": "common.redis.cluster.nodes",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-separated list of \"host:port\" pairs to bootstrap from. This represents an \"initial\" list of cluster nodes and is required to have at least one entry.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
-    },
-    {
-      "name": "common.redis.connect-timeout",
-      "type": "java.time.Duration",
-      "description": "Connection timeout.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.redis.database",
-      "type": "java.lang.Integer",
-      "description": "Database index used by the connection factory.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": 0
-    },
-    {
-      "name": "common.redis.host",
-      "type": "java.lang.String",
-      "description": "Redis server host.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": "localhost"
-    },
-    {
-      "name": "common.redis.jedis.pool.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "common.redis.jedis.pool.max-active",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "common.redis.jedis.pool.max-idle",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "common.redis.jedis.pool.max-wait",
-      "type": "java.time.Duration",
-      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": "-1ms"
-    },
-    {
-      "name": "common.redis.jedis.pool.min-idle",
-      "type": "java.lang.Integer",
-      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 0
-    },
-    {
-      "name": "common.redis.jedis.pool.time-between-eviction-runs",
-      "type": "java.time.Duration",
-      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "common.redis.lettuce.cluster.refresh.adaptive",
-      "type": "java.lang.Boolean",
-      "description": "Whether adaptive topology refreshing using all available refresh triggers should be used.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "defaultValue": false
-    },
-    {
-      "name": "common.redis.lettuce.cluster.refresh.dynamic-refresh-sources",
-      "type": "java.lang.Boolean",
-      "description": "Whether to discover and query all cluster nodes for obtaining the cluster topology. When set to false, only the initial seed nodes are used as sources for topology discovery.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "defaultValue": true
-    },
-    {
-      "name": "common.redis.lettuce.cluster.refresh.period",
-      "type": "java.time.Duration",
-      "description": "Cluster topology refresh period.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh"
-    },
-    {
-      "name": "common.redis.lettuce.pool.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "common.redis.lettuce.pool.max-active",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "common.redis.lettuce.pool.max-idle",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 8
-    },
-    {
-      "name": "common.redis.lettuce.pool.max-wait",
-      "type": "java.time.Duration",
-      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": "-1ms"
-    },
-    {
-      "name": "common.redis.lettuce.pool.min-idle",
-      "type": "java.lang.Integer",
-      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "defaultValue": 0
-    },
-    {
-      "name": "common.redis.lettuce.pool.time-between-eviction-runs",
-      "type": "java.time.Duration",
-      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
-    },
-    {
-      "name": "common.redis.lettuce.shutdown-timeout",
-      "type": "java.time.Duration",
-      "description": "Shutdown timeout.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "defaultValue": "100ms"
-    },
-    {
-      "name": "common.redis.password",
-      "type": "java.lang.String",
-      "description": "Login password of the redis server.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.redis.port",
-      "type": "java.lang.Integer",
-      "description": "Redis server port.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": 6379
-    },
-    {
-      "name": "common.redis.sentinel.master",
-      "type": "java.lang.String",
-      "description": "Name of the Redis server.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "common.redis.sentinel.nodes",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-separated list of \"host:port\" pairs.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "common.redis.sentinel.password",
-      "type": "java.lang.String",
-      "description": "Password for authenticating with sentinel(s).",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "common.redis.sentinel.username",
-      "type": "java.lang.String",
-      "description": "Login username for authenticating with sentinel(s).",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
-    },
-    {
-      "name": "common.redis.ssl",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable SSL support.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "defaultValue": false
-    },
-    {
-      "name": "common.redis.timeout",
-      "type": "java.time.Duration",
-      "description": "Read timeout.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.redis.url",
-      "type": "java.lang.String",
-      "description": "Connection URL. Overrides host, port, and password. User is ignored. Example: redis:\/\/user:password@example.com:6379",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.redis.username",
-      "type": "java.lang.String",
-      "description": "Login username of the redis server.",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
-    },
-    {
-      "name": "common.kafka",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "description": "公共kafka环境."
-    },
-    {
-      "name": "common.kafka.admin",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getAdmin()"
-    },
-    {
-      "name": "common.kafka.admin.security",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "sourceMethod": "getSecurity()"
-    },
-    {
-      "name": "common.kafka.admin.ssl",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "sourceMethod": "getSsl()"
-    },
-    {
-      "name": "common.kafka.consumer",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getConsumer()"
-    },
-    {
-      "name": "common.kafka.consumer.security",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "sourceMethod": "getSecurity()"
-    },
-    {
-      "name": "common.kafka.consumer.ssl",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "sourceMethod": "getSsl()"
-    },
-    {
-      "name": "common.kafka.jaas",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getJaas()"
-    },
-    {
-      "name": "common.kafka.listener",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getListener()"
-    },
-    {
-      "name": "common.kafka.producer",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getProducer()"
-    },
-    {
-      "name": "common.kafka.producer.security",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
-      "sourceMethod": "getSecurity()"
-    },
-    {
-      "name": "common.kafka.producer.ssl",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
-      "sourceMethod": "getSsl()"
-    },
-    {
-      "name": "common.kafka.retry",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getRetry()"
-    },
-    {
-      "name": "common.kafka.retry.topic",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
-      "sourceMethod": "getTopic()"
-    },
-    {
-      "name": "common.kafka.security",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getSecurity()"
-    },
-    {
-      "name": "common.kafka.ssl",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getSsl()"
-    },
-    {
-      "name": "common.kafka.streams",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getStreams()"
-    },
-    {
-      "name": "common.kafka.streams.cleanup",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceMethod": "getCleanup()"
-    },
-    {
-      "name": "common.kafka.streams.security",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceMethod": "getSecurity()"
-    },
-    {
-      "name": "common.kafka.streams.ssl",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceMethod": "getSsl()"
-    },
-    {
-      "name": "common.kafka.template",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getTemplate()"
-    },
-    {
-      "name": "common.kafka.admin.client-id",
-      "type": "java.lang.String",
-      "description": "ID to pass to the server when making requests. Used for server-side logging.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"
-    },
-    {
-      "name": "common.kafka.admin.fail-fast",
-      "type": "java.lang.Boolean",
-      "description": "Whether to fail fast if the broker is not available on startup.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.admin.properties",
-      "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Additional admin-specific properties used to configure the client.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"
-    },
-    {
-      "name": "common.kafka.admin.security.protocol",
-      "type": "java.lang.String",
-      "description": "Security protocol used to communicate with brokers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
-    },
-    {
-      "name": "common.kafka.admin.ssl.key-password",
-      "type": "java.lang.String",
-      "description": "Password of the private key in either key store key or key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.key-store-certificate-chain",
-      "type": "java.lang.String",
-      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.key-store-key",
-      "type": "java.lang.String",
-      "description": "Private key in PEM format with PKCS#8 keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.key-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.key-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.key-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the key store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.protocol",
-      "type": "java.lang.String",
-      "description": "SSL protocol to use.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.trust-store-certificates",
-      "type": "java.lang.String",
-      "description": "Trusted certificates in PEM format with X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.trust-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.trust-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.admin.ssl.trust-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the trust store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.bootstrap-servers",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Applies to all components unless overridden.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
-    },
-    {
-      "name": "common.kafka.client-id",
-      "type": "java.lang.String",
-      "description": "ID to pass to the server when making requests. Used for server-side logging.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
-    },
-    {
-      "name": "common.kafka.consumer.auto-commit-interval",
-      "type": "java.time.Duration",
-      "description": "Frequency with which the consumer offsets are auto-committed to Kafka if 'enable.auto.commit' is set to true.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.auto-offset-reset",
-      "type": "java.lang.String",
-      "description": "What to do when there is no initial offset in Kafka or if the current offset no longer exists on the server.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.bootstrap-servers",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for consumers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.client-id",
-      "type": "java.lang.String",
-      "description": "ID to pass to the server when making requests. Used for server-side logging.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.enable-auto-commit",
-      "type": "java.lang.Boolean",
-      "description": "Whether the consumer's offset is periodically committed in the background.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.fetch-max-wait",
-      "type": "java.time.Duration",
-      "description": "Maximum amount of time the server blocks before answering the fetch request if there isn't sufficient data to immediately satisfy the requirement given by \"fetch-min-size\".",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.fetch-min-size",
-      "type": "org.springframework.util.unit.DataSize",
-      "description": "Minimum amount of data the server should return for a fetch request.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.group-id",
-      "type": "java.lang.String",
-      "description": "Unique string that identifies the consumer group to which this consumer belongs.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.heartbeat-interval",
-      "type": "java.time.Duration",
-      "description": "Expected time between heartbeats to the consumer coordinator.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.isolation-level",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$IsolationLevel",
-      "description": "Isolation level for reading messages that have been written transactionally.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "defaultValue": "read-uncommitted"
-    },
-    {
-      "name": "common.kafka.consumer.key-deserializer",
-      "type": "java.lang.Class<?>",
-      "description": "Deserializer class for keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.max-poll-records",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of records returned in a single call to poll().",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.properties",
-      "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Additional consumer-specific properties used to configure the client.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.consumer.security.protocol",
-      "type": "java.lang.String",
-      "description": "Security protocol used to communicate with brokers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.key-password",
-      "type": "java.lang.String",
-      "description": "Password of the private key in either key store key or key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.key-store-certificate-chain",
-      "type": "java.lang.String",
-      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.key-store-key",
-      "type": "java.lang.String",
-      "description": "Private key in PEM format with PKCS#8 keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.key-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.key-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.key-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the key store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.protocol",
-      "type": "java.lang.String",
-      "description": "SSL protocol to use.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.trust-store-certificates",
-      "type": "java.lang.String",
-      "description": "Trusted certificates in PEM format with X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.trust-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.trust-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.ssl.trust-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the trust store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.consumer.value-deserializer",
-      "type": "java.lang.Class<?>",
-      "description": "Deserializer class for values.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
-    },
-    {
-      "name": "common.kafka.jaas.control-flag",
-      "type": "org.springframework.kafka.security.jaas.KafkaJaasLoginModuleInitializer$ControlFlag",
-      "description": "Control flag for login configuration.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
-      "defaultValue": "required"
-    },
-    {
-      "name": "common.kafka.jaas.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable JAAS configuration.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.jaas.login-module",
-      "type": "java.lang.String",
-      "description": "Login module.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
-      "defaultValue": "com.sun.security.auth.module.Krb5LoginModule"
-    },
-    {
-      "name": "common.kafka.jaas.options",
-      "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Additional JAAS options.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas"
-    },
-    {
-      "name": "common.kafka.listener.ack-count",
-      "type": "java.lang.Integer",
-      "description": "Number of records between offset commits when ackMode is \"COUNT\" or \"COUNT_TIME\".",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.ack-mode",
-      "type": "org.springframework.kafka.listener.ContainerProperties$AckMode",
-      "description": "Listener AckMode. See the spring-kafka documentation.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.ack-time",
-      "type": "java.time.Duration",
-      "description": "Time between offset commits when ackMode is \"TIME\" or \"COUNT_TIME\".",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.client-id",
-      "type": "java.lang.String",
-      "description": "Prefix for the listener's consumer client.id property.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.concurrency",
-      "type": "java.lang.Integer",
-      "description": "Number of threads to run in the listener containers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.idle-between-polls",
-      "type": "java.time.Duration",
-      "description": "Sleep interval between Consumer.poll(Duration) calls.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "defaultValue": 0
-    },
-    {
-      "name": "common.kafka.listener.idle-event-interval",
-      "type": "java.time.Duration",
-      "description": "Time between publishing idle consumer events (no data received).",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.idle-partition-event-interval",
-      "type": "java.time.Duration",
-      "description": "Time between publishing idle partition consumer events (no data received for partition).",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.immediate-stop",
-      "type": "java.lang.Boolean",
-      "description": "Whether the container stops after the current record is processed or after all the records from the previous poll are processed.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.listener.log-container-config",
-      "type": "java.lang.Boolean",
-      "description": "Whether to log the container configuration during initialization (INFO level).",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.missing-topics-fatal",
-      "type": "java.lang.Boolean",
-      "description": "Whether the container should fail to start if at least one of the configured topics are not present on the broker.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.listener.monitor-interval",
-      "type": "java.time.Duration",
-      "description": "Time between checks for non-responsive consumers. If a duration suffix is not specified, seconds will be used.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.no-poll-threshold",
-      "type": "java.lang.Float",
-      "description": "Multiplier applied to \"pollTimeout\" to determine if a consumer is non-responsive.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.poll-timeout",
-      "type": "java.time.Duration",
-      "description": "Timeout to use when polling the consumer.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
-    },
-    {
-      "name": "common.kafka.listener.type",
-      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener$Type",
-      "description": "Listener type.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "defaultValue": "single"
-    },
-    {
-      "name": "common.kafka.producer.acks",
-      "type": "java.lang.String",
-      "description": "Number of acknowledgments the producer requires the leader to have received before considering a request complete.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.batch-size",
-      "type": "org.springframework.util.unit.DataSize",
-      "description": "Default batch size. A small batch size will make batching less common and may reduce throughput (a batch size of zero disables batching entirely).",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.bootstrap-servers",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for producers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.buffer-memory",
-      "type": "org.springframework.util.unit.DataSize",
-      "description": "Total memory size the producer can use to buffer records waiting to be sent to the server.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.client-id",
-      "type": "java.lang.String",
-      "description": "ID to pass to the server when making requests. Used for server-side logging.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.compression-type",
-      "type": "java.lang.String",
-      "description": "Compression type for all data generated by the producer.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.key-serializer",
-      "type": "java.lang.Class<?>",
-      "description": "Serializer class for keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.properties",
-      "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Additional producer-specific properties used to configure the client.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.retries",
-      "type": "java.lang.Integer",
-      "description": "When greater than zero, enables retrying of failed sends.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.security.protocol",
-      "type": "java.lang.String",
-      "description": "Security protocol used to communicate with brokers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
-    },
-    {
-      "name": "common.kafka.producer.ssl.key-password",
-      "type": "java.lang.String",
-      "description": "Password of the private key in either key store key or key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.key-store-certificate-chain",
-      "type": "java.lang.String",
-      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.key-store-key",
-      "type": "java.lang.String",
-      "description": "Private key in PEM format with PKCS#8 keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.key-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.key-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.key-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the key store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.protocol",
-      "type": "java.lang.String",
-      "description": "SSL protocol to use.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.trust-store-certificates",
-      "type": "java.lang.String",
-      "description": "Trusted certificates in PEM format with X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.trust-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.trust-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.ssl.trust-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the trust store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.producer.transaction-id-prefix",
-      "type": "java.lang.String",
-      "description": "When non empty, enables transaction support for producer.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.producer.value-serializer",
-      "type": "java.lang.Class<?>",
-      "description": "Serializer class for values.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
-    },
-    {
-      "name": "common.kafka.properties",
-      "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Additional properties, common to producers and consumers, used to configure the client.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
-    },
-    {
-      "name": "common.kafka.retry.topic.attempts",
-      "type": "java.lang.Integer",
-      "description": "Total number of processing attempts made before sending the message to the DLT.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "defaultValue": 3
-    },
-    {
-      "name": "common.kafka.retry.topic.delay",
-      "type": "java.time.Duration",
-      "description": "Canonical backoff period. Used as an initial value in the exponential case, and as a minimum value in the uniform case.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "defaultValue": "1s"
-    },
-    {
-      "name": "common.kafka.retry.topic.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable topic-based non-blocking retries.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.retry.topic.max-delay",
-      "type": "java.time.Duration",
-      "description": "Maximum wait between retries. If less than the delay then the default of 30 seconds is applied.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "defaultValue": 0
-    },
-    {
-      "name": "common.kafka.retry.topic.multiplier",
-      "type": "java.lang.Double",
-      "description": "Multiplier to use for generating the next backoff delay.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "defaultValue": 0
-    },
-    {
-      "name": "common.kafka.retry.topic.random-back-off",
-      "type": "java.lang.Boolean",
-      "description": "Whether to have the backoff delays.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.security.protocol",
-      "type": "java.lang.String",
-      "description": "Security protocol used to communicate with brokers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
-    },
-    {
-      "name": "common.kafka.ssl.key-password",
-      "type": "java.lang.String",
-      "description": "Password of the private key in either key store key or key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.key-store-certificate-chain",
-      "type": "java.lang.String",
-      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.key-store-key",
-      "type": "java.lang.String",
-      "description": "Private key in PEM format with PKCS#8 keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.key-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.key-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.key-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the key store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.protocol",
-      "type": "java.lang.String",
-      "description": "SSL protocol to use.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.trust-store-certificates",
-      "type": "java.lang.String",
-      "description": "Trusted certificates in PEM format with X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.trust-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.trust-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.ssl.trust-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the trust store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.application-id",
-      "type": "java.lang.String",
-      "description": "Kafka streams application.id property; default spring.application.name.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.streams.auto-startup",
-      "type": "java.lang.Boolean",
-      "description": "Whether or not to auto-start the streams factory bean.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "defaultValue": true
-    },
-    {
-      "name": "common.kafka.streams.bootstrap-servers",
-      "type": "java.util.List<java.lang.String>",
-      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for streams.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.streams.cache-max-size-buffering",
-      "type": "org.springframework.util.unit.DataSize",
-      "description": "Maximum memory size to be used for buffering across all threads.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.streams.cleanup.on-shutdown",
-      "type": "java.lang.Boolean",
-      "description": "Cleanup the application’s local state directory on shutdown.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.streams.cleanup.on-startup",
-      "type": "java.lang.Boolean",
-      "description": "Cleanup the application’s local state directory on startup.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
-      "defaultValue": false
-    },
-    {
-      "name": "common.kafka.streams.client-id",
-      "type": "java.lang.String",
-      "description": "ID to pass to the server when making requests. Used for server-side logging.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.streams.properties",
-      "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Additional Kafka properties used to configure the streams.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.streams.replication-factor",
-      "type": "java.lang.Integer",
-      "description": "The replication factor for change log topics and repartition topics created by the stream processing application.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.streams.security.protocol",
-      "type": "java.lang.String",
-      "description": "Security protocol used to communicate with brokers.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
-    },
-    {
-      "name": "common.kafka.streams.ssl.key-password",
-      "type": "java.lang.String",
-      "description": "Password of the private key in either key store key or key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.key-store-certificate-chain",
-      "type": "java.lang.String",
-      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.key-store-key",
-      "type": "java.lang.String",
-      "description": "Private key in PEM format with PKCS#8 keys.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.key-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.key-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.key-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the key store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.protocol",
-      "type": "java.lang.String",
-      "description": "SSL protocol to use.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.trust-store-certificates",
-      "type": "java.lang.String",
-      "description": "Trusted certificates in PEM format with X.509 certificates.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.trust-store-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.trust-store-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.ssl.trust-store-type",
-      "type": "java.lang.String",
-      "description": "Type of the trust store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
-    },
-    {
-      "name": "common.kafka.streams.state-dir",
-      "type": "java.lang.String",
-      "description": "Directory location for the state store.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
-    },
-    {
-      "name": "common.kafka.template.default-topic",
-      "type": "java.lang.String",
-      "description": "Default topic to which messages are sent.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template"
-    },
-    {
-      "name": "common.kafka.template.transaction-id-prefix",
-      "type": "java.lang.String",
-      "description": "Transaction id prefix, override the transaction id prefix in the producer factory.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template"
-    },
-    {
-      "name": "common.kafka.admin.ssl.keystore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.admin.ssl.key-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.admin.ssl.keystore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.admin.ssl.key-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.admin.ssl.truststore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.admin.ssl.trust-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.admin.ssl.truststore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.admin.ssl.trust-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.consumer.ssl.keystore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.consumer.ssl.key-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.consumer.ssl.keystore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.consumer.ssl.key-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.consumer.ssl.truststore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.consumer.ssl.trust-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.consumer.ssl.truststore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.consumer.ssl.trust-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.listener.only-log-record-metadata",
-      "type": "java.lang.Boolean",
-      "description": "Whether to suppress the entire record from being written to the log when retries are being attempted.",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "defaultValue": true,
-      "deprecated": true,
-      "deprecation": {
-        "reason": "Use KafkaUtils#setConsumerRecordFormatter instead."
-      }
-    },
-    {
-      "name": "common.kafka.producer.ssl.keystore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.producer.ssl.key-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.producer.ssl.keystore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.producer.ssl.key-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.producer.ssl.truststore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.producer.ssl.trust-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.producer.ssl.truststore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.producer.ssl.trust-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.ssl.keystore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.ssl.key-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.ssl.keystore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the key store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.ssl.key-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.ssl.truststore-location",
-      "type": "org.springframework.core.io.Resource",
-      "description": "Location of the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.ssl.trust-store-location"
-      }
-    },
-    {
-      "name": "common.kafka.ssl.truststore-password",
-      "type": "java.lang.String",
-      "description": "Store password for the trust store file.",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.ssl.trust-store-password"
-      }
-    },
-    {
-      "name": "common.kafka.streams.cache-max-bytes-buffering",
-      "type": "java.lang.Integer",
-      "deprecated": true,
-      "deprecation": {
-        "level": "error",
-        "replacement": "common.kafka.streams.cache-max-size-buffering"
-      }
-    },
-    {
-      "name": "common.kafka.consumer.auto-offset-reset",
-      "values": [
-        {
-          "value": "earliest",
-          "description": "Automatically reset the offset to the earliest offset."
-        },
-        {
-          "value": "latest",
-          "description": "Automatically reset the offset to the latest offset."
-        },
-        {
-          "value": "none",
-          "description": "Throw exception to the consumer if no previous offset is found for the consumer's group."
-        },
-        {
-          "value": "exception",
-          "description": "Throw exception to the consumer."
-        }
-      ],
-      "providers": [
-        {
-          "name": "any"
-        }
-      ]
-    },
-    {
-      "name": "common.kafka.consumer.key-deserializer",
-      "providers": [
-        {
-          "name": "handle-as",
-          "parameters": {
-            "target": "org.apache.kafka.common.serialization.Deserializer"
-          }
-        }
-      ]
-    },
-    {
-      "name": "common.kafka.consumer.value-deserializer",
-      "providers": [
-        {
-          "name": "handle-as",
-          "parameters": {
-            "target": "org.apache.kafka.common.serialization.Deserializer"
-          }
-        }
-      ]
-    },
-    {
-      "name": "common.kafka.producer.key-serializer",
-      "providers": [
-        {
-          "name": "handle-as",
-          "parameters": {
-            "target": "org.apache.kafka.common.serialization.Serializer"
-          }
-        }
-      ]
-    },
-    {
-      "name": "common.kafka.producer.value-serializer",
-      "providers": [
-        {
-          "name": "handle-as",
-          "parameters": {
-            "target": "org.apache.kafka.common.serialization.Serializer"
-          }
-        }
-      ]
-    },
-    {
-      "name": "logging.sql-enabled",
-      "type": "java.lang.Boolean",
-      "defaultValue": false,
-      "description": "日志是否打印sql"
-    },
-    {
-      "name": "spring.redis.exitOnConnectionFailed",
-      "type": "java.lang.Boolean",
-      "defaultValue": false,
-      "description": "Redis连接失败是否退出进程"
-    },
-    {
-      "name": "common.redis.exitOnConnectionFailed",
-      "type": "java.lang.Boolean",
-      "defaultValue": false,
-      "description": "Redis连接失败是否退出进程"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
-      "type": "java.util.List<java.lang.String>",
-      "name": "spring.access.filter-patterns",
-      "description": "AccessFilter拦截的urlPattern",
-      "defaultValue": "/*"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
-      "type": "java.lang.Boolean",
-      "name": "spring.access.always-success",
-      "description": "Http响应码永远返回200",
-      "defaultValue": false
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
-      "type": "java.lang.String",
-      "name": "spring.access.content-security-policy",
-      "description": "CSP白名单",
-      "defaultValue": ""
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
-      "type": "java.lang.String",
-      "name": "spring.access.control.allow-origin",
-      "description": "跨域调用允许的域名",
-      "defaultValue": "*"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
-      "type": "java.lang.String",
-      "name": "spring.access.control.allow-methods",
-      "description": "跨域调用允许的方法",
-      "defaultValue": "*"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
-      "type": "java.lang.String",
-      "name": "spring.access.control.allow-headers",
-      "description": "跨域调用允许的Header",
-      "defaultValue": "*"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
-      "type": "java.lang.Boolean",
-      "name": "spring.access.control.allow-credentials",
-      "description": "跨域调用允许包含用户凭据",
-      "defaultValue": true
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.lang.String",
-      "name": "spring.access.token.namespace",
-      "description": "Token的缓存namespace",
-      "defaultValue": ""
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.lang.String",
-      "name": "spring.access.token.header",
-      "description": "Token在header中的名称",
-      "defaultValue": "Authorization"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.util.List<java.lang.String>",
-      "name": "spring.access.token.ignore-urls",
-      "description": "忽略鉴权的url"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.lang.Boolean",
-      "name": "spring.access.token.conflict",
-      "description": "是否检查冲突",
-      "defaultValue": false
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.lang.String",
-      "name": "spring.access.token.salt",
-      "description": "秘钥",
-      "defaultValue": "admin@cowave.com"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.lang.Integer",
-      "name": "spring.access.token.accessExpire",
-      "description": "access token超时[单位秒]",
-      "defaultValue": 3600
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "type": "java.lang.Integer",
-      "name": "spring.access.token.refreshExpire",
-      "description": "refresh token超时[单位秒]",
-      "defaultValue": 604800
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties",
-      "type": "java.lang.Boolean",
-      "name": "spring.cache.log-enable",
-      "description": "打印缓存过程日志",
-      "defaultValue": false
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
-      "type": "java.lang.Boolean",
-      "name": "spring.cache.l1.enable",
-      "description": "启用本地缓存",
-      "defaultValue": true
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
-      "type": "java.lang.Long",
-      "name": "spring.cache.l1.expire-after-access",
-      "description": "访问后过期时间，单位秒",
-      "defaultValue": -1
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
-      "type": "java.lang.Long",
-      "name": "spring.cache.l1.expire-after-write",
-      "description": "写入后过期时间，单位秒",
-      "defaultValue": -1
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
-      "type": "java.lang.Long",
-      "name": "spring.cache.l1.refresh-after-write",
-      "description": "写入后刷新时间，单位秒",
-      "defaultValue": -1
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
-      "type": "java.lang.Integer",
-      "name": "spring.cache.l1.initial-capacity",
-      "description": "初始化大小",
-      "defaultValue": -1
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L1Properties",
-      "type": "java.lang.Integer",
-      "name": "spring.cache.l1.maximum-size",
-      "description": "最大缓存对象个数，超过此数量时之前放入的缓存将失效",
-      "defaultValue": -1
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
-      "name": "spring.cache.l2[enable]",
-      "type": "java.lang.Boolean",
-      "defaultValue": true,
-      "description": "启用本地缓存"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
-      "name": "spring.cache.l2[first]",
-      "type": "java.lang.Boolean",
-      "defaultValue": false,
-      "description": "优先二级缓存"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
-      "name": "spring.cache.l2[expireAfterAccess]",
-      "type": "java.lang.Integer",
-      "defaultValue": 60,
-      "description": "访问后过期时间，单位秒"
-    },
-    {
-      "sourceType": "com.cowave.commons.framework.helper.redis.cache.CacheProperties$L2Properties",
-      "name": "spring.cache.l2[expireAfterWrite]",
-      "type": "java.lang.Integer",
-      "defaultValue": 60,
-      "description": "写入后过期时间，单位秒"
     }
   ],
   "hints": []

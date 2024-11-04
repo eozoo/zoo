@@ -7,7 +7,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.support.executor;
+package com.cowave.commons.tools.executors;
 
 import org.dromara.dynamictp.common.queue.VariableLinkedBlockingQueue;
 import org.dromara.dynamictp.core.DtpRegistry;
@@ -15,7 +15,6 @@ import org.dromara.dynamictp.core.executor.DtpExecutor;
 import org.dromara.dynamictp.core.executor.ScheduledDtpExecutor;
 import org.dromara.dynamictp.core.support.ExecutorWrapper;
 
-import javax.validation.constraints.NotNull;
 import java.util.concurrent.*;
 
 /**
@@ -90,7 +89,7 @@ public class DynamicExecutors {
         return executor;
     }
 
-    public static ThreadPoolExecutor newSingleThreadPool(@NotNull ThreadFactory threadFactory) {
+    public static ThreadPoolExecutor newSingleThreadPool(ThreadFactory threadFactory) {
         DynamicThreadPoolExecutor executor = new DynamicThreadPoolExecutor(1, 1,0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), threadFactory);
         executor.setRejectHandlerType("CallerRunsPolicy");
         registerDynamic(executor, threadFactory);
@@ -104,7 +103,7 @@ public class DynamicExecutors {
         return executor;
     }
 
-    public static ThreadPoolExecutor newCachedThreadPool(@NotNull ThreadFactory threadFactory) {
+    public static ThreadPoolExecutor newCachedThreadPool(ThreadFactory threadFactory) {
         DynamicThreadPoolExecutor executor = new DynamicThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), threadFactory);
         executor.setRejectHandlerType("CallerRunsPolicy");
         registerDynamic(executor, threadFactory);
@@ -118,7 +117,7 @@ public class DynamicExecutors {
         return executor;
     }
 
-    public static ThreadPoolExecutor newFixedThreadPool(int nThreads, @NotNull ThreadFactory threadFactory) {
+    public static ThreadPoolExecutor newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
         DynamicThreadPoolExecutor executor = new DynamicThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), threadFactory);
         executor.setRejectHandlerType("CallerRunsPolicy");
         registerDynamic(executor, threadFactory);

@@ -80,7 +80,7 @@ public class OperationInfo {
     /**
      * 操作描述
      */
-    private String summary;
+    private String desc;
 
     /**
      * 操作是否成功

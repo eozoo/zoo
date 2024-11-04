@@ -70,7 +70,7 @@ public class Permission {
         }
 
         for(String permit : permits){
-            if(matchPermit(permit, permission)){
+            if(StringUtils.isNotBlank(permit) && matchPermit(permit, permission)){
                 return true;
             }
         }
