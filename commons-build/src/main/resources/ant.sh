@@ -23,8 +23,13 @@ prepare_build(){
   if [ -f ../deb.sh ];then
       cp -f ../deb.sh ./deb.sh
   fi
+  if [ -f ../favicon.ico ];then
+      cp -f ../favicon.ico ./favicon.ico
+  fi
   find . -type f -name "*.sh" -exec chmod 744 {} \;
   find . -type f -name "*.sh" -exec dos2unix {} \;
+
+  mkdir -p classes/static && mv ./favicon.ico classes/static
 
   ## 获取app_name和app_version（优先取env.properties，没有则从pom.xml获取），然后写到setenv.sh中
   line_app_name=$(< "./bin/env.properties" sed '/^#.*/d' | sed '/^[ \t ]*$/d' | grep = | sed 's/[ \t]*=[ \t]*/=/' | grep app_name)

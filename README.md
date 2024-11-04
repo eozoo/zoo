@@ -57,10 +57,10 @@ mvn archetype:generate                \
 ```text
 {项目名}-{应用名}
    ├─bin
-   │  ├─env.properties                         ##（默认）环境变量定义
-   │  ├─setenv.sh                              ##（默认）运行前设置
-   │  ├─run.sh                                 ##（默认）运行脚本
-   │  └─install.sh                             ##（默认）Tar包安装脚本
+   │  ├─env.properties                         ## 环境变量定义                （默认，可覆盖）
+   │  ├─setenv.sh                              ## 运行前设置                  （默认，可覆盖）
+   │  ├─run.sh                                 ## 运行脚本                   （默认，可覆盖）
+   │  └─install.sh                             ## Tar包安装脚本               （默认，可覆盖）
    ├─src    
    │  └─main    
    │     ├─java    
@@ -70,11 +70,11 @@ mvn archetype:generate                \
    │     │
    │     └─resources
    │        ├─smart-doc.json                   ## smart-doc接口文档描述
-   │        ├─logback-spring.xml               ##（默认）logback日志配置
+   │        ├─logback-spring.xml               ## logback日志配置            （默认，可覆盖）
    │        ├─sql                              ## liquibase数据库版本管理
    │        │  ├─changelog.yml
    │        │  ├─...
-   │        ├─config                           ## 应用配置（约定使用yml文件，并且放在config目录中）
+   │        ├─config                           ## 应用配置（约定放在config目录中，使用yml格式）
    │        │  ├─application.yml    
    │        │  ├─...    
    │        └─META-INF    
@@ -82,10 +82,11 @@ mvn archetype:generate                \
    │           └─i18n                          ## 国际化资源
    │              ├─...    
    │    
-   ├─tar.sh                                    ##（默认）Tar构建
-   ├─deb.sh                                    ##（默认）Deb构建
-   ├─docker.sh                                 ##（默认）Docker构建
+   ├─tar.sh                                    ## Tar构建                   （默认，可覆盖）
+   ├─deb.sh                                    ## Deb构建                   （默认，可覆盖）
+   ├─docker.sh                                 ## Docker构建                （默认，可覆盖）
    ├─pom.xml    
+   ├─favicon.ico                               ## 网页图标                   （默认，可覆盖）
    └─README.md   
 ```
 
@@ -122,10 +123,10 @@ mvn archetype:generate                \
    ├─{artifactId}-remote    ## 远程调用，提供给外部调用的客户端，比如Rpc接口，依赖${artifactId}-model；
    ├─{artifactId}-starter   ## 启动入口，定义启动类及一些配置，依赖${artifactId}-api；
    │   ├─bin
-   │   │  ├─env.properties                         ##（默认）环境变量定义
-   │   │  ├─setenv.sh                              ##（默认）运行前设置
-   │   │  ├─run.sh                                 ##（默认）运行脚本
-   │   │  └─install.sh                             ##（默认）Tar包安装脚本
+   │   │  ├─env.properties                         ## 环境变量定义            （默认，可覆盖）
+   │   │  ├─setenv.sh                              ## 运行前设置              （默认，可覆盖）
+   │   │  ├─run.sh                                 ## 运行脚本               （默认，可覆盖）
+   │   │  └─install.sh                             ## Tar包安装脚本           （默认，可覆盖）
    │   ├─src    
    │   │  └─main    
    │   │     ├─java    
@@ -135,11 +136,11 @@ mvn archetype:generate                \
    │   │     │
    │   │     └─resources
    │   │        ├─smart-doc.json                   ## smart-doc接口文档描述
-   │   │        ├─logback-spring.xml               ##（默认）logback日志配置
+   │   │        ├─logback-spring.xml               ## logback日志配置         （默认，可覆盖）
    │   │        ├─sql                              ## liquibase数据库版本管理
    │   │        │  ├─changelog.yml
    │   │        │  ├─...
-   │   │        ├─config                           ## 应用配置（约定使用yml文件，并且放在config目录中）
+   │   │        ├─config                           ## 应用配置（约定放在config目录中，使用yml格式）
    │   │        │  ├─application.yml    
    │   │        │  ├─...    
    │   │        └─META-INF    
@@ -148,9 +149,10 @@ mvn archetype:generate                \
    │   │              ├─...    
    │   │    
    │   ├─pom.xml  
-   │   ├─tar.sh                                    ##（默认）Tar构建
-   │   ├─deb.sh                                    ##（默认）Deb构建脚本
-   │   └─docker.sh                                 ##（默认）Docker构建脚本
+   │   ├─favicon.ico                               ## 网页图标                （默认，可覆盖）
+   │   ├─tar.sh                                    ## Tar构建                （默认，可覆盖）
+   │   ├─deb.sh                                    ## Deb构建脚本             （默认，可覆盖）
+   │   └─docker.sh                                 ## Docker构建脚本          （默认，可覆盖）
    ├─pom.xml    
    └─README.md   
 ```

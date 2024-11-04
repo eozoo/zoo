@@ -5,13 +5,15 @@ ${symbol_pound}${symbol_pound} ${artifactId}
 
 ${symbol_pound}${symbol_pound}${symbol_pound} 工程目录
 
+> 目录中标记了（默认）的文件，在mvn compile后，可以在target中目录中找到；
+
 <pre>
 ${artifactId}
    ├─bin
-   │  ├─env.properties                         ${symbol_pound}${symbol_pound}（默认）环境变量定义
-   │  ├─setenv.sh                              ${symbol_pound}${symbol_pound}（默认）运行前设置
-   │  ├─run.sh                                 ${symbol_pound}${symbol_pound}（默认）运行脚本
-   │  └─install.sh                             ${symbol_pound}${symbol_pound}（默认）Tar包安装脚本
+   │  ├─env.properties                         ${symbol_pound}${symbol_pound} 环境变量定义                （默认，可覆盖）
+   │  ├─setenv.sh                              ${symbol_pound}${symbol_pound} 运行前设置                 （默认，可覆盖）
+   │  ├─run.sh                                 ${symbol_pound}${symbol_pound} 运行脚本                   （默认，可覆盖）
+   │  └─install.sh                             ${symbol_pound}${symbol_pound} Tar包安装脚本              （默认，可覆盖）
    ├─src    
    │  └─main    
    │     ├─java    
@@ -21,28 +23,25 @@ ${artifactId}
    │     │
    │     └─resources
    │        ├─smart-doc.json                   ${symbol_pound}${symbol_pound} smart-doc接口文档描述
-   │        ├─logback-spring.xml               ${symbol_pound}${symbol_pound}（默认）logback日志配置
+   │        ├─logback-spring.xml               ${symbol_pound}${symbol_pound} logback日志配置            （默认，可覆盖）
    │        ├─sql                              ${symbol_pound}${symbol_pound} liquibase数据库版本管理
    │        │  ├─changelog.yml
    │        │  ├─...
-   │        ├─config                           ${symbol_pound}${symbol_pound} 应用配置（约定使用yml文件，并且放在config目录中）
+   │        ├─config                           ${symbol_pound}${symbol_pound} 应用配置（约定放在config目录中，使用yml格式）
    │        │  ├─application.yml    
    │        │  ├─...    
    │        └─META-INF    
    │           ├─common.yml                    ${symbol_pound}${symbol_pound} 默认配置
    │           └─i18n                          ${symbol_pound}${symbol_pound} 国际化资源
    │              ├─...    
-   │    
-   ├─tar.sh                                    ${symbol_pound}${symbol_pound}（默认）Tar构建
-   ├─deb.sh                                    ${symbol_pound}${symbol_pound}（默认）Deb构建
-   ├─docker.sh                                 ${symbol_pound}${symbol_pound}（默认）Docker构建
+   │
+   ├─tar.sh                                    ${symbol_pound}${symbol_pound} Tar构建                   （默认，可覆盖）
+   ├─deb.sh                                    ${symbol_pound}${symbol_pound} Deb构建                   （默认，可覆盖）
+   ├─docker.sh                                 ${symbol_pound}${symbol_pound} Docker构建                （默认，可覆盖）
    ├─pom.xml    
+   ├─favicon.ico                               ${symbol_pound}${symbol_pound} 网页图标                   （默认，可覆盖）
    └─README.md   
 </pre>
-
-- 目录中（默认）的文件，表示已提供了默认的文件定义，如果需要也可以进行修改和覆盖；
-
-> mvn compile 后，能够在target中目录中找到默认的文件，可以拷贝出来进行修改（拷贝到约定的路径）；
 
 - 应用打包
 
