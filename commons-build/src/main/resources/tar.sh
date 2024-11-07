@@ -1,7 +1,6 @@
-## 已设置环境变量：
+## 可用环境变量见env.properties：
 ## app_name    默认从pom.xml获取，可以在env.properties中设置覆盖
 ## app_version 默认从pom.xml获取，可以在env.properties中设置覆盖
-## app_source="$app_name"_"$app_version"
 
 ## 默认打包内容：
 ## ${app_name}_${app_version}
@@ -32,11 +31,13 @@ build(){
 cat <<EOF > ${app_name}.service
 [Unit]
 Description=${app_name} ${app_version}
+StartLimitIntervalSec=5min
+StartLimitBurst=5
 
 [Service]
-ExecStart=/opt/cowave/${app_name}/bin/run.sh start
-ExecStop=/opt/cowave/${app_name}/bin/run.sh stop
-Restart=on-abnormal
+ExecStart=/bin/bash ${app_home}/bin/run.sh start
+ExecStop=/bin/bash ${app_home}/bin/run.sh stop
+Restart=on-failure
 Type=forking
 
 [Install]

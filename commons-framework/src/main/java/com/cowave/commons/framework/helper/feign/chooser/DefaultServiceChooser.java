@@ -20,8 +20,6 @@ import org.springframework.feign.FeignServiceChooser;
 @RequiredArgsConstructor
 public class DefaultServiceChooser implements FeignServiceChooser {
 
-    private final RedisServiceChooser redisServiceChooser;
-
     private final EurekaServiceChooser eurekaServiceChooser;
 
     private final NacosServiceChooser nacosServiceChooser;
@@ -29,10 +27,7 @@ public class DefaultServiceChooser implements FeignServiceChooser {
     @Override
     public String choose(String name) {
         String serviceUrl = null;
-        if(redisServiceChooser != null){
-            serviceUrl = redisServiceChooser.choose(name);
-        }
-        if(serviceUrl == null && eurekaServiceChooser != null){
+        if(eurekaServiceChooser != null){
             serviceUrl = eurekaServiceChooser.choose(name);
         }
         if(serviceUrl == null && nacosServiceChooser != null){

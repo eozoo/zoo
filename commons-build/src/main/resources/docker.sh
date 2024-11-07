@@ -1,7 +1,6 @@
-## 已设置环境变量：
+## 可用环境变量见env.properties：
 ## app_name    默认从pom.xml获取，可以在env.properties中设置覆盖
 ## app_version 默认从pom.xml获取，可以在env.properties中设置覆盖
-## app_source="$app_name"_"$app_version"
 
 ## 默认打包内容：
 ## ${app_name}_${app_version}

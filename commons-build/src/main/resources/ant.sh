@@ -111,7 +111,7 @@ tar_build(){
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
       mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
   else
-      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar 2>/dev/null
   fi
 
   . "./tar.sh"
@@ -135,7 +135,7 @@ docker_build(){
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
       mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
   else
-      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar 2>/dev/null
   fi
 
   rm -f bin/install.sh
@@ -161,7 +161,7 @@ deb_build(){
   if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
       mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
   else
-      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar 2>/dev/null
   fi
 
   rm -f bin/install.sh

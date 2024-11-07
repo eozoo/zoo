@@ -26,14 +26,15 @@ if [ -f "$file" ];then
     fi
 fi
 
-# 替换配置，env.properties中的配置即环境变量
+# 启动时配置，可以根据env.properties中的变量做一些配置文件修改等操作
 config(){
-  echo -n ""
+    return 0
 }
 
-# 安装文件拷贝，工作目录为当前安装包解压目录
+# 安装时拷贝（工作目录为安装包解压目录，默认已拷贝内容：bin、lib、config）
 install_copy(){
-    cp -rf bin lib config $app_home
+    ## 示例：cp static $app_home
+    return 0
 }
 
 LogSuccess(){
@@ -107,13 +108,13 @@ setenv(){
     rm -f "$temp"
 }
 
-replace(){
+replace_yml(){
     file=$1
     key=$2
     value=$3
     index=$4
     if [ -z "$file" ] || [ -z "$key" ] || [ -z "$index" ]; then
-      LogError "Usage: replace <file> <key> <value> <index>"
+      LogError "Usage: replace_yml <file> <key> <value> <index>"
       exit 1
     fi
 
