@@ -36,30 +36,25 @@ install_copy(){
     cp -rf bin lib config $app_home
 }
 
-# 卸载时备份操作，工作目录为安装包当前解压目录
-uninstall_bak(){
-    cp -rf $app_home/log .
-}
-
 LogSuccess(){
     echo -en "\\033[1;32m"
-    echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] $*"
+    echo "$*"
     echo -en "\\033[0;39m"
 }
 
 LogInfo(){
-    echo "$(date "+%Y-%m-%d %H:%M:%S") [INFO] $*"
+    echo "$*"
 }
 
 LogError(){
     echo -en "\\033[0;31m"
-    echo "$(date "+%Y-%m-%d %H:%M:%S") [ERROR] $*"
+    echo "$*"
     echo -en "\\033[0;39m"
 }
 
 LogWarn(){
     echo -en "\\033[1;33m"
-    echo "$(date "+%Y-%m-%d %H:%M:%S") [WARN] $*"
+    echo "$*"
     echo -en "\\033[0;39m"
 }
 

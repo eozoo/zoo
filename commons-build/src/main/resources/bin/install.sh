@@ -8,41 +8,166 @@ if [ -f "$pwd/bin/setenv.sh" ];then
     source "$pwd/bin/setenv.sh"
 fi
 
+java_commond=$(which java 2>/dev/null)
+if [ -n "$java_home" ];then
+    java_commond=$java_home/bin/java
+fi
+
+jps_commond=$(which jps 2>/dev/null)
+if [ -n "$java_home" ];then
+    jps_commond=$java_home/bin/jps
+fi
+
 install(){
     [ -n "${app_name}" ] || { LogError "app_name not set"; exit 1; }
     [ -n "${app_home}" ] || { LogError "app_home not set"; exit 1; }
     [ -n "${app_version}" ] || { LogError "app_version not set"; exit 1; }
-    if [ -d "$app_home" ];then
-        v_old=$(sed -n '/^app_version=.*/p' "$app_home/bin/setenv.sh" 2>/dev/null | sed 's/app_version=//g' 2>/dev/null)
-        LogError "install terminated: $app_name was already installed, version=$v_old"
-        exit 1
-        #compare=`awk -v a=$v_old -v b=$v_new 'BEGIN{print(a>=b)?"0":"1"}'`
-        #if [ $compare = "0" ]; then
-        #    LogWarn "$app_name version $v_old was already installed, install cancelled."
-        #    exit 1
-        #fi
-    fi
+    $java_commond -version 2>&1 || { LogError "java not installed"; exit 1; }
 
-    LogInfo "prepare to install $app_name, version: $app_version"
+    echo "prepare to install $app_name, version: $app_version"
     mkdir -p "$app_home/log"
-    install_copy || {
-        LogError "install terminated unexpectedly: copy failed."
-        if [ -n "$app_home" ] && [ "$app_home" != "/" ]; then
-            rm -rf "$app_home"
-        fi
-        exit 1
-    }
-
     install_time=$(date "+%Y-%m-%d %H:%M:%S")
-    sed -i 's/export install_time=.*/export install_time="'"$install_time"'"/' "$app_home/bin/setenv.sh"
 
-    cd "$app_home" || { LogError "cd failed: $app_home"; exit 1; }
-    find "$app_home" -type f -name "*.sh" -exec chmod 744 {} \;
-    find "$app_home" -type f -name "*.sh" -exec dos2unix {} \; 2>/dev/null
-    find "$app_home" -type f -name "*.xml" -exec dos2unix {} \; 2>/dev/null
-    find "$app_home" -type f -name "*.properties" -exec dos2unix {} \; 2>/dev/null
-    LogSuccess "$app_name install success."
-    sh "$app_home/bin/run.sh" start
+    ## 已经安装
+    if [ -d "$app_home/lib" ];then
+        v_old=$(sed -n '/^export app_version=.*/p' "$app_home/bin/setenv.sh" 2>/dev/null | sed 's/export app_version=//;s/^"//;s/"$//' 2>/dev/null)
+
+        read -p "$app_name($v_old) was already installed, continue to install [y/n](default: y)? " input
+        if [ -z "$input" ]; then
+            input="yes"
+        fi
+        case $input in
+            [Yy][Ee][Ss]|[Yy])
+                bak_time=$(date "+%Y%m%d_%H%M%S")
+                ## 备份lib
+                if [ -d "$app_home/lib" ];then
+                    mv $app_home/lib/${app_name}-${v_old}.jar $app_home/lib/${app_name}-${v_old}.jar_${bak_time} 2>/dev/null
+                fi
+                cp -rf lib/* $app_home/lib
+
+                ## 保留配置
+                read -p "reuse the existing config [y/n](default: y)? " input2
+                if [ -z "$input2" ]; then
+                    input2="yes"
+                fi
+                case $input2 in
+                    [Yy][Ee][Ss]|[Yy])
+                        ;;
+                    *)
+                        ## 备份config
+                        if [ -d "$app_home/config" ];then
+                            mv $app_home/config $app_home/config-${v_old}_${bak_time}
+                        fi
+                        ## 备份bin
+                        if [ -d "$app_home/bin" ];then
+                            mv $app_home/bin $app_home/bin-${v_old}_${bak_time}
+                        fi
+                        cp -rf config $app_home
+                        cp -rf bin $app_home
+                        sed -i 's/export install_time=.*/export install_time="'"$install_time"'"/' "$app_home/bin/setenv.sh"
+                        ;;
+                esac
+
+                ## 注册系统服务
+                read -p "register as a system service [y/n](default: n)? " input5
+                if [ -z "$input5" ]; then
+                    input5="no"
+                fi
+                case $input5 in
+                    [Yy][Ee][Ss]|[Yy])
+                        input5="yes"
+                        ## systemctl需要指定一下java命令
+                        cp -f ${app_name}.service /etc/systemd/system
+                        sudo sed -i "/^\[Service\]/a Environment=java_commond=$java_commond" /etc/systemd/system/${app_name}.service
+                        sudo sed -i "/^\[Service\]/a Environment=jps_commond=$jps_commond" /etc/systemd/system/${app_name}.service
+                        systemctl daemon-reload 2>/dev/null
+                        systemctl enable ${app_name} 2>/dev/null
+                        ;;
+                    *)
+                        ;;
+                esac
+
+                ## 重新启动
+                pid=$($jps_commond -l | grep "$app_home/lib/$app_name-$v_old.jar" | awk '{print $1}')
+                if [ -n "$pid" ];then
+                    read -p "$app_name is running, sure to restart [y/n](default: y)? " input3
+                    if [ -z "$input3" ]; then
+                        input3="yes"
+                    fi
+                    case $input3 in
+                        [Yy][Ee][Ss]|[Yy])
+                            if [ "$input5" = "yes" ]; then
+                                bash "$app_home/bin/run.sh" stop
+                                systemctl restart ${app_name} 2>/dev/null
+                                LogSuccess "$app_name $app_version install complete, see details with \"journalctl -u ${app_name}\""
+                            else
+                                ## 否则取消系统守护
+                                rm -f /etc/systemd/system/${app_name}.service
+                                systemctl disable ${app_name} 2>/dev/null
+                                systemctl daemon-reload 2>/dev/null
+                                LogSuccess "$app_name $app_version install complete"
+                                bash "$app_home/bin/run.sh" restart
+                            fi
+                            ;;
+                        *)
+                            exit 0
+                            ;;
+                    esac
+                else
+                    if [ "$input5" = "yes" ]; then
+                        systemctl start $app_name 2>/dev/null
+                        LogSuccess "$app_name $app_version install complete, see details with \"journalctl -u ${app_name}\""
+                    else
+                        ## 否则取消系统守护
+                        rm -f /etc/systemd/system/${app_name}.service
+                        systemctl disable ${app_name} 2>/dev/null
+                        systemctl daemon-reload 2>/dev/null
+                        LogSuccess "$app_name $app_version install complete"
+                        bash "$app_home/bin/run.sh" start
+                    fi
+                fi
+                ;;
+            *)
+                exit 0
+                ;;
+        esac
+    else
+        install_copy || {
+            LogError "install terminated unexpectedly: copy failed."
+            if [ -n "$app_home" ] && [ "$app_home" != "/" ]; then
+                rm -rf "$app_home"
+            fi
+            exit 1
+        }
+
+        sed -i 's/export install_time=.*/export install_time="'"$install_time"'"/' "$app_home/bin/setenv.sh"
+        find "$app_home" -type f -name "*.sh" -exec chmod 744 {} \;
+        find "$app_home" -type f -name "*.sh" -exec dos2unix {} \; 2>/dev/null
+        find "$app_home" -type f -name "*.xml" -exec dos2unix {} \; 2>/dev/null
+        find "$app_home" -type f -name "*.properties" -exec dos2unix {} \; 2>/dev/null
+
+        ## 注册系统服务
+        read -p "register as a system service [y/n](default: n)? " input4
+        if [ -z "$input4" ]; then
+            input4="no"
+        fi
+        case $input4 in
+            [Yy][Ee][Ss]|[Yy])
+                ## systemctl需要指定一下java命令
+                cp -f ${app_name}.service /etc/systemd/system
+                sudo sed -i "/^\[Service\]/a Environment=java_commond=$java_commond" /etc/systemd/system/${app_name}.service
+                sudo sed -i "/^\[Service\]/a Environment=jps_commond=$jps_commond" /etc/systemd/system/${app_name}.service
+                systemctl daemon-reload 2>/dev/null
+                systemctl enable ${app_name} 2>/dev/null
+                systemctl start ${app_name} 2>/dev/null
+                LogSuccess "$app_name $app_version install complete, see details with \"journalctl -u ${app_name}\""
+                ;;
+            *)
+                LogSuccess "$app_name $app_version install complete"
+                bash "$app_home/bin/run.sh" start
+                ;;
+        esac
+    fi
 }
 
 uninstall(){
@@ -50,13 +175,16 @@ uninstall(){
     [ -n "${app_home}" ] || { LogError "app_home not set"; exit 1; }
     if [ -d "$app_home" ];then
         if [ -n "$app_home" ] && [ ! "$app_home" = "/" ];then
-            sh "$app_home/bin/run.sh" stop
-            uninstall_bak
+            rm -f /etc/systemd/system/${app_name}.service
+            systemctl disable ${app_name} 2>/dev/null
+            systemctl daemon-reload 2>/dev/null
+
+            bash "$app_home/bin/run.sh" stop
             rm -rf "$app_home"
             LogSuccess "$app_name cleared[home=$app_home]."
         fi
     fi
-    LogSuccess "$app_name uninstall success."
+    LogSuccess "$app_name uninstall complete."
 }
 
 case "$1" in

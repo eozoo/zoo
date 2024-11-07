@@ -9,3 +9,12 @@ server:
 spring:
   application:
     name: ${artifactId}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

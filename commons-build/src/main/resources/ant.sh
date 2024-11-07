@@ -84,6 +84,14 @@ cat <<EOF > classes/META-INF/git.info
 }
 EOF
   fi
+
+  ## 默认的logback，如果非docker打包，则不打console日志
+  if [ ! -f classes/logback-spring.xml ];then
+      if [ "$1" = "tar" ] || [ "$1" = "deb" ] || [ "$1" = "rpm" ]; then
+          sed -i '/<appender-ref ref="async_console"\/>/d' logback-spring.xml
+          mv logback-spring.xml classes
+      fi
+  fi
 }
 
 tar_build(){

@@ -39,7 +39,7 @@ public class InfoEndpointContributor implements InfoContributor {
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {
                 JSONObject json = JSON.parseObject(IOUtils.toString(input, StandardCharsets.UTF_8));
-                if(json.get("name") != null){
+                if(json.get("app.name") != null){
                     Map<String, Object> application = new LinkedHashMap<>();
                     application.put("name", json.get("app.name"));
                     application.put("version", json.get("app.version"));

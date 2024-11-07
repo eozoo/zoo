@@ -8,13 +8,18 @@ else
     source "$pwd/setenv.sh"
 fi
 
-java_commond=$(which java 2>/dev/null)
-if [ -n "$java_home" ];then
-    java_commond=$java_home/bin/java
+if [ -z "$java_commond" ]; then
+    java_commond=$(which java 2>/dev/null)
+    if [ -n "$java_home" ];then
+        java_commond=$java_home/bin/java
+    fi
 fi
-jps_commond=$(which jps 2>/dev/null)
-if [ -n "$java_home" ];then
-    jps_commond=$java_home/bin/jps
+
+if [ -z "$jps_commond" ]; then
+    jps_commond=$(which jps 2>/dev/null)
+    if [ -n "$java_home" ];then
+        jps_commond=$java_home/bin/jps
+    fi
 fi
 
 [ -n "${app_name}" ] || { LogError "app_name not set"; exit 1; }
@@ -76,8 +81,7 @@ start(){
     echo "[Effective java]: $java_commond" | tee -a "$app_home/log/boot.log"
     $java_commond -version 2>&1 | tee -a "$app_home/log/boot.log" || { LogError "java version failed"; exit 1; }
 
-    s_time=$(date "+%Y-%m-%d %H:%M:%S")
-    echo "Start Time: $s_time" | tee -a "$app_home/log/boot.log"
+    uname -a | tee -a "$app_home/log/boot.log"
 
     setenv file || { LogError "setenv failed"; exit 1; }
     config || { LogError "config failed"; exit 1; }

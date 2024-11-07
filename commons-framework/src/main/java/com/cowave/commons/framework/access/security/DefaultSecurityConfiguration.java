@@ -43,7 +43,7 @@ public class DefaultSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         // 无状态会话
-        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 取消X-Frame-Options，允许嵌入到<iframe>
         httpSecurity.headers().frameOptions().disable();
         // 允许跨域

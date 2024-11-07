@@ -32,7 +32,7 @@ EOF
 mkdir -p dpkg/etc/systemd/system
 cat <<EOF > dpkg/etc/systemd/system/${app_name}.service
 [Unit]
-Description=sys-eureka service
+Description=${app_name} ${app_version}
 
 [Service]
 ExecStart=/opt/cowave/${app_name}/bin/run.sh start
@@ -62,7 +62,7 @@ Priority: optional
 Architecture: amd64
 Depends:
 Maintainer: cowave.com
-Description: cowave sys service
+Description: ${app_name} ${app_version}
 EOF
 
 ## 构建deb
