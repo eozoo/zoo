@@ -23,6 +23,9 @@ prepare_build(){
   if [ -f ../deb.sh ];then
       cp -f ../deb.sh ./deb.sh
   fi
+  if [ -f ../rpm.sh ];then
+      cp -f ../rpm.sh ./rpm.sh
+  fi
   if [ -f ../favicon.ico ];then
       cp -f ../favicon.ico ./favicon.ico
   fi
@@ -170,6 +173,32 @@ deb_build(){
   build
 }
 
+rpm_build(){
+  . "./bin/setenv.sh"
+  ## jar_name=$(grep -B 4 packaging ../pom.xml | grep artifactId | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  ## jar_version=$(grep -B 4 packaging ../pom.xml | grep version | awk -F ">" '{print $2}' | awk -F "<" '{print $1}')
+  jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ../pom.xml)
+  if [ -z "$jar_name" ]; then
+      jar_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='artifactId']/text()" ../pom.xml)
+  fi
+  jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" ../pom.xml)
+  if [ -z "$jar_version" ]; then
+      jar_version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='parent']/*[local-name()='version']/text()" ../pom.xml)
+  fi
+
+  ## 如果使用了classfinal加密，重新命名下
+  if [ -f "$jar_name"-"$jar_version"-encrypted.jar ];then
+      mv "$jar_name"-"$jar_version"-encrypted.jar "$app_name"-"$app_version".jar
+  else
+      mv "$jar_name"-"$jar_version".jar "$app_name"-"$app_version".jar 2>/dev/null
+  fi
+
+  rm -f bin/install.sh
+
+  . "./rpm.sh"
+  build
+}
+
 case "$1" in
     prepare)
         prepare_build $2
@@ -182,6 +211,9 @@ case "$1" in
         ;;
     deb)
         deb_build
+        ;;
+    rpm)
+        rpm_build
         ;;
     *)
 esac

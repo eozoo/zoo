@@ -15,7 +15,6 @@ import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.feign.chooser.DefaultServiceChooser;
 import com.cowave.commons.framework.helper.feign.chooser.EurekaServiceChooser;
 import com.cowave.commons.framework.helper.feign.chooser.NacosServiceChooser;
-import com.cowave.commons.framework.helper.feign.chooser.RedisServiceChooser;
 import com.cowave.commons.framework.helper.feign.interceptor.FeignHeaderInterceptor;
 import feign.RequestInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -46,9 +45,6 @@ import javax.annotation.Nullable;
 public class FeignConfiguration {
 
     @Nullable
-    private final RedisServiceChooser redisServiceChooser;
-
-    @Nullable
     private final EurekaServiceChooser eurekaServiceChooser;
 
     @Nullable
@@ -60,7 +56,7 @@ public class FeignConfiguration {
     @ConditionalOnMissingBean(FeignServiceChooser.class)
     @Bean
     public FeignServiceChooser feignServiceChooser(){
-        return new DefaultServiceChooser(redisServiceChooser, eurekaServiceChooser, nacosServiceChooser);
+        return new DefaultServiceChooser(eurekaServiceChooser, nacosServiceChooser);
     }
 
     @Bean

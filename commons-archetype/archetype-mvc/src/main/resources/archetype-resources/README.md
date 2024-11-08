@@ -37,6 +37,7 @@ ${artifactId}
    │
    ├─tar.sh                                    ${symbol_pound}${symbol_pound} Tar构建                   （默认，可覆盖）
    ├─deb.sh                                    ${symbol_pound}${symbol_pound} Deb构建                   （默认，可覆盖）
+   ├─rpm.sh                                    ${symbol_pound}${symbol_pound} Rpm构建                   （默认，可覆盖）
    ├─docker.sh                                 ${symbol_pound}${symbol_pound} Docker构建                （默认，可覆盖）
    ├─pom.xml    
    ├─favicon.ico                               ${symbol_pound}${symbol_pound} 网页图标                   （默认，可覆盖）
@@ -45,7 +46,8 @@ ${artifactId}
 
 - 应用打包
 
-`maven clean install -Dbuild=jar` springboot默认的打包方式，整个打成一个jar包，使用命令行自行启动；    
-`maven clean install -Dbuild=tar` 打成Tar包，针对Linux环境下的裸机安装；    
-`maven clean install -Dbuild=deb` 打成Deb包，针对ubuntu环境下的裸机安装；    
+`maven clean install -Dbuild=jar` 打成springboot jar，使用java -jar启动       
+`maven clean install -Dbuild=tar` 打成Tar包      
+`maven clean install -Dbuild=deb` 打成Deb包       
+`maven clean install -Dbuild=rpm` 打成Rpm包       
 `maven clean install -Dbuild=docker` 打成Docker镜像

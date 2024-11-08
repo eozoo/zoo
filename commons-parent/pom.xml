@@ -505,5 +505,110 @@
                 </plugins>
             </build>
         </profile>
+        <!-- rpm包 -->
+        <profile>
+            <id>build-rpm</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+                <property>
+                    <name>build</name>
+                    <value>rpm</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.2.2</version>
+                        <executions>
+                            <execution>
+                                <id>default-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <finalName>${project.name}-${project.version}</finalName>
+                                    <classesDirectory>${project.build.directory}/classes</classesDirectory>
+                                    <excludes>
+                                        <exclude>config/**</exclude>
+                                        <exclude>smart-doc.json</exclude>
+                                        <exclude>**/*.java</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>2.7.0</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                                <exclude>
+                                    <groupId>com.alibaba.p3c</groupId>
+                                    <artifactId>p3c-pmd</artifactId>
+                                </exclude>
+                            </excludes>
+                            <includeSystemScope>true</includeSystemScope>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>sh-prepare</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <failOnError>true</failOnError>
+                                    <target>
+                                        <exec executable="bash" dir="${project.build.directory}">
+                                            <arg value="${project.build.directory}/ant.sh"/>
+                                            <arg value="prepare"/>
+                                            <arg value="rpm"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>sh-build</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <failOnError>true</failOnError>
+                                    <target>
+                                        <exec executable="bash" dir="${project.build.directory}">
+                                            <arg value="${project.build.directory}/ant.sh"/>
+                                            <arg value="rpm"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

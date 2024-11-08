@@ -19,15 +19,15 @@ build(){
 cat <<EOF > Dockerfile
 FROM openjdk:17-oracle
 
-WORKDIR /opt/cowave/${app_name}
+WORKDIR ${app_home}
 
-ADD bin /opt/cowave/${app_name}/bin/
-ADD classes/config /opt/cowave/${app_name}/config/
-ADD "$app_name"-"$app_version".jar /opt/cowave/${app_name}/lib/
+ADD bin ${app_home}/bin/
+ADD classes/config ${app_home}/config/
+ADD "$app_name"-"$app_version".jar ${app_home}/lib/
 
 ENTRYPOINT ["bin/run.sh", "up"]
 EOF
 
-docker build -t cowave/$app_name:$app_version .
+docker build -t $app_name:$app_version .
 }
 

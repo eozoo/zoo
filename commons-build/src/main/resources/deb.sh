@@ -17,14 +17,14 @@
 ## 工作目录为target
 build(){
 
-mkdir -p dpkg${app_home}/lib
 ## 拷贝文件
+mkdir -p dpkg${app_home}/lib
 mv bin dpkg${app_home}
 mv "$app_name"-"$app_version".jar dpkg${app_home}/lib
 cp -rf classes/config dpkg${app_home}
 
-mkdir -p dpkg/etc/systemd/system
 ## 系统服务
+mkdir -p dpkg/etc/systemd/system
 cat <<EOF > dpkg/etc/systemd/system/${app_name}.service
 [Unit]
 Description=${app_name} ${app_version}
@@ -44,8 +44,8 @@ EOF
 env_config="${app_home}/bin/env.properties"
 bak_config="${app_home}/bin/env.properties.bak"
 
-mkdir -p dpkg/DEBIAN
 ## 安装前操作
+mkdir -p dpkg/DEBIAN
 cat <<EOF > dpkg/DEBIAN/preinst
 #! /bin/bash
 

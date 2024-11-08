@@ -134,8 +134,13 @@ install(){
         install_copy || {
             LogError "install terminated unexpectedly: copy failed."
             if [ -n "$app_home" ] && [ "$app_home" != "/" ]; then
-                ## 删除（安全隐患）
-                rm -rf "$app_home"
+                level_count=$(echo "$app_home" | tr -cd '/' | wc -c)
+                if [ "$level_count" -ge 2 ]; then
+                    ## 风险操作，只允许删除二级以下目录
+                    rm -rf "$app_home"
+                else
+                    LogError "$app_home is top dir, which is not allowed to be deleted"
+                fi
             fi
             exit 1
         }
@@ -181,9 +186,14 @@ uninstall(){
             systemctl daemon-reload 2>/dev/null
             ## 停止服务
             bash "$app_home/bin/run.sh" stop
-            ## 删除（安全隐患）
-            rm -rf "$app_home"
-            LogSuccess "$app_name cleared[home=$app_home]."
+            level_count=$(echo "$app_home" | tr -cd '/' | wc -c)
+            if [ "$level_count" -ge 2 ]; then
+                ## 风险操作，只允许删除二级以下目录
+                rm -rf "$app_home"
+                LogSuccess "$app_name cleared[home=$app_home]"
+            else
+                LogError "$app_home is top dir, which is not allowed to be deleted"
+            fi
         fi
     fi
     LogSuccess "$app_name uninstall complete."
