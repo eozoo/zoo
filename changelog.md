@@ -1,3 +1,17 @@
+## [2.7.5](https://github.com/cowave5/commons/-/tags/2.7.5) (2024-11-09)
+
+
+
+    ### Features
+
+  -  [<font style="font-family: monospace;">[`b67dc8ca8d1b396`](https://github.com/cowave5/commons/commit/b67dc8ca8d1b396)</font>] (**favicon**)   打包默认提供一个favicon.ico
+
+
+    ### Bug Fixes
+
+  -  interceptor注入问题
+  -  [<font style="font-family: monospace;">[`89543a97e82189c`](https://github.com/cowave5/commons/commit/89543a97e82189c)</font>] (**access**)   AccessFilter警告级别在响应中打印下请求信息
+
 ## [2.7.4](https://github.com/cowave5/commons/-/tags/2.7.4) (2024-10-28)
 
 
