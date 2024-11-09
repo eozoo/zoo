@@ -44,10 +44,7 @@ mvn archetype:generate                \
 -DgroupId=com.cowave.demo      \
 -DartifactId=demo-mvc          \
 -Dversion=1.0.0                \
--Dpackage=com.cowave.demo.mvc  \
--DserverPath=/     \
--DserverPort=8080  \
--Dauthor=cowave    
+-Dpackage=com.cowave.demo.mvc
 ```
 
 - 目录结构
@@ -104,10 +101,7 @@ mvn archetype:generate                \
 -DgroupId=com.cowave.demo      \
 -DartifactId=demo-ddd          \
 -Dversion=1.0.0                \
--Dpackage=com.cowave.demo.ddd  \
--DserverPath=/     \
--DserverPort=8080  \
--Dauthor=cowave    
+-Dpackage=com.cowave.demo.ddd
 ```
 
 - 目录结构
