@@ -28,6 +28,10 @@ public class AccessUserParser {
     @SuppressWarnings("rawtypes")
     public void parse(Class<?> clazz, Object arg) {
         Access access = Access.get();
+        if(access == null){
+            return;
+        }
+
         AccessToken accessToken = access.getAccessToken();
         if(accessToken == null){
             return;

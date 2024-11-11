@@ -76,7 +76,9 @@ public class AccessLogger {
         if(access == null){
             // 请求未经过AccessFilter
             HttpServletRequest httpServletRequest = Access.httpRequest();
-            assert httpServletRequest != null;
+            if(httpServletRequest == null){
+                return;
+            }
             if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
                 return; // error路径直接跳过
             }
