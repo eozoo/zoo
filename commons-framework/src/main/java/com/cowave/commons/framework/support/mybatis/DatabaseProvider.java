@@ -71,18 +71,24 @@ public class DatabaseProvider implements DatabaseIdProvider {
     private final ConcurrentHashMap<String, String> currentDb = new ConcurrentHashMap<>();
 
     static {
+        DB_PRODUCT.put("H2", "H2");
         DB_PRODUCT.put("OSCAR", "oscar");
         DB_PRODUCT.put("MySQL", "mysql");
         DB_PRODUCT.put("Oracle", "oracle");
         DB_PRODUCT.put("PostgreSQL", "postgres");
-        DB_PRODUCT.put("H2", "H2");
+        DB_PRODUCT.put("KingbaseES", "postgres");
     }
 
     @Override
     public String getDatabaseId(DataSource dataSource) throws SQLException {
         try(Connection connection = dataSource.getConnection()){
-            String databaseId = DB_PRODUCT.get(connection.getMetaData().getDatabaseProductName());
-            currentDb.put(KEY_DB_TYPE, databaseId);
+            String productName = connection.getMetaData().getDatabaseProductName();
+            String databaseId = DB_PRODUCT.get(productName);
+            if(databaseId == null){
+                currentDb.put(KEY_DB_TYPE, productName);
+            }else{
+                currentDb.put(KEY_DB_TYPE, databaseId);
+            }
             return databaseId;
         }
     }
