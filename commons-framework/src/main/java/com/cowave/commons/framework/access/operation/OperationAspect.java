@@ -9,9 +9,6 @@
  */
 package com.cowave.commons.framework.access.operation;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.cowave.commons.framework.access.Access;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +33,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequ
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -67,17 +66,17 @@ public class OperationAspect {
     @AfterReturning(pointcut = "oplog() && @annotation(operation)", returning = "resp")
     public void doAfter(JoinPoint joinPoint, Operation operation, Object resp) {
         EvaluationContext context = new StandardEvaluationContext();
-        OperationInfo operationInfo = new OperationInfo();
+        // 参数信息
         Map<String, Object> argMap = new HashMap<>();
-        if (prepareOperation(joinPoint, operation, argMap, operationInfo, context)) {
-            // Evaluation参数
-            context.setVariable("resp", resp);
-            context.setVariable("exception", null);
-            // 操作信息
-            operationInfo.setSuccess(true);
-            operationInfo.setDesc(parseDesc(operation, context));
-            context.setVariable("opInfo", operationInfo);
-            // 处理日志
+        // 操作信息
+        OperationInfo operationInfo = new OperationInfo();
+        boolean specifyHandle = prepareOperation(joinPoint, operation, argMap, operationInfo, context);
+        operationInfo.setSuccess(true);
+        operationInfo.setDesc(parseDesc(operation, context));
+        context.setVariable("opInfo", operationInfo);
+        context.setVariable("resp", resp);
+        context.setVariable("exception", null);
+        if (specifyHandle) {
             handleOperation(operation, context);
         } else {
             defaultHandle(operationInfo, argMap, resp, null);
@@ -87,17 +86,17 @@ public class OperationAspect {
     @AfterThrowing(pointcut = "oplog() && @annotation(operation)", throwing = "e")
     public void doThrow(JoinPoint joinPoint, Operation operation, Exception e) {
         EvaluationContext context = new StandardEvaluationContext();
-        OperationInfo operationInfo = new OperationInfo();
+        // 参数信息
         Map<String, Object> argMap = new HashMap<>();
-        if (prepareOperation(joinPoint, operation, argMap, operationInfo, context)) {
-            // Evaluation参数
-            context.setVariable("resp", null);
-            context.setVariable("exception", e);
-            // 操作信息
-            operationInfo.setSuccess(false);
-            operationInfo.setDesc(parseDesc(operation, context));
-            context.setVariable("opInfo", operationInfo);
-            // 处理日志
+        // 操作信息
+        OperationInfo operationInfo = new OperationInfo();
+        boolean specifyHandle = prepareOperation(joinPoint, operation, argMap, operationInfo, context);
+        operationInfo.setSuccess(false);
+        operationInfo.setDesc(parseDesc(operation, context));
+        context.setVariable("opInfo", operationInfo);
+        context.setVariable("resp", null);
+        context.setVariable("exception", e);
+        if (specifyHandle) {
             handleOperation(operation, context);
         } else {
             defaultHandle(operationInfo, argMap, null, e);
@@ -116,25 +115,6 @@ public class OperationAspect {
 
     private boolean prepareOperation(JoinPoint joinPoint, Operation operation,
                                      Map<String, Object> argMap, OperationInfo opInfo, EvaluationContext context){
-        String handleExpr = operation.handleExpr();
-        if(StringUtils.isBlank(handleExpr)){
-            return false;
-        }
-
-        int startIndex = handleExpr.indexOf("#") + 1;
-        int endIndex = handleExpr.indexOf(".");
-        if(startIndex == 0 || endIndex == -1){
-            throw new RuntimeException("invalid handleExpr: " + handleExpr);
-        }
-
-        String handlerBean = handleExpr.substring(startIndex, endIndex);
-        if(!applicationContext.containsBean(handlerBean)){
-            throw new RuntimeException(" can't found bean of " + handlerBean + " in handleExpr: " + handleExpr);
-        }
-
-        // 处理方法
-        context.setVariable(handlerBean, applicationContext.getBean(handlerBean));
-
         // 方法参数
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Object[] args = joinPoint.getArgs();
@@ -172,6 +152,26 @@ public class OperationAspect {
         opInfo.setOpAction(operation.action());
         opInfo.setOpArgs(argMap);
         opInfo.setOpCost(System.currentTimeMillis() - Access.accessTime().getTime());
+
+        // handleExpr
+        String handleExpr = operation.handleExpr();
+        if(StringUtils.isBlank(handleExpr)){
+            return false;
+        }
+
+        int startIndex = handleExpr.indexOf("#") + 1;
+        int endIndex = handleExpr.indexOf(".");
+        if(startIndex == 0 || endIndex == -1){
+            throw new RuntimeException("invalid handleExpr: " + handleExpr);
+        }
+
+        String handlerBean = handleExpr.substring(startIndex, endIndex);
+        if(!applicationContext.containsBean(handlerBean)){
+            throw new RuntimeException(" can't found bean of " + handlerBean + " in handleExpr: " + handleExpr);
+        }
+
+        // 处理方法
+        context.setVariable(handlerBean, applicationContext.getBean(handlerBean));
         return true;
     }
 
