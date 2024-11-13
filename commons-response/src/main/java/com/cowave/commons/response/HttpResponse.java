@@ -34,17 +34,14 @@ public class HttpResponse<T> extends ResponseEntity<T> {
      */
     private String message;
 
+    private Throwable cause;
+
     public HttpResponse(){
         super(HttpStatus.OK);
     }
 
-    public HttpResponse(int httpStatus, MultiValueMap<String, String> headers, T body) {
-        super(body, headers, httpStatus);
-    }
-
-    public HttpResponse(int httpStatus, MultiValueMap<String, String> headers, T body, String message) {
-        super(body, headers, httpStatus);
-        this.message = message;
+    public HttpResponse(ResponseCode responseCode){
+        super(null, null, responseCode.getStatus());
     }
 
     public HttpResponse(ResponseCode responseCode, MultiValueMap<String, String> headers, T body) {
@@ -53,6 +50,15 @@ public class HttpResponse<T> extends ResponseEntity<T> {
 
     public HttpResponse(ResponseCode responseCode, MultiValueMap<String, String> headers, T body, String message) {
         super(body, headers, responseCode.getStatus());
+        this.message = message;
+    }
+
+    public HttpResponse(int httpStatus, MultiValueMap<String, String> headers, T body) {
+        super(body, headers, httpStatus);
+    }
+
+    public HttpResponse(int httpStatus, MultiValueMap<String, String> headers, T body, String message) {
+        super(body, headers, httpStatus);
         this.message = message;
     }
 
