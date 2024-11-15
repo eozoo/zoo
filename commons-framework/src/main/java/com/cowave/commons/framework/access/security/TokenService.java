@@ -55,6 +55,7 @@ import static com.cowave.commons.response.HttpResponseCode.*;
 public class TokenService {
     private static final String CLAIM_ID = "Token.id";
     private static final String CLAIM_TYPE = "Token.type";
+    private static final String CLAIM_CONFLICT = "Token.conflict";
     private static final String CLAIM_USER_IP = "User.ip";
     private static final String CLAIM_USER_ID = "User.id";
     private static final String CLAIM_USER_CODE = "User.code";
@@ -97,6 +98,7 @@ public class TokenService {
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
                 .claim(CLAIM_TYPE,          token.getType())
                 .claim(CLAIM_USER_IP,       Access.accessIp())
+                .claim(CLAIM_CONFLICT,      accessProperties.tokenConflict() ? "Y" : "N")
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.tokenSalt())
                 .setExpiration(new Date(System.currentTimeMillis() + accessProperties.tokenAccessExpire() * 1000L))
@@ -194,7 +196,8 @@ public class TokenService {
 
         // IP变化，要求重新刷一下accessToken
         String userIp = (String)claims.get(CLAIM_USER_IP);
-        if(accessProperties.tokenConflict() && !Objects.equals(Access.accessIp(), userIp)) {
+        String tokenConflict = (String)claims.get(CLAIM_CONFLICT);
+        if("Y".equals(tokenConflict) && !Objects.equals(Access.accessIp(), userIp)) {
             writeResponse(response, INVALID_TOKEN, "frame.auth.ipchanged");
             return null;
         }
@@ -275,7 +278,7 @@ public class TokenService {
     /**
      * 创建AccessToken
      */
-    public String createAccessToken(AccessToken token, int accessExpire) {
+    public String newApiToken(AccessToken token, int accessExpire) {
         return Jwts.builder()
                 .claim(CLAIM_USER_ID,       String.valueOf(token.getUserId())) // Long取出来是Integer，干脆用String处理
                 .claim(CLAIM_USER_CODE,     token.getUserCode())
@@ -289,6 +292,8 @@ public class TokenService {
                 .claim(CLAIM_CLUSTER_NAME,  applicationProperties.getClusterName())
                 .claim(CLAIM_USER_ROLE,     token.getRoles())
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
+                //.claim(CLAIM_USER_IP,       Access.accessIp())
+                //.claim(CLAIM_CONFLICT,      accessProperties.tokenConflict() ? "Y" : "N")
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.tokenSalt())
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))

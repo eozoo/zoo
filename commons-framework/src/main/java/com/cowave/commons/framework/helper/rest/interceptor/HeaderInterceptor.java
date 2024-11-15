@@ -83,6 +83,6 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         appToken.setUserId(-1L);
         appToken.setDeptId(-1L);
         appToken.setUsername(applicationProperties.getName());
-        return tokenService.createAccessToken(appToken, 300);
+        return tokenService.newApiToken(appToken, 300);
     }
 }
