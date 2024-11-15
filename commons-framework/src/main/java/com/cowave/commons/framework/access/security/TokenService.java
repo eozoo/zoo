@@ -96,6 +96,7 @@ public class TokenService {
                 .claim(CLAIM_USER_ROLE,     token.getRoles())
                 .claim(CLAIM_USER_PERM,     token.getPermissions())
                 .claim(CLAIM_TYPE,          token.getType())
+                .claim(CLAIM_USER_IP,       Access.accessIp())
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.tokenSalt())
                 .setExpiration(new Date(System.currentTimeMillis() + accessProperties.tokenAccessExpire() * 1000L))
