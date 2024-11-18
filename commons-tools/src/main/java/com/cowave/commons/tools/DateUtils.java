@@ -24,17 +24,9 @@ import java.util.List;
  */
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
-    public static final String YYYY = "yyyy";
+    public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    public static final String YYYY_MM = "yyyy-MM";
-
-    public static final String YYYY_MM_DD = "yyyy-MM-dd";
-
-    public static final String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
-
-    public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
-
-    private static final String[] PARSE_PATTERNS = {
+    private static final String[] FORMATS = {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM",
             "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
             "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
@@ -57,7 +49,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * 格式化时间
      */
     public static String format(Date date) {
-        return new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(date);
+        return new SimpleDateFormat(FORMAT).format(date);
     }
 
     /**
@@ -104,7 +96,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
             return null;
         }
         try{
-            return parseDate(date, PARSE_PATTERNS);
+            return parseDate(date, FORMATS);
         }catch (ParseException e){
             throw new IllegalArgumentException(e);
         }
@@ -113,7 +105,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 相对当前时间，根据偏移量计算日期
      */
-    public Date shift(int shift, int calendarField) {
+    public static Date shift(int shift, int calendarField) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(calendarField, shift);
@@ -123,7 +115,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 相对当前时间，根据偏移量计算日期，并设置时分秒
      */
-    public Date shiftAndSet(int shift, int calendarField, Integer hour, Integer minute, Integer second) {
+    public static Date shiftAndSet(int shift, int calendarField, Integer hour, Integer minute, Integer second) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(calendarField, shift);
@@ -143,14 +135,14 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 相对当前时间，根据偏移量获取格式化时间列表
      */
-    public List<String> getFormatListWithShift(int shift, int calendarField, String format) {
+    public static List<String> getFormatListWithShift(int shift, int calendarField, String format) {
         return getFormatListWithShift(shift, calendarField, format, new Date());
     }
 
     /**
      * 相对指定时间，根据偏移量获取格式化时间列表
      */
-    public List<String> getFormatListWithShift(int shift, int calendarField, String format, Date date) {
+    public static List<String> getFormatListWithShift(int shift, int calendarField, String format, Date date) {
         DateFormat dateFormat = new SimpleDateFormat(format);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -180,7 +172,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 指定区间内，获取格式化时间列表
      */
-    public List<String> getFormatListWithShift(String format, String beginDate, String endDate) {
+    public static List<String> getFormatListWithShift(String format, String beginDate, String endDate) {
         List<String> list = new ArrayList<>();
         list.add(beginDate);
 

@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
@@ -32,8 +33,10 @@ public class HttpResponse<T> extends ResponseEntity<T> {
     /**
      * 非200响应时，body序列化T类型可能失败，所以这里加个字段存放描述信息
      */
+    @JsonIgnore
     private String message;
 
+    @JsonIgnore
     private Throwable cause;
 
     public HttpResponse(){
