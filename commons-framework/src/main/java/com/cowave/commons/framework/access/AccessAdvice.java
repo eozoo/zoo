@@ -87,50 +87,50 @@ public class AccessAdvice {
         return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
     }
 
-    @ExceptionHandler(HttpMessageConversionException.class)
-    public HttpResponse<Response<Void>> handleHttpMessageConversionException(HttpMessageConversionException e) {
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, Messages.msg("frame.advice.httpMessageConversionException"));
-    }
-
     @ExceptionHandler(AccessDeniedException.class)
     public HttpResponse<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
         return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_0, Messages.msg("frame.auth.denied"));
     }
 
-    /* ***************************************************************************
-     * ERR_LEVEL_1 不打印异常日志，Response.cause记录e.getMessage()
-     * ***************************************************************************/
-
     @ExceptionHandler(HttpHintException.class)
     public HttpResponse<Response<Void>> handleHttpHintException(HttpHintException e) {
+        return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_0, e.getMessage());
+    }
+
+    /* ***************************************************************************
+     * ERR_LEVEL_1 异常日志打印e.getMessage()，Response.cause记录e.getMessage()
+     * ***************************************************************************/
+
+    @ExceptionHandler(HttpWarnException.class)
+    public HttpResponse<Response<Void>> handleHttpHttpWarnException(HttpWarnException e) {
         return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_1, e.getMessage());
+    }
+
+    /* ***************************************************************************
+     * ERR_LEVEL_2 异常日志打印堆栈，Response.cause记录e.getMessage()
+     * ***************************************************************************/
+
+    @ExceptionHandler(HttpMessageConversionException.class)
+    public HttpResponse<Response<Void>> handleHttpMessageConversionException(HttpMessageConversionException e) {
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, Messages.msg("frame.advice.httpMessageConversionException"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public HttpResponse<Response<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String message = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, message);
     }
 
     @ExceptionHandler(BindException.class)
     public HttpResponse<Response<Void>> handleBindException(BindException e) {
         String message = e.getAllErrors().get(0).getDefaultMessage();
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, message);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public HttpResponse<Response<Void>> handleConstraintViolationException(ConstraintViolationException e) {
         String message = e.getMessage().split(": ")[1];
-        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_1, message);
-    }
-
-    /* ***************************************************************************
-     * ERR_LEVEL_2 异常日志打印e.getMessage()，Response.cause记录e.getMessage()
-     * ***************************************************************************/
-
-    @ExceptionHandler(HttpWarnException.class)
-    public HttpResponse<Response<Void>> handleHttpHttpWarnException(HttpWarnException e) {
-        return error(e, e.getStatus(), e.getCode(), ERR_LEVEL_2, e.getMessage());
+        return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_2, message);
     }
 
     /* ***************************************************************************
@@ -174,9 +174,9 @@ public class AccessAdvice {
 
     private HttpResponse<Response<Void>> error(Exception e, int httpStatus, String code, int errLevel, String message) {
         // 异常日志
-        if(errLevel == ERR_LEVEL_3){
+        if(errLevel >= ERR_LEVEL_2){
             AccessLogger.error("", e);
-        }else if(errLevel == ERR_LEVEL_2 && e.getMessage() != null){
+        }else if(errLevel == ERR_LEVEL_1 && e.getMessage() != null){
             AccessLogger.error(e.getMessage());
         }
 
