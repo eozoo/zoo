@@ -146,8 +146,9 @@ mvn archetype:generate                \
    │   ├─pom.xml  
    │   ├─favicon.ico                               ## 网页图标                （默认，可覆盖）
    │   ├─tar.sh                                    ## Tar构建                （默认，可覆盖）
-   │   ├─deb.sh                                    ## Deb构建脚本             （默认，可覆盖）
-   │   └─docker.sh                                 ## Docker构建脚本          （默认，可覆盖）
+   │   ├─deb.sh                                    ## Deb构建                （默认，可覆盖）
+   │   ├─rpm.sh                                    ## Rpm构建                （默认，可覆盖）
+   │   └─docker.sh                                 ## Docker构建             （默认，可覆盖）
    ├─pom.xml    
    └─README.md   
 ```

@@ -9,7 +9,6 @@
  */
 package com.cowave.commons.framework.access.filter;
 
-import cn.hutool.core.util.StrUtil;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.tools.Converts;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.github.pagehelper.page.PageMethod;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 
@@ -42,11 +40,11 @@ import java.util.*;
  */
 public class AccessRequestWrapper extends HttpServletRequestWrapper {
     private static final String PAGE = "page";
-    private static final String PAGE_NUM = "pageNum";
     private static final String PAGE_INDEX = "pageIndex";
+    private static final String PAGE_NO = "pageNo";
+    private static final String PAGE_NUM = "pageNum";
+    private static final String PAGE_NUMBER = "pageNumber";
     private static final String PAGE_SIZE = "pageSize";
-    private static final String IS_ASC = "isAsc";
-    private static final String ORDER_COLUMN = "orderColumn";
 
     private String body = "";
 
@@ -172,49 +170,29 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
         access.setPageIndex(pageIndex);
         access.setPageSize(pageSize);
 
-        // 避免被线程复用，先清除下设置
+        // 清除pageHelper设置
         PageMethod.clearPage();
-        // 设置PageHelper，如果引入依赖的话这里检测到分页参数就默认设置
-        if(index != null && size != null){
-            String orderByColumn = paramMap.get(ORDER_COLUMN);
-            String isAsc = paramMap.get(IS_ASC);
-            String orderBy = getOrderBy(orderByColumn, isAsc);
-            PageMethod.startPage(pageIndex, pageSize, orderBy).setReasonable(true);
-        }
     }
 
     private Object getPageIndex(Map<String, ?> paramMap){
         Object page = paramMap.get(PAGE);
         if(page == null){
+            page = paramMap.get(PAGE_INDEX);
+        }
+        if(page == null){
+            page = paramMap.get(PAGE_NO);
+        }
+        if(page == null){
             page = paramMap.get(PAGE_NUM);
         }
         if(page == null){
-            page = paramMap.get(PAGE_INDEX);
+            page = paramMap.get(PAGE_NUMBER);
         }
         return page;
     }
 
     private Object getPageSize(Map<String, ?> paramMap){
         return paramMap.get(PAGE_SIZE);
-    }
-
-    private String getOrderBy(String orderByColumn, String isAsc) {
-        if (ObjectUtils.isEmpty(orderByColumn)) {
-            return "";
-        }
-        return StrUtil.toUnderlineCase(orderByColumn) + " " + getIsAsc(isAsc);
-    }
-
-    private String getIsAsc(String isAsc) {
-        if (ObjectUtils.isNotEmpty(isAsc)) {
-            if ("ascending".equals(isAsc)) { // 兼容前端排序类型
-                return "asc";
-            } else if ("descending".equals(isAsc)) {
-                return "desc";
-            }
-            return isAsc;
-        }
-        return "";
     }
 }
 
