@@ -41,16 +41,17 @@ public class SocketIoHelper {
 
     @PostConstruct
     private void init() {
-        if(connectedHandler != null) {
-            socketIOServer.addConnectListener(client -> {
-                Long userId = getUserId(client);
-                if (userId != null) {
-                    socketclientMap.put(userId, client);
-                    connectedHandler.onConnected(userId, SocketIoHelper.this);
-                }
-            });
-        }
-
+        // 连接处理
+        socketIOServer.addConnectListener(client -> {
+            Long userId = getUserId(client);
+            if (userId != null) {
+                socketclientMap.put(userId, client);
+            }
+            if (connectedHandler != null) {
+                connectedHandler.onConnected(userId, SocketIoHelper.this);
+            }
+        });
+        // 断开处理
         socketIOServer.addDisconnectListener(client -> {
             Long userId = getUserId(client);
             if (userId != null) {
@@ -58,15 +59,15 @@ public class SocketIoHelper {
                 client.disconnect();
             }
         });
-
-        if(clientMsgHandler != null) {
+        // 前端消息处理
+        if (clientMsgHandler != null) {
             String event = clientMsgHandler.getEvent();
             socketIOServer.addEventListener(event, String.class, (client, data, ackSender) -> {
                 Long userId = getUserId(client);
                 clientMsgHandler.onMsg(userId, data);
+
             });
         }
-
         socketIOServer.start();
     }
 
