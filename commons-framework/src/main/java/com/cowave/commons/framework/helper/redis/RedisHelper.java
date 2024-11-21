@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.helper.redis;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import java.util.stream.IntStream;
 
 import com.cowave.commons.response.exception.Asserts;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.connection.RedisServerCommands;
@@ -74,7 +76,15 @@ public class RedisHelper{
      * @see <a href="https://redis.io/commands/keys">Redis Documentation: KEYS</a>
      */
     public Collection<String> keys(final String pattern){
-        return redisTemplate.keys(pattern);
+        List<String> keys = new ArrayList<>();
+        redisTemplate.execute((RedisConnection connection) -> {
+            Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(100).build());
+            while (cursor.hasNext()) {
+                keys.add(new String(cursor.next(), StandardCharsets.UTF_8));
+            }
+            return null;
+        });
+        return keys;
     }
 
     /**

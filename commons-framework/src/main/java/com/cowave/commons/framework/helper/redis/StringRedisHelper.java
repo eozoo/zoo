@@ -15,6 +15,7 @@ import com.cowave.commons.response.exception.Asserts;
 import com.cowave.commons.tools.Collections;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.connection.RedisServerCommands;
@@ -25,6 +26,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -84,7 +86,15 @@ public class StringRedisHelper {
      * @see <a href="https://redis.io/commands/keys">Redis Documentation: KEYS</a>
      */
     public Collection<String> keys(final String pattern){
-        return stringRedisTemplate.keys(pattern);
+        List<String> keys = new ArrayList<>();
+        stringRedisTemplate.execute((RedisConnection connection) -> {
+            Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(100).build());
+            while (cursor.hasNext()) {
+                keys.add(new String(cursor.next(), StandardCharsets.UTF_8));
+            }
+            return null;
+        });
+        return keys;
     }
 
     /**
