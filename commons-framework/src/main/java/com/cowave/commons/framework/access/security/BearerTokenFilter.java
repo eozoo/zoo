@@ -18,8 +18,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -35,40 +35,57 @@ public class BearerTokenFilter extends OncePerRequestFilter {
 
     private final List<AntPathRequestMatcher> permitAllMatchers = new ArrayList<>();
 
+    private final List<AntPathRequestMatcher> authMatchers = new ArrayList<>();
+
     private final BearerTokenService bearerTokenService;
 
     private final boolean useRefreshToken;
 
-    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String... ignoreUrls) {
+    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String[] authUrls, String[] ignoreUrls) {
         this.useRefreshToken = useRefreshToken;
         this.bearerTokenService = bearerTokenService;
-        if(ignoreUrls != null && ignoreUrls.length > 0){
+        if(ArrayUtils.isNotEmpty(authUrls)){
+            Arrays.stream(authUrls).map(AntPathRequestMatcher::new).forEach(authMatchers::add);
+        }
+        if(ArrayUtils.isNotEmpty(ignoreUrls)){
             Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
         }
     }
 
     @Override
-    protected void doFilterInternal(
-            @NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain chain) throws ServletException, IOException {
-        for (AntPathRequestMatcher matcher : permitAllMatchers) {
-            if (matcher.matches(request)) {
-                chain.doFilter(request, response);
-                return;
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        if (!authMatchers.isEmpty()) {
+            for (AntPathRequestMatcher matcher : authMatchers) {
+                if (matcher.matches(request)) {
+                    bearerAuth(request, response, chain);
+                    return;
+                }
             }
+            chain.doFilter(request, response);
+        } else {
+            for (AntPathRequestMatcher matcher : permitAllMatchers) {
+                if (matcher.matches(request)) {
+                    chain.doFilter(request, response);
+                    return;
+                }
+            }
+            bearerAuth(request, response, chain);
         }
+    }
 
+    private void bearerAuth(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         AccessToken accessToken;
-        if(useRefreshToken){
+        if (useRefreshToken) {
             accessToken = bearerTokenService.dualParseToken(response);
-        }else{
+        } else {
             accessToken = bearerTokenService.simpleParseToken(response);
         }
         if (accessToken == null) {
             return;
         }
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
     }
 }

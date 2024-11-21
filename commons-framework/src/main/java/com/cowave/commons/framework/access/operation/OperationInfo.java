@@ -49,6 +49,16 @@ public class OperationInfo {
     private Object userCode;
 
     /**
+     * userName
+     */
+    private String userName;
+
+    /**
+     * userAccount
+     */
+    private String userAccount;
+
+    /**
      * deptId
      */
     private Object deptId;
@@ -57,6 +67,11 @@ public class OperationInfo {
      * deptCode
      */
     private Object deptCode;
+
+    /**
+     * deptName
+     */
+    private String deptName;
 
     /**
      * 请求参数
@@ -72,6 +87,11 @@ public class OperationInfo {
      * 操作动作
      */
     private String opAction;
+
+    /**
+     * 操作处理标识
+     */
+    private String opFlag;
 
     /**
      * 操作耗时
@@ -96,11 +116,11 @@ public class OperationInfo {
         return converter.apply(userId);
     }
 
-    public <T> T getaUserCode(){
+    public <T> T getUserCode(){
         return (T)userCode;
     }
 
-    public <T> T getaUserCode(Function<Object, T> converter) {
+    public <T> T getUserCode(Function<Object, T> converter) {
         return converter.apply(userCode);
     }
 

@@ -36,6 +36,11 @@ public @interface Operation {
     String action() default "";
 
     /**
+     * 处理标识
+     */
+    String flag() default "";
+
+    /**
      * 操作描述，支持SPEL，可用参数
      * <p> 1.方法入参
      * <p> 2.resp: 返回值

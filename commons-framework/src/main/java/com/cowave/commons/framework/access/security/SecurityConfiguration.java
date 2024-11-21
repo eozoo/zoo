@@ -11,6 +11,7 @@ package com.cowave.commons.framework.access.security;
 
 import com.cowave.commons.framework.access.AccessProperties;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,7 +31,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author shanhuiming
@@ -47,66 +51,98 @@ public class SecurityConfiguration {
     @Nullable
     private final BearerTokenService bearerTokenService;
 
-    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "basic", matchIfMissing = true)
-    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
-    @Bean
-    public SecurityFilterChain basicSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        // 无状态会话
-        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        // 取消X-Frame-Options，允许嵌入到<iframe>
-        httpSecurity.headers().frameOptions().disable();
-        // 允许跨域
-        httpSecurity.csrf().disable();
-        // username:password Base64编码
-        httpSecurity.httpBasic();
-        // 需要认证的Url
-        httpSecurity.authorizeRequests()
-                .antMatchers(accessProperties.getSecurityUrls()).authenticated().anyRequest().permitAll();
-        return httpSecurity.build();
-    }
-
-    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "basic", matchIfMissing = true)
-    @ConditionalOnMissingBean(UserDetailsService.class)
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        List<BasicAuthUser> userList = accessProperties.getSecurityUsers();
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        for (BasicAuthUser user : userList) {
-            manager.createUser(User.withUsername(user.getUsername())
-                    .password(passwordEncoder.encode(user.getPassword()))
-                    .roles(user.getRoles()).build());
-        }
-        return manager;
-    }
-
-    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "basic", matchIfMissing = true)
     @ConditionalOnMissingBean(PasswordEncoder.class)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "access")
-    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @ConditionalOnMissingBean(UserDetailsService.class)
     @Bean
-    public SecurityFilterChain bearerSimpleSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return newSecurityFilterChain(httpSecurity, false);
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        List<BasicAuthUser> userList = accessProperties.basicUsers();
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        for (BasicAuthUser user : userList) {
+            manager.createUser(User.withUsername(user.getUsername())
+                    .password(passwordEncoder.encode(user.getPassword())).roles(user.getRoles()).build());
+        }
+        return manager;
     }
 
-    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "access-refresh")
     @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @ConditionalOnProperty(name = "spring.access.auth.mode", havingValue = "basic", matchIfMissing = true)
     @Bean
-    public SecurityFilterChain bearerDualSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return newSecurityFilterChain(httpSecurity, true);
-    }
-
-    private SecurityFilterChain newSecurityFilterChain(HttpSecurity httpSecurity, boolean useRefreshToken) throws Exception {
+    public SecurityFilterChain basicSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        // 允许跨域
         httpSecurity.csrf().disable();
+        // 无状态会话
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // 取消X-Frame-Options，允许嵌入到<iframe>
         httpSecurity.headers().frameOptions().disable();
-        httpSecurity.authorizeRequests().antMatchers(accessProperties.tokenIgnoreUrls()).permitAll().anyRequest().authenticated();
-        BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(useRefreshToken, bearerTokenService, accessProperties.tokenIgnoreUrls());
-        httpSecurity.addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        // username:password Base64编码
+        httpSecurity.httpBasic();
+        if (accessProperties.authEnable()) {
+            if (ArrayUtils.isNotEmpty(accessProperties.basicAuthUrls())) {
+                httpSecurity.authorizeRequests().antMatchers(accessProperties.basicAuthUrls()).authenticated().anyRequest().permitAll();
+            } else if (ArrayUtils.isNotEmpty(accessProperties.basicIgnoreUrls())) {
+                httpSecurity.authorizeRequests().antMatchers(accessProperties.basicIgnoreUrls()).permitAll().anyRequest().authenticated();
+            } else {
+                httpSecurity.authorizeRequests().anyRequest().authenticated();
+            }
+        } else {
+            httpSecurity.authorizeRequests().anyRequest().permitAll();
+        }
+        return httpSecurity.build();
+    }
+
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @ConditionalOnProperty(name = "spring.access.auth.mode", havingValue = "accessToken")
+    @Bean
+    public SecurityFilterChain accessBearerSecurityFilterChain(HttpSecurity httpSecurity,
+            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
+        return newBearerSecurityFilterChain(httpSecurity, userDetailsService, passwordEncoder, false);
+    }
+
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @ConditionalOnProperty(name = "spring.access.auth.mode", havingValue = "refreshToken")
+    @Bean
+    public SecurityFilterChain refreshBearerSecurityFilterChain(HttpSecurity httpSecurity,
+            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
+        return newBearerSecurityFilterChain(httpSecurity, userDetailsService, passwordEncoder, true);
+    }
+
+    private SecurityFilterChain newBearerSecurityFilterChain(HttpSecurity httpSecurity,
+            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, boolean useRefreshToken) throws Exception {
+        // 允许跨域
+        httpSecurity.csrf().disable();
+        // 无状态会话
+        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // 取消X-Frame-Options，允许嵌入到<iframe>
+        httpSecurity.headers().frameOptions().disable();
+        if (accessProperties.authEnable()) {
+            String[] basicAuthUrls = accessProperties.basicAuthUrls();
+            String[] tokenAuthUrls = accessProperties.tokenAuthUrls();
+            String[] tokenIgnoreUrls = accessProperties.tokenIgnoreUrls();
+            String[] ignoreUrls = Stream.of(basicAuthUrls, tokenIgnoreUrls)
+                    .filter(Objects::nonNull).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(String[]::new);
+            if (ArrayUtils.isNotEmpty(tokenAuthUrls)) {
+                httpSecurity.authorizeRequests().antMatchers(tokenAuthUrls).authenticated().anyRequest().permitAll();
+            } else if (ArrayUtils.isNotEmpty(ignoreUrls)) {
+                httpSecurity.authorizeRequests().antMatchers(ignoreUrls).permitAll().anyRequest().authenticated();
+            } else {
+                httpSecurity.authorizeRequests().anyRequest().authenticated();
+            }
+            // Bearer处理
+            BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(useRefreshToken, bearerTokenService, tokenAuthUrls, ignoreUrls);
+            httpSecurity.addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class);
+            // Basic处理
+            if (ArrayUtils.isNotEmpty(basicAuthUrls)) {
+                BasicAuthFilter basicAuthFilter = new BasicAuthFilter(userDetailsService, passwordEncoder, basicAuthUrls);
+                httpSecurity.addFilterBefore(basicAuthFilter, BearerTokenFilter.class);
+            }
+        } else {
+            httpSecurity.authorizeRequests().anyRequest().permitAll();
+        }
         return httpSecurity.build();
     }
 }

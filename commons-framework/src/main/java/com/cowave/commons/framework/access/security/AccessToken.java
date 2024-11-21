@@ -226,11 +226,11 @@ public class AccessToken implements UserDetails {
         return converter.apply(userId);
     }
 
-    public <T> T getaUserCode(){
+    public <T> T getUserCode(){
         return (T)userCode;
     }
 
-    public <T> T getaUserCode(Function<Object, T> converter) {
+    public <T> T getUserCode(Function<Object, T> converter) {
         return converter.apply(userCode);
     }
 

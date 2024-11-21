@@ -49,13 +49,13 @@ public class FeignSeataInterceptor implements RequestInterceptor {
         requestTemplate.header("X-Request-ID", accessId);
 
         // Header Token
-        if (!requestTemplate.headers().containsKey(accessProperties.tokenStoreKey())) {
+        if (!requestTemplate.headers().containsKey(accessProperties.tokenKey())) {
             String authorization = Access.accessToken();
             if (StringUtils.isNotBlank(authorization)) {
-                requestTemplate.header(accessProperties.tokenStoreKey(), authorization);
+                requestTemplate.header(accessProperties.tokenKey(), authorization);
             } else if (bearerTokenService != null) {
                 authorization = HeaderInterceptor.newAuthorization(bearerTokenService, applicationProperties);
-                requestTemplate.header(accessProperties.tokenStoreKey(), authorization);
+                requestTemplate.header(accessProperties.tokenKey(), authorization);
             }
         }
 

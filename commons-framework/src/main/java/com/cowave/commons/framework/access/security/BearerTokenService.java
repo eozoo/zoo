@@ -83,10 +83,10 @@ public class BearerTokenService {
      */
     public String getAccessJwt() {
         String accessJwt;
-        if("header".equals(accessProperties.tokenStore())){
-            accessJwt = Access.getHeader(accessProperties.tokenStoreKey());
+        if("cookie".equals(accessProperties.tokenStore())){
+            accessJwt = Access.getCookie(accessProperties.tokenKey());
         }else{
-            accessJwt = Access.getCookie(accessProperties.tokenStoreKey());
+            accessJwt = Access.getHeader(accessProperties.tokenKey());
         }
 
         if(StringUtils.isEmpty(accessJwt)) {
@@ -110,7 +110,7 @@ public class BearerTokenService {
         }
         try {
             Jwts.parser().setSigningKey(
-                    accessProperties.tokenAccessSecret()).parseClaimsJws(accessJwt).getBody();
+                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
         }catch(Exception e) {
             return false;
         }
@@ -136,16 +136,20 @@ public class BearerTokenService {
                 .claim(CLAIM_USER_PERM,     accessToken.getPermissions())
                 .claim(CLAIM_TYPE,          accessToken.getType())
                 .claim(CLAIM_USER_IP,       Access.accessIp())
-                .claim(CLAIM_CONFLICT,      accessProperties.tokenConflict() ? "Y" : "N")
+                .claim(CLAIM_CONFLICT,      accessProperties.conflict() ? "Y" : "N")
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.tokenAccessSecret())
-                .setExpiration(new Date(System.currentTimeMillis() + accessProperties.tokenAccessExpire() * 1000L))
+                .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
+                .setExpiration(new Date(System.currentTimeMillis() + accessProperties.accessExpire() * 1000L))
                 .compact();
         accessToken.setAccessToken(accessJwt);
         // 保存到上下文中
         Access access = Access.get();
         if(access != null){
             access.setAccessToken(accessToken);
+        }
+        // 尝试设置Cookie
+        if("cookie".equals(accessProperties.tokenStore())){
+            Access.setCookie(accessProperties.tokenKey(), accessJwt, "/", accessProperties.accessExpire());
         }
         return accessJwt;
     }
@@ -166,7 +170,7 @@ public class BearerTokenService {
         Claims claims;
         try {
             claims =  Jwts.parser().setSigningKey(
-                    accessProperties.tokenAccessSecret()).parseClaimsJws(accessJwt).getBody();
+                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
         }catch(Exception e) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
             return null;
@@ -232,12 +236,12 @@ public class BearerTokenService {
                 .claim(CLAIM_TYPE, accessToken.getType())
                 .claim(CLAIM_USER_ACCOUNT, accessToken.getUsername())
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.tokenRefreshSecret())
+                .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
                 .compact());
         // 保存在服务端
         assert redisHelper != null;
         String key = applicationProperties.getTokenNamespace() + accessToken.getType() + ":" + accessToken.getUsername();
-        redisHelper.putValue(key, accessToken, accessProperties.tokenRefreshExpire(), TimeUnit.SECONDS);
+        redisHelper.putValue(key, accessToken, accessProperties.refreshExpire(), TimeUnit.SECONDS);
     }
 
     /**
@@ -256,7 +260,7 @@ public class BearerTokenService {
         Claims claims;
         try {
             claims =  Jwts.parser().setSigningKey(
-                    accessProperties.tokenAccessSecret()).parseClaimsJws(accessJwt).getBody();
+                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
         }catch(ExpiredJwtException e) {
             writeResponse(response, INVALID_TOKEN, "frame.auth.expired");
             return null;
@@ -282,7 +286,7 @@ public class BearerTokenService {
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(
-                    accessProperties.tokenRefreshSecret()).parseClaimsJws(refreshJwt).getBody();
+                    accessProperties.refreshSecret()).parseClaimsJws(refreshJwt).getBody();
         } catch(Exception e) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
             return null;
@@ -296,7 +300,7 @@ public class BearerTokenService {
         }
         // 比对id，判断Token是否已经被刷新过
         String tokenId = (String)claims.get(CLAIM_ID);
-        if(accessProperties.tokenConflict() && !tokenId.equals(accessToken.getId())) {
+        if(accessProperties.conflict() && !tokenId.equals(accessToken.getId())) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.conflict");
             return null;
         }
@@ -316,7 +320,7 @@ public class BearerTokenService {
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(
-                    accessProperties.tokenAccessSecret()).parseClaimsJws(accessJwt).getBody();
+                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
         }catch(ExpiredJwtException e) {
             claims = e.getClaims();
         }catch(Exception e) {
@@ -338,11 +342,11 @@ public class BearerTokenService {
      */
     public String newApiAccessJwt(AccessToken accessToken, int accessExpire) {
         return Jwts.builder()
-                .claim(CLAIM_USER_ID,       String.valueOf(accessToken.getUserId()))
+                .claim(CLAIM_USER_ID,       accessToken.getUserId())
                 .claim(CLAIM_USER_CODE,     accessToken.getUserCode())
                 .claim(CLAIM_USER_NAME,     accessToken.getUserNick())
                 .claim(CLAIM_USER_ACCOUNT,  accessToken.getUsername())
-                .claim(CLAIM_DEPT_ID,       String.valueOf(accessToken.getDeptId()))
+                .claim(CLAIM_DEPT_ID,       accessToken.getDeptId())
                 .claim(CLAIM_DEPT_CODE,     accessToken.getDeptCode())
                 .claim(CLAIM_DEPT_NAME,     accessToken.getDeptName())
                 .claim(CLAIM_CLUSTER_ID,    applicationProperties.getClusterId())
@@ -354,7 +358,7 @@ public class BearerTokenService {
                 .claim(CLAIM_TYPE,          AccessToken.TYPE_APP)
                 .claim(CLAIM_CONFLICT,      "N")              // 不校验冲突
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.tokenAccessSecret())
+                .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
                 .compact();
     }

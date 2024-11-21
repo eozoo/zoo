@@ -416,7 +416,7 @@ public class Access {
     }
 
     public static void setCookie(String name, String value, String path) {
-        setCookie(name, value, path, 60 * 60 * 24);
+        setCookie(name, value, path, 3600 * 24);
     }
 
     public static void setCookie(String name, String value, String path, int age) {

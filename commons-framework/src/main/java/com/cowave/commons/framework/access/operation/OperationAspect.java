@@ -146,10 +146,14 @@ public class OperationAspect {
         opInfo.setAccessUrl(Access.accessUrl());
         opInfo.setUserId(Access.userId());
         opInfo.setUserCode(Access.userCode());
+        opInfo.setUserName(Access.userName());
+        opInfo.setUserAccount(Access.userAccount());
         opInfo.setDeptId(Access.deptId());
         opInfo.setDeptCode(Access.deptCode());
+        opInfo.setDeptName(Access.deptName());
         opInfo.setOpType(operation.type());
         opInfo.setOpAction(operation.action());
+        opInfo.setOpFlag(operation.flag());
         opInfo.setOpArgs(argMap);
         opInfo.setOpCost(System.currentTimeMillis() - Access.accessTime().getTime());
 

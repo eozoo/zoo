@@ -61,7 +61,7 @@ public class SocketConfiguration {
         configuration.setMaxFramePayloadLength(properties.getMaxFramePayloadLength());
         if(bearerTokenService != null) {
             configuration.setAuthorizationListener(data -> {
-                String authorization = data.getSingleUrlParam(accessProperties.tokenStoreKey());
+                String authorization = data.getSingleUrlParam(accessProperties.tokenKey());
                 return bearerTokenService.checkAccessJwt(authorization);
             });
         }

@@ -56,13 +56,13 @@ public class SeataInterceptor implements ClientHttpRequestInterceptor {
         request.getHeaders().add("Accept-Language", Messages.getLanguage().getLanguage());
 
         // Header Token
-        if (!request.getHeaders().containsKey(accessProperties.tokenStoreKey())) {
+        if (!request.getHeaders().containsKey(accessProperties.tokenKey())) {
             String authorization = Access.accessToken();
             if (StringUtils.isNotBlank(authorization)) {
-                request.getHeaders().add(accessProperties.tokenStoreKey(), authorization);
+                request.getHeaders().add(accessProperties.tokenKey(), authorization);
             } else if (bearerTokenService != null) {
                 authorization = HeaderInterceptor.newAuthorization(bearerTokenService, applicationProperties);
-                request.getHeaders().add(accessProperties.tokenStoreKey(), authorization);
+                request.getHeaders().add(accessProperties.tokenKey(), authorization);
             }
         }
 

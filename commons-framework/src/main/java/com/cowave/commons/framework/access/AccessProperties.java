@@ -49,82 +49,106 @@ public class AccessProperties {
     /**
      * Access鉴权配置
      */
-    private TokenConfig token;
+    private AuthConfig auth;
 
-    /**
-     * security默认用户
-     */
-    private List<BasicAuthUser> securityUsers = List.of(new BasicAuthUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
-
-    /**
-     * security默认需要认证的url
-     */
-    private String[] securityUrls = new String[]{"/actuator/**"};
-
-    public String tokenStore(){
-        if(token != null){
-            return token.store;
-        }
-        return "header";
-    }
-
-    public String tokenStoreKey(){
-        if(token != null){
-            return token.storeKey;
-        }
-        return "Authorization";
-    }
-
-    public String tokenMode(){
-        if(token != null){
-            return token.mode;
-        }
-        return "basic";
-    }
-
-    public boolean tokenConflict(){
-        if(token != null){
-            return token.conflict;
+    public boolean authEnable(){
+        if(auth != null){
+            return auth.enable;
         }
         return true;
     }
 
-    public int tokenAccessExpire(){
-        if(token != null){
-            return token.accessExpire;
+    public List<BasicAuthUser> basicUsers(){
+        if(auth != null){
+            return auth.basicUsers;
+        }
+        return List.of(new BasicAuthUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
+    }
+
+    public String[] basicAuthUrls(){
+        if(auth != null){
+            return auth.basicAuthUrls;
+        }
+        return new String[]{"/actuator/**"};
+    }
+
+    public String[] basicIgnoreUrls(){
+        if(auth == null){
+            return new String[0];
+        }
+        if(auth.basicIgnoreUrls == null){
+            return new String[0];
+        }
+        return auth.basicIgnoreUrls;
+    }
+
+    public String tokenStore(){
+        if(auth != null){
+            return auth.tokenStore;
+        }
+        return "header";
+    }
+
+    public String tokenKey(){
+        if(auth != null){
+            return auth.tokenKey;
+        }
+        return "Authorization";
+    }
+
+    public boolean conflict(){
+        if(auth != null){
+            return auth.conflict;
+        }
+        return true;
+    }
+
+    public int accessExpire(){
+        if(auth != null){
+            return auth.accessExpire;
         }
         return 3600;
     }
 
-    public String tokenAccessSecret(){
-        if(token != null){
-            return token.accessSecret;
+    public String accessSecret(){
+        if(auth != null){
+            return auth.accessSecret;
         }
         return "access@cowave.com";
     }
 
-    public int tokenRefreshExpire(){
-        if(token != null){
-            return token.refreshExpire;
+    public int refreshExpire(){
+        if(auth != null){
+            return auth.refreshExpire;
         }
         return 3600 * 24 * 7;
     }
 
-    public String tokenRefreshSecret(){
-        if(token != null){
-            return token.refreshSecret;
+    public String refreshSecret(){
+        if(auth != null){
+            return auth.refreshSecret;
         }
         return "refresh@cowave.com";
     }
 
+    public String[] tokenAuthUrls(){
+        if(auth == null){
+            return new String[0];
+        }
+        if(auth.tokenAuthUrls == null){
+            return new String[0];
+        }
+        return auth.tokenAuthUrls;
+    }
+
     public String[] tokenIgnoreUrls(){
-        if(token == null){
+        if(auth == null){
             return new String[0];
         }
-        if(token.ignoreUrls == null){
+        if(auth.tokenIgnoreUrls == null){
             return new String[0];
         }
-        return token.ignoreUrls;
+        return auth.tokenIgnoreUrls;
     }
 
     @Data
@@ -152,22 +176,42 @@ public class AccessProperties {
     }
 
     @Data
-    public static class TokenConfig {
+    public static class AuthConfig {
+
+        /**
+         * 是否开启认证
+         */
+        private boolean enable = true;
+
+        /**
+         * 认证方式：（basic、accessToken、refreshToken）
+         */
+        private String mode = "basic";
+
+        /**
+         * basic认证的url
+         */
+        private String[] basicAuthUrls;
+
+        /**
+         * basic忽略的url
+         */
+        private String[] basicIgnoreUrls;
+
+        /**
+         * basic默认用户
+         */
+        private List<BasicAuthUser> basicUsers = List.of(new BasicAuthUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
 
         /**
          * Token保存方式（header、cookie）
          */
-        private String store = "header";
+        private String tokenStore = "header";
 
         /**
          * Token保存的key
          */
-        private String storeKey = "Authorization";
-
-        /**
-         * 安全模式（basic、access、access-refresh）
-         */
-        private String mode = "basic";
+        private String tokenKey = "Authorization";
 
         /**
          * 是否检查冲突
@@ -177,7 +221,7 @@ public class AccessProperties {
         /**
          * accessToken超时
          */
-        private int accessExpire = 3600;
+        private int accessExpire = 86400;
 
         /**
          * accessToken密钥
@@ -195,8 +239,13 @@ public class AccessProperties {
         private String refreshSecret = "refresh@cowave.com";
 
         /**
-         * 忽略鉴权的url
+         * token认证的url
          */
-        private String[] ignoreUrls;
+        private String[] tokenAuthUrls;
+
+        /**
+         * token忽略的url
+         */
+        private String[] tokenIgnoreUrls;
     }
 }

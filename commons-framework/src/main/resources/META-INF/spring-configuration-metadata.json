@@ -11,13 +11,13 @@
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
     {
-      "name": "spring.access.control",
-      "type": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
+      "name": "spring.access.auth",
+      "type": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
     {
-      "name": "spring.access.token",
-      "type": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
+      "name": "spring.access.control",
+      "type": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
     {
@@ -1246,6 +1246,108 @@
       "defaultValue": false
     },
     {
+      "name": "spring.access.auth.access-expire",
+      "type": "java.lang.Integer",
+      "description": "accessToken超时",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": 86400
+    },
+    {
+      "name": "spring.access.auth.access-secret",
+      "type": "java.lang.String",
+      "description": "accessToken密钥",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "access@cowave.com"
+    },
+    {
+      "name": "spring.access.auth.basic-auth-urls",
+      "type": "java.lang.String[]",
+      "description": "basic认证的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.basic-ignore-urls",
+      "type": "java.lang.String[]",
+      "description": "basic忽略的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.basic-users",
+      "type": "java.util.List<com.cowave.commons.framework.access.security.BasicAuthUser>",
+      "description": "basic默认用户",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.conflict",
+      "type": "java.lang.Boolean",
+      "description": "是否检查冲突",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.auth.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否开启认证",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.auth.mode",
+      "type": "java.lang.String",
+      "description": "认证方式：（basic、accessToken、refreshToken）",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "basic",
+      "enum": [
+        "basic",
+        "accessToken",
+        "refreshToken"
+      ]
+    },
+    {
+      "name": "spring.access.auth.refresh-expire",
+      "type": "java.lang.Integer",
+      "description": "refreshToken超时",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "spring.access.auth.refresh-secret",
+      "type": "java.lang.String",
+      "description": "refreshToken密钥",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "refresh@cowave.com"
+    },
+    {
+      "name": "spring.access.auth.token-auth-urls",
+      "type": "java.lang.String[]",
+      "description": "token认证的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.token-ignore-urls",
+      "type": "java.lang.String[]",
+      "description": "token忽略的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.token-key",
+      "type": "java.lang.String",
+      "description": "Token保存的key",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "Authorization"
+    },
+    {
+      "name": "spring.access.auth.token-store",
+      "type": "java.lang.String",
+      "description": "Token保存方式（header、cookie）",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "header",
+      "enum": [
+        "header",
+        "cookie"
+      ]
+    },
+    {
       "name": "spring.access.content-security-policy",
       "type": "java.lang.String",
       "description": "CSP白名单 <p\/> script-src 'self' <p\/> default-src * data: blob: 'unsafe-inline' 'unsafe-eval'",
@@ -1287,120 +1389,6 @@
       "defaultValue": [
         "\/*"
       ]
-    },
-    {
-      "name": "spring.access.security-urls",
-      "type": "java.lang.String[]",
-      "description": "security默认需要认证的url",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties",
-      "defaultValue": [
-        "\/actuator\/**"
-      ]
-    },
-    {
-      "name": "spring.access.security-users",
-      "type": "java.util.List<com.cowave.commons.framework.access.security.BasicAuthUser>",
-      "description": "security默认用户",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties"
-    },
-    {
-      "name": "spring.access.token.access-expire",
-      "type": "java.lang.Integer",
-      "description": "accessToken超时",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": 3600
-    },
-    {
-      "name": "spring.access.token.access-secret",
-      "type": "java.lang.String",
-      "description": "accessToken密钥",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": "access@cowave.com"
-    },
-    {
-      "name": "spring.access.token.accessExpire",
-      "type": "java.lang.Integer",
-      "description": "access token超时[单位秒]",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": 3600
-    },
-    {
-      "name": "spring.access.token.conflict",
-      "type": "java.lang.Boolean",
-      "description": "是否检查冲突",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": true
-    },
-    {
-      "name": "spring.access.token.ignore-urls",
-      "type": "java.lang.String[]",
-      "description": "忽略鉴权的url",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig"
-    },
-    {
-      "name": "spring.access.token.mode",
-      "type": "java.lang.String",
-      "description": "安全模式（basic、access、access-refresh）",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": "basic",
-      "enum": [
-        "basic",
-        "access",
-        "access-refresh"
-      ]
-    },
-    {
-      "name": "spring.access.token.namespace",
-      "type": "java.lang.String",
-      "description": "Token的缓存namespace",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": ""
-    },
-    {
-      "name": "spring.access.token.refresh-expire",
-      "type": "java.lang.Integer",
-      "description": "refreshToken超时",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": 0
-    },
-    {
-      "name": "spring.access.token.refresh-secret",
-      "type": "java.lang.String",
-      "description": "refreshToken密钥",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": "refresh@cowave.com"
-    },
-    {
-      "name": "spring.access.token.refreshExpire",
-      "type": "java.lang.Integer",
-      "description": "refresh token超时[单位秒]",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": 604800
-    },
-    {
-      "name": "spring.access.token.salt",
-      "type": "java.lang.String",
-      "description": "秘钥",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": "admin@cowave.com"
-    },
-    {
-      "name": "spring.access.token.store",
-      "type": "java.lang.String",
-      "description": "Token保存方式（header、cookie）",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": "header",
-      "enum": [
-        "header",
-        "cookie"
-      ]
-    },
-    {
-      "name": "spring.access.token.store-key",
-      "type": "java.lang.String",
-      "description": "Token保存的key",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$TokenConfig",
-      "defaultValue": "Authorization"
     },
     {
       "name": "spring.application.cluster-id",

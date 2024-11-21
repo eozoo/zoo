@@ -60,13 +60,13 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         request.getHeaders().add("Accept-Language", Messages.getLanguage().getLanguage());
 
         // Header Token
-        if (!request.getHeaders().containsKey(accessProperties.tokenStoreKey())) {
+        if (!request.getHeaders().containsKey(accessProperties.tokenKey())) {
             String authorization = Access.accessToken();
             if (StringUtils.isNotBlank(authorization)) {
-                request.getHeaders().add(accessProperties.tokenStoreKey(), authorization);
+                request.getHeaders().add(accessProperties.tokenKey(), authorization);
             } else if (bearerTokenService != null) {
                 authorization = newAuthorization(bearerTokenService, applicationProperties);
-                request.getHeaders().add(accessProperties.tokenStoreKey(), authorization);
+                request.getHeaders().add(accessProperties.tokenKey(), authorization);
             }
         }
         return execution.execute(request, body);
@@ -79,9 +79,7 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
 
     public static String newAuthorization(BearerTokenService bearerTokenService, ApplicationProperties applicationProperties) {
         AccessToken appToken = AccessToken.newToken();
-        appToken.setUserId(-1L);
-        appToken.setDeptId(-1L);
         appToken.setUsername(applicationProperties.getName());
-        return bearerTokenService.newApiAccessJwt(appToken, 300);
+        return "Bearer " + bearerTokenService.newApiAccessJwt(appToken, 300);
     }
 }
