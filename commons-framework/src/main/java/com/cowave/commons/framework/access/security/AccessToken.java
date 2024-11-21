@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  *
@@ -55,7 +56,7 @@ public class AccessToken implements UserDetails {
     private String refreshToken;
 
     /**
-     * id 每次Refresh后的id不一样，可以根据id来判断Token是否已被refresh过
+     * id (Refresh时的随机id，可以判断Token是否已被refresh过）
      */
     private String id;
 
@@ -89,12 +90,12 @@ public class AccessToken implements UserDetails {
     /**
      * 用户id
      */
-    private Long userId;
+    private Object userId;
 
     /**
      * 用户code
      */
-    private String userCode;
+    private Object userCode;
 
     /**
      * 用户账号
@@ -125,12 +126,12 @@ public class AccessToken implements UserDetails {
     /**
      * 部门id
      */
-    private Long deptId;
+    private Object deptId;
 
     /**
      * 部门code
      */
-    private String deptCode;
+    private Object deptCode;
 
     /**
      * 部门名称
@@ -215,5 +216,37 @@ public class AccessToken implements UserDetails {
         accessToken.setAccessTime(Access.accessTime());
         accessToken.setId(IdUtil.fastSimpleUUID());
         return accessToken;
+    }
+
+    public <T> T getUserId(){
+        return (T)userId;
+    }
+
+    public <T> T getUserId(Function<Object, T> converter) {
+        return converter.apply(userId);
+    }
+
+    public <T> T getaUserCode(){
+        return (T)userCode;
+    }
+
+    public <T> T getaUserCode(Function<Object, T> converter) {
+        return converter.apply(userCode);
+    }
+
+    public <T> T getDeptId(){
+        return (T)deptId;
+    }
+
+    public <T> T getDeptId(Function<Object, T> converter) {
+        return converter.apply(deptId);
+    }
+
+    public <T> T getDeptCode(){
+        return (T)deptCode;
+    }
+
+    public <T> T getDeptCode(Function<Object, T> converter) {
+        return converter.apply(deptCode);
     }
 }

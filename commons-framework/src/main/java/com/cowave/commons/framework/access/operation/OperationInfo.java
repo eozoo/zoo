@@ -13,6 +13,7 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * 操作属性
@@ -40,22 +41,22 @@ public class OperationInfo {
     /**
      * userId
      */
-    private Long userId;
+    private Object userId;
 
     /**
      * userCode
      */
-    private String userCode;
+    private Object userCode;
 
     /**
      * deptId
      */
-    private Long deptId;
+    private Object deptId;
 
     /**
      * deptCode
      */
-    private String deptCode;
+    private Object deptCode;
 
     /**
      * 请求参数
@@ -86,4 +87,36 @@ public class OperationInfo {
      * 操作是否成功
      */
     private boolean success;
+
+    public <T> T getUserId(){
+        return (T)userId;
+    }
+
+    public <T> T getUserId(Function<Object, T> converter) {
+        return converter.apply(userId);
+    }
+
+    public <T> T getaUserCode(){
+        return (T)userCode;
+    }
+
+    public <T> T getaUserCode(Function<Object, T> converter) {
+        return converter.apply(userCode);
+    }
+
+    public <T> T getDeptId(){
+        return (T)deptId;
+    }
+
+    public <T> T getDeptId(Function<Object, T> converter) {
+        return converter.apply(deptId);
+    }
+
+    public <T> T getDeptCode(){
+        return (T)deptCode;
+    }
+
+    public <T> T getDeptCode(Function<Object, T> converter) {
+        return converter.apply(deptCode);
+    }
 }

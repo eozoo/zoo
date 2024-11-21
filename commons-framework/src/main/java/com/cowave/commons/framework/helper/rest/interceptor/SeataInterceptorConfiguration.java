@@ -10,7 +10,7 @@
 package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +33,11 @@ import javax.annotation.Nullable;
 public class SeataInterceptorConfiguration {
 
     @Nullable
-    private final TokenService tokenService;
+    private final BearerTokenService bearerTokenService;
 
     @Bean
     public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new SeataInterceptor(port, applicationProperties, accessProperties, tokenService);
+        return new SeataInterceptor(port, applicationProperties, accessProperties, bearerTokenService);
     }
 }

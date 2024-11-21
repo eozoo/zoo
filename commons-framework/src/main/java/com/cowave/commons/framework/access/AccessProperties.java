@@ -9,7 +9,7 @@
  */
 package com.cowave.commons.framework.access;
 
-import com.cowave.commons.framework.access.security.SecurityUser;
+import com.cowave.commons.framework.access.security.BasicAuthUser;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -54,31 +54,39 @@ public class AccessProperties {
     /**
      * security默认用户
      */
-    private List<SecurityUser> securityUsers = List.of(new SecurityUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
+    private List<BasicAuthUser> securityUsers = List.of(new BasicAuthUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
 
     /**
      * security默认需要认证的url
      */
     private String[] securityUrls = new String[]{"/actuator/**"};
 
-    public String tokenHeader(){
+    public String tokenStore(){
         if(token != null){
-            return token.header;
+            return token.store;
+        }
+        return "header";
+    }
+
+    public String tokenStoreKey(){
+        if(token != null){
+            return token.storeKey;
         }
         return "Authorization";
     }
 
-    public String tokenSalt(){
+    public String tokenMode(){
         if(token != null){
-            return token.salt;
+            return token.mode;
         }
-        return "admin@cowave.com";
+        return "basic";
     }
+
     public boolean tokenConflict(){
         if(token != null){
             return token.conflict;
         }
-        return false;
+        return true;
     }
 
     public int tokenAccessExpire(){
@@ -88,11 +96,25 @@ public class AccessProperties {
         return 3600;
     }
 
+    public String tokenAccessSecret(){
+        if(token != null){
+            return token.accessSecret;
+        }
+        return "access@cowave.com";
+    }
+
     public int tokenRefreshExpire(){
         if(token != null){
             return token.refreshExpire;
         }
         return 3600 * 24 * 7;
+    }
+
+    public String tokenRefreshSecret(){
+        if(token != null){
+            return token.refreshSecret;
+        }
+        return "refresh@cowave.com";
     }
 
     public String[] tokenIgnoreUrls(){
@@ -133,19 +155,24 @@ public class AccessProperties {
     public static class TokenConfig {
 
         /**
-         * header名称
+         * Token保存方式（header、cookie）
          */
-        private String header = "Authorization";
+        private String store = "header";
 
         /**
-         * 秘钥
+         * Token保存的key
          */
-        private String salt = "admin@cowave.com";
+        private String storeKey = "Authorization";
+
+        /**
+         * 安全模式（basic、access、access-refresh）
+         */
+        private String mode = "basic";
 
         /**
          * 是否检查冲突
          */
-        private boolean conflict = false;
+        private boolean conflict = true;
 
         /**
          * accessToken超时
@@ -153,9 +180,19 @@ public class AccessProperties {
         private int accessExpire = 3600;
 
         /**
+         * accessToken密钥
+         */
+        private String accessSecret = "access@cowave.com";
+
+        /**
          * refreshToken超时
          */
         private int refreshExpire = 3600 * 24 * 7;
+
+        /**
+         * refreshToken密钥
+         */
+        private String refreshSecret = "refresh@cowave.com";
 
         /**
          * 忽略鉴权的url

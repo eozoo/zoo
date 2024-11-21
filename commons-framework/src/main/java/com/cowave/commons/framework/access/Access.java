@@ -13,6 +13,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 
 import cn.hutool.core.net.NetUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
@@ -187,27 +188,27 @@ public class Access {
     }
 
     public static String tokenType() {
-        AccessToken token = token();
-        if(token == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return token.getType();
+        return accessToken.getType();
     }
 
     public static String accessToken() {
-        AccessToken token = token();
-        if(token == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return token.getAccessToken();
+        return accessToken.getAccessToken();
     }
 
     public static String refreshToken() {
-        AccessToken token = token();
-        if(token == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return token.getRefreshToken();
+        return accessToken.getRefreshToken();
     }
 
     public static AccessUser accessUser(){
@@ -220,51 +221,65 @@ public class Access {
         return accessUser;
     }
 
-    public static Long userId() {
-        AccessToken token = token();
-        if(token == null) {
+    public static <T> T userId() {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return token.getUserId();
+        return (T)accessToken.getUserId();
     }
 
-    public static String userCode() {
-        AccessToken token = token();
-        if(token == null) {
+    public static <T> T userId(Function<Object, T> converter) {
+        AccessToken accessToken = token();
+        if (accessToken == null) {
             return null;
         }
-        return token.getUserCode();
+        return converter.apply(accessToken.getUserId());
+    }
+
+    public static <T> T userCode() {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
+            return null;
+        }
+        return (T)accessToken.getUserCode();
+    }
+
+    public static <T> T userCode(Function<Object, T> converter) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
+            return null;
+        }
+        return converter.apply(accessToken.getUserCode());
     }
 
     public static String userName() {
-        AccessToken token = token();
-        if(token == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return token.getUserNick();
+        return accessToken.getUserNick();
     }
 
     public static String userAccount() {
-        AccessToken token = token();
-        if(token == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return token.getUsername();
+        return accessToken.getUsername();
     }
 
     public static List<String> userRoles() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
         return accessToken.getRoles();
     }
 
     public static List<String> userPermissions() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
         return accessToken.getPermissions();
@@ -278,55 +293,65 @@ public class Access {
         return roles.contains("sysAdmin");
     }
 
-    public static Long deptId() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+    public static <T> T deptId() {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return accessToken.getDeptId();
+        return (T)accessToken.getDeptId();
     }
 
-    public static String deptCode() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+    public static <T> T deptId(Function<Object, T> converter) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
-        return accessToken.getDeptCode();
+        return converter.apply(accessToken.getDeptId());
+    }
+
+    public static <T> T deptCode() {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
+            return null;
+        }
+        return (T)accessToken.getDeptCode();
+    }
+
+    public static <T> T deptCode(Function<Object, T> converter) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
+            return null;
+        }
+        return converter.apply(accessToken.getDeptCode());
     }
 
     public static String deptName() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
         return accessToken.getDeptName();
     }
 
     public static Integer clusterId() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
         return accessToken.getClusterId();
     }
 
     public static Integer clusterLevel() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
         return accessToken.getClusterLevel();
     }
 
     public static String clusterName() {
-        Access access;
-        AccessToken accessToken;
-        if((access = get()) == null || (accessToken = access.accessToken) == null) {
+        AccessToken accessToken = token();
+        if(accessToken == null) {
             return null;
         }
         return accessToken.getClusterName();
@@ -354,6 +379,14 @@ public class Access {
         HttpServletRequest httpRequest = httpRequest();
         if(httpRequest != null){
             return httpRequest.getSession();
+        }
+        return null;
+    }
+
+    public static String getHeader(String headerName) {
+        HttpServletRequest httpRequest = httpRequest();
+        if(httpRequest != null){
+            return httpRequest.getHeader(headerName);
         }
         return null;
     }

@@ -12,7 +12,7 @@ package com.cowave.commons.framework.helper.socketio;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.access.security.BearerTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 public class SocketConfiguration {
 
     @Nullable
-    private final TokenService tokenService;
+    private final BearerTokenService bearerTokenService;
 
     @Nullable
     private final ClientMsgHandler clientMsgHandler;
@@ -59,10 +59,10 @@ public class SocketConfiguration {
         configuration.setAllowCustomRequests(properties.isAllowCustomRequests());
         configuration.setMaxHttpContentLength(properties.getMaxHttpContentLength());
         configuration.setMaxFramePayloadLength(properties.getMaxFramePayloadLength());
-        if(tokenService != null) {
+        if(bearerTokenService != null) {
             configuration.setAuthorizationListener(data -> {
-                String authorization = data.getSingleUrlParam(accessProperties.tokenHeader());
-                return tokenService.validAccessToken(authorization);
+                String authorization = data.getSingleUrlParam(accessProperties.tokenStoreKey());
+                return bearerTokenService.checkAccessJwt(authorization);
             });
         }
 

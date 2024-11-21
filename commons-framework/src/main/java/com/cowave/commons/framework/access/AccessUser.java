@@ -30,14 +30,14 @@ public class AccessUser {
      */
     @JsonIgnore
     @JSONField(serialize = false)
-    private Long accessUserId;
+    private Object accessUserId;
 
     /**
      * 用户编码
      */
     @JsonIgnore
     @JSONField(serialize = false)
-    private String accessUserCode;
+    private Object accessUserCode;
 
     /**
      * 用户账号
@@ -65,14 +65,14 @@ public class AccessUser {
      */
     @JsonIgnore
     @JSONField(serialize = false)
-    private Long accessDeptId;
+    private Object accessDeptId;
 
     /**
      * 部门编码
      */
     @JsonIgnore
     @JSONField(serialize = false)
-    private String accessDeptCode;
+    private Object accessDeptCode;
 
     /**
      * 部门名称
@@ -94,4 +94,28 @@ public class AccessUser {
     @JSONField(format="yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
+
+    @JsonIgnore
+    @JSONField(serialize = false)
+    public <T> T getAccessUserId(){
+        return (T)accessUserId;
+    }
+
+    @JsonIgnore
+    @JSONField(serialize = false)
+    public <T> T getAccessUserCode(){
+        return (T)accessUserCode;
+    }
+
+    @JsonIgnore
+    @JSONField(serialize = false)
+    public <T> T getAccessDeptId(){
+        return (T)accessDeptId;
+    }
+
+    @JsonIgnore
+    @JSONField(serialize = false)
+    public <T> T getAccessDeptCode(){
+        return (T)accessDeptCode;
+    }
 }

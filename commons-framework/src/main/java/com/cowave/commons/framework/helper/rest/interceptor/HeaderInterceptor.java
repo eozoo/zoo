@@ -11,7 +11,7 @@ package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.access.security.AccessToken;
 import com.cowave.commons.response.exception.Messages;
@@ -44,7 +44,7 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
 
     private final AccessProperties accessProperties;
 
-    private final TokenService tokenService;
+    private final BearerTokenService bearerTokenService;
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
@@ -60,13 +60,13 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         request.getHeaders().add("Accept-Language", Messages.getLanguage().getLanguage());
 
         // Header Token
-        if (!request.getHeaders().containsKey(accessProperties.tokenHeader())) {
+        if (!request.getHeaders().containsKey(accessProperties.tokenStoreKey())) {
             String authorization = Access.accessToken();
             if (StringUtils.isNotBlank(authorization)) {
-                request.getHeaders().add(accessProperties.tokenHeader(), authorization);
-            } else if (tokenService != null) {
-                authorization = newAuthorization(tokenService, applicationProperties);
-                request.getHeaders().add(accessProperties.tokenHeader(), authorization);
+                request.getHeaders().add(accessProperties.tokenStoreKey(), authorization);
+            } else if (bearerTokenService != null) {
+                authorization = newAuthorization(bearerTokenService, applicationProperties);
+                request.getHeaders().add(accessProperties.tokenStoreKey(), authorization);
             }
         }
         return execution.execute(request, body);
@@ -77,12 +77,11 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         return GENERATOR.generateIdWithDate(prefix, "", "yyyyMMddHHmmss", 1000);
     }
 
-    public static String newAuthorization(TokenService tokenService, ApplicationProperties applicationProperties) {
+    public static String newAuthorization(BearerTokenService bearerTokenService, ApplicationProperties applicationProperties) {
         AccessToken appToken = AccessToken.newToken();
-        appToken.setType(AccessToken.TYPE_APP);
         appToken.setUserId(-1L);
         appToken.setDeptId(-1L);
         appToken.setUsername(applicationProperties.getName());
-        return tokenService.newApiToken(appToken, 300);
+        return bearerTokenService.newApiAccessJwt(appToken, 300);
     }
 }

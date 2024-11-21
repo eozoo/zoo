@@ -31,14 +31,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author shanhuiming
  *
  */
-public class TokenAuthenticationFilter extends OncePerRequestFilter {
-
-    private final TokenService tokenService;
+public class BearerTokenFilter extends OncePerRequestFilter {
 
     private final List<AntPathRequestMatcher> permitAllMatchers = new ArrayList<>();
 
-    public TokenAuthenticationFilter(TokenService tokenService, String... ignoreUrls) {
-        this.tokenService = tokenService;
+    private final BearerTokenService bearerTokenService;
+
+    private final boolean useRefreshToken;
+
+    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String... ignoreUrls) {
+        this.useRefreshToken = useRefreshToken;
+        this.bearerTokenService = bearerTokenService;
         if(ignoreUrls != null && ignoreUrls.length > 0){
             Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
         }
@@ -54,11 +57,15 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        AccessToken accessToken = tokenService.parseToken(request, response);
+        AccessToken accessToken;
+        if(useRefreshToken){
+            accessToken = bearerTokenService.dualParseToken(response);
+        }else{
+            accessToken = bearerTokenService.simpleParseToken(response);
+        }
         if (accessToken == null) {
             return;
         }
-
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

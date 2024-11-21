@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class SecurityUser {
+public class BasicAuthUser {
 
     /**
      * 用户名

@@ -10,7 +10,7 @@
 package com.cowave.commons.framework.helper.feign;
 
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.feign.chooser.DefaultServiceChooser;
 import com.cowave.commons.framework.helper.feign.chooser.EurekaServiceChooser;
@@ -52,7 +52,7 @@ public class FeignSeataConfiguration {
     private final NacosServiceChooser nacosServiceChooser;
 
     @Nullable
-    private final TokenService tokenService;
+    private final BearerTokenService bearerTokenService;
 
     @ConditionalOnMissingBean(FeignServiceChooser.class)
     @Bean
@@ -63,7 +63,7 @@ public class FeignSeataConfiguration {
     @Bean
     public RequestInterceptor requestInterceptor(@Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new FeignSeataInterceptor(port, tokenService, accessProperties, applicationProperties);
+        return new FeignSeataInterceptor(port, bearerTokenService, accessProperties, applicationProperties);
     }
 
     @ConditionalOnMissingBean(FeignExceptionHandler.class)

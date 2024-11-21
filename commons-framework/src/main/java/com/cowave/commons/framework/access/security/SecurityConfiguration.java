@@ -13,8 +13,10 @@ import com.cowave.commons.framework.access.AccessProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -25,23 +27,30 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * @author shanhuiming
  */
 @ConditionalOnClass(SecurityFilterChain.class)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
-public class DefaultSecurityConfiguration {
+public class SecurityConfiguration {
 
     private final AccessProperties accessProperties;
 
+    @Nullable
+    private final BearerTokenService bearerTokenService;
+
+    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "basic", matchIfMissing = true)
     @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain basicSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         // 无状态会话
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 取消X-Frame-Options，允许嵌入到<iframe>
@@ -56,12 +65,13 @@ public class DefaultSecurityConfiguration {
         return httpSecurity.build();
     }
 
+    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "basic", matchIfMissing = true)
     @ConditionalOnMissingBean(UserDetailsService.class)
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        List<SecurityUser> userList = accessProperties.getSecurityUsers();
+        List<BasicAuthUser> userList = accessProperties.getSecurityUsers();
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        for (SecurityUser user : userList) {
+        for (BasicAuthUser user : userList) {
             manager.createUser(User.withUsername(user.getUsername())
                     .password(passwordEncoder.encode(user.getPassword()))
                     .roles(user.getRoles()).build());
@@ -69,9 +79,34 @@ public class DefaultSecurityConfiguration {
         return manager;
     }
 
+    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "basic", matchIfMissing = true)
     @ConditionalOnMissingBean(PasswordEncoder.class)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "access")
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @Bean
+    public SecurityFilterChain bearerSimpleSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return newSecurityFilterChain(httpSecurity, false);
+    }
+
+    @ConditionalOnProperty(prefix = "spring.access.token", name = "mode", havingValue = "access-refresh")
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @Bean
+    public SecurityFilterChain bearerDualSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return newSecurityFilterChain(httpSecurity, true);
+    }
+
+    private SecurityFilterChain newSecurityFilterChain(HttpSecurity httpSecurity, boolean useRefreshToken) throws Exception {
+        httpSecurity.csrf().disable();
+        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        httpSecurity.headers().frameOptions().disable();
+        httpSecurity.authorizeRequests().antMatchers(accessProperties.tokenIgnoreUrls()).permitAll().anyRequest().authenticated();
+        BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(useRefreshToken, bearerTokenService, accessProperties.tokenIgnoreUrls());
+        httpSecurity.addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        return httpSecurity.build();
     }
 }

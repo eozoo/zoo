@@ -10,7 +10,7 @@
 package com.cowave.commons.framework.helper.rest.interceptor;
 
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,11 +33,11 @@ import javax.annotation.Nullable;
 public class HeaderInterceptorConfiguration {
 
     @Nullable
-    private final TokenService tokenService;
+    private final BearerTokenService bearerTokenService;
 
     @Bean
     public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
             ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new HeaderInterceptor(port, applicationProperties, accessProperties, tokenService);
+        return new HeaderInterceptor(port, applicationProperties, accessProperties, bearerTokenService);
     }
 }

@@ -11,7 +11,7 @@ package com.cowave.commons.framework.helper.feign.interceptor;
 
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.TokenService;
+import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.rest.interceptor.HeaderInterceptor;
 import feign.RequestInterceptor;
@@ -31,7 +31,7 @@ public class FeignHeaderInterceptor implements RequestInterceptor {
 
     private final String port;
 
-    private final TokenService tokenService;
+    private final BearerTokenService bearerTokenService;
 
     private final AccessProperties accessProperties;
 
@@ -48,13 +48,13 @@ public class FeignHeaderInterceptor implements RequestInterceptor {
         requestTemplate.header("X-Request-ID", accessId);
 
         // Header Token
-        if (!requestTemplate.headers().containsKey(accessProperties.tokenHeader())) {
+        if (!requestTemplate.headers().containsKey(accessProperties.tokenStoreKey())) {
             String authorization = Access.accessToken();
             if (StringUtils.isNotBlank(authorization)) {
-                requestTemplate.header(accessProperties.tokenHeader(), authorization);
-            } else if (tokenService != null) {
-                authorization = HeaderInterceptor.newAuthorization(tokenService, applicationProperties);
-                requestTemplate.header(accessProperties.tokenHeader(), authorization);
+                requestTemplate.header(accessProperties.tokenStoreKey(), authorization);
+            } else if (bearerTokenService != null) {
+                authorization = HeaderInterceptor.newAuthorization(bearerTokenService, applicationProperties);
+                requestTemplate.header(accessProperties.tokenStoreKey(), authorization);
             }
         }
     }
