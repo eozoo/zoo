@@ -7,22 +7,18 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.access;
+package com.cowave.commons.framework.access.security;
 
 import java.util.Collection;
 
-import com.cowave.commons.framework.access.security.AccessToken;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.stereotype.Component;
+import com.cowave.commons.framework.access.Access;
+import com.cowave.commons.framework.access.AccessUser;
 
 /**
  *
  * @author shanhuiming
  *
  */
-@ConditionalOnClass(WebSecurityConfigurerAdapter.class)
-@Component
 public class AccessUserParser {
 
     @SuppressWarnings("rawtypes")
@@ -31,7 +27,6 @@ public class AccessUserParser {
         if(access == null){
             return;
         }
-
         AccessToken accessToken = access.getAccessToken();
         if(accessToken == null){
             return;

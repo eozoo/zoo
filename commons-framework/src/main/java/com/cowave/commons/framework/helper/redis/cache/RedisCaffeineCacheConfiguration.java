@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,7 @@ public class RedisCaffeineCacheConfiguration {
     @Nullable
     private final StringRedisHelper stringRedisHelper;
 
-    @ConditionalOnMissingBean(RedisCaffeineCacheManager.class)
+    @ConditionalOnMissingBean(CacheManager.class)
     @Bean
     public RedisCaffeineCacheManager cacheManager() {
         return new RedisCaffeineCacheManager(cacheProperties, applicationProperties, redisHelper, stringRedisHelper);

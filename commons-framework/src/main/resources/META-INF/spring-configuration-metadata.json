@@ -16,7 +16,7 @@
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
     {
-      "name": "spring.access.control",
+      "name": "spring.access.cross",
       "type": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
@@ -1354,35 +1354,35 @@
       "sourceType": "com.cowave.commons.framework.access.AccessProperties"
     },
     {
-      "name": "spring.access.control.allow-credentials",
+      "name": "spring.access.cross.allow-credentials",
       "type": "java.lang.Boolean",
       "description": "跨域调用允许包含用户凭据",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "defaultValue": true
     },
     {
-      "name": "spring.access.control.allow-headers",
+      "name": "spring.access.cross.allow-headers",
       "type": "java.lang.String",
       "description": "跨域调用允许的Header",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "defaultValue": "*"
     },
     {
-      "name": "spring.access.control.allow-methods",
+      "name": "spring.access.cross.allow-methods",
       "type": "java.lang.String",
       "description": "跨域调用允许的方法",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "defaultValue": "*"
     },
     {
-      "name": "spring.access.control.allow-origin",
+      "name": "spring.access.cross.allow-origin",
       "type": "java.lang.String",
       "description": "跨域调用允许的域名",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$CrossControl",
       "defaultValue": "*"
     },
     {
-      "name": "spring.access.patterns",
+      "name": "spring.access.url-patterns",
       "type": "java.lang.String[]",
       "description": "AccessFilter拦截的url",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties",

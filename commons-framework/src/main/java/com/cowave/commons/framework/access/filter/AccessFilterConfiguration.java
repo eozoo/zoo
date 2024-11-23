@@ -48,7 +48,7 @@ public class AccessFilterConfiguration {
         FilterRegistrationBean<AccessFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new AccessFilter(transactionIdSetter, accessIdGenerator, accessProperties, objectMapper));
         registration.setName("accessFilter");
-        registration.addUrlPatterns(accessProperties.getPatterns());
+        registration.addUrlPatterns(accessProperties.getUrlPatterns());
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
         return registration;
     }

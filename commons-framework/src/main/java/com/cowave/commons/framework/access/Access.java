@@ -18,9 +18,12 @@ import java.util.function.Function;
 import cn.hutool.core.net.NetUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cowave.commons.framework.access.filter.AccessIdGenerator;
 import com.cowave.commons.framework.access.security.AccessToken;
+import com.cowave.commons.tools.ServletUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -40,6 +43,8 @@ public class Access {
 
     private static final ThreadLocal<Access> ACCESS = new TransmittableThreadLocal<>();
 
+    private final boolean accessFiltered;
+
     private final String accessId;
 
     private final String accessIp;
@@ -50,15 +55,16 @@ public class Access {
 
     private AccessToken accessToken;
 
-    private Object requestParam;
-
     private Integer pageIndex;
 
     private Integer pageSize;
 
     private boolean responseLogged;
 
-    public Access(String accessId, String accessIp, String accessUrl, Long accessTime){
+    private Map<String, Object> requestParam = new HashMap<>();
+
+    public Access(boolean accessFiltered, String accessId, String accessIp, String accessUrl, Long accessTime){
+        this.accessFiltered = accessFiltered;
         this.accessId = accessId;
         this.accessIp = accessIp;
         this.accessUrl = accessUrl;
@@ -71,6 +77,22 @@ public class Access {
 
     public static void set(Access access){
         ACCESS.set(access);
+    }
+
+    public static Access newAccess(AccessIdGenerator accessIdGenerator){
+        String accessId = null;
+        String accessIp = null;
+        String accessUrl = null;
+        HttpServletRequest httpServletRequest = httpRequest();
+        if(httpServletRequest != null){
+            accessId = httpServletRequest.getHeader("X-Request-ID");
+            accessIp = ServletUtils.getRequestIp(httpServletRequest);
+            accessUrl = httpServletRequest.getRequestURI();
+        }
+        if (StringUtils.isBlank(accessId)) {
+            accessId = accessIdGenerator.newAccessId();
+        }
+        return new Access(false, accessId, accessIp, accessUrl, System.currentTimeMillis());
     }
 
     public static void remove(){
@@ -375,18 +397,40 @@ public class Access {
         return null;
     }
 
-    public static HttpSession httpSession() {
+    public static Map<String, Object> getRequestParam() {
+        Access access;
+        if((access = get()) == null) {
+            return null;
+        }
+        return access.requestParam;
+    }
+
+    public static String getRequestHeader(String headerName) {
         HttpServletRequest httpRequest = httpRequest();
         if(httpRequest != null){
-            return httpRequest.getSession();
+            return httpRequest.getHeader(headerName);
         }
         return null;
     }
 
-    public static String getHeader(String headerName) {
+    public static void setResponseStatus(HttpStatus httpStatus){
+        HttpServletResponse response = httpResponse();
+        if(response != null){
+            response.setStatus(httpStatus.value());
+        }
+    }
+
+    public static void setResponseHeader(String name, String value){
+        HttpServletResponse response = httpResponse();
+        if(response != null){
+            response.setHeader(name, value);
+        }
+    }
+
+    public static HttpSession httpSession() {
         HttpServletRequest httpRequest = httpRequest();
         if(httpRequest != null){
-            return httpRequest.getHeader(headerName);
+            return httpRequest.getSession();
         }
         return null;
     }
@@ -439,20 +483,6 @@ public class Access {
                     Objects.requireNonNull(httpResponse()).addCookie(cookie);
                 }
             }
-        }
-    }
-
-    public static void setResponseStatus(HttpStatus httpStatus){
-        HttpServletResponse response = httpResponse();
-        if(response != null){
-            response.setStatus(httpStatus.value());
-        }
-    }
-
-    public static void setResponseHeader(String name, String value){
-        HttpServletResponse response = httpResponse();
-        if(response != null){
-            response.setHeader(name, value);
         }
     }
 }

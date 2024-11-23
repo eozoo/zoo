@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import javax.servlet.*;
@@ -69,7 +68,7 @@ public class AccessFilter implements Filter {
             httpServletResponse.setHeader("Content-Security-Policy", accessProperties.getContentSecurityPolicy());
         }
         // 设置响应头 Access-Control
-        AccessProperties.CrossControl crossControl = accessProperties.getControl();
+        AccessProperties.CrossControl crossControl = accessProperties.getCross();
         httpServletResponse.setHeader("Access-Control-Allow-Origin", crossControl.getAllowOrigin());
         httpServletResponse.setHeader("Access-Control-Allow-Methods", crossControl.getAllowMethods());
         httpServletResponse.setHeader("Access-Control-Allow-Headers", crossControl.getAllowHeaders());
@@ -86,9 +85,9 @@ public class AccessFilter implements Filter {
         // 设置Access
         String accessIp = ServletUtils.getRequestIp(httpServletRequest);
         String accessUrl = httpServletRequest.getRequestURI();
-        Access.set(new Access(accessId, accessIp, accessUrl, System.currentTimeMillis()));
+        Access.set(new Access(true, accessId, accessIp, accessUrl, System.currentTimeMillis()));
 
-        // 记录请求日志，顺便获取设置下分页参数
+        // 记录请求日志，顺便记录一下分页参数
         AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest, objectMapper);
         try{
             accessRequestWrapper.recordAccessParams();
@@ -114,7 +113,7 @@ public class AccessFilter implements Filter {
         if (!access.isResponseLogged()) {
             int status = httpServletResponse.getStatus();
             long cost = System.currentTimeMillis() - access.getAccessTime();
-            if (status == HttpStatus.OK.value()) {
+            if (status == SUCCESS.getStatus()) {
                 AccessLogger.info("<< {} {}ms", status, cost);
             } else {
                 if (!AccessLogger.isInfoEnabled()) {

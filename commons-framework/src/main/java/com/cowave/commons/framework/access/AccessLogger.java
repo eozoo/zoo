@@ -14,13 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cowave.commons.framework.access.filter.AccessIdGenerator;
+import com.cowave.commons.framework.access.security.AccessUserParser;
 import com.cowave.commons.response.HttpResponse;
 import com.cowave.commons.response.Response;
-import com.cowave.commons.tools.ServletUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
@@ -54,9 +52,9 @@ public class AccessLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogger.class);
 
-    private final ObjectMapper objectMapper;
-
     private final AccessIdGenerator accessIdGenerator;
+
+    private final ObjectMapper objectMapper;
 
     @Nullable
     private final AccessUserParser accessUserParser;
@@ -71,35 +69,38 @@ public class AccessLogger {
     }
 
     @Before("request()")
-    public void logRequest(JoinPoint point) throws JsonProcessingException {
-        Access access = Access.get();
-        if(access == null){
-            // 请求未经过AccessFilter
-            HttpServletRequest httpServletRequest = Access.httpRequest();
-            if(httpServletRequest == null){
-                return;
-            }
-            if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
-                return; // error路径直接跳过
-            }
+    public void logRequest(JoinPoint point) {
+        HttpServletRequest httpServletRequest = Access.httpRequest();
+        // 非Servlet忽略
+        if (httpServletRequest == null) {
+            return;
+        }
+        // error路径跳过
+        if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
+            return;
+        }
 
-            MethodSignature signature = (MethodSignature)point.getSignature();
+        Access access = Access.get();
+        if (access == null) {
+            MethodSignature signature = (MethodSignature) point.getSignature();
             String[] paramNames = signature.getParameterNames();
-            Object[] args = point.getArgs();
             Map<String, Object> map = new HashMap<>();
             if(paramNames != null) {
+                Object[] args = point.getArgs();
                 for (int i = 0; i < args.length; i++) {
                     if (args[i] == null) {
                         map.put(paramNames[i], null);
                     } else {
                         Class<?> clazz = args[i].getClass();
-                        if (MultipartFile.class.isAssignableFrom(clazz) || MultipartFile[].class.isAssignableFrom(clazz)
-                                || HttpServletRequest.class.isAssignableFrom(clazz) || HttpServletResponse.class.isAssignableFrom(clazz)
+                        if (MultipartFile.class.isAssignableFrom(clazz)
+                                || MultipartFile[].class.isAssignableFrom(clazz)
+                                || HttpServletRequest.class.isAssignableFrom(clazz)
+                                || HttpServletResponse.class.isAssignableFrom(clazz)
                                 || BeanPropertyBindingResult.class.isAssignableFrom(clazz)
                                 || ExtendedServletRequestDataBinder.class.isAssignableFrom(clazz)) {
+                            // 过滤下类型，避免用Json序列化的地方报错
                             continue;
                         }
-
                         if (accessUserParser != null) {
                             accessUserParser.parse(clazz, args[i]);
                         }
@@ -107,35 +108,17 @@ public class AccessLogger {
                     }
                 }
             }
-
-            String accessIp = ServletUtils.getRequestIp(httpServletRequest);
-            String accessUrl = httpServletRequest.getRequestURI();
-            access = new Access(accessIdGenerator.newAccessId(), accessIp, accessUrl, System.currentTimeMillis());
+            // 补一下Access，避免别人误操作调用access.get的地方发生空指针
+            access = Access.newAccess(accessIdGenerator);
             access.setRequestParam(map);
             Access.set(access);
-
-            String httpMethod = httpServletRequest.getMethod();
-            String contentType = httpServletRequest.getContentType();
-            StringBuilder builder = new StringBuilder();
-            builder.append(">> ").append(httpMethod).append(" ").append(accessUrl).append(" [").append(accessIp);
-            if(StringUtils.isNotBlank(contentType)){
-                builder.append(" ").append(contentType).append("]");
-            }else{
-                builder.append("]");
-            }
-            builder.append(" args=").append(objectMapper.writeValueAsString(map));
-
-            LOGGER.info(builder.toString());
-        }else{
-            // 请求经过AccessFilter
-            if (accessUserParser != null) {
-                MethodSignature signature = (MethodSignature) point.getSignature();
-                String[] paramNames = signature.getParameterNames();
-                if (paramNames != null) {
-                    for (Object arg : point.getArgs()) {
-                        if (arg != null) {
-                            accessUserParser.parse(arg.getClass(), arg);
-                        }
+        }else if (accessUserParser != null) {
+            MethodSignature signature = (MethodSignature) point.getSignature();
+            String[] paramNames = signature.getParameterNames();
+            if (paramNames != null) {
+                for (Object arg : point.getArgs()) {
+                    if (arg != null) {
+                        accessUserParser.parse(arg.getClass(), arg);
                     }
                 }
             }
@@ -145,19 +128,21 @@ public class AccessLogger {
     @AfterReturning(pointcut = "request()", returning = "resp")
     public void logResponse(Object resp) throws JsonProcessingException {
         HttpServletResponse servletResponse = Access.httpResponse();
+        // 非Servlet忽略
         if(servletResponse == null){
             return;
         }
-
         Access access = Access.get();
         if(access == null){
             return;
         }
-
+        if(!access.isAccessFiltered()){
+            return;
+        }
         access.setResponseLogged(true);
+
         int status = servletResponse.getStatus();
         long cost = System.currentTimeMillis() - access.getAccessTime();
-
         String code = null;
         String msg = null;
         Object data = null;

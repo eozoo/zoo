@@ -32,7 +32,7 @@ public class AccessProperties {
     /**
      * AccessFilter拦截的url
      */
-    private String[] patterns = {"/*"};
+    private String[] urlPatterns = {"/*"};
 
     /**
      * CSP白名单
@@ -44,7 +44,7 @@ public class AccessProperties {
     /**
      * 跨域设置
      */
-    private CrossControl control = new CrossControl();
+    private CrossControl cross = new CrossControl();
 
     /**
      * Access鉴权配置

@@ -9,36 +9,36 @@
  */
 package com.cowave.commons.framework.access.security;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.hutool.core.util.IdUtil;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
+import com.cowave.commons.framework.access.filter.AccessIdGenerator;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
+import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.cowave.commons.response.Response;
 import com.cowave.commons.response.ResponseCode;
+import com.cowave.commons.response.exception.HttpHintException;
 import com.cowave.commons.response.exception.Messages;
-import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Service;
 
-import cn.hutool.core.util.IdUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.cowave.commons.response.HttpResponseCode.*;
 
@@ -73,49 +73,12 @@ public class BearerTokenService {
 
     private final ApplicationProperties applicationProperties;
 
+    private final AccessIdGenerator accessIdGenerator;
+
     private final ObjectMapper objectMapper;
 
     @Nullable
     private final RedisHelper redisHelper;
-
-    /**
-     * 获取请求头 AccessToken-Jwt
-     */
-    public String getAccessJwt() {
-        String accessJwt;
-        if("cookie".equals(accessProperties.tokenStore())){
-            accessJwt = Access.getCookie(accessProperties.tokenKey());
-        }else{
-            accessJwt = Access.getHeader(accessProperties.tokenKey());
-        }
-
-        if(StringUtils.isEmpty(accessJwt)) {
-            return null;
-        }
-        if(accessJwt.startsWith("Bearer ")) {
-            accessJwt = accessJwt.replace("Bearer ", "");
-        }
-        return accessJwt;
-    }
-
-    /**
-     * 验证 AccessToken-Jwt
-     */
-    public boolean checkAccessJwt(String accessJwt) {
-        if(StringUtils.isBlank(accessJwt)) {
-            return false;
-        }
-        if(accessJwt.startsWith("Bearer ")) {
-            accessJwt = accessJwt.replace("Bearer ", "");
-        }
-        try {
-            Jwts.parser().setSigningKey(
-                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
-        }catch(Exception e) {
-            return false;
-        }
-        return true;
-    }
 
     /**
      * 设置Token（简单模式：仅使用AccessToken）
@@ -144,9 +107,12 @@ public class BearerTokenService {
         accessToken.setAccessToken(accessJwt);
         // 保存到上下文中
         Access access = Access.get();
-        if(access != null){
-            access.setAccessToken(accessToken);
+        if(access == null){
+            access = Access.newAccess(accessIdGenerator);
         }
+        access.setAccessToken(accessToken);
+        Access.set(access);
+
         // 尝试设置Cookie
         if("cookie".equals(accessProperties.tokenStore())){
             Access.setCookie(accessProperties.tokenKey(), accessJwt, "/", accessProperties.accessExpire());
@@ -157,21 +123,43 @@ public class BearerTokenService {
     /**
      * 解析Token（简单模式：仅使用AccessToken）
      */
-    public AccessToken simpleParseToken(HttpServletResponse response) throws IOException {
+    AccessToken simpleParseToken(HttpServletResponse response) throws IOException {
         String accessJwt = getAccessJwt();
         if(accessJwt != null) {
             return simpleParseAccessJwt(accessJwt, response);
+        }
+        if(response == null){
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.no}");
         }
         writeResponse(response, UNAUTHORIZED, "frame.auth.no");
         return null;
     }
 
+    private String getAccessJwt() {
+        String accessJwt;
+        if("cookie".equals(accessProperties.tokenStore())){
+            accessJwt = Access.getCookie(accessProperties.tokenKey());
+        }else{
+            accessJwt = Access.getRequestHeader(accessProperties.tokenKey());
+        }
+
+        if(StringUtils.isEmpty(accessJwt)) {
+            return null;
+        }
+        if(accessJwt.startsWith("Bearer ")) {
+            accessJwt = accessJwt.replace("Bearer ", "");
+        }
+        return accessJwt;
+    }
+
     private AccessToken simpleParseAccessJwt(String accessJwt, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
-            claims =  Jwts.parser().setSigningKey(
-                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
-        }catch(Exception e) {
+            claims = Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
+        } catch (Exception e) {
+            if (response == null) {
+                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.invalid}");
+            }
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
             return null;
         }
@@ -208,18 +196,19 @@ public class BearerTokenService {
         accessToken.setPermissions((List<String>)claims.get(CLAIM_USER_PERM));
         // 保存到上下文中
         Access access = Access.get();
-        if(access != null){
-            access.setAccessToken(accessToken);
+        if(access == null){
+            access = Access.newAccess(accessIdGenerator);
         }
+        access.setAccessToken(accessToken);
+        Access.set(access);
         return accessToken;
     }
 
     /**
      * 刷新Token（简单模式：仅使用AccessToken）
      */
-    public String simpleRefreshToken(HttpServletResponse response) throws Exception {
-        AccessToken accessToken = simpleParseToken(response);
-        return simpleAssignToken(accessToken);
+    public String simpleRefreshToken() throws Exception {
+        return simpleAssignToken(simpleParseToken(null));
     }
 
     /**
@@ -247,7 +236,7 @@ public class BearerTokenService {
     /**
      * 解析Token（Dual模式：使用AccessToken和RefreshToken）
      */
-    public AccessToken dualParseToken(HttpServletResponse response) throws IOException {
+    AccessToken dualParseToken(HttpServletResponse response) throws IOException {
         String accessJwt = getAccessJwt();
         if(accessJwt != null) {
             return dualParseAccessJwt(accessJwt, response);
@@ -282,27 +271,24 @@ public class BearerTokenService {
     /**
      * 刷新Token（Dual模式：使用AccessToken和RefreshToken）
      */
-    public AccessToken dualRefreshToken(HttpServletResponse response, String refreshJwt) throws Exception {
+    public AccessToken dualRefreshToken(String refreshJwt) {
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(
                     accessProperties.refreshSecret()).parseClaimsJws(refreshJwt).getBody();
         } catch(Exception e) {
-            writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
-            return null;
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.invalid}");
         }
         // 获取服务保存的Token
         assert redisHelper != null;
         AccessToken accessToken = redisHelper.getValue(dualRefreshKey(claims));
         if(accessToken == null) {
-            writeResponse(response, UNAUTHORIZED, "frame.auth.notexist");
-            return null;
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.notexist}");
         }
         // 比对id，判断Token是否已经被刷新过
         String tokenId = (String)claims.get(CLAIM_ID);
         if(accessProperties.conflict() && !tokenId.equals(accessToken.getId())) {
-            writeResponse(response, UNAUTHORIZED, "frame.auth.conflict");
-            return null;
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.conflict}");
         }
         // 更新Token信息
         accessToken.setId(IdUtil.fastSimpleUUID());
@@ -340,7 +326,7 @@ public class BearerTokenService {
     /**
      * 创建AccessToken-Jwt（Api临时访问）
      */
-    public String newApiAccessJwt(AccessToken accessToken, int accessExpire) {
+    public String newApiAccessToken(AccessToken accessToken, int accessExpire) {
         return Jwts.builder()
                 .claim(CLAIM_USER_ID,       accessToken.getUserId())
                 .claim(CLAIM_USER_CODE,     accessToken.getUserCode())
@@ -361,6 +347,25 @@ public class BearerTokenService {
                 .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
                 .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
                 .compact();
+    }
+
+    /**
+     * 验证 AccessToken-Jwt
+     */
+    public boolean validAccessJwt(String accessJwt) {
+        if(StringUtils.isBlank(accessJwt)) {
+            return false;
+        }
+        if(accessJwt.startsWith("Bearer ")) {
+            accessJwt = accessJwt.replace("Bearer ", "");
+        }
+        try {
+            Jwts.parser().setSigningKey(
+                    accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
+        }catch(Exception e) {
+            return false;
+        }
+        return true;
     }
 
     private void writeResponse(HttpServletResponse response, ResponseCode responseCode, String messageKey) throws IOException {

@@ -12,6 +12,7 @@ package com.cowave.commons.framework.access.security;
 import com.cowave.commons.framework.access.AccessProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -144,5 +145,11 @@ public class SecurityConfiguration {
             httpSecurity.authorizeRequests().anyRequest().permitAll();
         }
         return httpSecurity.build();
+    }
+
+    @ConditionalOnBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
+    @Bean
+    public AccessUserParser accessUserParser(){
+        return new AccessUserParser();
     }
 }

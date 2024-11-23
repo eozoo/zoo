@@ -62,7 +62,7 @@ public class SocketConfiguration {
         if(bearerTokenService != null) {
             configuration.setAuthorizationListener(data -> {
                 String authorization = data.getSingleUrlParam(accessProperties.tokenKey());
-                return bearerTokenService.checkAccessJwt(authorization);
+                return bearerTokenService.validAccessJwt(authorization);
             });
         }
 

@@ -80,6 +80,6 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
     public static String newAuthorization(BearerTokenService bearerTokenService, ApplicationProperties applicationProperties) {
         AccessToken appToken = AccessToken.newToken();
         appToken.setUsername(applicationProperties.getName());
-        return "Bearer " + bearerTokenService.newApiAccessJwt(appToken, 300);
+        return "Bearer " + bearerTokenService.newApiAccessToken(appToken, 300);
     }
 }
