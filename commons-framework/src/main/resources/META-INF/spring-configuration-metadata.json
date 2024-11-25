@@ -1272,12 +1272,6 @@
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
     },
     {
-      "name": "spring.access.auth.basic-users",
-      "type": "java.util.List<com.cowave.commons.framework.access.security.BasicAuthUser>",
-      "description": "basic默认用户",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
-    },
-    {
       "name": "spring.access.auth.conflict",
       "type": "java.lang.Boolean",
       "description": "是否检查冲突",
@@ -1346,6 +1340,12 @@
         "header",
         "cookie"
       ]
+    },
+    {
+      "name": "spring.access.auth.users",
+      "type": "java.util.List<com.cowave.commons.framework.access.security.AccessUser>",
+      "description": "默认用户",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
     },
     {
       "name": "spring.access.content-security-policy",

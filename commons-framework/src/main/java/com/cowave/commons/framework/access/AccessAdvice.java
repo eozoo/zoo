@@ -23,6 +23,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -87,6 +89,11 @@ public class AccessAdvice {
         return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public HttpResponse<Response<Void>> handleBadCredentialsException(BadCredentialsException e) {
+        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_0, Messages.msg("frame.auth.failed.passwd"));
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public HttpResponse<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
         return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_0, Messages.msg("frame.auth.denied"));
@@ -109,6 +116,11 @@ public class AccessAdvice {
     /* ***************************************************************************
      * ERR_LEVEL_2 异常日志打印堆栈，Response.cause记录e.getMessage()
      * ***************************************************************************/
+
+    @ExceptionHandler(AuthenticationException.class)
+    public HttpResponse<Response<Void>> handleAuthenticationException(AuthenticationException e) {
+        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_2, Messages.msg("frame.auth.failed"));
+    }
 
     @ExceptionHandler(HttpMessageConversionException.class)
     public HttpResponse<Response<Void>> handleHttpMessageConversionException(HttpMessageConversionException e) {

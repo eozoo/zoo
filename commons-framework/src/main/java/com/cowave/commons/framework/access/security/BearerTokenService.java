@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +59,7 @@ public class BearerTokenService {
     private static final String CLAIM_USER_IP = "User.ip";
     private static final String CLAIM_USER_ID = "User.id";
     private static final String CLAIM_USER_CODE = "User.code";
+    private static final String CLAIM_USER_PROPERTIES = "User.properties";
     private static final String CLAIM_USER_NAME = "User.name";
     private static final String CLAIM_USER_ACCOUNT = "User.account";
     private static final String CLAIM_USER_ROLE = "User.role";
@@ -83,34 +85,35 @@ public class BearerTokenService {
     /**
      * 设置Token（简单模式：仅使用AccessToken）
      */
-    public String simpleAssignToken(AccessToken accessToken){
+    public String simpleAssignToken(AccessUserDetails userDetails){
         String accessJwt = Jwts.builder()
-                .claim(CLAIM_USER_ID,       accessToken.getUserId())
-                .claim(CLAIM_USER_CODE,     accessToken.getUserCode())
-                .claim(CLAIM_USER_NAME,     accessToken.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT,  accessToken.getUsername())
-                .claim(CLAIM_DEPT_ID,       accessToken.getDeptId())
-                .claim(CLAIM_DEPT_CODE,     accessToken.getDeptCode())
-                .claim(CLAIM_DEPT_NAME,     accessToken.getDeptName())
-                .claim(CLAIM_CLUSTER_ID,    applicationProperties.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, applicationProperties.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME,  applicationProperties.getClusterName())
-                .claim(CLAIM_USER_ROLE,     accessToken.getRoles())
-                .claim(CLAIM_USER_PERM,     accessToken.getPermissions())
-                .claim(CLAIM_TYPE,          accessToken.getType())
-                .claim(CLAIM_USER_IP,       Access.accessIp())
-                .claim(CLAIM_CONFLICT,      accessProperties.conflict() ? "Y" : "N")
+                .claim(CLAIM_USER_ID,         userDetails.getUserId())
+                .claim(CLAIM_USER_CODE,       userDetails.getUserCode())
+                .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
+                .claim(CLAIM_USER_NAME,       userDetails.getUserNick())
+                .claim(CLAIM_USER_ACCOUNT,    userDetails.getUsername())
+                .claim(CLAIM_DEPT_ID,         userDetails.getDeptId())
+                .claim(CLAIM_DEPT_CODE,       userDetails.getDeptCode())
+                .claim(CLAIM_DEPT_NAME,       userDetails.getDeptName())
+                .claim(CLAIM_CLUSTER_ID,      applicationProperties.getClusterId())
+                .claim(CLAIM_CLUSTER_LEVEL,   applicationProperties.getClusterLevel())
+                .claim(CLAIM_CLUSTER_NAME,    applicationProperties.getClusterName())
+                .claim(CLAIM_USER_ROLE,       userDetails.getRoles())
+                .claim(CLAIM_USER_PERM,       userDetails.getPermissions())
+                .claim(CLAIM_TYPE,            userDetails.getType())
+                .claim(CLAIM_USER_IP,         Access.accessIp())
+                .claim(CLAIM_CONFLICT,        accessProperties.conflict() ? "Y" : "N")
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
                 .setExpiration(new Date(System.currentTimeMillis() + accessProperties.accessExpire() * 1000L))
                 .compact();
-        accessToken.setAccessToken(accessJwt);
+        userDetails.setAccessToken(accessJwt);
         // 保存到上下文中
         Access access = Access.get();
         if(access == null){
             access = Access.newAccess(accessIdGenerator);
         }
-        access.setAccessToken(accessToken);
+        access.setUserDetails(userDetails);
         Access.set(access);
 
         // 尝试设置Cookie
@@ -123,7 +126,7 @@ public class BearerTokenService {
     /**
      * 解析Token（简单模式：仅使用AccessToken）
      */
-    AccessToken simpleParseToken(HttpServletResponse response) throws IOException {
+    AccessUserDetails simpleParseToken(HttpServletResponse response) throws IOException {
         String accessJwt = getAccessJwt();
         if(accessJwt != null) {
             return simpleParseAccessJwt(accessJwt, response);
@@ -152,7 +155,7 @@ public class BearerTokenService {
         return accessJwt;
     }
 
-    private AccessToken simpleParseAccessJwt(String accessJwt, HttpServletResponse response) throws IOException {
+    private AccessUserDetails simpleParseAccessJwt(String accessJwt, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessJwt).getBody();
@@ -166,42 +169,37 @@ public class BearerTokenService {
         return parseAccessTokenFromJwt(accessJwt, claims);
     }
 
-    private AccessToken parseAccessTokenFromJwt(String accessJwt, Claims claims){
-        AccessToken accessToken = new AccessToken();
-        accessToken.setAccessToken(accessJwt);
-        accessToken.setId((String)claims.get(CLAIM_ID));
-        accessToken.setType((String)claims.get(CLAIM_TYPE));
+    private AccessUserDetails parseAccessTokenFromJwt(String accessJwt, Claims claims){
+        AccessUserDetails userDetails = new AccessUserDetails();
+        userDetails.setAccessToken(accessJwt);
+        userDetails.setId((String)claims.get(CLAIM_ID));
+        userDetails.setType((String)claims.get(CLAIM_TYPE));
         // user
-        Object userId = claims.get(CLAIM_USER_ID);
-        if(userId != null) {
-            accessToken.setUserId(userId);
-        }
-        accessToken.setUserCode(claims.get(CLAIM_USER_CODE));
-        accessToken.setUsername((String)claims.get(CLAIM_USER_ACCOUNT));
-        accessToken.setUserNick((String)claims.get(CLAIM_USER_NAME));
+        userDetails.setUserId(claims.get(CLAIM_USER_ID));
+        userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
+        userDetails.setUsername((String)claims.get(CLAIM_USER_ACCOUNT));
+        userDetails.setUserNick((String)claims.get(CLAIM_USER_NAME));
+        userDetails.setUserProperties((Map<String, Object>)claims.get(CLAIM_USER_PROPERTIES));
         // dept
-        Object deptId = claims.get(CLAIM_DEPT_ID);
-        if(deptId != null) {
-            accessToken.setDeptId(deptId);
-        }
-        accessToken.setDeptCode(claims.get(CLAIM_DEPT_CODE));
-        accessToken.setDeptName((String)claims.get(CLAIM_DEPT_NAME));
+        userDetails.setDeptId(claims.get(CLAIM_DEPT_ID));
+        userDetails.setDeptCode(claims.get(CLAIM_DEPT_CODE));
+        userDetails.setDeptName((String)claims.get(CLAIM_DEPT_NAME));
         // cluster
-        accessToken.setClusterId((Integer)claims.get(CLAIM_CLUSTER_ID));
-        accessToken.setClusterLevel((Integer)claims.get(CLAIM_CLUSTER_LEVEL));
-        accessToken.setClusterName((String)claims.get(CLAIM_CLUSTER_NAME));
+        userDetails.setClusterId((Integer)claims.get(CLAIM_CLUSTER_ID));
+        userDetails.setClusterLevel((Integer)claims.get(CLAIM_CLUSTER_LEVEL));
+        userDetails.setClusterName((String)claims.get(CLAIM_CLUSTER_NAME));
         // roles
-        accessToken.setRoles((List<String>)claims.get(CLAIM_USER_ROLE));
+        userDetails.setRoles((List<String>)claims.get(CLAIM_USER_ROLE));
         // permits
-        accessToken.setPermissions((List<String>)claims.get(CLAIM_USER_PERM));
+        userDetails.setPermissions((List<String>)claims.get(CLAIM_USER_PERM));
         // 保存到上下文中
         Access access = Access.get();
         if(access == null){
             access = Access.newAccess(accessIdGenerator);
         }
-        access.setAccessToken(accessToken);
+        access.setUserDetails(userDetails);
         Access.set(access);
-        return accessToken;
+        return userDetails;
     }
 
     /**
@@ -214,29 +212,29 @@ public class BearerTokenService {
     /**
      * 设置Token（Dual模式：使用AccessToken和RefreshToken）
      */
-    public void dualAssignToken(AccessToken accessToken){
-        simpleAssignToken(accessToken);
-        dualAssignRefreshJwt(accessToken);
+    public void dualAssignToken(AccessUserDetails userDetails){
+        simpleAssignToken(userDetails);
+        dualAssignRefreshJwt(userDetails);
     }
 
-    private void dualAssignRefreshJwt(AccessToken accessToken) {
-        accessToken.setRefreshToken(Jwts.builder()
-                .claim(CLAIM_ID, accessToken.getId())
-                .claim(CLAIM_TYPE, accessToken.getType())
-                .claim(CLAIM_USER_ACCOUNT, accessToken.getUsername())
+    private void dualAssignRefreshJwt(AccessUserDetails userDetails) {
+        userDetails.setRefreshToken(Jwts.builder()
+                .claim(CLAIM_ID, userDetails.getId())
+                .claim(CLAIM_TYPE, userDetails.getType())
+                .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
                 .compact());
         // 保存在服务端
         assert redisHelper != null;
-        String key = applicationProperties.getTokenNamespace() + accessToken.getType() + ":" + accessToken.getUsername();
-        redisHelper.putValue(key, accessToken, accessProperties.refreshExpire(), TimeUnit.SECONDS);
+        String key = applicationProperties.getTokenNamespace() + userDetails.getType() + ":" + userDetails.getUsername();
+        redisHelper.putValue(key, userDetails, accessProperties.refreshExpire(), TimeUnit.SECONDS);
     }
 
     /**
      * 解析Token（Dual模式：使用AccessToken和RefreshToken）
      */
-    AccessToken dualParseToken(HttpServletResponse response) throws IOException {
+    AccessUserDetails dualParseToken(HttpServletResponse response) throws IOException {
         String accessJwt = getAccessJwt();
         if(accessJwt != null) {
             return dualParseAccessJwt(accessJwt, response);
@@ -245,7 +243,7 @@ public class BearerTokenService {
         return null;
     }
 
-    private AccessToken dualParseAccessJwt(String accessJwt, HttpServletResponse response) throws IOException {
+    private AccessUserDetails dualParseAccessJwt(String accessJwt, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
             claims =  Jwts.parser().setSigningKey(
@@ -271,7 +269,7 @@ public class BearerTokenService {
     /**
      * 刷新Token（Dual模式：使用AccessToken和RefreshToken）
      */
-    public AccessToken dualRefreshToken(String refreshJwt) {
+    public AccessUserDetails dualRefreshToken(String refreshJwt) {
         Claims claims;
         try {
             claims = Jwts.parser().setSigningKey(
@@ -281,22 +279,22 @@ public class BearerTokenService {
         }
         // 获取服务保存的Token
         assert redisHelper != null;
-        AccessToken accessToken = redisHelper.getValue(dualRefreshKey(claims));
-        if(accessToken == null) {
+        AccessUserDetails userDetails = redisHelper.getValue(dualRefreshKey(claims));
+        if(userDetails == null) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.notexist}");
         }
         // 比对id，判断Token是否已经被刷新过
         String tokenId = (String)claims.get(CLAIM_ID);
-        if(accessProperties.conflict() && !tokenId.equals(accessToken.getId())) {
+        if(accessProperties.conflict() && !tokenId.equals(userDetails.getId())) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.conflict}");
         }
         // 更新Token信息
-        accessToken.setId(IdUtil.fastSimpleUUID());
-        accessToken.setAccessTime(Access.accessTime());
-        accessToken.setAccessIp(Access.accessIp());
+        userDetails.setId(IdUtil.fastSimpleUUID());
+        userDetails.setAccessTime(Access.accessTime());
+        userDetails.setAccessIp(Access.accessIp());
         // 刷新Token并返回
-        dualAssignToken(accessToken);
-        return accessToken;
+        dualAssignToken(userDetails);
+        return userDetails;
     }
 
     /**
@@ -326,22 +324,22 @@ public class BearerTokenService {
     /**
      * 创建AccessToken-Jwt（Api临时访问）
      */
-    public String newApiAccessToken(AccessToken accessToken, int accessExpire) {
+    public String newApiAccessToken(AccessUserDetails userDetails, int accessExpire) {
         return Jwts.builder()
-                .claim(CLAIM_USER_ID,       accessToken.getUserId())
-                .claim(CLAIM_USER_CODE,     accessToken.getUserCode())
-                .claim(CLAIM_USER_NAME,     accessToken.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT,  accessToken.getUsername())
-                .claim(CLAIM_DEPT_ID,       accessToken.getDeptId())
-                .claim(CLAIM_DEPT_CODE,     accessToken.getDeptCode())
-                .claim(CLAIM_DEPT_NAME,     accessToken.getDeptName())
+                .claim(CLAIM_USER_ID,       userDetails.getUserId())
+                .claim(CLAIM_USER_CODE,     userDetails.getUserCode())
+                .claim(CLAIM_USER_NAME,     userDetails.getUserNick())
+                .claim(CLAIM_USER_ACCOUNT,  userDetails.getUsername())
+                .claim(CLAIM_DEPT_ID,       userDetails.getDeptId())
+                .claim(CLAIM_DEPT_CODE,     userDetails.getDeptCode())
+                .claim(CLAIM_DEPT_NAME,     userDetails.getDeptName())
                 .claim(CLAIM_CLUSTER_ID,    applicationProperties.getClusterId())
                 .claim(CLAIM_CLUSTER_LEVEL, applicationProperties.getClusterLevel())
                 .claim(CLAIM_CLUSTER_NAME,  applicationProperties.getClusterName())
-                .claim(CLAIM_USER_ROLE,     accessToken.getRoles())
-                .claim(CLAIM_USER_PERM,     accessToken.getPermissions())
+                .claim(CLAIM_USER_ROLE,     userDetails.getRoles())
+                .claim(CLAIM_USER_PERM,     userDetails.getPermissions())
                 .claim(CLAIM_USER_IP,       Access.accessIp())
-                .claim(CLAIM_TYPE,          AccessToken.TYPE_APP)
+                .claim(CLAIM_TYPE,          AccessUserDetails.TYPE_APP)
                 .claim(CLAIM_CONFLICT,      "N")              // 不校验冲突
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())

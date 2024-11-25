@@ -54,9 +54,9 @@ ${rootArtifactId}
 
 打包需要切换到模块${rootArtifactId}-starter目录下，然后可以执行以下命令：
 
-`maven clean install -Dbuild=jar` 打成springboot jar，使用java -jar启动       
-`maven clean install -Dbuild=tar` 打成Tar包      
-`maven clean install -Dbuild=deb` 打成Deb包       
-`maven clean install -Dbuild=rpm` 打成Rpm包       
-`maven clean install -Dbuild=docker` 打成Docker镜像
+`maven clean install -Dbuild=jar` 打成springboot jar，使用java -jar启动;       
+`maven clean install -Dbuild=tar` 打成Tar包;      
+`maven clean install -Dbuild=deb` 打成Deb包;       
+`maven clean install -Dbuild=rpm` 打成Rpm包;       
+`maven clean install -Dbuild=docker` 打成Docker镜像;
 

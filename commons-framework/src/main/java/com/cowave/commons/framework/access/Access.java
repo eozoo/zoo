@@ -19,7 +19,8 @@ import cn.hutool.core.net.NetUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cowave.commons.framework.access.filter.AccessIdGenerator;
-import com.cowave.commons.framework.access.security.AccessToken;
+import com.cowave.commons.framework.access.security.AccessInfo;
+import com.cowave.commons.framework.access.security.AccessUserDetails;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,7 +54,7 @@ public class Access {
 
     private final Long accessTime;
 
-    private AccessToken accessToken;
+    private AccessUserDetails userDetails;
 
     private Integer pageIndex;
 
@@ -201,110 +202,112 @@ public class Access {
         return (pageIndex - 1) * pageSize;
     }
 
-    public static AccessToken token() {
+    public static AccessUserDetails userDetails() {
         Access access = get();
         if(access == null) {
             return null;
         }
-        return access.accessToken;
+        return access.userDetails;
     }
 
     public static String tokenType() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getType();
+        return accessUserDetails.getType();
     }
 
     public static String accessToken() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getAccessToken();
+        return accessUserDetails.getAccessToken();
     }
 
     public static String refreshToken() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getRefreshToken();
+        return accessUserDetails.getRefreshToken();
     }
 
-    public static AccessUser accessUser(){
-        AccessUser accessUser = new AccessUser();
-        accessUser.setAccessUserId(userId());
-        accessUser.setAccessUserAccount(userAccount());
-        accessUser.setAccessUserName(userName());
-        accessUser.setAccessDeptId(deptId());
-        accessUser.setAccessDeptName(deptName());
-        return accessUser;
+    public static AccessInfo accessInfo(){
+        AccessInfo accessInfo = new AccessInfo();
+        accessInfo.setAccessUserId(userId());
+        accessInfo.setAccessUserCode(userCode());
+        accessInfo.setAccessUserAccount(userAccount());
+        accessInfo.setAccessUserName(userName());
+        accessInfo.setAccessDeptId(deptId());
+        accessInfo.setAccessDeptCode(deptCode());
+        accessInfo.setAccessDeptName(deptName());
+        return accessInfo;
     }
 
     public static <T> T userId() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return (T)accessToken.getUserId();
+        return (T) accessUserDetails.getUserId();
     }
 
     public static <T> T userId(Function<Object, T> converter) {
-        AccessToken accessToken = token();
-        if (accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if (accessUserDetails == null) {
             return null;
         }
-        return converter.apply(accessToken.getUserId());
+        return converter.apply(accessUserDetails.getUserId());
     }
 
     public static <T> T userCode() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return (T)accessToken.getUserCode();
+        return (T) accessUserDetails.getUserCode();
     }
 
     public static <T> T userCode(Function<Object, T> converter) {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return converter.apply(accessToken.getUserCode());
+        return converter.apply(accessUserDetails.getUserCode());
     }
 
     public static String userName() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getUserNick();
+        return accessUserDetails.getUserNick();
     }
 
     public static String userAccount() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getUsername();
+        return accessUserDetails.getUsername();
     }
 
     public static List<String> userRoles() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
-            return null;
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
+            return new ArrayList<>();
         }
-        return accessToken.getRoles();
+        return accessUserDetails.getRoles();
     }
 
     public static List<String> userPermissions() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
-            return null;
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
+            return new ArrayList<>();
         }
-        return accessToken.getPermissions();
+        return accessUserDetails.getPermissions();
     }
 
     public static boolean userIsAdmin(){
@@ -316,67 +319,67 @@ public class Access {
     }
 
     public static <T> T deptId() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return (T)accessToken.getDeptId();
+        return (T) accessUserDetails.getDeptId();
     }
 
     public static <T> T deptId(Function<Object, T> converter) {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return converter.apply(accessToken.getDeptId());
+        return converter.apply(accessUserDetails.getDeptId());
     }
 
     public static <T> T deptCode() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return (T)accessToken.getDeptCode();
+        return (T) accessUserDetails.getDeptCode();
     }
 
     public static <T> T deptCode(Function<Object, T> converter) {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return converter.apply(accessToken.getDeptCode());
+        return converter.apply(accessUserDetails.getDeptCode());
     }
 
     public static String deptName() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getDeptName();
+        return accessUserDetails.getDeptName();
     }
 
     public static Integer clusterId() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getClusterId();
+        return accessUserDetails.getClusterId();
     }
 
     public static Integer clusterLevel() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getClusterLevel();
+        return accessUserDetails.getClusterLevel();
     }
 
     public static String clusterName() {
-        AccessToken accessToken = token();
-        if(accessToken == null) {
+        AccessUserDetails accessUserDetails = userDetails();
+        if(accessUserDetails == null) {
             return null;
         }
-        return accessToken.getClusterName();
+        return accessUserDetails.getClusterName();
     }
 
     public static HttpServletRequest httpRequest() {

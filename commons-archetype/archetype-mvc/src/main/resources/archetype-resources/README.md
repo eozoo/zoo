@@ -46,8 +46,8 @@ ${artifactId}
 
 - 应用打包
 
-`maven clean install -Dbuild=jar` 打成springboot jar，使用java -jar启动       
-`maven clean install -Dbuild=tar` 打成Tar包      
-`maven clean install -Dbuild=deb` 打成Deb包       
-`maven clean install -Dbuild=rpm` 打成Rpm包       
-`maven clean install -Dbuild=docker` 打成Docker镜像
+`maven clean install -Dbuild=jar` 打成springboot jar，使用java -jar启动;       
+`maven clean install -Dbuild=tar` 打成Tar包;      
+`maven clean install -Dbuild=deb` 打成Deb包;       
+`maven clean install -Dbuild=rpm` 打成Rpm包;       
+`maven clean install -Dbuild=docker` 打成Docker镜像;

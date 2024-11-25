@@ -24,16 +24,8 @@ public class CowaveBrannerListener implements SpringApplicationRunListener {
 
     private final SpringApplication springApplication;
 
-    private final String[] args;
-
-    public CowaveBrannerListener(){
-        this.springApplication = null;
-        this.args = null;
-    }
-
     public CowaveBrannerListener(SpringApplication springApplication, String[] args){
         this.springApplication = springApplication;
-        this.args = args;
     }
 
     @Override

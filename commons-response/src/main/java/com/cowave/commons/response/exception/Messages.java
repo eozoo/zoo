@@ -66,7 +66,7 @@ public class Messages {
         }
         if (message.startsWith("{") && message.endsWith("}")) {
             message = message.substring(1, message.length() - 1);
-            return messageSource.getMessage(message, args, "not Support Key: " + message, getLanguage());
+            return messageSource.getMessage(message, args, message, getLanguage());
         }
         return message;
     }

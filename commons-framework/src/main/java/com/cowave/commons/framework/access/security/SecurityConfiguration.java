@@ -10,6 +10,9 @@
 package com.cowave.commons.framework.access.security;
 
 import com.cowave.commons.framework.access.AccessProperties;
+import com.cowave.commons.framework.configuration.ApplicationProperties;
+import com.cowave.commons.framework.helper.redis.RedisHelper;
+import com.cowave.commons.tools.Collections;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -18,23 +21,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -49,6 +51,11 @@ public class SecurityConfiguration {
 
     private final AccessProperties accessProperties;
 
+    private final ApplicationProperties applicationProperties;
+
+    @Nullable
+    private final RedisHelper redisHelper;
+
     @Nullable
     private final BearerTokenService bearerTokenService;
 
@@ -61,14 +68,19 @@ public class SecurityConfiguration {
     @ConditionalOnMissingBean(UserDetailsService.class)
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        List<BasicAuthUser> userList = accessProperties.basicUsers();
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        for (BasicAuthUser user : userList) {
-            manager.createUser(User.withUsername(user.getUsername())
-                    .password(passwordEncoder.encode(user.getPassword())).roles(user.getRoles()).build());
-        }
-        return manager;
+        List<AccessUser> userList = accessProperties.accessUsers();
+        return new AccessUserDetailsServiceImpl(accessProperties.authMode(), passwordEncoder,
+                bearerTokenService, applicationProperties, Collections.copyToMap(userList, AccessUser::getUsername));
     }
+
+    @ConditionalOnMissingBean(AuthenticationManager.class)
+    @Bean
+    public AuthenticationManager authenticationManagerBean(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+		authenticationProvider.setPasswordEncoder(passwordEncoder);
+		authenticationProvider.setUserDetailsService(userDetailsService);
+		return new ProviderManager(authenticationProvider);
+	}
 
     @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @ConditionalOnProperty(name = "spring.access.auth.mode", havingValue = "basic", matchIfMissing = true)
@@ -133,9 +145,19 @@ public class SecurityConfiguration {
             } else {
                 httpSecurity.authorizeRequests().anyRequest().authenticated();
             }
+
+            if (bearerTokenService == null) {
+                throw new IllegalStateException("SecurityFilterChain is not initialized，Please ensure the Jwt dependency has imported.");
+            }
+
+            if(useRefreshToken && redisHelper == null){
+                throw new IllegalStateException("SecurityFilterChain is not initialized，Please ensure the Redis dependency has imported.");
+            }
+
             // Bearer处理
             BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(useRefreshToken, bearerTokenService, tokenAuthUrls, ignoreUrls);
             httpSecurity.addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
             // Basic处理
             if (ArrayUtils.isNotEmpty(basicAuthUrls)) {
                 BasicAuthFilter basicAuthFilter = new BasicAuthFilter(userDetailsService, passwordEncoder, basicAuthUrls);
@@ -149,7 +171,7 @@ public class SecurityConfiguration {
 
     @ConditionalOnBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @Bean
-    public AccessUserParser accessUserParser(){
-        return new AccessUserParser();
+    public AccessInfoParser accessUserParser(){
+        return new AccessInfoParser();
     }
 }

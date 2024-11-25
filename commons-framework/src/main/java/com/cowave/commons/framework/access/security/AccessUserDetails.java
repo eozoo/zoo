@@ -20,10 +20,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -32,7 +29,7 @@ import java.util.function.Function;
  *
  */
 @Data
-public class AccessToken implements UserDetails {
+public class AccessUserDetails implements UserDetails {
 
     @Serial
     private static final long serialVersionUID = -3928832861296252415L;
@@ -98,6 +95,11 @@ public class AccessToken implements UserDetails {
     private Object userCode;
 
     /**
+     * 用户属性
+     */
+    private Map<String, Object> userProperties;
+
+    /**
      * 用户账号
      */
     private String username;
@@ -158,7 +160,7 @@ public class AccessToken implements UserDetails {
      */
     private List<? extends GrantedAuthority> authorities;
 
-    public AccessToken(){
+    public AccessUserDetails(){
 
     }
 
@@ -208,14 +210,14 @@ public class AccessToken implements UserDetails {
         return new ArrayList<>();
     }
 
-    public static AccessToken newToken(){
-        AccessToken accessToken = new AccessToken();
-        accessToken.setLoginIp(Access.accessIp());
-        accessToken.setLoginTime(Access.accessTime());
-        accessToken.setAccessIp(Access.accessIp());
-        accessToken.setAccessTime(Access.accessTime());
-        accessToken.setId(IdUtil.fastSimpleUUID());
-        return accessToken;
+    public static AccessUserDetails newUserDetails(){
+        AccessUserDetails accessUserDetails = new AccessUserDetails();
+        accessUserDetails.setLoginIp(Access.accessIp());
+        accessUserDetails.setLoginTime(Access.accessTime());
+        accessUserDetails.setAccessIp(Access.accessIp());
+        accessUserDetails.setAccessTime(Access.accessTime());
+        accessUserDetails.setId(IdUtil.fastSimpleUUID());
+        return accessUserDetails;
     }
 
     public <T> T getUserId(){

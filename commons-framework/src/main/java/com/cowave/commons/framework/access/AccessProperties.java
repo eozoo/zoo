@@ -9,7 +9,7 @@
  */
 package com.cowave.commons.framework.access;
 
-import com.cowave.commons.framework.access.security.BasicAuthUser;
+import com.cowave.commons.framework.access.security.AccessUser;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -58,18 +58,25 @@ public class AccessProperties {
         return true;
     }
 
-    public List<BasicAuthUser> basicUsers(){
+    public String authMode(){
         if(auth != null){
-            return auth.basicUsers;
+            return auth.mode;
         }
-        return List.of(new BasicAuthUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
+        return "basic";
+    }
+
+    public List<AccessUser> accessUsers(){
+        if(auth != null){
+            return auth.users;
+        }
+        return List.of(AccessUser.defaultUser());
     }
 
     public String[] basicAuthUrls(){
         if(auth != null){
             return auth.basicAuthUrls;
         }
-        return new String[]{"/actuator/**"};
+        return new String[0];
     }
 
     public String[] basicIgnoreUrls(){
@@ -184,6 +191,11 @@ public class AccessProperties {
         private boolean enable = true;
 
         /**
+         * 默认用户
+         */
+        private List<AccessUser> users = List.of(AccessUser.defaultUser());
+
+        /**
          * 认证方式：（basic、accessToken、refreshToken）
          */
         private String mode = "basic";
@@ -197,11 +209,6 @@ public class AccessProperties {
          * basic忽略的url
          */
         private String[] basicIgnoreUrls;
-
-        /**
-         * basic默认用户
-         */
-        private List<BasicAuthUser> basicUsers = List.of(new BasicAuthUser("cowave", "Cowave@123", new String[]{"sysAdmin"}));
 
         /**
          * Token保存方式（header、cookie）

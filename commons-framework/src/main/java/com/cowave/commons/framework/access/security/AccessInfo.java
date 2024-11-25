@@ -7,7 +7,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.access;
+package com.cowave.commons.framework.access.security;
 
 import java.util.Date;
 
@@ -23,7 +23,7 @@ import lombok.Data;
  *
  */
 @Data
-public class AccessUser {
+public class AccessInfo {
 
     /**
      * 用户id
@@ -54,13 +54,6 @@ public class AccessUser {
     private String accessUserName;
 
     /**
-     * 访问时间
-     */
-    @JsonIgnore
-    @JSONField(serialize = false)
-    private Date accessTime = new Date();
-
-    /**
      * 部门id
      */
     @JsonIgnore
@@ -80,6 +73,13 @@ public class AccessUser {
     @JsonIgnore
     @JSONField(serialize = false)
     private String accessDeptName;
+
+    /**
+     * 访问时间
+     */
+    @JsonIgnore
+    @JSONField(serialize = false)
+    private Date accessTime = new Date();
 
     /**
      * 开始时间

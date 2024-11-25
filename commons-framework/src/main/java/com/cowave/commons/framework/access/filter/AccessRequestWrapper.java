@@ -134,11 +134,11 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
         Map<String, Object> requestParams = new HashMap<>();
         // 请求日志
         StringBuilder logBuilder = new StringBuilder();
-        logBuilder.append(">> ").append(methodName).append(" ").append(url).append(" [").append(remote);
+        logBuilder.append(">> ").append(methodName).append(" ").append(url).append(" <").append(remote);
         if(StringUtils.isNotBlank(contentType)){
-            logBuilder.append(" ").append(contentType).append("]");
+            logBuilder.append(" ").append(contentType).append(">");
         }else{
-            logBuilder.append("]");
+            logBuilder.append(">");
         }
         if(!paramMap.isEmpty()){
             requestParams.put("params", paramMap);

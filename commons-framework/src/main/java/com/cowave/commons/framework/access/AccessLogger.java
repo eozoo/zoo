@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cowave.commons.framework.access.filter.AccessIdGenerator;
-import com.cowave.commons.framework.access.security.AccessUserParser;
+import com.cowave.commons.framework.access.security.AccessInfoParser;
 import com.cowave.commons.response.HttpResponse;
 import com.cowave.commons.response.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,7 +57,7 @@ public class AccessLogger {
     private final ObjectMapper objectMapper;
 
     @Nullable
-    private final AccessUserParser accessUserParser;
+    private final AccessInfoParser accessInfoParser;
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
@@ -101,8 +101,8 @@ public class AccessLogger {
                             // 过滤下类型，避免用Json序列化的地方报错
                             continue;
                         }
-                        if (accessUserParser != null) {
-                            accessUserParser.parse(clazz, args[i]);
+                        if (accessInfoParser != null) {
+                            accessInfoParser.parse(clazz, args[i]);
                         }
                         map.put(paramNames[i], args[i]);
                     }
@@ -112,13 +112,13 @@ public class AccessLogger {
             access = Access.newAccess(accessIdGenerator);
             access.setRequestParam(map);
             Access.set(access);
-        }else if (accessUserParser != null) {
+        }else if (accessInfoParser != null) {
             MethodSignature signature = (MethodSignature) point.getSignature();
             String[] paramNames = signature.getParameterNames();
             if (paramNames != null) {
                 for (Object arg : point.getArgs()) {
                     if (arg != null) {
-                        accessUserParser.parse(arg.getClass(), arg);
+                        accessInfoParser.parse(arg.getClass(), arg);
                     }
                 }
             }

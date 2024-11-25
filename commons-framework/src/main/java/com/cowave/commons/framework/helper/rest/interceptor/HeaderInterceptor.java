@@ -13,7 +13,7 @@ import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.access.security.AccessToken;
+import com.cowave.commons.framework.access.security.AccessUserDetails;
 import com.cowave.commons.response.exception.Messages;
 import com.cowave.commons.tools.ids.IdGenerator;
 
@@ -78,8 +78,8 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
     }
 
     public static String newAuthorization(BearerTokenService bearerTokenService, ApplicationProperties applicationProperties) {
-        AccessToken appToken = AccessToken.newToken();
-        appToken.setUsername(applicationProperties.getName());
-        return "Bearer " + bearerTokenService.newApiAccessToken(appToken, 300);
+        AccessUserDetails userDetails = AccessUserDetails.newUserDetails();
+        userDetails.setUsername(applicationProperties.getName());
+        return "Bearer " + bearerTokenService.newApiAccessToken(userDetails, 300);
     }
 }

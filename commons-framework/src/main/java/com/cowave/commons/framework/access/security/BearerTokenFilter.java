@@ -74,16 +74,16 @@ public class BearerTokenFilter extends OncePerRequestFilter {
     }
 
     private void bearerAuth(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        AccessToken accessToken;
+        AccessUserDetails accessUserDetails;
         if (useRefreshToken) {
-            accessToken = bearerTokenService.dualParseToken(response);
+            accessUserDetails = bearerTokenService.dualParseToken(response);
         } else {
-            accessToken = bearerTokenService.simpleParseToken(response);
+            accessUserDetails = bearerTokenService.simpleParseToken(response);
         }
-        if (accessToken == null) {
+        if (accessUserDetails == null) {
             return;
         }
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessToken, null, accessToken.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(accessUserDetails, null, accessUserDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
