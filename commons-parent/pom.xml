@@ -135,7 +135,7 @@
             <activation>
                 <property>
                     <name>build</name>
-                    <value>tar</value>
+                    <value>jar</value>
                 </property>
             </activation>
             <build>
