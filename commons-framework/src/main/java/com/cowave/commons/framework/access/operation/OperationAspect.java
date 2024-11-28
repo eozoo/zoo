@@ -31,6 +31,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ public class OperationAspect {
 
     private final ApplicationContext applicationContext;
 
+    @Nullable
     private final TaskExecutor taskExecutor;
 
     @Pointcut("@annotation(com.cowave.commons.framework.access.operation.Operation) " +
@@ -194,7 +196,7 @@ public class OperationAspect {
     }
 
     private void handleOperation(Operation operation, EvaluationContext context){
-        if(operation.isAsync()){
+        if(operation.isAsync() && taskExecutor != null){
             taskExecutor.execute(() -> exprParser.parseExpression(operation.handleExpr()).getValue(context));
         }else{
             try{
