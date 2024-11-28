@@ -17,4 +17,4 @@ org.springframework.context.ApplicationContextInitializer=\
 com.cowave.commons.framework.configuration.ApplicationConfiguration
 
 org.springframework.boot.SpringApplicationRunListener=\
-com.cowave.commons.framework.configuration.CowaveBrannerListener
+com.cowave.commons.framework.configuration.CowaveBannerListener

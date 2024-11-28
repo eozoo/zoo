@@ -51,6 +51,11 @@
       "sourceType": "com.cowave.commons.framework.helper.minio.MinioProperties"
     },
     {
+      "name": "spring.rest",
+      "type": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties"
+    },
+    {
       "name": "spring.socket-io",
       "type": "com.cowave.commons.framework.helper.socketio.SocketIoProperties",
       "sourceType": "com.cowave.commons.framework.helper.socketio.SocketIoProperties"
@@ -1328,18 +1333,18 @@
       "type": "java.lang.String",
       "description": "Token保存的key",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
-      "defaultValue": "Authorization"
+      "defaultValue": "header",
+      "enum": [
+        "header",
+        "cookie"
+      ]
     },
     {
       "name": "spring.access.auth.token-store",
       "type": "java.lang.String",
       "description": "Token保存方式（header、cookie）",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
-      "defaultValue": "header",
-      "enum": [
-        "header",
-        "cookie"
-      ]
+      "defaultValue": "header"
     },
     {
       "name": "spring.access.auth.users",
@@ -1980,6 +1985,48 @@
       "type": "java.lang.String",
       "description": "访问秘钥",
       "sourceType": "com.cowave.commons.framework.helper.minio.MinioProperties"
+    },
+    {
+      "name": "spring.rest.connect-timeout",
+      "type": "java.lang.Integer",
+      "description": "连接超时",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "defaultValue": 0
+    },
+    {
+      "name": "spring.rest.max-connections",
+      "type": "java.lang.Integer",
+      "description": "最大连接数",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "defaultValue": 100
+    },
+    {
+      "name": "spring.rest.max-retry",
+      "type": "java.lang.Integer",
+      "description": "最大重试次数",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "defaultValue": 3
+    },
+    {
+      "name": "spring.rest.pool-timeout",
+      "type": "java.lang.Integer",
+      "description": "获取连接超时",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "defaultValue": 0
+    },
+    {
+      "name": "spring.rest.retry-interval",
+      "type": "java.lang.Long",
+      "description": "重试间隔",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "defaultValue": 1000
+    },
+    {
+      "name": "spring.rest.socket-timeout",
+      "type": "java.lang.Integer",
+      "description": "响应超时",
+      "sourceType": "com.cowave.commons.framework.helper.rest.RestProperties",
+      "defaultValue": 0
     },
     {
       "name": "spring.socket-io.allow-custom-requests",

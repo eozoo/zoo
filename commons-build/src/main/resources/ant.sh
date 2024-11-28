@@ -79,9 +79,10 @@ prepare_build(){
       code_version="$branch $commit"
       sed -i 's#export code_version=.*#export code_version="'"$code_version"'"#' bin/setenv.sh
   else
+mkdir -p classes/META-INF
 cat <<EOF > classes/META-INF/git.info
 {
-    "app.name": "$app_home",
+    "app.name": "$app_name",
     "app.version": "$app_version",
     "build.time": "$build_time"
 }

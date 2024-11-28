@@ -29,11 +29,11 @@ import java.nio.charset.StandardCharsets;
  *
  */
 @Slf4j
-public class CowaveBranner implements Banner {
+public class CowaveBanner implements Banner {
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-        String info = "";
+        String info = ":: Spring Boot 2.7.0 :: ";
         Resource resource = new DefaultResourceLoader().getResource("classpath:META-INF/git.info");
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {
@@ -44,11 +44,11 @@ public class CowaveBranner implements Banner {
                 String gitId = (String) json.get("git.commit.id");
                 String gitBranch = (String) json.get("git.branch");
                 if(StringUtils.isNotBlank(appName) && StringUtils.isNotBlank(gitBranch)){
-                    info = appName + " " + appVersion + " build(" + buildTime + " " + gitBranch + " " + gitId + ")";
+                    info = info + appName + " " + appVersion + " :: build(" + buildTime + " " + gitBranch + " " + gitId + ")";
                 }else if(StringUtils.isNotBlank(appName)){
-                    info = appName + " " + appVersion + " build(" + buildTime + ")";
+                    info = info + appName + " " + appVersion + " :: build(" + buildTime + ")";
                 }else if(StringUtils.isNotBlank(gitBranch)){
-                    info = "build(" + gitBranch + " " + gitId + ")";
+                    info = info + "build(" + gitBranch + " " + gitId + ")";
                 }
             }catch(Exception e){
                 log.error("", e);

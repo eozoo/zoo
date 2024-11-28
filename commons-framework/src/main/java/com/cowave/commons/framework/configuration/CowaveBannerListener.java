@@ -20,18 +20,18 @@ import org.springframework.boot.SpringApplicationRunListener;
  *
  */
 @Slf4j
-public class CowaveBrannerListener implements SpringApplicationRunListener {
+public class CowaveBannerListener implements SpringApplicationRunListener {
 
     private final SpringApplication springApplication;
 
-    public CowaveBrannerListener(SpringApplication springApplication, String[] args){
+    public CowaveBannerListener(SpringApplication springApplication, String[] args){
         this.springApplication = springApplication;
     }
 
     @Override
     public void starting(ConfigurableBootstrapContext bootstrapContext) {
         if(springApplication != null){
-            springApplication.setBanner(new CowaveBranner());
+            springApplication.setBanner(new CowaveBanner());
         }
     }
 }
