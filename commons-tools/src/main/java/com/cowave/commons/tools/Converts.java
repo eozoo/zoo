@@ -153,10 +153,17 @@ public class Converts {
         if (null == value) {
             return defaultValue;
         }
+
         try {
-            return value instanceof String str ? str : JacksonUtils.writeValue(value);
+            if (value instanceof String str) {
+                return str;
+            }
+            if (value.getClass().isEnum()) {
+                return StringUtils.strip(JacksonUtils.writeValue(value), "\"");
+            }
+            return JacksonUtils.writeValue(value);
         } catch (Exception e) {
-            log.warn("Converts.toJson failed, return default value");
+            log.warn("Json converts failed, use default value");
             return defaultValue;
         }
     }

@@ -36,23 +36,24 @@ import java.util.List;
 @EnableConfigurationProperties({ApplicationProperties.class})
 public class ApplicationConfiguration implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
+    private static final String PATH_YAML = "/META-INF/common.yml";
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        String yamlPath = "/META-INF/common.yml";
-        Resource infoResource = new ClassPathResource(yamlPath);
+        Resource infoResource = new ClassPathResource(PATH_YAML);
         if(!infoResource.exists()){
             return;
         }
 
         try{
-            log.info("prepare to load: META-INF/common.yml");
-            List<PropertySource<?>> list = new YamlPropertySourceLoader().load(yamlPath, infoResource);
+            log.info("prepare to load: " + PATH_YAML);
+            List<PropertySource<?>> list = new YamlPropertySourceLoader().load(PATH_YAML, infoResource);
             for(PropertySource<?> source : list){
                 environment.getPropertySources().addLast(source);
             }
         }catch (Exception e){
-            log.error("failed to load: META-INF/common.yml", e);
+            log.error("failed to load: " + PATH_YAML, e);
             System.exit(-1);
         }
     }

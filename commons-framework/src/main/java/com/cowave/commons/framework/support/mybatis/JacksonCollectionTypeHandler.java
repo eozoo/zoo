@@ -61,7 +61,7 @@ public class JacksonCollectionTypeHandler<K, T extends Collection<K>> extends Ab
                 throw new RuntimeException(e);
             }
         } else {
-            return null;
+            return java.util.Collections.emptyList();
         }
     }
 

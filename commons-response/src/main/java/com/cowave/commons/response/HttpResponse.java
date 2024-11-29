@@ -39,30 +39,39 @@ public class HttpResponse<T> extends ResponseEntity<T> {
     @JsonIgnore
     private Throwable cause;
 
+    @JsonIgnore
+    private final int status;
+
     public HttpResponse(){
         super(HttpStatus.OK);
+        this.status = HttpStatus.OK.value();
     }
 
     public HttpResponse(ResponseCode responseCode){
         super(null, null, responseCode.getStatus());
+        this.status = responseCode.getStatus();
     }
 
     public HttpResponse(ResponseCode responseCode, MultiValueMap<String, String> headers, T body) {
         super(body, headers, responseCode.getStatus());
+        this.status = responseCode.getStatus();
     }
 
     public HttpResponse(ResponseCode responseCode, MultiValueMap<String, String> headers, T body, String message) {
         super(body, headers, responseCode.getStatus());
         this.message = message;
+        this.status = responseCode.getStatus();
     }
 
     public HttpResponse(int httpStatus, MultiValueMap<String, String> headers, T body) {
         super(body, headers, httpStatus);
+        this.status = httpStatus;
     }
 
     public HttpResponse(int httpStatus, MultiValueMap<String, String> headers, T body, String message) {
         super(body, headers, httpStatus);
         this.message = message;
+        this.status = httpStatus;
     }
 
     /**
@@ -135,5 +144,26 @@ public class HttpResponse<T> extends ResponseEntity<T> {
      */
     public static <V> HttpResponse<V> success(V data) {
         return new HttpResponse<>(SUCCESS, null, data);
+    }
+
+    @Override
+    public HttpStatus getStatusCode(){
+        for (HttpStatus statusEnum : HttpStatus.values()) {
+            if (statusEnum.value() == this.status) {
+                return statusEnum;
+            }
+        }
+
+        if(this.status >= HttpStatus.INTERNAL_SERVER_ERROR.value()){
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }else if(this.status >= HttpStatus.BAD_REQUEST.value()){
+            return HttpStatus.BAD_REQUEST;
+        }else if(this.status >= HttpStatus.MULTIPLE_CHOICES.value()){
+            return HttpStatus.MULTIPLE_CHOICES;
+        }else if(this.status >= HttpStatus.OK.value()){
+            return HttpStatus.OK;
+        }else{
+            return HttpStatus.CONTINUE;
+        }
     }
 }
