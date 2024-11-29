@@ -17,11 +17,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
+import javax.annotation.Nullable;
+
 /**
  *
  * @author shanhuiming
  *
  */
+@Nullable
 @Data
 public class AccessInfo {
 
@@ -117,5 +120,17 @@ public class AccessInfo {
     @JSONField(serialize = false)
     public <T> T getAccessDeptCode(){
         return (T)accessDeptCode;
+    }
+
+    public AccessInfo(AccessUserDetails userDetails){
+        if(userDetails != null){
+            this.accessUserId = userDetails.getUserId();
+            this.accessUserCode = userDetails.getUserCode();
+            this.accessUserAccount = userDetails.getUsername();
+            this.accessUserName = userDetails.getUserNick();
+            this.accessDeptId = userDetails.getDeptId();
+            this.accessDeptCode = userDetails.getDeptCode();
+            this.accessDeptName = userDetails.getDeptName();
+        }
     }
 }

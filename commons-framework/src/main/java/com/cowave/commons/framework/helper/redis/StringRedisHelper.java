@@ -311,7 +311,7 @@ public class StringRedisHelper {
     /**
      * @see <a href="https://redis.io/commands/setex">Redis Documentation: SETEX</a>
      */
-    public <T> void putValue(final String key, final T value, final Integer timeout, final TimeUnit timeUnit){
+    public <T> void putExpire(final String key, final T value, final Integer timeout, final TimeUnit timeUnit){
         stringRedisTemplate.opsForValue().set(key, toJson(value), timeout, timeUnit);
     }
 
@@ -326,7 +326,7 @@ public class StringRedisHelper {
     /**
      * @see <a href="https://redis.io/commands/set">Redis Documentation: SET</a>
      */
-    public <T> Boolean putValueIfAbsent(final String key, final T value, final long timeout, final TimeUnit timeUnit){
+    public <T> Boolean putExpireIfAbsent(final String key, final T value, final long timeout, final TimeUnit timeUnit){
         Asserts.notNull(value, "redis value can't be bull");
         return stringRedisTemplate.opsForValue().setIfAbsent(key, toJson(value), timeout, timeUnit);
     }
@@ -342,7 +342,7 @@ public class StringRedisHelper {
     /**
      * @see <a href="https://redis.io/commands/set">Redis Documentation: SET</a>
      */
-    public <T> Boolean putValueIfPresent(final String key, final T value, final long timeout, final TimeUnit timeUnit){
+    public <T> Boolean putExpireIfPresent(final String key, final T value, final long timeout, final TimeUnit timeUnit){
         Asserts.notNull(value, "redis value can't be bull");
         return stringRedisTemplate.opsForValue().setIfPresent(key, toJson(value), timeout, timeUnit);
     }

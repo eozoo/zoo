@@ -14,6 +14,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -52,110 +53,59 @@ public class AccessProperties {
     private AuthConfig auth;
 
     public boolean authEnable(){
-        if(auth != null){
-            return auth.enable;
-        }
-        return true;
+        return Optional.ofNullable(auth).map(auth -> auth.enable).orElse(true);
     }
 
     public String authMode(){
-        if(auth != null){
-            return auth.mode;
-        }
-        return "basic";
+        return Optional.ofNullable(auth).map(auth -> auth.mode).orElse("basic");
     }
 
     public List<AccessUser> accessUsers(){
-        if(auth != null){
-            return auth.users;
-        }
-        return List.of(AccessUser.defaultUser());
+        return Optional.ofNullable(auth).map(auth -> auth.users).orElse(List.of(AccessUser.defaultUser()));
     }
 
     public String[] basicAuthUrls(){
-        if(auth != null){
-            return auth.basicAuthUrls;
-        }
-        return new String[0];
+        return Optional.ofNullable(auth).map(auth -> auth.basicAuthUrls).orElse(null);
     }
 
     public String[] basicIgnoreUrls(){
-        if(auth == null){
-            return new String[0];
-        }
-        if(auth.basicIgnoreUrls == null){
-            return new String[0];
-        }
-        return auth.basicIgnoreUrls;
+        return Optional.ofNullable(auth).map(auth -> auth.basicIgnoreUrls).orElse(null);
     }
 
     public String tokenStore(){
-        if(auth != null){
-            return auth.tokenStore;
-        }
-        return "header";
+        return Optional.ofNullable(auth).map(auth -> auth.tokenStore).orElse("header");
     }
 
     public String tokenKey(){
-        if(auth != null){
-            return auth.tokenKey;
-        }
-        return "Authorization";
+        return Optional.ofNullable(auth).map(auth -> auth.tokenKey).orElse("Authorization");
     }
 
     public boolean conflict(){
-        if(auth != null){
-            return auth.conflict;
-        }
-        return true;
+        return Optional.ofNullable(auth).map(auth -> auth.conflict).orElse(true);
     }
 
     public int accessExpire(){
-        if(auth != null){
-            return auth.accessExpire;
-        }
-        return 3600;
+        return Optional.ofNullable(auth).map(auth -> auth.accessExpire).orElse(86400);
     }
 
     public String accessSecret(){
-        if(auth != null){
-            return auth.accessSecret;
-        }
-        return "access@cowave.com";
+        return Optional.ofNullable(auth).map(auth -> auth.accessSecret).orElse("access@cowave.com");
     }
 
     public int refreshExpire(){
-        if(auth != null){
-            return auth.refreshExpire;
-        }
-        return 3600 * 24 * 7;
+        return Optional.ofNullable(auth).map(auth -> auth.refreshExpire).orElse(86400 * 7);
     }
 
     public String refreshSecret(){
-        if(auth != null){
-            return auth.refreshSecret;
-        }
-        return "refresh@cowave.com";
+        return Optional.ofNullable(auth).map(auth -> auth.refreshSecret).orElse("refresh@cowave.com");
     }
 
     public String[] tokenAuthUrls(){
-        if(auth == null){
-            return new String[0];
-        }
-        if(auth.tokenAuthUrls == null){
-            return new String[0];
-        }
-        return auth.tokenAuthUrls;
+        return Optional.ofNullable(auth).map(auth -> auth.tokenAuthUrls).orElse(null);
     }
 
     public String[] tokenIgnoreUrls(){
-        if(auth == null){
-            return new String[0];
-        }
-        if(auth.tokenIgnoreUrls == null){
-            return new String[0];
-        }
-        return auth.tokenIgnoreUrls;
+        return Optional.ofNullable(auth).map(auth -> auth.tokenIgnoreUrls).orElse(null);
     }
 
     @Data

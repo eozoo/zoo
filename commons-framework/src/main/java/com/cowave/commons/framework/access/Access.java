@@ -23,7 +23,6 @@ import com.cowave.commons.framework.access.security.AccessInfo;
 import com.cowave.commons.framework.access.security.AccessUserDetails;
 import com.cowave.commons.tools.ServletUtils;
 import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -101,361 +100,195 @@ public class Access {
     }
 
     public static String accessId() {
-        Access access;
-        if((access = get()) == null) {
-            return null;
-        }
-        return access.accessId;
+        return Optional.ofNullable(get()).map(access -> access.accessId).orElse(null);
     }
 
     public static String accessIp() {
-        Access access;
-        if((access = get()) == null) {
-            return NetUtil.getLocalhostStr();
-        }
-        return access.accessIp;
+        return Optional.ofNullable(get()).map(access -> access.accessIp).orElse(NetUtil.getLocalhostStr());
     }
 
     public static String accessUrl() {
-        Access access;
-        if((access = get()) == null) {
-            return null;
-        }
-        return access.accessUrl;
+        return Optional.ofNullable(get()).map(access -> access.accessUrl).orElse(null);
     }
 
     public static Date accessTime() {
-        Access access;
-        if((access = get()) == null) {
-            return new Date();
-        }
-        return new Date(access.accessTime);
+        return Optional.ofNullable(get()).map(access -> new Date(access.accessTime)).orElse(new Date());
     }
 
     public static <T> Page<T> page(){
-        Access access;
-        if((access = get()) == null) {
-            return new Page<>(); // current=1, size=10
-        }
-        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
-        int pageSize = access.pageSize != null ? access.pageSize : 10;
-        return new Page<>(pageIndex, pageSize);
+        return Optional.ofNullable(get()).map(
+                access -> new Page<T>(
+                        Optional.ofNullable(access.pageIndex).orElse(1),
+                        Optional.ofNullable(access.pageSize).orElse(10)
+                )).orElse(new Page<>());
     }
 
     public static <T> Page<T> page(int defaultSize){
-        Access access;
-        if((access = get()) == null) {
-            return new Page<>(1, defaultSize);
-        }
-        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
-        int pageSize = access.pageSize != null ? access.pageSize : defaultSize;
-        return new Page<>(pageIndex, pageSize);
+        return Optional.ofNullable(get()).map(
+                access -> new Page<T>(
+                    Optional.ofNullable(access.pageIndex).orElse(1),
+                    Optional.ofNullable(access.pageSize).orElse(defaultSize)
+            )).orElse(new Page<>(1, defaultSize));
     }
 
     public static int pageIndex() {
-        Access access;
-        if((access = get()) == null) {
-            return 1;
-        }
-        return access.pageIndex != null ? access.pageIndex : 1;
+        return Optional.ofNullable(get()).map(access -> Optional.ofNullable(access.pageIndex).orElse(1)).orElse(1);
     }
 
     public static int pageSize() {
-        Access access;
-        if((access = get()) == null) {
-            return 10;
-        }
-        return access.pageSize != null ? access.pageSize : 10;
+        return Optional.ofNullable(get()).map(access -> Optional.ofNullable(access.pageSize).orElse(10)).orElse(10);
     }
 
     public static int pageSize(int defaultSize) {
-        Access access;
-        if((access = get()) == null) {
-            return defaultSize;
-        }
-        return access.pageSize != null ? access.pageSize : defaultSize;
+        return Optional.ofNullable(get()).map(access -> Optional.ofNullable(access.pageSize).orElse(defaultSize)).orElse(defaultSize);
     }
 
     public static int pageOffset() {
-        Access access;
-        if((access = get()) == null) {
-            return 0;
-        }
-        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
-        int pageSize = access.pageSize != null ? access.pageSize : 10;
-        if(pageIndex <= 0 || pageSize <= 0){
-            return 0;
-        }
-        return (pageIndex - 1) * pageSize;
+        return Optional.ofNullable(get()).map(access -> {
+                int pageIndex = Optional.ofNullable(access.pageIndex).orElse(1);
+                int pageSize = Optional.ofNullable(access.pageSize).orElse(10);
+                return (pageIndex <= 0 || pageSize <= 0) ? 0 : (pageIndex - 1) * pageSize;
+            }).orElse(0);
     }
 
     public static int pageOffset(int defaultSize) {
-        Access access;
-        if((access = get()) == null) {
-            return 0;
-        }
-        int pageIndex = access.pageIndex != null ? access.pageIndex : 1;
-        int pageSize = access.pageSize != null ? access.pageSize : defaultSize;
-        if(pageIndex <= 0 || pageSize <= 0){
-            return 0;
-        }
-        return (pageIndex - 1) * pageSize;
+        return Optional.ofNullable(get()).map(access -> {
+                int pageIndex = Optional.ofNullable(access.pageIndex).orElse(1);
+                int pageSize = Optional.ofNullable(access.pageSize).orElse(defaultSize);
+                return (pageIndex <= 0 || pageSize <= 0) ? 0 : (pageIndex - 1) * pageSize;
+            }).orElse(0);
     }
 
     public static AccessUserDetails userDetails() {
-        Access access = get();
-        if(access == null) {
-            return null;
-        }
-        return access.userDetails;
+        return Optional.ofNullable(get()).map(access -> access.userDetails).orElse(null);
     }
 
     public static String tokenType() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getType();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getType).orElse(null);
     }
 
     public static String accessToken() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getAccessToken();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getAccessToken).orElse(null);
     }
 
     public static String refreshToken() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getRefreshToken();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getRefreshToken).orElse(null);
     }
 
     public static AccessInfo accessInfo(){
-        AccessInfo accessInfo = new AccessInfo();
-        accessInfo.setAccessUserId(userId());
-        accessInfo.setAccessUserCode(userCode());
-        accessInfo.setAccessUserAccount(userAccount());
-        accessInfo.setAccessUserName(userName());
-        accessInfo.setAccessDeptId(deptId());
-        accessInfo.setAccessDeptCode(deptCode());
-        accessInfo.setAccessDeptName(deptName());
-        return accessInfo;
+        return new AccessInfo(userDetails());
     }
 
     public static <T> T userId() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return (T) accessUserDetails.getUserId();
+        return (T) Optional.ofNullable(userDetails()).map(AccessUserDetails::getUserId).orElse(null);
     }
 
     public static <T> T userId(Function<Object, T> converter) {
-        AccessUserDetails accessUserDetails = userDetails();
-        if (accessUserDetails == null) {
-            return null;
-        }
-        return converter.apply(accessUserDetails.getUserId());
+        return Optional.ofNullable(userDetails()).map(
+                userDetails -> converter.apply(userDetails.getUserId())).orElse(null);
     }
 
     public static <T> T userCode() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return (T) accessUserDetails.getUserCode();
+        return (T) Optional.ofNullable(userDetails()).map(AccessUserDetails::getUserCode).orElse(null);
     }
 
     public static <T> T userCode(Function<Object, T> converter) {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return converter.apply(accessUserDetails.getUserCode());
+        return Optional.ofNullable(userDetails()).map(
+                userDetails -> converter.apply(userDetails.getUserCode())).orElse(null);
     }
 
     public static String userName() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getUserNick();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getUserNick).orElse(null);
     }
 
     public static String userAccount() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getUsername();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getUsername).orElse(null);
     }
 
     public static List<String> userRoles() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return new ArrayList<>();
-        }
-        return accessUserDetails.getRoles();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getRoles).orElse(new ArrayList<>());
     }
 
     public static List<String> userPermissions() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return new ArrayList<>();
-        }
-        return accessUserDetails.getPermissions();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getPermissions).orElse(new ArrayList<>());
     }
 
     public static boolean userIsAdmin(){
-        List<String> roles = userRoles();
-        if(CollectionUtils.isEmpty(roles)){
-            return false;
-        }
-        return roles.contains("sysAdmin");
+        return Optional.of(userRoles()).filter(roles -> !roles.isEmpty()).map(roles -> roles.contains("sysAdmin")).orElse(false);
     }
 
     public static <T> T deptId() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return (T) accessUserDetails.getDeptId();
+        return (T) Optional.ofNullable(userDetails()).map(AccessUserDetails::getDeptId).orElse(null);
     }
 
     public static <T> T deptId(Function<Object, T> converter) {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return converter.apply(accessUserDetails.getDeptId());
+        return Optional.ofNullable(userDetails()).map(
+                userDetails -> converter.apply(userDetails.getDeptId())).orElse(null);
     }
 
     public static <T> T deptCode() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return (T) accessUserDetails.getDeptCode();
+        return (T) Optional.ofNullable(userDetails()).map(AccessUserDetails::getDeptCode).orElse(null);
     }
 
     public static <T> T deptCode(Function<Object, T> converter) {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return converter.apply(accessUserDetails.getDeptCode());
+        return Optional.ofNullable(userDetails()).map(
+                userDetails -> converter.apply(userDetails.getDeptCode())).orElse(null);
     }
 
     public static String deptName() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getDeptName();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getDeptName).orElse(null);
     }
 
     public static Integer clusterId() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getClusterId();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getClusterId).orElse(null);
     }
 
     public static Integer clusterLevel() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getClusterLevel();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getClusterLevel).orElse(null);
     }
 
     public static String clusterName() {
-        AccessUserDetails accessUserDetails = userDetails();
-        if(accessUserDetails == null) {
-            return null;
-        }
-        return accessUserDetails.getClusterName();
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getClusterName).orElse(null);
     }
 
     public static HttpServletRequest httpRequest() {
-        ServletRequestAttributes attributes =
-                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if(attributes != null){
-            return attributes.getRequest();
-        }
-        return null;
+        return Optional.ofNullable((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .map(ServletRequestAttributes::getRequest).orElse(null);
     }
 
     public static HttpServletResponse httpResponse() {
-        ServletRequestAttributes attributes =
-                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if(attributes != null){
-            return attributes.getResponse();
-        }
-        return null;
+        return Optional.ofNullable((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .map(ServletRequestAttributes::getResponse).orElse(null);
     }
 
     public static Map<String, Object> getRequestParam() {
-        Access access;
-        if((access = get()) == null) {
-            return null;
-        }
-        return access.requestParam;
+        return Optional.ofNullable(get()).map(access -> access.requestParam).orElse(null);
     }
 
     public static String getRequestHeader(String headerName) {
-        HttpServletRequest httpRequest = httpRequest();
-        if(httpRequest != null){
-            return httpRequest.getHeader(headerName);
-        }
-        return null;
+        return Optional.ofNullable(httpRequest()).map(httpRequest -> httpRequest.getHeader(headerName)).orElse(null);
     }
 
     public static void setResponseStatus(HttpStatus httpStatus){
-        HttpServletResponse response = httpResponse();
-        if(response != null){
-            response.setStatus(httpStatus.value());
-        }
+        Optional.ofNullable(httpResponse()).ifPresent(response -> response.setStatus(httpStatus.value()));
     }
 
     public static void setResponseHeader(String name, String value){
-        HttpServletResponse response = httpResponse();
-        if(response != null){
-            response.setHeader(name, value);
-        }
+        Optional.ofNullable(httpResponse()).ifPresent(response -> response.setHeader(name, value));
     }
 
     public static HttpSession httpSession() {
-        HttpServletRequest httpRequest = httpRequest();
-        if(httpRequest != null){
-            return httpRequest.getSession();
-        }
-        return null;
+        return Optional.ofNullable(httpRequest()).map(HttpServletRequest::getSession).orElse(null);
     }
 
     public static Cookie[] httpCookies(){
-        HttpServletRequest httpRequest = httpRequest();
-        if(httpRequest != null){
-            return httpRequest.getCookies();
-        }
-        return null;
+        return Optional.ofNullable(httpRequest()).map(HttpServletRequest::getCookies).orElse(null);
     }
 
     public static String getCookie(String name) {
-        Cookie[] cookies = httpCookies();
-        if(cookies != null){
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
-                }
-            }
-        }
-        return null;
+        return Optional.ofNullable(httpCookies()).flatMap(
+                cookies -> Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(name)).findFirst())
+                .map(cookie -> URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8)).orElse(null);
     }
 
     public static void setCookie(String name, String value) {
@@ -467,25 +300,21 @@ public class Access {
     }
 
     public static void setCookie(String name, String value, String path, int age) {
-        HttpServletResponse httpResponse = httpResponse();
-        if(httpResponse == null){
-            return;
-        }
-        Cookie cookie = new Cookie(name, URLEncoder.encode(value, StandardCharsets.UTF_8));
-        cookie.setPath(path);
-        cookie.setMaxAge(age);
-        httpResponse.addCookie(cookie);
+        Optional.ofNullable(httpResponse()).ifPresent(response -> {
+            Cookie cookie = new Cookie(name, URLEncoder.encode(value, StandardCharsets.UTF_8));
+            cookie.setPath(path);
+            cookie.setMaxAge(age);
+            response.addCookie(cookie);
+        });
     }
 
     public static void removeCookie(String name) {
-        Cookie[] cookies = httpCookies();
-        if(cookies != null){
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    cookie.setMaxAge(0);
-                    Objects.requireNonNull(httpResponse()).addCookie(cookie);
-                }
-            }
-        }
+        Optional.ofNullable(httpResponse()).ifPresent(
+                response -> Optional.ofNullable(httpCookies()).ifPresent(
+                        cookies -> Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(name)).forEach(
+                                cookie -> {
+                                    cookie.setMaxAge(0);
+                                    response.addCookie(cookie);
+                                })));
     }
 }

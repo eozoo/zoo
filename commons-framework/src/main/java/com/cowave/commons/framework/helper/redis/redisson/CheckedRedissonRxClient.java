@@ -14,6 +14,8 @@ import org.redisson.api.*;
 import org.redisson.client.codec.Codec;
 import org.redisson.config.Config;
 
+import java.util.Optional;
+
 /**
  *
  * @author shanhuiming
@@ -38,10 +40,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RTimeSeriesRx<V> getTimeSeries(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getTimeSeries(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getTimeSeries(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -54,10 +54,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RTimeSeriesRx<V> getTimeSeries(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getTimeSeries(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getTimeSeries(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -70,10 +68,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RStreamRx<K, V> getStream(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getStream(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getStream(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -88,10 +84,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RStreamRx<K, V> getStream(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getStream(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getStream(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -102,10 +96,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RGeoRx<V> getGeo(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getGeo(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getGeo(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -118,10 +110,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RGeoRx<V> getGeo(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getGeo(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getGeo(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -132,10 +122,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RRateLimiterRx getRateLimiter(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRateLimiter(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getRateLimiter(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -146,10 +134,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RBinaryStreamRx getBinaryStream(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBinaryStream(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getBinaryStream(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -160,10 +146,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RSemaphoreRx getSemaphore(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSemaphore(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getSemaphore(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -175,10 +159,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RPermitExpirableSemaphoreRx getPermitExpirableSemaphore(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getPermitExpirableSemaphore(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getPermitExpirableSemaphore(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -191,10 +173,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RReadWriteLockRx getReadWriteLock(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getReadWriteLock(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getReadWriteLock(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -209,10 +189,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RLockRx getFairLock(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getFairLock(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getFairLock(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -227,10 +205,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RLockRx getLock(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getLock(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getLock(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -245,10 +221,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RLockRx getSpinLock(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSpinLock(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getSpinLock(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -264,10 +238,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RLockRx getSpinLock(String name, LockOptions.BackOff backOff) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSpinLock(name, backOff);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getSpinLock(name, backOff))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -278,18 +250,14 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RLockRx getMultiLock(RLock... locks) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMultiLock(locks);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getMultiLock(locks))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     @Override
     public RLockRx getRedLock(RLock... locks) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRedLock(locks);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getRedLock(locks))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -300,10 +268,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RCountDownLatchRx getCountDownLatch(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getCountDownLatch(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getCountDownLatch(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -317,10 +283,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RSetCacheRx<V> getSetCache(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSetCache(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getSetCache(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -335,10 +299,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RSetCacheRx<V> getSetCache(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSetCache(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getSetCache(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -354,10 +316,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapCacheRx<K, V> getMapCache(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMapCache(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getMapCache(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -374,10 +334,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapCacheRx<K, V> getMapCache(String name, Codec codec, MapOptions<K, V> options) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMapCache(name, codec, options);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getMapCache(name, codec, options))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -391,10 +349,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapCacheRx<K, V> getMapCache(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMapCache(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getMapCache(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -409,10 +365,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapCacheRx<K, V> getMapCache(String name, MapOptions<K, V> options) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMapCache(name, options);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getMapCache(name, options))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -423,10 +377,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RBucketRx<V> getBucket(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBucket(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getBucket(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -439,10 +391,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RBucketRx<V> getBucket(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBucket(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getBucket(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -452,10 +402,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RBucketsRx getBuckets() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBuckets();
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getBuckets())
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -467,10 +415,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RBucketsRx getBuckets(Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBuckets(codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getBuckets(codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -481,10 +427,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RHyperLogLogRx<V> getHyperLogLog(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getHyperLogLog(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getHyperLogLog(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -497,10 +441,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RHyperLogLogRx<V> getHyperLogLog(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getHyperLogLog(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getHyperLogLog(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -511,10 +453,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RIdGeneratorRx getIdGenerator(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getIdGenerator(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getIdGenerator(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -525,10 +465,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RListRx<V> getList(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getList(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getList(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -541,10 +479,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RListRx<V> getList(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getList(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getList(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -555,10 +491,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RListMultimapRx<K, V> getListMultimap(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getListMultimap(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getListMultimap(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -571,10 +505,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RListMultimapRx<K, V> getListMultimap(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getListMultimap(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getListMultimap(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -587,10 +519,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RListMultimapCacheRx<K, V> getListMultimapCache(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getListMultimapCache(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getListMultimapCache(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -604,10 +534,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RListMultimapCacheRx<K, V> getListMultimapCache(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getListMultimapCache(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getListMultimapCache(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -618,10 +546,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RSetMultimapRx<K, V> getSetMultimap(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSetMultimap(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getSetMultimap(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -634,10 +560,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RSetMultimapRx<K, V> getSetMultimap(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSetMultimap(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getSetMultimap(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -650,10 +574,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RSetMultimapCacheRx<K, V> getSetMultimapCache(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSetMultimapCache(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getSetMultimapCache(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -667,10 +589,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RSetMultimapCacheRx<K, V> getSetMultimapCache(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSetMultimapCache(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getSetMultimapCache(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -681,10 +601,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapRx<K, V> getMap(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMap(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getMap(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -696,10 +614,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapRx<K, V> getMap(String name, MapOptions<K, V> options) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMap(name, options);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getMap(name, options))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -712,10 +628,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapRx<K, V> getMap(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMap(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<K, V>getMap(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -729,10 +643,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <K, V> RMapRx<K, V> getMap(String name, Codec codec, MapOptions<K, V> options) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getMap(name, codec, options);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getMap(name, codec, options))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -743,10 +655,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RSetRx<V> getSet(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSet(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getSet(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -759,10 +669,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RSetRx<V> getSet(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getSet(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getSet(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -774,10 +682,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RScoredSortedSetRx<V> getScoredSortedSet(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getScoredSortedSet(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getScoredSortedSet(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -791,10 +697,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RScoredSortedSetRx<V> getScoredSortedSet(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getScoredSortedSet(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getScoredSortedSet(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -807,10 +711,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RLexSortedSetRx getLexSortedSet(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getLexSortedSet(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getLexSortedSet(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -821,10 +723,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RTopicRx getTopic(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getTopic(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getTopic(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -837,10 +737,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RTopicRx getTopic(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getTopic(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getTopic(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -856,10 +754,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RReliableTopicRx getReliableTopic(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getReliableTopic(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getReliableTopic(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -877,10 +773,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RReliableTopicRx getReliableTopic(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getReliableTopic(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getReliableTopic(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -896,10 +790,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RPatternTopicRx getPatternTopic(String pattern) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getPatternTopic(pattern);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getPatternTopic(pattern))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -917,10 +809,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RPatternTopicRx getPatternTopic(String pattern, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getPatternTopic(pattern, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getPatternTopic(pattern, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -931,10 +821,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RQueueRx<V> getQueue(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getQueue(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getQueue(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -947,10 +835,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RQueueRx<V> getQueue(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getQueue(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getQueue(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -961,10 +847,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RRingBufferRx<V> getRingBuffer(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRingBuffer(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getRingBuffer(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -976,10 +860,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RRingBufferRx<V> getRingBuffer(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRingBuffer(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getRingBuffer(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -990,10 +872,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RBlockingQueueRx<V> getBlockingQueue(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBlockingQueue(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getBlockingQueue(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1006,10 +886,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RBlockingQueueRx<V> getBlockingQueue(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBlockingQueue(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getBlockingQueue(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1020,10 +898,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RBlockingDequeRx<V> getBlockingDeque(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBlockingDeque(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getBlockingDeque(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1036,10 +912,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RBlockingDequeRx<V> getBlockingDeque(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBlockingDeque(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getBlockingDeque(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1050,10 +924,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RTransferQueueRx<V> getTransferQueue(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getTransferQueue(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getTransferQueue(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1066,10 +938,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RTransferQueueRx<V> getTransferQueue(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getTransferQueue(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getTransferQueue(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1080,10 +950,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RDequeRx<V> getDeque(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getDeque(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getDeque(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1096,10 +964,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public <V> RDequeRx<V> getDeque(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getDeque(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.<V>getDeque(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1110,10 +976,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RAtomicLongRx getAtomicLong(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getAtomicLong(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getAtomicLong(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1124,10 +988,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RAtomicDoubleRx getAtomicDouble(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getAtomicDouble(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getAtomicDouble(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1137,10 +999,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RRemoteService getRemoteService() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRemoteService();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getRemoteService)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1152,10 +1012,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RRemoteService getRemoteService(Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRemoteService(codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getRemoteService(codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1166,10 +1024,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RRemoteService getRemoteService(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRemoteService(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getRemoteService(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1182,10 +1038,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RRemoteService getRemoteService(String name, Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getRemoteService(name, codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getRemoteService(name, codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1196,10 +1050,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RBitSetRx getBitSet(String name) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getBitSet(name);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getBitSet(name))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1209,10 +1061,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RScriptRx getScript() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getScript();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getScript)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1223,10 +1073,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RScriptRx getScript(Codec codec) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getScript(codec);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.getScript(codec))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1237,10 +1085,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RTransactionRx createTransaction(TransactionOptions options) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.createTransaction(options);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.createTransaction(options))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1254,10 +1100,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RBatchRx createBatch(BatchOptions options) {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.createBatch(options);
+        return Optional.ofNullable(redissonRxClient).map(client -> client.createBatch(options))
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1270,10 +1114,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RBatchRx createBatch() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.createBatch();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::createBatch)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1284,10 +1126,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public RKeysRx getKeys() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getKeys();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getKeys)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1295,10 +1135,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public void shutdown() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        redissonRxClient.shutdown();
+        Optional.ofNullable(redissonRxClient).ifPresentOrElse(
+                RedissonRxClient::shutdown, () -> { throw new UnsupportedOperationException("redisson not connected"); });
     }
 
     /**
@@ -1310,10 +1148,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public Config getConfig() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getConfig();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getConfig)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1323,10 +1159,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public NodesGroup<Node> getNodesGroup() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getNodesGroup();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getNodesGroup)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1336,10 +1170,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public NodesGroup<ClusterNode> getClusterNodesGroup() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getClusterNodesGroup();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getClusterNodesGroup)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1349,10 +1181,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public boolean isShutdown() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.isShutdown();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::isShutdown)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1364,10 +1194,8 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public boolean isShuttingDown() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.isShuttingDown();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::isShuttingDown)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 
     /**
@@ -1377,9 +1205,7 @@ public class CheckedRedissonRxClient implements RedissonRxClient {
      */
     @Override
     public String getId() {
-        if(redissonRxClient == null){
-            throw new UnsupportedOperationException("redisson not connected");
-        }
-        return redissonRxClient.getId();
+        return Optional.ofNullable(redissonRxClient).map(RedissonRxClient::getId)
+            .orElseThrow(() -> new UnsupportedOperationException("redisson not connected"));
     }
 }

@@ -24,27 +24,27 @@ public class RestProperties {
     /**
      * 连接超时
      */
-    private int connectTimeout = 10 * 1000;
+    private int connectTimeout = 10000;
 
     /**
      * 响应超时
      */
-    private int socketTimeout = 120 * 1000;
+    private int socketTimeout = 120000;
 
     /**
      * 获取连接超时
      */
-    private int poolTimeout = 30 * 1000;
+    private int poolTimeout = 30000;
 
     /**
      * 最大连接数
      */
-    private int maxConnections = 100;
+    private int poolConnections = 100;
 
     /**
      * 最大重试次数
      */
-    private int maxRetry = 3;
+    private int retryMax = 3;
 
     /**
      * 重试间隔

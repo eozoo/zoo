@@ -80,7 +80,7 @@ public class RestConfiguration {
         // 连接池
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
         // 连接池最大连接数
-        connectionManager.setMaxTotal(restProperties.getMaxConnections());
+        connectionManager.setMaxTotal(restProperties.getPoolConnections());
         // 路由是对maxTotal的细分
         connectionManager.setDefaultMaxPerRoute(500);
         // 返回数据等待时间
@@ -98,7 +98,7 @@ public class RestConfiguration {
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         httpClientBuilder.setConnectionManager(connectionManager);
         httpClientBuilder.setRetryHandler((exception, execCount, context) -> {
-            if (execCount > restProperties.getMaxRetry()) {
+            if (execCount > restProperties.getRetryMax()) {
                 return false;
             }
 

@@ -228,7 +228,7 @@ public class BearerTokenService {
         // 保存在服务端
         assert redisHelper != null;
         String key = applicationProperties.getTokenNamespace() + userDetails.getType() + ":" + userDetails.getUsername();
-        redisHelper.putValue(key, userDetails, accessProperties.refreshExpire(), TimeUnit.SECONDS);
+        redisHelper.putExpire(key, userDetails, accessProperties.refreshExpire(), TimeUnit.SECONDS);
     }
 
     /**
