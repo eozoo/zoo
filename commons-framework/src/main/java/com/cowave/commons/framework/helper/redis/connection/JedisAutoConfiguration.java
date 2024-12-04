@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnection;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -37,13 +38,13 @@ import redis.clients.jedis.Jedis;
  * @author shanhuiming
  *
  */
-@AutoConfigureBefore({RedisAutoConfiguration.class})
+@AutoConfigureBefore({LettuceAutoConfiguration.class})
 @ConditionalOnProperty(name = "spring.redis.client-type", havingValue = "jedis", matchIfMissing = true)
 @ConditionalOnClass({ GenericObjectPool.class, JedisConnection.class, Jedis.class })
 @EnableConfigurationProperties({RedisProperties.class})
 public class JedisAutoConfiguration {
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(AbstractRedisConnectionConfiguration.class)
     @Primary
     @Bean
     public JedisRedisConnectionConfiguration redisConnectionConfiguration(RedisProperties redisProperties,
@@ -52,7 +53,7 @@ public class JedisAutoConfiguration {
         return new JedisRedisConnectionConfiguration(redisProperties, sentinelConfiguration, clusterConfiguration);
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(RedisConnectionFactory.class)
     @Primary
     @Bean
     public JedisConnectionFactory redisConnectionFactory(

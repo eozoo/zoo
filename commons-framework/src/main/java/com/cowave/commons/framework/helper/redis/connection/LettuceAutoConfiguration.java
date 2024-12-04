@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
@@ -53,7 +54,7 @@ public class LettuceAutoConfiguration {
         return builder.build();
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(AbstractRedisConnectionConfiguration.class)
     @Primary
     @Bean
     public LettuceRedisConnectionConfiguration redisConnectionConfiguration(RedisProperties redisProperties,
@@ -62,7 +63,7 @@ public class LettuceAutoConfiguration {
         return new LettuceRedisConnectionConfiguration(redisProperties, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(RedisConnectionFactory.class)
     @Primary
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(
