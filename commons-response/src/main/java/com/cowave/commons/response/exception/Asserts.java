@@ -9,14 +9,14 @@
  */
 package com.cowave.commons.response.exception;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -86,13 +86,13 @@ public class Asserts {
     }
 
     public static void isBlank(String text, String message, Object... args) {
-        if (StringUtils.isBlank(text)) {
+        if (StringUtils.isNotBlank(text)) {
             throw new AssertsException(message, args);
         }
     }
 
     public static void isBlank(String text, Supplier<String> errorSupplier) {
-        if (StringUtils.isBlank(text)) {
+        if (StringUtils.isNotBlank(text)) {
             throw new AssertsException(errorSupplier.get());
         }
     }
