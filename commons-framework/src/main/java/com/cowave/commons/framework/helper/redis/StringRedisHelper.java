@@ -593,7 +593,7 @@ public class StringRedisHelper {
      * @see <a href="https://redis.io/commands/lpush">Redis Documentation: LPUSH</a>
      */
     public long pushAllListFromLeft(final String key, final Object... values){
-        Long count = stringRedisTemplate.opsForList().leftPushAll(key, Collections.copyArrayToList(values, this::toJson));
+        Long count = stringRedisTemplate.opsForList().leftPushAll(key, Collections.arrayToList(values, this::toJson));
         return count == null ? 0 : count;
     }
 
@@ -625,7 +625,7 @@ public class StringRedisHelper {
      * @see <a href="https://redis.io/commands/rpush">Redis Documentation: RPUSH</a>
      */
     public final <T> long pushAllListFromRight(final String key, final T... values){
-        Long count = stringRedisTemplate.opsForList().rightPushAll(key, Collections.copyArrayToList(values, this::toJson));
+        Long count = stringRedisTemplate.opsForList().rightPushAll(key, Collections.arrayToList(values, this::toJson));
         return count == null ? 0 : count;
     }
 
