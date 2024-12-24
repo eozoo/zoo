@@ -38,15 +38,17 @@ import java.util.List;
  */
 @Slf4j
 public class BasicAuthFilter extends OncePerRequestFilter {
-
     private final List<AntPathRequestMatcher> authMatchers = new ArrayList<>();
-
     private final UserDetailsService userDetailsService;
-
+    private final UserDetailsService defaultUserDetailsService;
+    private final boolean basicWithConfigUser;
     private final PasswordEncoder passwordEncoder;
 
-    public BasicAuthFilter(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, String[] authUrls){
+    public BasicAuthFilter(UserDetailsService userDetailsService, UserDetailsService defaultUserDetailsService,
+                           boolean basicWithConfigUser, PasswordEncoder passwordEncoder, String[] authUrls){
         this.userDetailsService = userDetailsService;
+        this.defaultUserDetailsService = defaultUserDetailsService;
+        this.basicWithConfigUser = basicWithConfigUser;
         this.passwordEncoder = passwordEncoder;
         if(ArrayUtils.isNotEmpty(authUrls)){
             Arrays.stream(authUrls).map(AntPathRequestMatcher::new).forEach(authMatchers::add);
@@ -82,7 +84,13 @@ public class BasicAuthFilter extends OncePerRequestFilter {
         String username = array[0];
         String password = array[1];
         try {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = null;
+            if(basicWithConfigUser){
+                userDetails = defaultUserDetailsService.loadUserByUsername(username);
+            }else{
+                userDetailsService.loadUserByUsername(username);
+            }
+
             if (userDetails == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"User not exist!\"");

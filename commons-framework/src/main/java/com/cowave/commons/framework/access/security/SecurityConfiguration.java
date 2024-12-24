@@ -36,7 +36,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -68,6 +70,10 @@ public class SecurityConfiguration {
     @ConditionalOnMissingBean(UserDetailsService.class)
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        return defaultUserDetailsService(passwordEncoder);
+    }
+
+    private UserDetailsService defaultUserDetailsService(PasswordEncoder passwordEncoder) {
         List<AccessUser> userList = accessProperties.accessUsers();
         return new AccessUserDetailsServiceImpl(accessProperties.authMode(), passwordEncoder,
                 bearerTokenService, applicationProperties, Collections.copyToMap(userList, AccessUser::getUsername));
@@ -136,6 +142,7 @@ public class SecurityConfiguration {
             String[] basicAuthUrls = accessProperties.basicAuthUrls();
             String[] tokenAuthUrls = accessProperties.tokenAuthUrls();
             String[] tokenIgnoreUrls = accessProperties.tokenIgnoreUrls();
+            boolean basicWithConfigUser = accessProperties.basicWithConfigUser();
             String[] ignoreUrls = Stream.of(basicAuthUrls, tokenIgnoreUrls)
                     .filter(Objects::nonNull).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(String[]::new);
             if (ArrayUtils.isNotEmpty(tokenAuthUrls)) {
@@ -160,7 +167,9 @@ public class SecurityConfiguration {
 
             // Basic处理
             if (ArrayUtils.isNotEmpty(basicAuthUrls)) {
-                BasicAuthFilter basicAuthFilter = new BasicAuthFilter(userDetailsService, passwordEncoder, basicAuthUrls);
+                UserDetailsService defaultUserDetailsService = defaultUserDetailsService(passwordEncoder);
+                BasicAuthFilter basicAuthFilter = new BasicAuthFilter(userDetailsService,
+                        defaultUserDetailsService, basicWithConfigUser, passwordEncoder, basicAuthUrls);
                 httpSecurity.addFilterBefore(basicAuthFilter, BearerTokenFilter.class);
             }
         } else {

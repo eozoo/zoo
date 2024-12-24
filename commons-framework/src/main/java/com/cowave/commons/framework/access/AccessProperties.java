@@ -60,6 +60,10 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.mode).orElse("basic");
     }
 
+    public boolean basicWithConfigUser(){
+         return Optional.ofNullable(auth).map(auth -> auth.basicWithConfigUser).orElse(false);
+    }
+
     public List<AccessUser> accessUsers(){
         return Optional.ofNullable(auth).map(auth -> auth.users).orElse(List.of(AccessUser.defaultUser()));
     }
@@ -149,6 +153,11 @@ public class AccessProperties {
          * 认证方式：（basic、accessToken、refreshToken）
          */
         private String mode = "basic";
+
+        /**
+         * basic认证使用配置用户
+         */
+        private boolean basicWithConfigUser = false;
 
         /**
          * basic认证的url

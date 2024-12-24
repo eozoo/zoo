@@ -1277,6 +1277,13 @@
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
     },
     {
+      "name": "spring.access.auth.basic-with-config-user",
+      "type": "java.lang.Boolean",
+      "description": "basic认证使用配置用户",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": false
+    },
+    {
       "name": "spring.access.auth.conflict",
       "type": "java.lang.Boolean",
       "description": "是否检查冲突",
