@@ -15,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -68,19 +65,28 @@ public class OperationAspect {
 
     }
 
+    @Before("oplog()")
+    public void doBefore(JoinPoint point) {
+        OperationContext.set(new OperationInfo());
+    }
+
     @AfterReturning(pointcut = "oplog() && @annotation(operation)", returning = "resp")
     public void doAfter(JoinPoint joinPoint, Operation operation, Object resp) {
         EvaluationContext context = new StandardEvaluationContext();
         // 参数信息
         Map<String, Object> argMap = new HashMap<>();
         // 操作信息
-        OperationInfo operationInfo = new OperationInfo();
+        OperationInfo operationInfo = OperationContext.get();
+        OperationContext.remove();
+
         boolean specifyHandle = prepareOperation(joinPoint, operation, argMap, operationInfo, context);
+        context.setVariable("resp", resp);
+        context.setVariable("exception", null);
+        context.setVariable("content", operationInfo.getOpContent());
+
         operationInfo.setSuccess(true);
         operationInfo.setDesc(parseDesc(operation, context));
         context.setVariable("opInfo", operationInfo);
-        context.setVariable("resp", resp);
-        context.setVariable("exception", null);
         if (specifyHandle) {
             handleOperation(operation, context);
         } else {
@@ -94,13 +100,17 @@ public class OperationAspect {
         // 参数信息
         Map<String, Object> argMap = new HashMap<>();
         // 操作信息
-        OperationInfo operationInfo = new OperationInfo();
+        OperationInfo operationInfo = OperationContext.get();
+        OperationContext.remove();
+
         boolean specifyHandle = prepareOperation(joinPoint, operation, argMap, operationInfo, context);
+        context.setVariable("resp", null);
+        context.setVariable("exception", e);
+        context.setVariable("content", operationInfo.getOpContent());
+
         operationInfo.setSuccess(false);
         operationInfo.setDesc(parseDesc(operation, context));
         context.setVariable("opInfo", operationInfo);
-        context.setVariable("resp", null);
-        context.setVariable("exception", e);
         if (specifyHandle) {
             handleOperation(operation, context);
         } else {

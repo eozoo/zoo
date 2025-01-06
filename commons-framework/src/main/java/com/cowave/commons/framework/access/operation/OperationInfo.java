@@ -84,6 +84,11 @@ public class OperationInfo {
     private Map<String, Object> opArgs;
 
     /**
+     * 操作内容
+     */
+    private Object opContent;
+
+    /**
      * 操作模块
      */
     private String opModule;
