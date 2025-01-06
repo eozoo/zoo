@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017～2024 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2025 Cowave All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -13,8 +13,15 @@ import com.cowave.commons.framework.helper.redis.RedisAutoConfiguration;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.resource.NettyCustomizer;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -34,6 +41,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * @author shanhuiming
@@ -45,12 +54,43 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @EnableConfigurationProperties({RedisProperties.class})
 public class LettuceAutoConfiguration {
 
+    @Value("${spring.redis.lettuce.idle.read:30}")
+    private int readerIdleTime;
+
+    @Value("${spring.redis.lettuce-idle.write:30}")
+    private int writerIdleTime;
+
+    @Value("${spring.redis.lettuce.idle.all:60}")
+    private int allIdleTime;
+
+    @Value("${spring.redis.lettuce.idle.check:false}")
+    private boolean checkIdle;
+
     @ConditionalOnMissingBean
     @Primary
     @Bean(destroyMethod = "shutdown")
     public DefaultClientResources clientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
         DefaultClientResources.Builder builder = DefaultClientResources.builder();
         customizers.orderedStream().forEach(customizer -> customizer.customize(builder));
+        if (checkIdle) {
+            NettyCustomizer nettyCustomizer = new NettyCustomizer() {
+                @Override
+                public void afterChannelInitialized(Channel channel) {
+                    // 触发空闲状态
+                    channel.pipeline().addLast(new IdleStateHandler(readerIdleTime, writerIdleTime, allIdleTime, TimeUnit.SECONDS));
+                    // 处理空闲状态连接，即断开
+                    channel.pipeline().addLast(new ChannelDuplexHandler() {
+                        @Override
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
+                            if (evt instanceof IdleStateEvent) {
+                                ctx.disconnect();
+                            }
+                        }
+                    });
+                }
+            };
+            builder.nettyCustomizer(nettyCustomizer);
+        }
         return builder.build();
     }
 
@@ -78,6 +118,25 @@ public class LettuceAutoConfiguration {
     public DefaultClientResources commonClientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
         DefaultClientResources.Builder builder = DefaultClientResources.builder();
         customizers.orderedStream().forEach(customizer -> customizer.customize(builder));
+        if (checkIdle) {
+            NettyCustomizer nettyCustomizer = new NettyCustomizer() {
+                @Override
+                public void afterChannelInitialized(Channel channel) {
+                    // 触发空闲状态
+                    channel.pipeline().addLast(new IdleStateHandler(readerIdleTime, writerIdleTime, allIdleTime, TimeUnit.SECONDS));
+                    // 处理空闲状态连接，即断开
+                    channel.pipeline().addLast(new ChannelDuplexHandler() {
+                        @Override
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
+                            if (evt instanceof IdleStateEvent) {
+                                ctx.disconnect();
+                            }
+                        }
+                    });
+                }
+            };
+            builder.nettyCustomizer(nettyCustomizer);
+        }
         return builder.build();
     }
 

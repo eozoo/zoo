@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017～2024 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2025 Cowave All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.cowave.commons.response.exception.Asserts;
+import com.cowave.commons.client.http.asserts.Asserts;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
@@ -90,18 +90,18 @@ public class RedisHelper{
     /**
      * @see <a href="https://redis.io/commands/del">Redis Documentation: DEL</a>
      */
-    public final void delete(String... keys){
+    public final Long delete(String... keys){
         if(ArrayUtils.isEmpty(keys)){
-            return;
+            return 0L;
         }
-        redisTemplate.delete(List.of(keys));
+        return redisTemplate.delete(List.of(keys));
     }
 
     /**
      * @see <a href="https://redis.io/commands/del">Redis Documentation: DEL</a>
      */
-    public final void delete(Collection<String> collection){
-        redisTemplate.delete(collection);
+    public final Long delete(Collection<String> collection){
+        return redisTemplate.delete(collection);
     }
 
     /**
@@ -109,6 +109,20 @@ public class RedisHelper{
      */
     public final Boolean expire(String key, long timeout, TimeUnit unit){
         return redisTemplate.expire(key, timeout, unit);
+    }
+
+    /**
+     * @see <a href="https://redis.io/commands/ttl">Redis Documentation: TTL</a>
+     */
+    public Long getExpire(final String key){
+        return redisTemplate.getExpire(key);
+    }
+
+    /**
+     * @see <a href="https://redis.io/commands/ttl">Redis Documentation: TTL</a>
+     */
+    public Long getExpire(final String key, TimeUnit timeUnit){
+        return redisTemplate.getExpire(key, timeUnit);
     }
 
     public final <T> Map<String, T> pipeline(Map<String, java.util.function.Consumer<RedisOperations<String, Object>>> operationMap) {
@@ -194,7 +208,7 @@ public class RedisHelper{
     /**
      * @see <a href="https://redis.io/commands/setex">Redis Documentation: SETEX</a>
      */
-    public final <T> void putExpire(String key, T value, Integer timeout, TimeUnit timeUnit){
+    public final <T> void putExpire(String key, T value, long timeout, TimeUnit timeUnit){
         Asserts.notNull(value, "redis value can't be bull");
         redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
     }
@@ -337,9 +351,9 @@ public class RedisHelper{
     /**
      * @see <a href="https://redis.io/commands/hdel">Redis Documentation: HDEL</a>
      */
-    public final void removeFromMap(String key, String hKey){
+    public final Long removeFromMap(String key, String hKey){
         HashOperations hashOperations = redisTemplate.opsForHash();
-        hashOperations.delete(key, hKey);
+        return hashOperations.delete(key, hKey);
     }
 
     /* ******************************************
@@ -702,9 +716,9 @@ public class RedisHelper{
     /**
      * @see <a href="https://redis.io/commands/srem">Redis Documentation: SREM</a>
      */
-    public final void removeFromSet(String key, Object... values){
+    public final Long removeFromSet(String key, Object... values){
         BoundSetOperations<String, Object> setOperation = redisTemplate.boundSetOps(key);
-        setOperation.remove(values);
+        return setOperation.remove(values);
     }
 
     /* ******************************************
@@ -802,15 +816,15 @@ public class RedisHelper{
     /**
      * @see <a href="https://redis.io/commands/zrem">Redis Documentation: ZREM</a>
      */
-    public final void removeFromZset(String key, Object... values){
-        redisTemplate.opsForZSet().remove(key, values);
+    public final Long removeFromZset(String key, Object... values){
+        return redisTemplate.opsForZSet().remove(key, values);
     }
 
     /**
      * @see <a href="https://redis.io/commands/zremrangebyscore">Redis Documentation: ZREMRANGEBYSCORE</a>
      */
-    public final void removeFromZsetByScore(String key, double min, double max){
-        redisTemplate.opsForZSet().removeRangeByScore(key, min, max);
+    public final Long removeFromZsetByScore(String key, double min, double max){
+        return redisTemplate.opsForZSet().removeRangeByScore(key, min, max);
     }
 
     /* ******************************************

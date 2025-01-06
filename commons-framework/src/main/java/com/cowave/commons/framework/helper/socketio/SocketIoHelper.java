@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017～2024 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2025 Cowave All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SocketIoHelper {
 
-    private static Map<Long, SocketIOClient> socketclientMap = new ConcurrentHashMap<>();
+    private static Map<Integer, SocketIOClient> socketclientMap = new ConcurrentHashMap<>();
 
     private final ClientMsgHandler clientMsgHandler;
 
@@ -43,7 +43,7 @@ public class SocketIoHelper {
     private void init() {
         // 连接处理
         socketIOServer.addConnectListener(client -> {
-            Long userId = getUserId(client);
+            Integer userId = getUserId(client);
             if (userId != null) {
                 socketclientMap.put(userId, client);
             }
@@ -53,7 +53,7 @@ public class SocketIoHelper {
         });
         // 断开处理
         socketIOServer.addDisconnectListener(client -> {
-            Long userId = getUserId(client);
+            Integer userId = getUserId(client);
             if (userId != null) {
                 socketclientMap.remove(userId);
                 client.disconnect();
@@ -63,7 +63,7 @@ public class SocketIoHelper {
         if (clientMsgHandler != null) {
             String event = clientMsgHandler.getEvent();
             socketIOServer.addEventListener(event, String.class, (client, data, ackSender) -> {
-                Long userId = getUserId(client);
+                Integer userId = getUserId(client);
                 clientMsgHandler.onMsg(userId, data);
 
             });
@@ -78,11 +78,11 @@ public class SocketIoHelper {
         }
     }
 
-    private Long getUserId(SocketIOClient client) {
+    private Integer getUserId(SocketIOClient client) {
         Map<String, List<String>> params = client.getHandshakeData().getUrlParams();
         List<String> userIdList = params.get("userId");
         if (!CollectionUtils.isEmpty(userIdList)) {
-            return Long.valueOf(userIdList.get(0));
+            return Integer.valueOf(userIdList.get(0));
         }
         return null;
     }
@@ -93,7 +93,7 @@ public class SocketIoHelper {
      * @param event  事件
      * @param data   消息
      */
-    public <T> void sendSingle(String event, T data, Long userId) {
+    public <T> void sendSingle(String event, T data, Integer userId) {
         SocketIOClient client = socketclientMap.get(userId);
         if (client != null) {
             client.sendEvent(event, data);
@@ -106,8 +106,8 @@ public class SocketIoHelper {
      * @param event   事件
      * @param data    消息
      */
-    public <T> void sendGroup(String event, T data, List<Long> userIds) {
-        for(Long userId : userIds) {
+    public <T> void sendGroup(String event, T data, List<Integer> userIds) {
+        for(Integer userId : userIds) {
             SocketIOClient client = socketclientMap.get(userId);
             if (client != null) {
                 client.sendEvent(event, data);

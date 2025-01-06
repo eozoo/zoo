@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017～2024 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2025 Cowave All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -12,10 +12,10 @@ package com.cowave.commons.framework.helper.redis.dict;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.cowave.commons.client.http.asserts.AssertsException;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.cowave.commons.framework.helper.redis.StringRedisHelper;
-import com.cowave.commons.response.exception.AssertsException;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -92,9 +92,9 @@ public class DictHelper {
 
         }
 
-        if(!"dict_root".equals(dict.getTypeCode())){
+        if(!"root".equals(dict.getTypeCode())){
             redisHelper.putMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode(), dict);
-            if(!"dict_root".equals(dict.getGroupCode())){
+            if(!"root".equals(dict.getGroupCode())){
                 redisHelper.putMap(getTypeKey() + dict.getTypeCode(), dict.getDictCode(), dict);
             }
         }
@@ -188,7 +188,7 @@ public class DictHelper {
      * <p>从sys-dict:dict:{groupCode}中删除
      *
      * <p>删除sys-dict:type:{typeCode}
-     * <p>从sys-dict:group:dict_group中删除类型
+     * <p>从sys-dict:group:group中删除类型
      */
     public void removeType(String typeCode) {
         if(StringUtils.isBlank(typeCode)){
@@ -202,19 +202,19 @@ public class DictHelper {
             }
         }
         redisHelper.delete(getTypeKey() + typeCode);
-        redisHelper.removeFromMap(getGroupKey() + "dict_group", typeCode);
+        redisHelper.removeFromMap(getGroupKey() + "group", typeCode);
     }
 
     /**
      * 删除分组
      *
      * <p>删除sys-dict:type:{groupCode}
-     * <p>从sys-dict:group:dict_group中删除类型
+     * <p>从sys-dict:group:group中删除类型
      *
      * <p>删除sys-dict:dict:{dictCode}
      *
      * <p>删除sys-dict:group:{groupCode}
-     * <p>从sys-dict:group:dict_root中删除分组
+     * <p>从sys-dict:group:root中删除分组
      */
     public void removeGroup(String groupCode) {
         if(StringUtils.isBlank(groupCode)){
@@ -224,7 +224,7 @@ public class DictHelper {
         if(typeMap != null){
             redisHelper.delete(getTypeKey() + groupCode);
             for(Dict type : typeMap.values()){
-                redisHelper.removeFromMap(getGroupKey() + "dict_group", type.getDictCode());
+                redisHelper.removeFromMap(getGroupKey() + "group", type.getDictCode());
             }
         }
         Map<String, Dict> dictMap = redisHelper.getMap(getGroupKey() + groupCode);
@@ -234,6 +234,6 @@ public class DictHelper {
             }
         }
         redisHelper.delete(getGroupKey() + groupCode);
-        redisHelper.removeFromMap(getGroupKey() + "dict_root", groupCode);
+        redisHelper.removeFromMap(getGroupKey() + "root", groupCode);
     }
 }

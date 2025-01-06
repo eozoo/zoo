@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017～2024 Cowave All Rights Reserved.
+ * Copyright (c) 2017～2025 Cowave All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  *
@@ -222,7 +222,7 @@ public class Access {
         return Optional.ofNullable(userDetails()).map(AccessUserDetails::getPermissions).orElse(new ArrayList<>());
     }
 
-    public static boolean userIsAdmin(){
+    public static boolean isAdminUser(){
         return Optional.of(userRoles()).filter(roles -> !roles.isEmpty()).map(roles -> roles.contains("sysAdmin")).orElse(false);
     }
 
