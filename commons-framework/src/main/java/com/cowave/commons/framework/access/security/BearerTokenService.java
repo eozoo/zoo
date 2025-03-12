@@ -225,6 +225,9 @@ public class BearerTokenService {
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
                 .compact());
+        userDetails.setClusterId(applicationProperties.getClusterId());
+        userDetails.setClusterLevel(applicationProperties.getClusterLevel());
+        userDetails.setClusterName(applicationProperties.getClusterName());
         // 保存在服务端
         assert redisHelper != null;
         String key = applicationProperties.getTokenNamespace() + userDetails.getType() + ":" + userDetails.getUsername();

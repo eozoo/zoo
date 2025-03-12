@@ -80,7 +80,7 @@ up(){
     echo "[Arguments]: $jvm_option"
 
     mkdir -p "$app_home/log"
-    java $jvm_option -jar "$app_home/lib/$app_name-$app_version.jar"
+    exec java $jvm_option -jar "$app_home/lib/$app_name-$app_version.jar"
 }
 
 start(){
