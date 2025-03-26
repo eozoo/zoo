@@ -17,11 +17,6 @@ package com.cowave.commons.framework.helper.redis.dict;
 public interface Dict {
 
     /**
-     * 字典排序
-     */
-    Integer getDictOrder();
-
-    /**
      * 字典分组
      */
     String getGroupCode();
@@ -39,7 +34,7 @@ public interface Dict {
     /**
      * 字典名称
      */
-    String getDictLabel();
+    String getDictName();
 
     /**
      * 字典值
@@ -47,17 +42,22 @@ public interface Dict {
     Object getDictValue();
 
     /**
+     * 字典排序
+     */
+    Integer getDictOrder();
+
+    /**
      * 设置字典值
      */
     void setDictValue(Object dictValue);
 
     /**
+     * 值类型
+     */
+    String getValueType();
+
+    /**
      * 值转换器
      */
     String getValueParser();
-
-    /**
-     * 值转换器参数
-     */
-    String getValueParam();
 }

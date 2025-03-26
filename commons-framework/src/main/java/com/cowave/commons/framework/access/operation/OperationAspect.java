@@ -107,7 +107,6 @@ public class OperationAspect {
         context.setVariable("resp", null);
         context.setVariable("exception", e);
         context.setVariable("content", operationInfo.getOpContent());
-
         operationInfo.setSuccess(false);
         operationInfo.setDesc(parseDesc(operation, context));
         context.setVariable("opInfo", operationInfo);
@@ -188,22 +187,10 @@ public class OperationAspect {
         }
 
         // 设置OperationInfo
-        opInfo.setAccessTime(Access.accessTime());
-        opInfo.setAccessIp(Access.accessIp());
-        opInfo.setAccessUrl(Access.accessUrl());
-        opInfo.setAccessMethod(Access.accessMethod());
-        opInfo.setUserId(Access.userId());
-        opInfo.setUserCode(Access.userCode());
-        opInfo.setUserName(Access.userName());
-        opInfo.setUserAccount(Access.userAccount());
-        opInfo.setDeptId(Access.deptId());
-        opInfo.setDeptCode(Access.deptCode());
-        opInfo.setDeptName(Access.deptName());
         opInfo.setOpModule(operation.module());
         opInfo.setOpType(operation.type());
         opInfo.setOpAction(operation.action());
         opInfo.setOpFlag(operation.flag());
-        opInfo.setOpArgs(argMap);
         opInfo.setOpCost(System.currentTimeMillis() - Access.accessTime().getTime());
 
         // handleExpr

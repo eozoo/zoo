@@ -10,7 +10,6 @@
 package com.cowave.commons.framework.helper.redis.dict;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.cowave.commons.client.http.asserts.AssertsException;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
@@ -27,8 +26,6 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class DictHelper {
-
-    private final Map<String, DictValueParser> parserMap = new ConcurrentHashMap<>();
 
     private final ApplicationProperties applicationProperties;
 
@@ -77,20 +74,8 @@ public class DictHelper {
             throw new AssertsException("{frame.dict.notnull.code}");
         }
 
-        String parserClazz = dict.getValueParser();
-        if(StringUtils.isNotBlank(parserClazz)){
-            DictValueParser parser = parserMap.get(parserClazz);
-            if(parser == null){
-                try{
-                    parser = (DictValueParser)Class.forName(parserClazz).getDeclaredConstructor().newInstance();
-                }catch(Exception e){
-                    throw new AssertsException("{frame.dict.parse.failed}", dict.getDictCode());
-                }
-                parserMap.put(parserClazz, parser);
-            }
-            dict.setDictValue(parser.parse(String.valueOf(dict.getDictValue()), dict.getValueParam()));
-
-        }
+        Object dictValue = CustomValueParser.getValue(dict.getDictValue(), dict.getValueType(), dict.getValueParser());
+        dict.setDictValue(dictValue);
 
         if(!"root".equals(dict.getTypeCode())){
             redisHelper.putMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode(), dict);
@@ -109,9 +94,6 @@ public class DictHelper {
             return new ArrayList<>();
         }
         Map<String, T> map = redisHelper.getMap(getGroupKey() + groupCode);
-        if(map == null){
-            return new ArrayList<>();
-        }
         List<T> list = new ArrayList<>(map.values());
         list.sort(Comparator.comparingInt(Dict::getDictOrder));
         return list;
@@ -125,9 +107,6 @@ public class DictHelper {
             return new ArrayList<>();
         }
         Map<String, T> map = redisHelper.getMap(getTypeKey() + typeCode);
-        if(map == null){
-            return new ArrayList<>();
-        }
         List<T> list = new ArrayList<>(map.values());
         list.sort(Comparator.comparingInt(Dict::getDictOrder));
         return list;
@@ -146,12 +125,12 @@ public class DictHelper {
     /**
      * 获取字典Label
      */
-    public String getDictLabel(String dictCode) {
+    public String getDictName(String dictCode) {
         Dict dict = getDict(dictCode);
         if(dict == null){
             return null;
         }
-        return dict.getDictLabel();
+        return dict.getDictName();
     }
 
     /**
@@ -195,11 +174,9 @@ public class DictHelper {
             return;
         }
         Map<String, Dict> dictMap = redisHelper.getMap(getTypeKey() + typeCode);
-        if(dictMap != null){
-            for(Dict dict : dictMap.values()){
-                redisHelper.delete(getDictKey() + dict.getDictCode());
-                redisHelper.removeFromMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode());
-            }
+        for (Dict dict : dictMap.values()) {
+            redisHelper.delete(getDictKey() + dict.getDictCode());
+            redisHelper.removeFromMap(getGroupKey() + dict.getGroupCode(), dict.getDictCode());
         }
         redisHelper.delete(getTypeKey() + typeCode);
         redisHelper.removeFromMap(getGroupKey() + "group", typeCode);
@@ -221,17 +198,14 @@ public class DictHelper {
             return;
         }
         Map<String, Dict> typeMap = redisHelper.getMap(getTypeKey() + groupCode);
-        if(typeMap != null){
-            redisHelper.delete(getTypeKey() + groupCode);
-            for(Dict type : typeMap.values()){
-                redisHelper.removeFromMap(getGroupKey() + "group", type.getDictCode());
-            }
+        redisHelper.delete(getTypeKey() + groupCode);
+        for (Dict type : typeMap.values()) {
+            redisHelper.removeFromMap(getGroupKey() + "group", type.getDictCode());
         }
+
         Map<String, Dict> dictMap = redisHelper.getMap(getGroupKey() + groupCode);
-        if(dictMap != null){
-            for(Dict dict : dictMap.values()){ //
-                redisHelper.delete(getDictKey() + dict.getDictCode());
-            }
+        for (Dict dict : dictMap.values()) {
+            redisHelper.delete(getDictKey() + dict.getDictCode());
         }
         redisHelper.delete(getGroupKey() + groupCode);
         redisHelper.removeFromMap(getGroupKey() + "root", groupCode);

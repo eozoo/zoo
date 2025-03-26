@@ -11,10 +11,6 @@ package com.cowave.commons.framework.access.operation;
 
 import lombok.Data;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.function.Function;
-
 /**
  * 操作属性
  *
@@ -22,71 +18,6 @@ import java.util.function.Function;
  */
 @Data
 public class OperationInfo {
-
-    /**
-     * accessTime
-     */
-    private Date accessTime;
-
-    /**
-     * accessIp
-     */
-    private String accessIp;
-
-    /**
-     * accessUrl
-     */
-    private String accessUrl;
-
-    /**
-     * accessMethod
-     */
-    private String accessMethod;
-
-    /**
-     * userId
-     */
-    private Object userId;
-
-    /**
-     * userCode
-     */
-    private Object userCode;
-
-    /**
-     * userName
-     */
-    private String userName;
-
-    /**
-     * userAccount
-     */
-    private String userAccount;
-
-    /**
-     * deptId
-     */
-    private Object deptId;
-
-    /**
-     * deptCode
-     */
-    private Object deptCode;
-
-    /**
-     * deptName
-     */
-    private String deptName;
-
-    /**
-     * 请求参数
-     */
-    private Map<String, Object> opArgs;
-
-    /**
-     * 操作内容
-     */
-    private Object opContent;
 
     /**
      * 操作模块
@@ -104,14 +35,19 @@ public class OperationInfo {
     private String opAction;
 
     /**
-     * 操作处理标识
+     * 操作内容
      */
-    private String opFlag;
+    private Object opContent;
 
     /**
      * 操作耗时
      */
     private long opCost;
+
+    /**
+     * 操作处理标识
+     */
+    private String opFlag;
 
     /**
      * 操作描述
@@ -122,36 +58,4 @@ public class OperationInfo {
      * 操作是否成功
      */
     private boolean success;
-
-    public <T> T getUserId(){
-        return (T)userId;
-    }
-
-    public <T> T getUserId(Function<Object, T> converter) {
-        return converter.apply(userId);
-    }
-
-    public <T> T getUserCode(){
-        return (T)userCode;
-    }
-
-    public <T> T getUserCode(Function<Object, T> converter) {
-        return converter.apply(userCode);
-    }
-
-    public <T> T getDeptId(){
-        return (T)deptId;
-    }
-
-    public <T> T getDeptId(Function<Object, T> converter) {
-        return converter.apply(deptId);
-    }
-
-    public <T> T getDeptCode(){
-        return (T)deptCode;
-    }
-
-    public <T> T getDeptCode(Function<Object, T> converter) {
-        return converter.apply(deptCode);
-    }
 }
