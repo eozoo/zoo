@@ -32,7 +32,7 @@ public class Collections {
      */
     public static <F> List<F> filterToList(Collection<F> collection, Predicate<F> filter) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().filter(filter).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -42,7 +42,7 @@ public class Collections {
      */
     public static <F, T> List<T> copyToList(Collection<F> collection, Class<T> clazz) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().map(s -> Converts.copyProperties(s, clazz)).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -52,7 +52,7 @@ public class Collections {
      */
     public static <F, T> List<T> copyToList(Collection<F> collection, Class<T> clazz, Predicate<F> predicate) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().filter(predicate).map(s -> Converts.copyProperties(s, clazz)).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -154,7 +154,7 @@ public class Collections {
      */
     public static <F, T> List<T> arrayToList(F[] array, Function<F, T> mapper) {
         if (array == null || array.length == 0) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return Arrays.stream(array).map(mapper).collect(Collectors.toList());
     }
@@ -164,7 +164,7 @@ public class Collections {
      */
     public static <F, T> List<T> copyToList(Collection<F> collection, Function<F, T> mapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().map(mapper).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -174,7 +174,7 @@ public class Collections {
      */
     public static <F, T> List<T> copyToList(Collection<F> collection, Function<F, T> mapper, Predicate<F> filter) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().filter(filter).map(mapper).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -184,7 +184,7 @@ public class Collections {
      */
     public static <F, T> List<T> copyToList(Collection<F> collection, Class<T> clazz, BiConsumer<F, T> biConsumer) {
         if (collection == null) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().map(c -> {
             T to;
@@ -203,7 +203,7 @@ public class Collections {
      */
     public static <F, T> List<T> flatCopyToList(Collection<F> collection, Function<F, Stream<T>> mapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().flatMap(mapper).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -213,7 +213,7 @@ public class Collections {
      */
     public static <F, T> List<T> flatCopyToList(Collection<F> collection, Function<F, Stream<T>> mapper, Predicate<F> filter) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyList();
+            return new ArrayList<>();
         }
         return collection.stream().filter(filter).flatMap(mapper).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -253,7 +253,7 @@ public class Collections {
      */
     public static <T, K, V> Map<K, V> copyToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().collect(Collectors.toMap(keyMapper, valueMapper, (k1, k2) -> k2));
     }
@@ -267,7 +267,7 @@ public class Collections {
      */
     public static <T, K, V> Map<K, V> copyToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().filter(filter).collect(Collectors.toMap(keyMapper, valueMapper, (k1, k2) -> k2));
     }
@@ -289,7 +289,7 @@ public class Collections {
      */
     public static <T, K, V> Map<K, V> copyToLinkedMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().collect(Collectors.toMap(keyMapper, valueMapper, (k1, k2) -> k2, LinkedHashMap::new));
     }
@@ -303,7 +303,7 @@ public class Collections {
      */
     public static <K, T, V> Map<K, V> copyToLinkedMap(Collection<T> collection, Predicate<T> filter, Function<T, K> keyMapper, Function<T, V> valueMapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().filter(filter).collect(Collectors.toMap(keyMapper, valueMapper, (k1, k2) -> k2, LinkedHashMap::new));
     }
@@ -315,7 +315,7 @@ public class Collections {
      */
     public static <K, T> Map<K, List<T>> groupToMap(Collection<T> collection, Function<T, K> keyMapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().collect(Collectors.groupingBy(keyMapper));
     }
@@ -327,7 +327,7 @@ public class Collections {
      */
     public static <K, T> Map<K, List<T>> groupToMap(Collection<T> collection, Function<T, K> keyMapper, Predicate<T> filter) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().filter(filter).collect(Collectors.groupingBy(keyMapper));
     }
@@ -340,7 +340,7 @@ public class Collections {
      */
     public static <K, T, V> Map<K, List<V>> groupToMap(Collection<T> collection, Function<T, K> keyMapper, Class<V> clazz) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().collect(Collectors.groupingBy(keyMapper, Collectors.mapping(src -> Converts.copyProperties(src, clazz), Collectors.toList())));
     }
@@ -353,7 +353,7 @@ public class Collections {
      */
     public static <K, T, V> Map<K, List<V>> groupToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().collect(Collectors.groupingBy(keyMapper, Collectors.mapping(valueMapper, Collectors.toList())));
     }
@@ -367,7 +367,7 @@ public class Collections {
      */
     public static <K, T, V> Map<K, List<V>> groupToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
         if (CollectionUtils.isEmpty(collection)) {
-            return java.util.Collections.emptyMap();
+            return new HashMap<>();
         }
         return collection.stream().filter(filter).collect(Collectors.groupingBy(keyMapper, Collectors.mapping(valueMapper, Collectors.toList())));
     }
