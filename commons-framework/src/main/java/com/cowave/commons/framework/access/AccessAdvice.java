@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.access.AccessDeniedException;
@@ -173,6 +174,11 @@ public class AccessAdvice {
     @ExceptionHandler(DuplicateKeyException.class)
     public HttpResponse<Response<Void>> handleDuplicateKeyException(DuplicateKeyException e) {
         return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_3, I18Messages.msg("frame.advice.duplicateKeyException"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public HttpResponse<Response<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return error(e, INTERNAL_SERVER_ERROR.getStatus(), INTERNAL_SERVER_ERROR.getCode(), ERR_LEVEL_3, I18Messages.msg("frame.advice.dataAccessInvalid"));
     }
 
     @ExceptionHandler(DataAccessException.class)
