@@ -16,6 +16,7 @@ import com.cowave.commons.tools.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
@@ -46,6 +47,7 @@ import static com.cowave.commons.client.http.constants.HttpCode.*;
  *
  */
 @RequiredArgsConstructor
+@Conditional(MissingAdviceCondition.class)
 @RestControllerAdvice
 public class AccessAdvice {
 
