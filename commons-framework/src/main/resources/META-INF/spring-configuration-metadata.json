@@ -1265,15 +1265,39 @@
       "defaultValue": "access@cowave.com"
     },
     {
-      "name": "spring.access.auth.basic-auth-urls",
+      "name": "spring.access.auth.access-token-ignores",
       "type": "java.lang.String[]",
-      "description": "basic认证的url",
+      "description": "accessToken忽略的url",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
     },
     {
-      "name": "spring.access.auth.basic-ignore-urls",
+      "name": "spring.access.auth.access-token-urls",
+      "type": "java.lang.String[]",
+      "description": "accessToken认证的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.refresh-token-ignores",
+      "type": "java.lang.String[]",
+      "description": "refreshToken忽略的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.refresh-token-urls",
+      "type": "java.lang.String[]",
+      "description": "refreshToken认证的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.basic-ignores",
       "type": "java.lang.String[]",
       "description": "basic忽略的url",
+      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.basic-urls",
+      "type": "java.lang.String[]",
+      "description": "basic认证的url",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig"
     },
     {
@@ -1289,25 +1313,6 @@
       "description": "是否检查冲突",
       "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
       "defaultValue": true
-    },
-    {
-      "name": "spring.access.auth.enable",
-      "type": "java.lang.Boolean",
-      "description": "是否开启认证",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
-      "defaultValue": true
-    },
-    {
-      "name": "spring.access.auth.mode",
-      "type": "java.lang.String",
-      "description": "认证方式：（basic、accessToken、refreshToken）",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
-      "defaultValue": "basic",
-      "enum": [
-        "basic",
-        "accessToken",
-        "refreshToken"
-      ]
     },
     {
       "name": "spring.access.auth.refresh-expire",

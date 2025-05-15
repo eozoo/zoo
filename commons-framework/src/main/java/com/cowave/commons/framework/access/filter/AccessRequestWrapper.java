@@ -50,12 +50,15 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
 
     private final String contentType;
 
+    private final Access access;
+
     private final ObjectMapper objectMapper;
 
     private final ObjectWriter objectWriter;
 
-    public AccessRequestWrapper(HttpServletRequest request, ObjectMapper objectMapper) throws IOException {
+    public AccessRequestWrapper(HttpServletRequest request, ObjectMapper objectMapper, Access access) throws IOException {
         super(request);
+        this.access = access;
         this.objectMapper = objectMapper;
         this.objectWriter = objectMapper.writer(new SimpleFilterProvider().addFilter(
                 "passwdFilter", SimpleBeanPropertyFilter.serializeAllExcept("password", "passwd")));
@@ -148,7 +151,6 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
         AccessLogger.info(logBuilder.toString());
 
         // 记录请求参数
-        Access access = Access.get();
         access.setRequestParam(requestParams);
 
         // 尝试获取分页参数

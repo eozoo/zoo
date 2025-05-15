@@ -12,6 +12,7 @@ package com.cowave.commons.framework.access.security;
 import java.util.List;
 
 import com.cowave.commons.framework.access.Access;
+import com.cowave.commons.framework.access.AccessProperties;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Objects;
 
 import lombok.RequiredArgsConstructor;
+
+import static com.cowave.commons.client.http.constants.HttpHeader.X_User_Payload;
 
 /**
  *
@@ -40,6 +43,13 @@ public class Permission {
 
     private final ApplicationProperties applicationProperties;
 
+    private final AccessProperties accessProperties;
+
+    public boolean isIgnore() {
+        return StringUtils.isBlank(Access.getRequestHeader(accessProperties.tokenKey()))
+                && StringUtils.isBlank(Access.getRequestHeader(X_User_Payload));
+    }
+
     public boolean isAdmin() {
         List<String> roles = Access.userRoles();
         if(CollectionUtils.isEmpty(roles)) {
@@ -49,18 +59,20 @@ public class Permission {
     }
 
     public boolean hasRole(String role) {
-        if(isAdmin()) {
+        if(isIgnore() || isAdmin()) {
             return true;
         }
+
         List<String> roles = Access.userRoles();
         if(CollectionUtils.isEmpty(roles)) {
             return false;
         }
+
         return roles.contains(role);
     }
 
     public boolean hasPermit(String permission) {
-        if(StringUtils.isBlank(permission) || isAdmin()) {
+        if(isIgnore() || StringUtils.isBlank(permission) || isAdmin()) {
             return true;
         }
 

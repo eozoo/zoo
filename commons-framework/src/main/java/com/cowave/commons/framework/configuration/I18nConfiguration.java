@@ -10,16 +10,13 @@
 package com.cowave.commons.framework.configuration;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.HibernateValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import javax.validation.Validator;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -46,18 +43,5 @@ public class I18nConfiguration {
         messageSource.setBasenames(array);
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
-    }
-
-    @Bean
-    public LocalValidatorFactoryBean localValidatorFactoryBean(MessageSource messageSource) {
-        LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
-        localValidatorFactoryBean.setProviderClass(HibernateValidator.class);
-        localValidatorFactoryBean.setValidationMessageSource(messageSource);
-        return localValidatorFactoryBean;
-    }
-
-    @Bean
-    public Validator validator(LocalValidatorFactoryBean localValidatorFactoryBean) {
-        return localValidatorFactoryBean.getValidator();
     }
 }

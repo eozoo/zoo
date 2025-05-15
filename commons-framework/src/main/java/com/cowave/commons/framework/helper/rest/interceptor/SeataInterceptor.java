@@ -9,10 +9,7 @@
  */
 package com.cowave.commons.framework.helper.rest.interceptor;
 
-import com.cowave.commons.client.http.asserts.I18Messages;
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,11 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Enumeration;
+
+import static com.cowave.commons.client.http.constants.HttpHeader.X_Request_ID;
 
 /**
  *
@@ -38,37 +39,30 @@ public class SeataInterceptor implements ClientHttpRequestInterceptor {
 
     private final ApplicationProperties applicationProperties;
 
-    private final AccessProperties accessProperties;
-
-    private final BearerTokenService bearerTokenService;
-
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        // Header X-Request-ID
+        // X-Request-ID
         String accessId = Access.accessId();
         if(StringUtils.isBlank(accessId)) {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
         }
-        request.getHeaders().add("X-Request-ID", accessId);
+        request.getHeaders().add(X_Request_ID, accessId);
 
-        // Header Accept-Language
-        request.getHeaders().add("Accept-Language", I18Messages.getLanguage().getLanguage());
-
-        // Header Token
-        if (!request.getHeaders().containsKey(accessProperties.tokenKey())) {
-            String authorization = Access.accessToken();
-            if (StringUtils.isNotBlank(authorization)) {
-                request.getHeaders().add(accessProperties.tokenKey(), authorization);
-            } else if (bearerTokenService != null) {
-                authorization = HeaderInterceptor.newAuthorization(bearerTokenService, applicationProperties);
-                request.getHeaders().add(accessProperties.tokenKey(), authorization);
-            }
-        }
-
-        // Header Seata事务id
+        // Seata事务id
         String xid = RootContext.getXID();
         if(StringUtils.isNotBlank(xid)){
             request.getHeaders().add(RootContext.KEY_XID, xid);
+        }
+
+        // 其它header
+        HttpServletRequest httpServletRequest = Access.httpRequest();
+        if (httpServletRequest != null) {
+            Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String name = headerNames.nextElement();
+                String value = httpServletRequest.getHeader(name);
+                request.getHeaders().add(name, value);
+            }
         }
         return execution.execute(request, body);
     }

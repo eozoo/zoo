@@ -10,16 +10,19 @@
 package com.cowave.commons.framework.helper.http.interceptor;
 
 import com.cowave.commons.client.http.HttpClientInterceptor;
-import com.cowave.commons.client.http.asserts.I18Messages;
 import com.cowave.commons.client.http.request.HttpRequest;
 import com.cowave.commons.framework.access.Access;
-import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.rest.interceptor.HeaderInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import java.util.Enumeration;
+
+import static com.cowave.commons.client.http.constants.HttpHeader.X_Request_ID;
 
 /**
  *
@@ -32,32 +35,25 @@ public class HttpHeaderInterceptor implements HttpClientInterceptor {
 
     private final String port;
 
-    private final BearerTokenService bearerTokenService;
-
-    private final AccessProperties accessProperties;
-
     private final ApplicationProperties applicationProperties;
 
     @Override
     public void apply(HttpRequest httpRequest) {
-        // Header Access-Id
+        // X-Request-ID
         String accessId = Access.accessId();
         if (StringUtils.isBlank(accessId)) {
             accessId = HeaderInterceptor.newAccessId(port, applicationProperties);
         }
-        httpRequest.header("X-Request-ID", accessId);
+        httpRequest.header(X_Request_ID, accessId);
 
-        // Language
-        httpRequest.header("Accept-Language", I18Messages.getLanguage().toLanguageTag());
-
-        // Header Token
-        if (!httpRequest.headers().containsKey(accessProperties.tokenKey())) {
-            String authorization = Access.accessToken();
-            if (StringUtils.isNotBlank(authorization)) {
-                httpRequest.header(accessProperties.tokenKey(), authorization);
-            } else if (bearerTokenService != null) {
-                authorization = HeaderInterceptor.newAuthorization(bearerTokenService, applicationProperties);
-                httpRequest.header(accessProperties.tokenKey(), authorization);
+        // 其它header
+        HttpServletRequest httpServletRequest = Access.httpRequest();
+        if (httpServletRequest != null) {
+            Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String name = headerNames.nextElement();
+                String value = httpServletRequest.getHeader(name);
+                httpRequest.header(name, value);
             }
         }
     }

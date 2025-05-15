@@ -61,22 +61,25 @@ public class AccessLogger {
     @Before("request()")
     public void logRequest(JoinPoint point) {
         HttpServletRequest httpServletRequest = Access.httpRequest();
+
         // 非Servlet忽略
         if (httpServletRequest == null) {
             return;
         }
+
         // error路径跳过
         if (httpServletRequest.getRequestURI().equals(httpServletRequest.getContextPath() + "/error")) {
             return;
         }
 
-        Access access = Access.get();
         // 补一下Access
+        Access access = Access.get();
         if (access == null) {
             access = Access.newAccess(accessIdGenerator);
             Access.set(access);
         }
 
+        // 尝试设置下参数对象AccessInfoSetter
         MethodSignature signature = (MethodSignature) point.getSignature();
         String[] paramNames = signature.getParameterNames();
         if (paramNames != null) {
@@ -97,14 +100,19 @@ public class AccessLogger {
     @AfterReturning(pointcut = "request()", returning = "resp")
     public void logResponse(Object resp) throws JsonProcessingException {
         HttpServletResponse servletResponse = Access.httpResponse();
+
         // 非Servlet忽略
         if (servletResponse == null) {
             return;
         }
+
+        // 非http请求忽略
         Access access = Access.get();
         if (access == null) {
             return;
         }
+
+        // 未经过AccessFilter忽略
         if (!access.isAccessFiltered()) {
             return;
         }

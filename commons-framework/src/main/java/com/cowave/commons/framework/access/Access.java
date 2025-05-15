@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import static com.cowave.commons.client.http.constants.HttpHeader.X_Request_ID;
+
 /**
  *
  * @author shanhuiming
@@ -89,7 +91,7 @@ public class Access {
         String accessMethod = null;
         HttpServletRequest httpServletRequest = httpRequest();
         if(httpServletRequest != null){
-            accessId = httpServletRequest.getHeader("X-Request-ID");
+            accessId = httpServletRequest.getHeader(X_Request_ID);
             accessIp = ServletUtils.getRequestIp(httpServletRequest);
             accessUrl = httpServletRequest.getRequestURI();
             accessMethod = httpServletRequest.getMethod().toLowerCase();

@@ -12,8 +12,6 @@ package com.cowave.commons.framework.helper.http;
 import com.cowave.commons.client.http.HttpClientInterceptor;
 import com.cowave.commons.client.http.HttpServiceChooser;
 import com.cowave.commons.client.http.invoke.proxy.HttpMethodInvoker;
-import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.http.chooser.DefaultServiceChooser;
 import com.cowave.commons.framework.helper.http.chooser.EurekaServiceChooser;
@@ -46,9 +44,6 @@ public class HttpClientConfiguration {
     @Nullable
     private final NacosServiceChooser nacosServiceChooser;
 
-    @Nullable
-    private final BearerTokenService bearerTokenService;
-
     @ConditionalOnMissingBean(HttpServiceChooser.class)
     @Bean
     public HttpServiceChooser httpServiceChooser(){
@@ -57,8 +52,7 @@ public class HttpClientConfiguration {
 
     @Bean
     public HttpClientInterceptor httpClientInterceptor(
-            @Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new HttpHeaderInterceptor(port, bearerTokenService, accessProperties, applicationProperties);
+            @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
+        return new HttpHeaderInterceptor(port, applicationProperties);
     }
 }

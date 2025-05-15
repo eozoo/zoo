@@ -76,9 +76,9 @@ public class LettuceAutoConfiguration {
             NettyCustomizer nettyCustomizer = new NettyCustomizer() {
                 @Override
                 public void afterChannelInitialized(Channel channel) {
-                    // 触发空闲状态
+                    // 检测空闲状态
                     channel.pipeline().addLast(new IdleStateHandler(readerIdleTime, writerIdleTime, allIdleTime, TimeUnit.SECONDS));
-                    // 处理空闲状态连接，即断开
+                    // 断开处理空闲的连接，触发ConnectionWatchdog
                     channel.pipeline().addLast(new ChannelDuplexHandler() {
                         @Override
                         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
@@ -122,9 +122,9 @@ public class LettuceAutoConfiguration {
             NettyCustomizer nettyCustomizer = new NettyCustomizer() {
                 @Override
                 public void afterChannelInitialized(Channel channel) {
-                    // 触发空闲状态
+                    // 检测空闲状态
                     channel.pipeline().addLast(new IdleStateHandler(readerIdleTime, writerIdleTime, allIdleTime, TimeUnit.SECONDS));
-                    // 处理空闲状态连接，即断开
+                    // 断开处理空闲的连接，触发ConnectionWatchdog
                     channel.pipeline().addLast(new ChannelDuplexHandler() {
                         @Override
                         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {

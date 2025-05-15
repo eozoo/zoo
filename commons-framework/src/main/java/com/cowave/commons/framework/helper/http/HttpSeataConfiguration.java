@@ -13,8 +13,6 @@ import com.cowave.commons.client.http.HttpClientInterceptor;
 import com.cowave.commons.client.http.HttpExceptionHandler;
 import com.cowave.commons.client.http.HttpServiceChooser;
 import com.cowave.commons.client.http.invoke.proxy.HttpMethodInvoker;
-import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.http.chooser.DefaultServiceChooser;
 import com.cowave.commons.framework.helper.http.chooser.EurekaServiceChooser;
@@ -47,9 +45,6 @@ public class HttpSeataConfiguration {
     @Nullable
     private final NacosServiceChooser nacosServiceChooser;
 
-    @Nullable
-    private final BearerTokenService bearerTokenService;
-
     @ConditionalOnMissingBean(HttpServiceChooser.class)
     @Bean
     public HttpServiceChooser httpServiceChooser(){
@@ -58,9 +53,8 @@ public class HttpSeataConfiguration {
 
     @Bean
     public HttpClientInterceptor httpClientInterceptor(
-            @Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new HttpSeataInterceptor(port, bearerTokenService, accessProperties, applicationProperties);
+            @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
+        return new HttpSeataInterceptor(port, applicationProperties);
     }
 
     @ConditionalOnMissingBean(HttpExceptionHandler.class)

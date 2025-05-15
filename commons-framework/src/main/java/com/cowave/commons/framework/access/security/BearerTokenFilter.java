@@ -35,18 +35,13 @@ public class BearerTokenFilter extends OncePerRequestFilter {
 
     private final List<AntPathRequestMatcher> permitAllMatchers = new ArrayList<>();
 
-    private final List<AntPathRequestMatcher> authMatchers = new ArrayList<>();
-
     private final BearerTokenService bearerTokenService;
 
     private final boolean useRefreshToken;
 
-    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String[] authUrls, String[] ignoreUrls) {
+    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String[] ignoreUrls) {
         this.useRefreshToken = useRefreshToken;
         this.bearerTokenService = bearerTokenService;
-        if(ArrayUtils.isNotEmpty(authUrls)){
-            Arrays.stream(authUrls).map(AntPathRequestMatcher::new).forEach(authMatchers::add);
-        }
         if(ArrayUtils.isNotEmpty(ignoreUrls)){
             Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
         }
@@ -54,23 +49,13 @@ public class BearerTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        if (!authMatchers.isEmpty()) {
-            for (AntPathRequestMatcher matcher : authMatchers) {
-                if (matcher.matches(request)) {
-                    bearerAuth(request, response, chain);
-                    return;
-                }
+        for (AntPathRequestMatcher matcher : permitAllMatchers) {
+            if (matcher.matches(request)) {
+                chain.doFilter(request, response);
+                return;
             }
-            chain.doFilter(request, response);
-        } else {
-            for (AntPathRequestMatcher matcher : permitAllMatchers) {
-                if (matcher.matches(request)) {
-                    chain.doFilter(request, response);
-                    return;
-                }
-            }
-            bearerAuth(request, response, chain);
         }
+        bearerAuth(request, response, chain);
     }
 
     private void bearerAuth(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {

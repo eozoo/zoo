@@ -9,8 +9,6 @@
  */
 package com.cowave.commons.framework.helper.rest.interceptor;
 
-import com.cowave.commons.framework.access.AccessProperties;
-import com.cowave.commons.framework.access.security.BearerTokenService;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import io.seata.core.context.RootContext;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +17,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
-
-import javax.annotation.Nullable;
 
 /**
  *
@@ -32,12 +28,9 @@ import javax.annotation.Nullable;
 @Configuration(proxyBeanMethods = false)
 public class SeataInterceptorConfiguration {
 
-    @Nullable
-    private final BearerTokenService bearerTokenService;
-
     @Bean
-    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(@Value("${server.port:8080}") String port,
-            ApplicationProperties applicationProperties, AccessProperties accessProperties) {
-        return new SeataInterceptor(port, applicationProperties, accessProperties, bearerTokenService);
+    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(
+            @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
+        return new SeataInterceptor(port, applicationProperties);
     }
 }

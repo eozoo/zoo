@@ -2,6 +2,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.cowave.commons.framework.configuration.ApplicationConfiguration,\
 com.cowave.commons.framework.configuration.AsyncConfiguration,\
 com.cowave.commons.framework.configuration.I18nConfiguration,\
+com.cowave.commons.framework.configuration.ValidatorConfiguration,\
 com.cowave.commons.framework.helper.datasource.DynamicDataSourceConfiguration,\
 com.cowave.commons.framework.helper.datasource.druid.DruidDynamicDataSourceConfiguration,\
 com.cowave.commons.framework.helper.redis.connection.LettuceAutoConfiguration,\

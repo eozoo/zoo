@@ -53,23 +53,23 @@ import static com.cowave.commons.client.http.constants.HttpCode.*;
 @RequiredArgsConstructor
 @Service
 public class BearerTokenService {
-    private static final String CLAIM_ID = "Token.id";
-    private static final String CLAIM_TYPE = "Token.type";
-    private static final String CLAIM_CONFLICT = "Token.conflict";
-    private static final String CLAIM_USER_IP = "User.ip";
-    private static final String CLAIM_USER_ID = "User.id";
-    private static final String CLAIM_USER_CODE = "User.code";
-    private static final String CLAIM_USER_PROPERTIES = "User.properties";
-    private static final String CLAIM_USER_NAME = "User.name";
-    private static final String CLAIM_USER_ACCOUNT = "User.account";
-    private static final String CLAIM_USER_ROLE = "User.role";
-    private static final String CLAIM_USER_PERM = "User.permission";
-    private static final String CLAIM_DEPT_ID = "Dept.id";
-    private static final String CLAIM_DEPT_CODE = "Dept.code";
-    private static final String CLAIM_DEPT_NAME = "Dept.name";
-    private static final String CLAIM_CLUSTER_ID = "Cluster.id";
-    private static final String CLAIM_CLUSTER_LEVEL = "Cluster.level";
-    private static final String CLAIM_CLUSTER_NAME = "Cluster.name";
+    public static final String CLAIM_ID = "Token.id";
+    public static final String CLAIM_TYPE = "Token.type";
+    public static final String CLAIM_CONFLICT = "Token.conflict";
+    public static final String CLAIM_USER_IP = "User.ip";
+    public static final String CLAIM_USER_ID = "User.id";
+    public static final String CLAIM_USER_CODE = "User.code";
+    public static final String CLAIM_USER_PROPERTIES = "User.properties";
+    public static final String CLAIM_USER_NAME = "User.name";
+    public static final String CLAIM_USER_ACCOUNT = "User.account";
+    public static final String CLAIM_USER_ROLE = "User.role";
+    public static final String CLAIM_USER_PERM = "User.permission";
+    public static final String CLAIM_DEPT_ID = "Dept.id";
+    public static final String CLAIM_DEPT_CODE = "Dept.code";
+    public static final String CLAIM_DEPT_NAME = "Dept.name";
+    public static final String CLAIM_CLUSTER_ID = "Cluster.id";
+    public static final String CLAIM_CLUSTER_LEVEL = "Cluster.level";
+    public static final String CLAIM_CLUSTER_NAME = "Cluster.name";
 
     private final AccessProperties accessProperties;
 
@@ -322,32 +322,6 @@ public class BearerTokenService {
         String tokenType = (String)claims.get(CLAIM_TYPE);
         String userAccount = (String)claims.get(CLAIM_USER_ACCOUNT);
         return applicationProperties.getTokenNamespace() + tokenType + ":" + userAccount;
-    }
-
-    /**
-     * 创建AccessToken-Jwt（Api临时访问）
-     */
-    public String newApiAccessToken(AccessUserDetails userDetails, int accessExpire) {
-        return Jwts.builder()
-                .claim(CLAIM_USER_ID,       userDetails.getUserId())
-                .claim(CLAIM_USER_CODE,     userDetails.getUserCode())
-                .claim(CLAIM_USER_NAME,     userDetails.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT,  userDetails.getUsername())
-                .claim(CLAIM_DEPT_ID,       userDetails.getDeptId())
-                .claim(CLAIM_DEPT_CODE,     userDetails.getDeptCode())
-                .claim(CLAIM_DEPT_NAME,     userDetails.getDeptName())
-                .claim(CLAIM_CLUSTER_ID,    applicationProperties.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, applicationProperties.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME,  applicationProperties.getClusterName())
-                .claim(CLAIM_USER_ROLE,     userDetails.getRoles())
-                .claim(CLAIM_USER_PERM,     userDetails.getPermissions())
-                .claim(CLAIM_USER_IP,       Access.accessIp())
-                .claim(CLAIM_TYPE,          "app")
-                .claim(CLAIM_CONFLICT,      "N")              // 不校验冲突
-                .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
-                .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
-                .compact();
     }
 
     /**

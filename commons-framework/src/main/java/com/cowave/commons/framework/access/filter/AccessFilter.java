@@ -14,9 +14,12 @@ import com.cowave.commons.client.http.response.Response;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.access.AccessLogger;
 import com.cowave.commons.framework.access.AccessProperties;
+import com.cowave.commons.framework.access.security.AccessUserDetails;
 import com.cowave.commons.tools.ServletUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
@@ -27,15 +30,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 import static com.cowave.commons.client.http.constants.HttpCode.BAD_REQUEST;
 import static com.cowave.commons.client.http.constants.HttpCode.SUCCESS;
+import static com.cowave.commons.client.http.constants.HttpHeader.*;
+import static com.cowave.commons.framework.access.security.BearerTokenService.*;
 
 /**
  *
  * @author shanhuiming
  *
  */
+@Slf4j
 @RequiredArgsConstructor
 public class AccessFilter implements Filter {
 
@@ -51,28 +60,28 @@ public class AccessFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        // 获取accessId
-        String accessId = httpServletRequest.getHeader("X-Request-ID");
+        // X-Request-ID
+        String accessId = httpServletRequest.getHeader(X_Request_ID);
         if (StringUtils.isBlank(accessId)) {
             accessId = accessIdGenerator.newAccessId();
         }
-        // 获取国际化
-        String language = httpServletRequest.getHeader("Accept-Language");
+        // Accept-Language
+        String language = httpServletRequest.getHeader(Accept_Language);
         // 获取Seata事务id
         String xid = httpServletRequest.getHeader("xid");
 
-        // 设置响应头 Access-Id
-        httpServletResponse.setHeader("X-Request-ID", accessId);
+        // 设置响应头
+        httpServletResponse.setHeader(X_Request_ID, accessId);
         // 设置响应头 Content-Security-Policy
         if(StringUtils.isNotBlank(accessProperties.getContentSecurityPolicy())){
-            httpServletResponse.setHeader("Content-Security-Policy", accessProperties.getContentSecurityPolicy());
+            httpServletResponse.setHeader(Content_Security_Policy, accessProperties.getContentSecurityPolicy());
         }
         // 设置响应头 Access-Control
         AccessProperties.CrossControl crossControl = accessProperties.getCross();
-        httpServletResponse.setHeader("Access-Control-Allow-Origin", crossControl.getAllowOrigin());
-        httpServletResponse.setHeader("Access-Control-Allow-Methods", crossControl.getAllowMethods());
-        httpServletResponse.setHeader("Access-Control-Allow-Headers", crossControl.getAllowHeaders());
-        httpServletResponse.setHeader("Access-Control-Allow-Credentials", String.valueOf(crossControl.isAllowCredentials()));
+        httpServletResponse.setHeader(Access_Control_Allow_Origin, crossControl.getAllowOrigin());
+        httpServletResponse.setHeader(Access_Control_Allow_Methods, crossControl.getAllowMethods());
+        httpServletResponse.setHeader(Access_Control_Allow_Headers, crossControl.getAllowHeaders());
+        httpServletResponse.setHeader(Access_Control_Allow_Credentials, String.valueOf(crossControl.isAllowCredentials()));
 
         // 设置MDC.accessId
         MDC.put("accessId", accessId);
@@ -86,10 +95,13 @@ public class AccessFilter implements Filter {
         String accessIp = ServletUtils.getRequestIp(httpServletRequest);
         String accessUrl = httpServletRequest.getRequestURI();
         String method = httpServletRequest.getMethod().toLowerCase();
-        Access.set(new Access(true, accessId, accessIp, accessUrl, method, System.currentTimeMillis()));
 
-        // 记录请求日志，顺便记录一下分页参数
-        AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest, objectMapper);
+        Access access = new Access(true, accessId, accessIp, accessUrl, method, System.currentTimeMillis());
+        parseUserPayload(access, httpServletRequest);
+        Access.set(access);
+
+        // 请求参数、日志
+        AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest, objectMapper, access);
         try{
             accessRequestWrapper.recordAccessParams();
         }catch (Exception e){
@@ -109,8 +121,7 @@ public class AccessFilter implements Filter {
         // servlet处理
         chain.doFilter(accessRequestWrapper, response);
 
-        // 拦截打印响应（AccessLogger中没有拦截到的）
-        Access access = Access.get();
+        // 拦截打印响应（如果AccessLogger中没有打印）
         if (!access.isResponseLogged()) {
             int status = httpServletResponse.getStatus();
             long cost = System.currentTimeMillis() - access.getAccessTime();
@@ -131,7 +142,48 @@ public class AccessFilter implements Filter {
         MDC.remove("accessId");
     }
 
-    public void headerAccessId(HttpServletRequest request, String value) {
+    private void parseUserPayload(Access access, HttpServletRequest httpServletRequest){
+        String userPayload = httpServletRequest.getHeader(X_User_Payload);
+        if(StringUtils.isBlank(userPayload)){
+            return;
+        }
+
+        String json = new String(Base64.getDecoder().decode(userPayload));
+        try {
+            Map<String, Object> claims = objectMapper.readValue(json, Map.class);
+
+            AccessUserDetails userDetails = new AccessUserDetails();
+            userDetails.setId((String) claims.get(CLAIM_ID));
+            userDetails.setType((String) claims.get(CLAIM_TYPE));
+
+            String accessJwt = httpServletRequest.getHeader(accessProperties.tokenKey());
+            userDetails.setAccessToken(accessJwt);
+            // user
+            userDetails.setUserId(claims.get(CLAIM_USER_ID));
+            userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
+            userDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
+            userDetails.setUserNick((String) claims.get(CLAIM_USER_NAME));
+            userDetails.setUserProperties((Map<String, Object>) claims.get(CLAIM_USER_PROPERTIES));
+            // dept
+            userDetails.setDeptId(claims.get(CLAIM_DEPT_ID));
+            userDetails.setDeptCode(claims.get(CLAIM_DEPT_CODE));
+            userDetails.setDeptName((String) claims.get(CLAIM_DEPT_NAME));
+            // cluster
+            userDetails.setClusterId((Integer) claims.get(CLAIM_CLUSTER_ID));
+            userDetails.setClusterLevel((Integer) claims.get(CLAIM_CLUSTER_LEVEL));
+            userDetails.setClusterName((String) claims.get(CLAIM_CLUSTER_NAME));
+            // roles
+            userDetails.setRoles((List<String>) claims.get(CLAIM_USER_ROLE));
+            // permits
+            userDetails.setPermissions((List<String>) claims.get(CLAIM_USER_PERM));
+            // 设置
+            access.setUserDetails(userDetails);
+        } catch (JsonProcessingException e) {
+            log.error("", e);
+        }
+    }
+
+    private void headerAccessId(HttpServletRequest request, String value) {
         Class<?> clazz = request.getClass();
         try {
             Field req = clazz.getDeclaredField("request");

@@ -52,10 +52,6 @@ public class AccessProperties {
      */
     private AuthConfig auth;
 
-    public boolean authEnable(){
-        return Optional.ofNullable(auth).map(auth -> auth.enable).orElse(true);
-    }
-
     public String authMode(){
         return Optional.ofNullable(auth).map(auth -> auth.mode).orElse("basic");
     }
@@ -66,14 +62,6 @@ public class AccessProperties {
 
     public List<AccessUser> accessUsers(){
         return Optional.ofNullable(auth).map(auth -> auth.users).orElse(List.of(AccessUser.defaultUser()));
-    }
-
-    public String[] basicAuthUrls(){
-        return Optional.ofNullable(auth).map(auth -> auth.basicAuthUrls).orElse(null);
-    }
-
-    public String[] basicIgnoreUrls(){
-        return Optional.ofNullable(auth).map(auth -> auth.basicIgnoreUrls).orElse(null);
     }
 
     public String tokenStore(){
@@ -104,12 +92,28 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.refreshSecret).orElse("refresh@cowave.com");
     }
 
-    public String[] tokenAuthUrls(){
-        return Optional.ofNullable(auth).map(auth -> auth.tokenAuthUrls).orElse(null);
+    public String[] basicUrls(){
+        return Optional.ofNullable(auth).map(auth -> auth.basicUrls).orElse(null);
     }
 
-    public String[] tokenIgnoreUrls(){
-        return Optional.ofNullable(auth).map(auth -> auth.tokenIgnoreUrls).orElse(null);
+    public String[] basicIgnores(){
+        return Optional.ofNullable(auth).map(auth -> auth.basicIgnores).orElse(null);
+    }
+
+    public String[] accessTokenUrls(){
+        return Optional.ofNullable(auth).map(auth -> auth.accessTokenUrls).orElse(null);
+    }
+
+    public String[] accessTokenIgnores(){
+        return Optional.ofNullable(auth).map(auth -> auth.accessTokenIgnores).orElse(null);
+    }
+
+    public String[] refreshTokenUrls(){
+        return Optional.ofNullable(auth).map(auth -> auth.refreshTokenUrls).orElse(null);
+    }
+
+    public String[] refreshTokenIgnores(){
+        return Optional.ofNullable(auth).map(auth -> auth.refreshTokenIgnores).orElse(null);
     }
 
     @Data
@@ -140,11 +144,6 @@ public class AccessProperties {
     public static class AuthConfig {
 
         /**
-         * 是否开启认证
-         */
-        private boolean enable = true;
-
-        /**
          * 默认用户
          */
         private List<AccessUser> users = List.of(AccessUser.defaultUser());
@@ -158,16 +157,6 @@ public class AccessProperties {
          * basic认证使用配置用户
          */
         private boolean basicWithConfigUser = false;
-
-        /**
-         * basic认证的url
-         */
-        private String[] basicAuthUrls;
-
-        /**
-         * basic忽略的url
-         */
-        private String[] basicIgnoreUrls;
 
         /**
          * Token保存方式（header、cookie）
@@ -205,13 +194,33 @@ public class AccessProperties {
         private String refreshSecret = "refresh@cowave.com";
 
         /**
-         * token认证的url
+         * basic认证的url
          */
-        private String[] tokenAuthUrls;
+        private String[] basicUrls;
 
         /**
-         * token忽略的url
+         * basic忽略的url
          */
-        private String[] tokenIgnoreUrls;
+        private String[] basicIgnores;
+
+        /**
+         * accessToken认证的url
+         */
+        private String[] accessTokenUrls;
+
+        /**
+         * accessToken忽略的url
+         */
+        private String[] accessTokenIgnores;
+
+        /**
+         * refreshToken认证的url
+         */
+        private String[] refreshTokenUrls;
+
+        /**
+         * refreshToken忽略的url
+         */
+        private String[] refreshTokenIgnores;
     }
 }
