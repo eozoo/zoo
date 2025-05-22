@@ -33,7 +33,7 @@ public class AccessProperties {
     /**
      * AccessFilter拦截的url
      */
-    private String[] urlPatterns = {"/*"};
+    private String[] filter = {"/*"};
 
     /**
      * CSP白名单

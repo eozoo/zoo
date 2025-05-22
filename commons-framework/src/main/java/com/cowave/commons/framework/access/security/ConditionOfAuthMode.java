@@ -9,12 +9,13 @@
  */
 package com.cowave.commons.framework.access.security;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
-import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,17 +27,19 @@ public class ConditionOfAuthMode implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        Environment env = context.getEnvironment();
         Map<String, Object> attrs = metadata.getAnnotationAttributes(ConditionalOnHasUrls.class.getName());
         String mode = (String) attrs.get("value");
         String key = "spring.access.auth." + mode + "-urls";
         String camelKey = "spring.access.auth." + toCamel(mode) + "Urls";
 
-        String[] urls = env.getProperty(key, String[].class, new String[0]);
-        if (ArrayUtils.isEmpty(urls)) {
-            urls = env.getProperty(camelKey, String[].class, new String[0]);
+        Binder binder = Binder.get(context.getEnvironment());
+        try {
+            List<String> urls = binder.bind(key, List.class).orElseGet(
+                    () -> binder.bind(camelKey, List.class).orElse(Collections.emptyList()));
+            return !urls.isEmpty();
+        } catch (Exception e) {
+            return false;
         }
-        return urls.length > 0;
     }
 
     private String toCamel(String mode) {
