@@ -10,6 +10,7 @@
 package com.cowave.commons.framework.helper.http.interceptor;
 
 import com.cowave.commons.client.http.HttpClientInterceptor;
+import com.cowave.commons.client.http.asserts.I18Messages;
 import com.cowave.commons.client.http.request.HttpRequest;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
@@ -20,9 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 
-import static com.cowave.commons.client.http.constants.HttpHeader.X_Request_ID;
+import static com.cowave.commons.client.http.constants.HttpHeader.*;
+import static com.cowave.commons.client.http.constants.HttpHeader.WL_Proxy_Client_IP;
 
 /**
  *
@@ -52,14 +53,44 @@ public class HttpSeataInterceptor implements HttpClientInterceptor {
             httpRequest.header(RootContext.KEY_XID, xid);
         }
 
-        // 其它header
+        // 常用请求头
         HttpServletRequest httpServletRequest = Access.httpRequest();
         if (httpServletRequest != null) {
-            Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String name = headerNames.nextElement();
-                String value = httpServletRequest.getHeader(name);
-                httpRequest.header(name, value);
+            // Accept-Language
+            String language = httpServletRequest.getHeader(Accept_Language);
+            if (StringUtils.isBlank(language)) {
+                language = I18Messages.getLanguage().getLanguage();
+            }
+            httpRequest.header(Accept_Language, language);
+
+            // User-Agent
+            String userAgent = httpServletRequest.getHeader(User_Agent);
+            if (StringUtils.isBlank(userAgent)) {
+                httpRequest.header(User_Agent, userAgent);
+            }
+
+            // X-Real-IP
+            String xRealIp = httpServletRequest.getHeader(X_Real_IP);
+            if (StringUtils.isBlank(userAgent)) {
+                httpRequest.header(X_Real_IP, xRealIp);
+            }
+
+            // X-Forwarded-For
+            String xForwardedFor = httpServletRequest.getHeader(X_Forwarded_For);
+            if (StringUtils.isBlank(xForwardedFor)) {
+                httpRequest.header(X_Forwarded_For, xForwardedFor);
+            }
+
+            // Proxy-Client-IP
+            String proxyClientIp = httpServletRequest.getHeader(Proxy_Client_IP);
+            if (StringUtils.isBlank(proxyClientIp)) {
+                httpRequest.header(Proxy_Client_IP, proxyClientIp);
+            }
+
+            // WL-Proxy-Client-IP
+            String wlProxyClientIp = httpServletRequest.getHeader(WL_Proxy_Client_IP);
+            if (StringUtils.isBlank(wlProxyClientIp)) {
+                httpRequest.header(WL_Proxy_Client_IP, wlProxyClientIp);
             }
         }
     }

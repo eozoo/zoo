@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import static com.cowave.commons.client.http.constants.HttpHeader.*;
+
 /**
  *
  * @author shanhuiming
@@ -30,7 +32,7 @@ public class ServletUtils {
     public static String getRequestBody(ServletRequest request) {
         StringBuilder builder = new StringBuilder();
         try (InputStream inputStream = request.getInputStream();
-             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));) {
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
@@ -46,20 +48,17 @@ public class ServletUtils {
             return "unknown";
         }
 
-        String ip = request.getHeader("X-Real-IP");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)){
-            ip = request.getHeader("x-forwarded-for");
+        String ip = request.getHeader(X_Real_IP);
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)){
+            ip = request.getHeader(X_Forwarded_For);
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)){
-            ip = request.getHeader("Proxy-Client-IP");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)){
+            ip = request.getHeader(Proxy_Client_IP);
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)){
-            ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)){
+            ip = request.getHeader(WL_Proxy_Client_IP);
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)){
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)){
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)){
             ip = request.getRemoteAddr();
         }
         return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : getMultistageReverseProxyIp(ip);

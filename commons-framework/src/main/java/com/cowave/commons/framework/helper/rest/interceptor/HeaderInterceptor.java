@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.helper.rest.interceptor;
 
+import com.cowave.commons.client.http.asserts.I18Messages;
 import com.cowave.commons.framework.access.Access;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.tools.ids.IdGenerator;
@@ -22,9 +23,9 @@ import org.springframework.http.client.ClientHttpResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Enumeration;
 
-import static com.cowave.commons.client.http.constants.HttpHeader.X_Request_ID;
+import static com.cowave.commons.client.http.constants.HttpHeader.*;
+import static com.cowave.commons.client.http.constants.HttpHeader.WL_Proxy_Client_IP;
 
 /**
  *
@@ -49,14 +50,44 @@ public class HeaderInterceptor implements ClientHttpRequestInterceptor {
         }
         request.getHeaders().add(X_Request_ID, accessId);
 
-        // 其它header
+        // 常用请求头
         HttpServletRequest httpServletRequest = Access.httpRequest();
         if (httpServletRequest != null) {
-            Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String name = headerNames.nextElement();
-                String value = httpServletRequest.getHeader(name);
-                request.getHeaders().add(name, value);
+            // Accept-Language
+            String language = httpServletRequest.getHeader(Accept_Language);
+            if (StringUtils.isBlank(language)) {
+                language = I18Messages.getLanguage().getLanguage();
+            }
+            request.getHeaders().add(Accept_Language, language);
+
+            // User-Agent
+            String userAgent = httpServletRequest.getHeader(User_Agent);
+            if (StringUtils.isBlank(userAgent)) {
+                request.getHeaders().add(User_Agent, userAgent);
+            }
+
+            // X-Real-IP
+            String xRealIp = httpServletRequest.getHeader(X_Real_IP);
+            if (StringUtils.isBlank(userAgent)) {
+                request.getHeaders().add(X_Real_IP, xRealIp);
+            }
+
+            // X-Forwarded-For
+            String xForwardedFor = httpServletRequest.getHeader(X_Forwarded_For);
+            if (StringUtils.isBlank(xForwardedFor)) {
+                request.getHeaders().add(X_Forwarded_For, xForwardedFor);
+            }
+
+            // Proxy-Client-IP
+            String proxyClientIp = httpServletRequest.getHeader(Proxy_Client_IP);
+            if (StringUtils.isBlank(proxyClientIp)) {
+                request.getHeaders().add(Proxy_Client_IP, proxyClientIp);
+            }
+
+            // WL-Proxy-Client-IP
+            String wlProxyClientIp = httpServletRequest.getHeader(WL_Proxy_Client_IP);
+            if (StringUtils.isBlank(wlProxyClientIp)) {
+                request.getHeaders().add(WL_Proxy_Client_IP, wlProxyClientIp);
             }
         }
         return execution.execute(request, body);
