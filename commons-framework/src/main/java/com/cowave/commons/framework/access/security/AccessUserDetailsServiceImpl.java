@@ -30,11 +30,11 @@ public class AccessUserDetailsServiceImpl implements UserDetailsService {
 
     private final AuthMode authMode;
 
+    private final ApplicationProperties applicationProperties;
+
     private final PasswordEncoder passwordEncoder;
 
     private final BearerTokenService bearerTokenService;
-
-    private final ApplicationProperties applicationProperties;
 
     private final Map<String, AccessUser> userMap;
 

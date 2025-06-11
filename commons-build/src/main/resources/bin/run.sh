@@ -71,8 +71,8 @@ up(){
     config || { LogError "config failed"; exit 1; }
 
     jvm_option="$jvm_option -Duser.dir=$app_home -Dspring.config.location=$app_home/config/"
-    if [ -d "$app_home/config/prod" ];then
-        jvm_option="$jvm_option -Dspring.profiles.active=prod"
+    if [ ! -z "$app_profile" ];then
+        jvm_option="$jvm_option -Dspring.profiles.active=$app_profile"
     fi
     if [ "on" = "$java_agent" ];then
         jvm_option="$jvm_option -javaagent:$app_home/lib/$app_name-$app_version.jar"
@@ -97,8 +97,8 @@ start(){
     config || { LogError "config failed"; exit 1; }
 
     jvm_option="$jvm_option -Duser.dir=$app_home -Dspring.config.location=$app_home/config/"
-    if [ -d "$app_home/config/prod" ];then
-        jvm_option="$jvm_option -Dspring.profiles.active=prod"
+    if [ ! -z "$app_profile" ];then
+        jvm_option="$jvm_option -Dspring.profiles.active=$app_profile"
     fi
     if [ "on" = "$java_agent" ];then
         jvm_option="$jvm_option -javaagent:$app_home/lib/$app_name-$app_version.jar"
@@ -114,10 +114,10 @@ start_wait(){
     declare -i max_counter=40 # 80s
     declare -i total_time=0
     s_time=$(date "+%Y-%m-%d %H:%M:%S")
-    if [ -z "$app_port" ]; then
+    if [ -z "$http_port" ]; then
         LogSuccess "$app_name is starting, see details in $app_home/log"
     else
-        server_url="http://localhost:$app_port"
+        server_url="http://localhost:$http_port"
         printf "waiting for %s startup..." "$app_name"
         until [[ (( counter -ge max_counter )) || "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head "$server_url" | grep "HTTP")" != "" ]];
         do

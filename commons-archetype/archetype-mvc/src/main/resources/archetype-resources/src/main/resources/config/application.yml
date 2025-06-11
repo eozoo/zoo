@@ -2,7 +2,7 @@
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
 server:
-  port: $symbol_dollar{app_port:${serverPort}}
+  port: $symbol_dollar{http_port:${serverPort}}
   servlet:
     context-path: ${serverPath}
 

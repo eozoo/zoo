@@ -10,8 +10,11 @@
 package com.cowave.commons.framework.access.security;
 
 import com.cowave.commons.framework.access.AccessProperties;
+import com.cowave.commons.framework.access.filter.AccessIdGenerator;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
+import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.cowave.commons.tools.Collections;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -42,7 +45,7 @@ import java.util.stream.Stream;
 /**
  * @author shanhuiming
  */
-@ConditionalOnClass(SecurityFilterChain.class)
+@ConditionalOnClass({SecurityFilterChain.class})
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableWebSecurity
 @Configuration
@@ -53,21 +56,25 @@ public class SecurityConfiguration {
 
     private final ApplicationProperties applicationProperties;
 
-    @Nullable
-    private final BearerTokenService bearerTokenService;
-
     @ConditionalOnMissingBean(PasswordEncoder.class)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    @ConditionalOnMissingBean(BearerTokenService.class)
+    @Bean
+    public BearerTokenService bearerTokenService(
+            AccessIdGenerator accessIdGenerator, ObjectMapper objectMapper, @Nullable RedisHelper redisHelper){
+        return new BearerTokenServiceImpl(accessProperties, applicationProperties, accessIdGenerator, objectMapper, redisHelper);
+    }
+
     @ConditionalOnMissingBean(UserDetailsService.class)
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder, @Nullable BearerTokenService bearerTokenService) {
         List<AccessUser> userList = accessProperties.accessUsers();
-        return new AccessUserDetailsServiceImpl(accessProperties.authMode(), passwordEncoder,
-                bearerTokenService, applicationProperties, Collections.copyToMap(userList, AccessUser::getUsername));
+        return new AccessUserDetailsServiceImpl(accessProperties.authMode(), applicationProperties,
+                passwordEncoder, bearerTokenService, Collections.copyToMap(userList, AccessUser::getUsername));
     }
 
     @ConditionalOnMissingBean(AuthenticationManager.class)
@@ -114,26 +121,28 @@ public class SecurityConfiguration {
     /**
      * Access认证
      */
-    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @ConditionalOnProperty(name = "spring.access.auth.mode", havingValue = "access")
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @Bean
-    public SecurityFilterChain accessBearerSecurityFilterChain(HttpSecurity httpSecurity,
+    public SecurityFilterChain accessBearerSecurityFilterChain(
+            HttpSecurity httpSecurity, @Nullable BearerTokenService bearerTokenService,
             UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
-        return newBearerSecurityFilterChain(httpSecurity, userDetailsService, passwordEncoder, false);
+        return newBearerSecurityFilterChain(httpSecurity, bearerTokenService, userDetailsService, passwordEncoder, false);
     }
 
     /**
      * Access-Refresh认证
      */
-    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @ConditionalOnProperty(name = "spring.access.auth.mode", havingValue = "access-refresh")
+    @ConditionalOnMissingBean(value = {SecurityFilterChain.class, WebSecurityConfigurerAdapter.class})
     @Bean
-    public SecurityFilterChain refreshBearerSecurityFilterChain(HttpSecurity httpSecurity,
+    public SecurityFilterChain refreshBearerSecurityFilterChain(
+            HttpSecurity httpSecurity, @Nullable BearerTokenService bearerTokenService,
             UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
-        return newBearerSecurityFilterChain(httpSecurity, userDetailsService, passwordEncoder, true);
+        return newBearerSecurityFilterChain(httpSecurity, bearerTokenService, userDetailsService, passwordEncoder, true);
     }
 
-    private SecurityFilterChain newBearerSecurityFilterChain(HttpSecurity httpSecurity,
+    private SecurityFilterChain newBearerSecurityFilterChain(HttpSecurity httpSecurity, BearerTokenService bearerTokenService,
             UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, boolean useRefreshToken) throws Exception {
         if (ArrayUtils.isNotEmpty(accessProperties.authUrls())) {
             httpSecurity.requestMatchers(requestMatchers ->
@@ -158,10 +167,6 @@ public class SecurityConfiguration {
                 httpSecurity.authorizeRequests().anyRequest().authenticated();
             }
 
-            if (bearerTokenService == null) {
-                throw new IllegalStateException("SecurityFilterChain is not initialized，Please ensure the Jwt dependency has imported.");
-            }
-
             boolean basicWithConfigUser = accessProperties.basicWithConfigUser();
 
             // Bearer Token认证
@@ -170,7 +175,7 @@ public class SecurityConfiguration {
 
             // Basic认证
             if (ArrayUtils.isNotEmpty(basicUrls)) {
-                UserDetailsService defaultUserDetailsService = userDetailsService(passwordEncoder);
+                UserDetailsService defaultUserDetailsService = userDetailsService(passwordEncoder, bearerTokenService);
                 BasicAuthFilter basicAuthFilter = new BasicAuthFilter(
                         userDetailsService, defaultUserDetailsService, basicWithConfigUser, passwordEncoder, basicUrls);
                 httpSecurity.addFilterBefore(basicAuthFilter, BearerTokenFilter.class);
