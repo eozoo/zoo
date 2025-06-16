@@ -91,10 +91,6 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.tokenKey).orElse("Authorization");
     }
 
-    public boolean conflict(){
-        return Optional.ofNullable(auth).map(auth -> auth.conflict).orElse(true);
-    }
-
     public int accessExpire(){
         return Optional.ofNullable(auth).map(auth -> auth.accessExpire).orElse(86400);
     }
@@ -182,11 +178,6 @@ public class AccessProperties {
          * Token保存的key
          */
         private String tokenKey = "Authorization";
-
-        /**
-         * 是否检查冲突
-         */
-        private boolean conflict = true;
 
         /**
          * accessToken超时

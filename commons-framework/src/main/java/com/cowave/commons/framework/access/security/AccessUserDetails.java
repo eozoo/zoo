@@ -60,6 +60,11 @@ public class AccessUserDetails implements UserDetails {
     private String type;
 
     /**
+     * 是否校验客户端冲突
+     */
+    private boolean conflict = true;
+
+    /**
      * 登录iP
      */
     private String loginIp;

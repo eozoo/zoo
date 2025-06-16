@@ -58,7 +58,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .claim(CLAIM_TYPE, userDetails.getType())
                 .claim(CLAIM_ACCESS_IP, Access.accessIp())
                 .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
-                .claim(CLAIM_CONFLICT, accessProperties.conflict() ? "Y" : "N")
+                .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
                 .claim(CLAIM_USER_ID, userDetails.getUserId())
                 .claim(CLAIM_USER_CODE, userDetails.getUserCode())
                 .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
@@ -107,6 +107,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .claim(CLAIM_TYPE, userDetails.getType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
+                .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
                 .compact();
@@ -163,14 +164,15 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.notexist}");
         }
 
+        String tokenConflict = (String) claims.get(CLAIM_CONFLICT);
         // 比对id，判断Token是否已经被刷新过
-        if (accessProperties.conflict() && !refreshId.equals(refreshTokenInfo.getRefreshId())) {
+        if ("Y".equals(tokenConflict) && !refreshId.equals(refreshTokenInfo.getRefreshId())) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.conflict}");
         }
 
         //当前accessToken失效
         String accessId = refreshTokenInfo.getAccessId();
-        if (accessProperties.conflict()) {
+        if ("Y".equals(tokenConflict)) {
             redisHelper.delete(getAccessTokenKey(accessId));
         }
 

@@ -1284,13 +1284,6 @@
       "defaultValue": false
     },
     {
-      "name": "spring.access.auth.conflict",
-      "type": "java.lang.Boolean",
-      "description": "是否检查冲突",
-      "sourceType": "com.cowave.commons.framework.access.AccessProperties$AuthConfig",
-      "defaultValue": true
-    },
-    {
       "name": "spring.access.auth.enable",
       "type": "java.lang.Boolean",
       "description": "是否开启认证",
