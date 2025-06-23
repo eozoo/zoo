@@ -18,24 +18,42 @@ import java.util.Objects;
  */
 public interface EnumVal<T> {
 
-    T val();
-
-    default String desc(){
-        return "";
-    }
-
-    default boolean isEqual(T val) {
-        return Objects.equals(this.val(), val);
+    static <E extends Enum<E>> E getInstance(Class<E> clazz, String name) {
+        for (E e : clazz.getEnumConstants()) {
+            if (e.name().equals(name)) {
+                return e;
+            }
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
-    default List<T> enumVals() {
+    static <T, E extends Enum<E> & EnumVal<T>> List<T> vals(Class<E> clazz) {
         try {
-            Method method = this.getClass().getMethod("values");
-            EnumVal<T>[] enumVals = (EnumVal<T>[]) method.invoke(null);
-            return Collections.arrayToList(enumVals, EnumVal::val);
+            Method method = clazz.getMethod("values");
+            EnumVal<T>[] enums = (EnumVal<T>[]) method.invoke(null);
+            return Collections.arrayToList(enums, EnumVal::val);
         } catch (Exception e) {
-            throw new UnsupportedOperationException(this.getClass() + " isn't a enum");
+            throw new UnsupportedOperationException(clazz + " isn't a enum");
         }
+    }
+
+    default boolean equalsName(String name) {
+        if (this instanceof Enum<?>) {
+            return ((Enum<?>) this).name().equals(name);
+        }
+        return false;
+    }
+
+    default boolean equalsVal(T val) {
+        return Objects.equals(this.val(), val);
+    }
+
+    default T val(){
+        return null;
+    }
+
+    default String desc(){
+        return "";
     }
 }

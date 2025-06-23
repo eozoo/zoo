@@ -66,7 +66,7 @@ public class SecurityConfiguration {
     @Bean
     public BearerTokenService bearerTokenService(
             AccessIdGenerator accessIdGenerator, ObjectMapper objectMapper, @Nullable RedisHelper redisHelper){
-        return new BearerTokenServiceImpl(accessProperties, applicationProperties, accessIdGenerator, objectMapper, redisHelper);
+        return new BearerTokenServiceImpl(applicationProperties, accessProperties, accessIdGenerator, objectMapper, redisHelper);
     }
 
     @ConditionalOnMissingBean(UserDetailsService.class)

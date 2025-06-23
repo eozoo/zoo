@@ -41,15 +41,12 @@ import static com.cowave.commons.client.http.constants.HttpCode.*;
  */
 @RequiredArgsConstructor
 public class BearerTokenServiceImpl implements BearerTokenService {
-
-    private final AccessProperties accessProperties;
-
+    public static final String AUTH_ACCESS_KEY = "%s:auth:access:%s";
+    public static final String AUTH_REFRESH_KEY = "%s:auth:refresh:%s:%s";
     private final ApplicationProperties applicationProperties;
-
+    private final AccessProperties accessProperties;
     private final AccessIdGenerator accessIdGenerator;
-
     private final ObjectMapper objectMapper;
-
     private final RedisHelper redisHelper;
 
     @Override
@@ -112,9 +109,6 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
                 .compact();
         userDetails.setRefreshToken(refreshToken);
-        userDetails.setClusterId(applicationProperties.getClusterId());
-        userDetails.setClusterLevel(applicationProperties.getClusterLevel());
-        userDetails.setClusterName(applicationProperties.getClusterName());
         // 服务端保存
         if(redisHelper != null){
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
@@ -331,7 +325,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     @Override
     public List<AccessTokenInfo> listAccessToken(String userAccount, Date beginTime, Date endTime) {
         List<AccessTokenInfo> list = new ArrayList<>();
-        for (String key : redisHelper.keys(applicationProperties.getName() + ":token:access:*")) {
+        for (String key : redisHelper.keys(applicationProperties.getName() + ":auth:access:*")) {
             AccessTokenInfo accessTokenInfo = redisHelper.getValue(key);
             if (accessTokenInfo != null) {
                 if ((userAccount != null && !accessTokenInfo.getUserAccount().contains(userAccount))
@@ -346,11 +340,11 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     private String getAccessTokenKey(String accessId) {
-        return applicationProperties.getName() + ":token:access:" + accessId;
+        return AUTH_ACCESS_KEY.formatted(applicationProperties.getName(), accessId);
     }
 
     private String getRefreshTokenKey(String type, String userAccount) {
-        return applicationProperties.getName() + ":token:refresh:" + type + ":" + userAccount;
+        return AUTH_REFRESH_KEY.formatted(applicationProperties.getName(), type, userAccount);
     }
 
     @Override

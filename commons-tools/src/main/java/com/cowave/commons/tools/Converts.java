@@ -33,6 +33,35 @@ import java.util.*;
 public class Converts {
 
     /**
+     * 复制属性
+     */
+    public static <S, T> void copyProperties(S src, T dest) {
+        BeanUtil.copyProperties(src, dest);
+    }
+
+    /**
+     * 复制属性
+     */
+    public static <S, T> T copyProperties(S src, Class<T> dest) {
+        return BeanUtil.copyProperties(src, dest);
+    }
+
+    /**
+     * 复制集合
+     */
+    public static <S, T> List<T> copyList(List<S> src, Class<T> dest) {
+        if (src == null || src.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+
+        List<T> result = new ArrayList<>(src.size());
+        for (S s : src) {
+            result.add(BeanUtil.copyProperties(s, dest));
+        }
+        return result;
+    }
+
+    /**
      * 获取参数，指定默认值
      */
     public static <T> T nvl(T value, T defaultValue) {
@@ -697,20 +726,6 @@ public class Converts {
             s.insert(0, p.toString().replaceAll("(零.)*零$", "").replaceAll("^$", "零") + unit[0][i]);
         }
         return head + s.toString().replaceAll("(零.)*零元", "元").replaceFirst("(零.)+", "").replaceAll("(零.)+", "零").replaceAll("^整$", "零元整");
-    }
-
-    /**
-     * 复制属性
-     */
-    public static <S, T> T copyProperties(S src, Class<T> dest) {
-        return BeanUtil.copyProperties(src, dest);
-    }
-
-    /**
-     * 复制属性
-     */
-    public static <S, T> void copyProperties(S src, T dest) {
-        BeanUtil.copyProperties(src, dest);
     }
 
     /**
