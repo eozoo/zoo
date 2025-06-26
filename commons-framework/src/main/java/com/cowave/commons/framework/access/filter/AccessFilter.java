@@ -153,7 +153,7 @@ public class AccessFilter implements Filter {
             Map<String, Object> claims = objectMapper.readValue(json, Map.class);
 
             AccessUserDetails userDetails = new AccessUserDetails();
-            userDetails.setType((String) claims.get(CLAIM_TYPE));
+            userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
             userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
             userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
             // user

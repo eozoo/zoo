@@ -24,8 +24,6 @@ import com.google.common.base.Objects;
 
 import lombok.RequiredArgsConstructor;
 
-import static com.cowave.commons.client.http.constants.HttpHeader.X_User_Payload;
-
 /**
  *
  * @author shanhuiming
@@ -36,28 +34,49 @@ import static com.cowave.commons.client.http.constants.HttpHeader.X_User_Payload
 @Component("permit")
 @SuppressWarnings("deprecation")
 public class Permission {
-
+    public static final String TENANT_SYSTEM = "system";
     public static final String ROLE_ADMIN = "sysAdmin";
-
     public static final String PERMIT_ADMIN = "*";
-
+    private final AccessProperties accessProperties;
     private final ApplicationProperties applicationProperties;
 
-    private final AccessProperties accessProperties;
-
-    public boolean isIgnore() {
-        return StringUtils.isBlank(Access.getRequestHeader(accessProperties.tokenKey()))
-                && StringUtils.isBlank(Access.getRequestHeader(X_User_Payload));
+    /**
+     * 是否当前集群
+     */
+    public boolean isCurrentCluster() {
+        Integer clusterId = Access.clusterId();
+        return clusterId != null && Objects.equal(clusterId, applicationProperties.getClusterId());
     }
 
+    /**
+     * 是否管理员
+     */
     public boolean isAdmin() {
         List<String> roles = Access.userRoles();
-        if(CollectionUtils.isEmpty(roles)) {
-            return false;
-        }
-        return roles.contains(ROLE_ADMIN);
+        return !roles.isEmpty() && roles.contains(ROLE_ADMIN);
     }
 
+    /**
+     * 是否系统管理员
+     */
+    public boolean isSystemAdmin() {
+        String tenantId = Access.tenantId();
+        List<String> roles = Access.userRoles();
+        return StringUtils.isNotBlank(tenantId) && !roles.isEmpty()
+                && TENANT_SYSTEM.equals(tenantId) && roles.contains(ROLE_ADMIN);
+    }
+
+    /**
+     * 是否系统用户
+     */
+    public boolean isSystemUser() {
+        String tenantId = Access.tenantId();
+        return StringUtils.isNotBlank(tenantId) && TENANT_SYSTEM.equals(tenantId);
+    }
+
+    /**
+     * 是否拥有指定角色
+     */
     public boolean hasRole(String role) {
         if(isIgnore() || isAdmin()) {
             return true;
@@ -67,10 +86,12 @@ public class Permission {
         if(CollectionUtils.isEmpty(roles)) {
             return false;
         }
-
         return roles.contains(role);
     }
 
+    /**
+     * 是否拥有指定权限
+     */
     public boolean hasPermit(String permission) {
         if(isIgnore() || StringUtils.isBlank(permission) || isAdmin()) {
             return true;
@@ -89,6 +110,10 @@ public class Permission {
         return false;
     }
 
+    public boolean isIgnore() {
+        return accessProperties.authPermitEnable() && accessProperties.authEnable();
+    }
+
     private boolean matchPermit(String srcPermit, String destPermit) {
         String[] src = srcPermit.split(":");
         String[] dest = destPermit.split(":");
@@ -105,10 +130,5 @@ public class Permission {
             }
         }
         return true;
-    }
-
-    public boolean isCurrentCluster() {
-        Integer clusterId = Access.clusterId();
-        return clusterId != null && Objects.equal(clusterId, applicationProperties.getClusterId());
     }
 }

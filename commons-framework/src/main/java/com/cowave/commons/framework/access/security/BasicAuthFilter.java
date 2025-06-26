@@ -14,7 +14,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -39,12 +38,12 @@ import java.util.List;
 @Slf4j
 public class BasicAuthFilter extends OncePerRequestFilter {
     private final List<AntPathRequestMatcher> authMatchers = new ArrayList<>();
-    private final UserDetailsService userDetailsService;
-    private final UserDetailsService defaultUserDetailsService;
+    private final TenantUserDetailsService userDetailsService;
+    private final TenantUserDetailsService defaultUserDetailsService;
     private final boolean basicWithConfigUser;
     private final PasswordEncoder passwordEncoder;
 
-    public BasicAuthFilter(UserDetailsService userDetailsService, UserDetailsService defaultUserDetailsService,
+    public BasicAuthFilter(TenantUserDetailsService userDetailsService, TenantUserDetailsService defaultUserDetailsService,
                            boolean basicWithConfigUser, PasswordEncoder passwordEncoder, String[] authUrls){
         this.userDetailsService = userDetailsService;
         this.defaultUserDetailsService = defaultUserDetailsService;
@@ -86,9 +85,9 @@ public class BasicAuthFilter extends OncePerRequestFilter {
         try {
             UserDetails userDetails = null;
             if(basicWithConfigUser){
-                userDetails = defaultUserDetailsService.loadUserByUsername(username);
+                userDetails = defaultUserDetailsService.loadTenantUserByUsername(null, username);
             }else{
-                userDetailsService.loadUserByUsername(username);
+                userDetailsService.loadTenantUserByUsername(null, username);
             }
 
             if (userDetails == null) {

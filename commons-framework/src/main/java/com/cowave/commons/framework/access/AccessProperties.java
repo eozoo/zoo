@@ -59,6 +59,10 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.enable).orElse(false);
     }
 
+    public boolean authPermitEnable(){
+        return Optional.ofNullable(auth).map(auth -> auth.enablePermit).orElse(true);
+    }
+
     public AuthMode authMode(){
         return Optional.ofNullable(auth).map(auth -> auth.mode).orElse(BASIC);
     }
@@ -135,9 +139,14 @@ public class AccessProperties {
     public static class AuthConfig {
 
         /**
-         * 是否开启认证
+         * 是否开启访问鉴权
          */
         private boolean enable = false;
+
+        /**
+         * 是否开启操作鉴权
+         */
+        private boolean enablePermit = true;
 
         /**
          * 默认用户

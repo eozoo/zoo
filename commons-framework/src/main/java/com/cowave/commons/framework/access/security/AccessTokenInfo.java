@@ -35,12 +35,12 @@ public class AccessTokenInfo {
     private String userName;
 
     /**
-     * 会话类型
+     * 令牌类型
      */
     private String accessType;
 
     /**
-     * Access Token id
+     * 令牌id
      */
     private String accessId;
 
@@ -74,7 +74,7 @@ public class AccessTokenInfo {
     public AccessTokenInfo(AccessUserDetails accessUserDetails){
         this.userAccount = accessUserDetails.getUsername();
         this.userName = accessUserDetails.getUserNick();
-        this.accessType = accessUserDetails.getType();
+        this.accessType = accessUserDetails.getAuthType();
         this.accessId = accessUserDetails.getAccessId();
         this.accessIp = accessUserDetails.getAccessIp();
         this.accessTime = accessUserDetails.getAccessTime();

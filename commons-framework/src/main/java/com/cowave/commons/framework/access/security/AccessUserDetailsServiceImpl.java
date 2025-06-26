@@ -11,7 +11,6 @@ package com.cowave.commons.framework.access.security;
 
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -26,7 +25,7 @@ import static com.cowave.commons.framework.access.security.AuthMode.ACCESS_REFRE
  *
  */
 @RequiredArgsConstructor
-public class AccessUserDetailsServiceImpl implements UserDetailsService {
+public class AccessUserDetailsServiceImpl implements TenantUserDetailsService {
 
     private final AuthMode authMode;
 
@@ -39,14 +38,14 @@ public class AccessUserDetailsServiceImpl implements UserDetailsService {
     private final Map<String, AccessUser> userMap;
 
     @Override
-    public AccessUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public AccessUserDetails loadTenantUserByUsername(String tenantId, String username) throws UsernameNotFoundException {
         AccessUser accessUser = userMap.get(username);
         if(accessUser == null){
             throw new UsernameNotFoundException(username + " not exist");
         }
 
         AccessUserDetails accessUserDetails = AccessUserDetails.newUserDetails();
-        accessUserDetails.setType("default");
+        accessUserDetails.setAuthType("default");
         accessUserDetails.setUserId(accessUser.getUserId());
         accessUserDetails.setUserCode(accessUser.getUserCode());
         accessUserDetails.setUserNick(accessUser.getUserNick());

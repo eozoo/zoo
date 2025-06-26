@@ -24,6 +24,7 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -86,6 +87,11 @@ public class AccessAdvice {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public HttpResponse<Response<Void>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         return error(e, BAD_REQUEST.getStatus(), BAD_REQUEST.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.advice.httpRequestMethodNotSupportedException"));
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public HttpResponse<Response<Void>> handleUsernameNotFoundException(UsernameNotFoundException e) {
+        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.username"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

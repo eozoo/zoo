@@ -52,13 +52,15 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     @Override
     public void assignAccessToken(AccessUserDetails userDetails) {
         String accessToken = Jwts.builder()
-                .claim(CLAIM_TYPE, userDetails.getType())
+                .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_ACCESS_IP, Access.accessIp())
                 .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
                 .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
+                .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
                 .claim(CLAIM_USER_ID, userDetails.getUserId())
                 .claim(CLAIM_USER_CODE, userDetails.getUserCode())
                 .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
+                .claim(CLAIM_USER_TYPE, userDetails.getUserType())
                 .claim(CLAIM_USER_NAME, userDetails.getUserNick())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .claim(CLAIM_USER_ROLE, userDetails.getRoles())
@@ -101,7 +103,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     private void assignRefreshToken(AccessUserDetails userDetails) {
         String refreshToken = Jwts.builder()
-                .claim(CLAIM_TYPE, userDetails.getType())
+                .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
@@ -112,7 +114,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         // 服务端保存
         if(redisHelper != null){
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
-            redisHelper.putExpire(getRefreshTokenKey(userDetails.getType(), userDetails.getUsername()),
+            redisHelper.putExpire(getRefreshTokenKey(userDetails.getAuthType(), userDetails.getUsername()),
                     refreshTokenInfo, accessProperties.refreshExpire(), TimeUnit.SECONDS);
         }
     }
@@ -233,9 +235,10 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     private AccessUserDetails doParseAccessToken(Claims claims) {
         AccessUserDetails userDetails = new AccessUserDetails();
-        userDetails.setType((String) claims.get(CLAIM_TYPE));
+        userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
         userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
+        userDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
         // user
         userDetails.setUserId(claims.get(CLAIM_USER_ID));
         userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
@@ -316,7 +319,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         assert redisHelper != null;
         redisHelper.delete(getAccessTokenKey(accessId));
 
-        String refreshKey = getRefreshTokenKey(userDetails.getType(), userAccount);
+        String refreshKey = getRefreshTokenKey(userDetails.getAuthType(), userAccount);
         RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(refreshKey);
         redisHelper.delete(refreshKey);
         return refreshTokenInfo;

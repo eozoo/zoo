@@ -25,9 +25,29 @@ import java.util.Map;
 public class CacheProperties {
 
     /**
-     * 打印过程日志
+     * 是否打印过程日志
      */
     private boolean logEnable;
+
+    /**
+     * 是否启用L2缓存
+     */
+    private boolean l2Enable;
+
+    /**
+     * 是否优先使用L2缓存
+     */
+    private boolean l2First;
+
+    /**
+     * L2访问后过期时间，单位秒
+     */
+    private int l2ExpireAfterAccess;
+
+    /**
+     * L2写入后过期时间，单位秒
+     */
+    private int l2ExpireAfterWrite;
 
     /**
      * L1 本地缓存配置
@@ -35,7 +55,7 @@ public class CacheProperties {
     private L1Properties l1 = new L1Properties();
 
     /**
-     * L2 Redis缓存配置，区分Key
+     * L2缓存Key配置
      */
     private Map<Object, L2Properties> l2 = new HashMap<>();
 
@@ -68,7 +88,7 @@ public class CacheProperties {
         if(l2Properties != null){
             return l2Properties.enable;
         }
-        return true;
+        return l2Enable;
     }
 
     public boolean l2First(Object cacheKey){
@@ -76,7 +96,7 @@ public class CacheProperties {
         if(l2Properties != null){
             return l2Properties.first;
         }
-        return false;
+        return l2First;
     }
 
     public int l2ExpireAfterAccess(String cacheKey){
@@ -84,7 +104,7 @@ public class CacheProperties {
         if(l2Properties != null){
             return l2Properties.expireAfterAccess;
         }
-        return 60;
+        return l2ExpireAfterAccess;
     }
 
     public int l2ExpireAfterWrite(String cacheKey){
@@ -92,7 +112,7 @@ public class CacheProperties {
         if(l2Properties != null){
             return l2Properties.expireAfterWrite;
         }
-        return 60;
+        return l2ExpireAfterWrite;
     }
 
     @Data
@@ -101,7 +121,7 @@ public class CacheProperties {
         /**
          * 启用一级缓存
          */
-        private boolean enable = true;
+        private boolean enable;
 
         /**
          * 访问后过期时间，单位秒
@@ -136,21 +156,21 @@ public class CacheProperties {
         /**
          * 启用二级缓存
          */
-        private boolean enable = true;
+        private boolean enable;
 
         /**
          * 优先二级缓存
          */
-        private boolean first = false;
+        private boolean first;
 
         /**
          * 访问后过期时间，单位秒
          */
-        private int expireAfterAccess = 60;
+        private int expireAfterAccess;
 
         /**
          * 写入后过期时间，单位秒
          */
-        private int expireAfterWrite = 60;
+        private int expireAfterWrite;
     }
 }

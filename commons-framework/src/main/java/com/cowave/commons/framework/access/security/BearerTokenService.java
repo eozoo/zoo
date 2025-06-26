@@ -18,23 +18,105 @@ import java.util.List;
  * @author shanhuiming
  */
 public interface BearerTokenService {
+
+    /**
+     * 令牌类型
+     */
     String CLAIM_TYPE = "Token.type";
+
+    /**
+     * 访问时间
+     */
     String CLAIM_ACCESS_IP = "Token.ip";
+
+    /**
+     * Access令牌
+     */
     String CLAIM_ACCESS_ID = "Token.access";
+
+    /**
+     * Refresh令牌
+     */
     String CLAIM_REFRESH_ID = "Token.refresh";
+
+    /**
+     * 同一账号是否允许多客户端登录
+     */
     String CLAIM_CONFLICT = "Token.conflict";
+
+    /**
+     * 租户id
+     */
+    String CLAIM_TENANT_ID = "Tenant.id";
+
+    /**
+     * 用户id
+     */
     String CLAIM_USER_ID = "User.id";
+
+    /**
+     * 用户编号
+     */
     String CLAIM_USER_CODE = "User.code";
+
+    /**
+     * 用户属性
+     */
     String CLAIM_USER_PROPERTIES = "User.properties";
+
+    /**
+     * 用户类型
+     */
+    String CLAIM_USER_TYPE = "User.type";
+
+    /**
+     * 用户名称
+     */
     String CLAIM_USER_NAME = "User.name";
+
+    /**
+     * 用户账号
+     */
     String CLAIM_USER_ACCOUNT = "User.account";
+
+    /**
+     * 用户账号
+     */
     String CLAIM_USER_ROLE = "User.role";
+
+    /**
+     * 用户权限
+     */
     String CLAIM_USER_PERM = "User.permission";
+
+    /**
+     * 部门id
+     */
     String CLAIM_DEPT_ID = "Dept.id";
+
+    /**
+     * 部门编号
+     */
     String CLAIM_DEPT_CODE = "Dept.code";
+
+    /**
+     * 部门名称
+     */
     String CLAIM_DEPT_NAME = "Dept.name";
+
+    /**
+     * 集群id
+     */
     String CLAIM_CLUSTER_ID = "Cluster.id";
+
+    /**
+     * 集群级别
+     */
     String CLAIM_CLUSTER_LEVEL = "Cluster.level";
+
+    /**
+     * 集群名称
+     */
     String CLAIM_CLUSTER_NAME = "Cluster.name";
 
     /**

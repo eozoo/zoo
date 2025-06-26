@@ -39,7 +39,12 @@ public class RefreshTokenInfo {
     /**
      * 类型
      */
-    private String type;
+    private String authType;
+
+    /**
+     * 租户id
+     */
+    private String tenantId;
 
     /**
      * 用户id
@@ -131,7 +136,8 @@ public class RefreshTokenInfo {
     public RefreshTokenInfo(AccessUserDetails accessUserDetails){
         this.accessId = accessUserDetails.getAccessId();
         this.refreshId = accessUserDetails.getRefreshId();
-        this.type = accessUserDetails.getType();
+        this.authType = accessUserDetails.getAuthType();
+        this.tenantId = accessUserDetails.getTenantId();
         this.userId = accessUserDetails.getUserId();
         this.userCode = accessUserDetails.getUserCode();
         this.userAccount = accessUserDetails.getUsername();

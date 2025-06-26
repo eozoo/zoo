@@ -90,12 +90,13 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
 
     @Override
     protected Object lookup(Object key) {
+        // 不缓存
         if(!cacheProperties.l1Enable() && !cacheProperties.l2Enable(cacheName)){
-            return null; // 不缓存
+            return null;
         }
 
+        // 启用L1和L2缓存
         if (cacheProperties.l1Enable() && cacheProperties.l2Enable(cacheName)) {
-            // 启用L1和L2缓存
             if (cacheProperties.l2First(cacheName)) {
                 // L2优先
                 return l2FirstLookup(key);
@@ -118,7 +119,8 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         if (value != null) {
             return value;
         }
-        // L1获取
+
+        // L2获取失败，L1获取
         value = localGet(key);
         // L1同步到L2
         if (value != null) {
@@ -133,7 +135,8 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         if (value != null) {
             return value;
         }
-        // L2获取
+
+        // L1获取失败，L2获取
         value = redisGet(key);
         // L2同步到L1
         if (value != null) {
@@ -162,8 +165,10 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
         Object value = null;
         try{
             value = redisHelper.getValue(redisKey);
-            if(value != null){
-                redisHelper.expire(redisKey, cacheProperties.l2ExpireAfterAccess(cacheName), TimeUnit.SECONDS);
+            int expireAfterAccess = cacheProperties.l2ExpireAfterAccess(cacheName);
+            // 重置缓存时间
+            if(value != null && expireAfterAccess > 0){
+                redisHelper.expire(redisKey, expireAfterAccess, TimeUnit.SECONDS);
             }
             if(cacheProperties.isLogEnable()){
                 log.info("L2-cache get, key={}, value={}", redisKey, value);
@@ -176,10 +181,10 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
 
     private void redisPut(Object key, Object value){
         String redisKey = redisKey(key);
-        int expire = cacheProperties.l2ExpireAfterWrite(cacheName);
+        int expireAfterWrite = cacheProperties.l2ExpireAfterWrite(cacheName);
         try{
-            if (expire > 0) {
-                redisHelper.putExpire(redisKey, toStoreValue(value), expire, TimeUnit.SECONDS);
+            if (expireAfterWrite > 0) {
+                redisHelper.putExpire(redisKey, toStoreValue(value), expireAfterWrite, TimeUnit.SECONDS);
             } else {
                 redisHelper.putValue(redisKey, toStoreValue(value));
             }
@@ -192,7 +197,7 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     }
 
     private String redisKey(Object key) {
-        return applicationProperties.getName() + ":cache:" + cacheName + ":" + key.toString();
+        return cacheName + ":" + key.toString();
     }
 
     @Override

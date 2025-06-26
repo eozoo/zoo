@@ -55,9 +55,9 @@ public class AccessUserDetails implements UserDetails {
     private String refreshToken;
 
     /**
-     * type
+     * 授权类型
      */
-    private String type;
+    private String authType;
 
     /**
      * 是否校验客户端冲突
@@ -87,6 +87,11 @@ public class AccessUserDetails implements UserDetails {
     private Date accessTime;
 
     /**
+     * 租户id
+     */
+    private String tenantId;
+
+    /**
      * 用户id
      */
     private Object userId;
@@ -100,6 +105,11 @@ public class AccessUserDetails implements UserDetails {
      * 用户属性
      */
     private Map<String, Object> userProperties;
+
+    /**
+     * 用户类型
+     */
+    private String userType;
 
     /**
      * 用户账号
@@ -226,7 +236,8 @@ public class AccessUserDetails implements UserDetails {
     AccessUserDetails(RefreshTokenInfo refreshTokenInfo){
         this.accessId = refreshTokenInfo.getAccessId();
         this.refreshId = refreshTokenInfo.getRefreshId();
-        this.type = refreshTokenInfo.getType();
+        this.authType = refreshTokenInfo.getAuthType();
+        this.tenantId = refreshTokenInfo.getTenantId();
         this.userId = refreshTokenInfo.getUserId();
         this.userCode = refreshTokenInfo.getUserCode();
         this.username = refreshTokenInfo.getUserAccount();

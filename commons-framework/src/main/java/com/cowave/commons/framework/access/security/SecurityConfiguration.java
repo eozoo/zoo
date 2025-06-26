@@ -24,13 +24,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -69,9 +67,9 @@ public class SecurityConfiguration {
         return new BearerTokenServiceImpl(applicationProperties, accessProperties, accessIdGenerator, objectMapper, redisHelper);
     }
 
-    @ConditionalOnMissingBean(UserDetailsService.class)
+    @ConditionalOnMissingBean(TenantUserDetailsService.class)
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder, @Nullable BearerTokenService bearerTokenService) {
+    public TenantUserDetailsService tenantUserDetailsService(PasswordEncoder passwordEncoder, @Nullable BearerTokenService bearerTokenService) {
         List<AccessUser> userList = accessProperties.accessUsers();
         return new AccessUserDetailsServiceImpl(accessProperties.authMode(), applicationProperties,
                 passwordEncoder, bearerTokenService, Collections.copyToMap(userList, AccessUser::getUsername));
@@ -79,11 +77,8 @@ public class SecurityConfiguration {
 
     @ConditionalOnMissingBean(AuthenticationManager.class)
     @Bean
-    public AuthenticationManager authenticationManagerBean(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setPasswordEncoder(passwordEncoder);
-		authenticationProvider.setUserDetailsService(userDetailsService);
-		return new ProviderManager(authenticationProvider);
+    public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder, TenantUserDetailsService userDetailsService) {
+		return new ProviderManager(new TenantAuthenticationProvider(userDetailsService, passwordEncoder));
 	}
 
     /**
@@ -126,7 +121,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain accessBearerSecurityFilterChain(
             HttpSecurity httpSecurity, @Nullable BearerTokenService bearerTokenService,
-            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
+            TenantUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
         return newBearerSecurityFilterChain(httpSecurity, bearerTokenService, userDetailsService, passwordEncoder, false);
     }
 
@@ -138,12 +133,12 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain refreshBearerSecurityFilterChain(
             HttpSecurity httpSecurity, @Nullable BearerTokenService bearerTokenService,
-            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
+            TenantUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
         return newBearerSecurityFilterChain(httpSecurity, bearerTokenService, userDetailsService, passwordEncoder, true);
     }
 
     private SecurityFilterChain newBearerSecurityFilterChain(HttpSecurity httpSecurity, BearerTokenService bearerTokenService,
-            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, boolean useRefreshToken) throws Exception {
+            TenantUserDetailsService userDetailsService, PasswordEncoder passwordEncoder, boolean useRefreshToken) throws Exception {
         if (ArrayUtils.isNotEmpty(accessProperties.authUrls())) {
             httpSecurity.requestMatchers(requestMatchers ->
                     requestMatchers.antMatchers(accessProperties.authUrls())
@@ -175,7 +170,7 @@ public class SecurityConfiguration {
 
             // Basic认证
             if (ArrayUtils.isNotEmpty(basicUrls)) {
-                UserDetailsService defaultUserDetailsService = userDetailsService(passwordEncoder, bearerTokenService);
+                TenantUserDetailsService defaultUserDetailsService = tenantUserDetailsService(passwordEncoder, bearerTokenService);
                 BasicAuthFilter basicAuthFilter = new BasicAuthFilter(
                         userDetailsService, defaultUserDetailsService, basicWithConfigUser, passwordEncoder, basicUrls);
                 httpSecurity.addFilterBefore(basicAuthFilter, BearerTokenFilter.class);
