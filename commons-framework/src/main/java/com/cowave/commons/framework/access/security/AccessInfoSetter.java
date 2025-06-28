@@ -10,6 +10,7 @@
 package com.cowave.commons.framework.access.security;
 
 import com.cowave.commons.framework.access.Access;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -20,29 +21,25 @@ public interface AccessInfoSetter {
 
     default void setAccessInfo() {
         AccessInfo accessInfo = Access.accessInfo();
+        String tenantId = this.getTenantId();
+        if(StringUtils.isBlank(tenantId)){
+            this.setTenantId(accessInfo.getAccessTenantId());
+        }
         this.setCreateBy(accessInfo.getAccessUserCode());
-        this.setCreateUser(accessInfo.getAccessUserId());
-        this.setCreateDept(accessInfo.getAccessDeptId());
-        this.setCreateTime(accessInfo.getAccessTime());
         this.setUpdateBy(accessInfo.getAccessUserCode());
-        this.setUpdateUser(accessInfo.getAccessUserId());
-        this.setUpdateDept(accessInfo.getAccessDeptId());
+        this.setCreateTime(accessInfo.getAccessTime());
         this.setUpdateTime(accessInfo.getAccessTime());
     }
 
+    default String getTenantId(){
+        return null;
+    }
+
+    default void setTenantId(String tenantId){
+
+    }
+
     default void setCreateBy(String userCode){
-
-    }
-
-    default void setCreateUser(Integer userId){
-
-    }
-
-    default void setCreateDept(Integer deptId){
-
-    }
-
-    default void setCreateTime(Date createTime){
 
     }
 
@@ -50,11 +47,7 @@ public interface AccessInfoSetter {
 
     }
 
-    default void setUpdateUser(Integer userId){
-
-    }
-
-    default void setUpdateDept(Integer deptId){
+    default void setCreateTime(Date createTime){
 
     }
 

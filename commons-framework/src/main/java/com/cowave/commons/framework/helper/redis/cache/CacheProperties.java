@@ -25,9 +25,9 @@ import java.util.Map;
 public class CacheProperties {
 
     /**
-     * 是否打印过程日志
+     * 是否启用L1缓存
      */
-    private boolean logEnable;
+    private boolean l1Enable;
 
     /**
      * 是否启用L2缓存
@@ -60,7 +60,7 @@ public class CacheProperties {
     private Map<Object, L2Properties> l2 = new HashMap<>();
 
     public boolean l1Enable(){
-        return l1.enable;
+        return l1Enable;
     }
 
     public long l1ExpireAfterAccess(){
@@ -117,11 +117,6 @@ public class CacheProperties {
 
     @Data
     public static class L1Properties {
-
-        /**
-         * 启用一级缓存
-         */
-        private boolean enable;
 
         /**
          * 访问后过期时间，单位秒

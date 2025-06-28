@@ -9,11 +9,7 @@
  */
 package com.cowave.commons.framework.helper.redis.cache;
 
-import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.helper.redis.RedisHelper;
-import com.cowave.commons.framework.helper.redis.StringRedisHelper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -30,24 +26,18 @@ import javax.annotation.Nullable;
  */
 @EnableCaching
 @RequiredArgsConstructor
-@ConditionalOnClass(name = {"com.github.benmanes.caffeine.cache.Cache", "org.springframework.data.redis.core.RedisTemplate"})
 @Configuration
 @EnableConfigurationProperties(CacheProperties.class)
 public class RedisCaffeineCacheConfiguration {
-
     private final CacheProperties cacheProperties;
-
-    private final ApplicationProperties applicationProperties;
-
     @Nullable
-    private final RedisHelper redisHelper;
-
+    private final CaffeineCache caffeineCache;
     @Nullable
-    private final StringRedisHelper stringRedisHelper;
+    private final RedisCache redisCache;
 
     @ConditionalOnMissingBean(CacheManager.class)
     @Bean
     public RedisCaffeineCacheManager cacheManager() {
-        return new RedisCaffeineCacheManager(cacheProperties, applicationProperties, redisHelper, stringRedisHelper);
+        return new RedisCaffeineCacheManager(cacheProperties, caffeineCache, redisCache);
     }
 }

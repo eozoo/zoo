@@ -9,17 +9,12 @@
  */
 package com.cowave.commons.framework.helper.redis.cache;
 
-import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.helper.redis.RedisHelper;
-import com.cowave.commons.framework.helper.redis.StringRedisHelper;
-import com.github.benmanes.caffeine.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -32,21 +27,16 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     private final Map<String, ReentrantLock> locks = new ConcurrentHashMap<>();
     private final String cacheName;
     private final CacheProperties cacheProperties;
-    private final ApplicationProperties applicationProperties;
-    private final Cache<Object, Object> local;
-    private final RedisHelper redisHelper;
-    private final StringRedisHelper stringRedisHelper;
+    private final CaffeineCache caffeineCache;
+    private final RedisCache redisCache;
 
     protected RedisCaffeineCache(String cacheName, CacheProperties cacheProperties,
-                                 ApplicationProperties applicationProperties, Cache<Object, Object> local,
-                                 RedisHelper redisHelper, StringRedisHelper stringRedisHelper) {
+                                 CaffeineCache caffeineCache, RedisCache redisCache) {
         super(true);
         this.cacheName = cacheName;
         this.cacheProperties = cacheProperties;
-        this.applicationProperties = applicationProperties;
-        this.local = local;
-        this.redisHelper = redisHelper;
-        this.stringRedisHelper = stringRedisHelper;
+        this.caffeineCache = caffeineCache;
+        this.redisCache = redisCache;
     }
 
     @Override
@@ -146,58 +136,29 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
     }
 
     private Object localGet(Object key){
-        Object value = local.getIfPresent(key);
-        if(cacheProperties.isLogEnable()){
-            log.info("L1-cache get, key={}, value={}", key, value);
+        if(caffeineCache != null){
+            return caffeineCache.get(key);
         }
-        return value;
+        return null;
     }
 
     private void localPut(Object key, Object value){
-        local.put(key, toStoreValue(value));
-        if(cacheProperties.isLogEnable()){
-            log.info("L1-cache put, key={}, value={}", key, value);
+        if(caffeineCache != null){
+            caffeineCache.put(key, toStoreValue(value));
         }
     }
 
     private Object redisGet(Object key){
-        String redisKey = redisKey(key);
-        Object value = null;
-        try{
-            value = redisHelper.getValue(redisKey);
-            int expireAfterAccess = cacheProperties.l2ExpireAfterAccess(cacheName);
-            // 重置缓存时间
-            if(value != null && expireAfterAccess > 0){
-                redisHelper.expire(redisKey, expireAfterAccess, TimeUnit.SECONDS);
-            }
-            if(cacheProperties.isLogEnable()){
-                log.info("L2-cache get, key={}, value={}", redisKey, value);
-            }
-        }catch (Exception e){
-            log.error("L2-cache get failed, key={}", redisKey, e);
+        if(redisCache != null){
+            return redisCache.get(cacheName, key);
         }
-        return value;
+        return null;
     }
 
     private void redisPut(Object key, Object value){
-        String redisKey = redisKey(key);
-        int expireAfterWrite = cacheProperties.l2ExpireAfterWrite(cacheName);
-        try{
-            if (expireAfterWrite > 0) {
-                redisHelper.putExpire(redisKey, toStoreValue(value), expireAfterWrite, TimeUnit.SECONDS);
-            } else {
-                redisHelper.putValue(redisKey, toStoreValue(value));
-            }
-            if(cacheProperties.isLogEnable()){
-                log.info("L2-cache put, key={}, value={}", redisKey, value);
-            }
-        }catch(Exception e){
-            log.error("L2-cache put failed, key={}", redisKey, e);
+        if(redisCache != null){
+            redisCache.put(cacheName, key, toStoreValue(value));
         }
-    }
-
-    private String redisKey(Object key) {
-        return cacheName + ":" + key.toString();
     }
 
     @Override
@@ -215,15 +176,21 @@ public class RedisCaffeineCache extends AbstractValueAdaptingCache {
 
     @Override
     public void evict(Object key) {
-        if(cacheProperties.l2Enable(cacheName)){
-            redisHelper.delete(redisKey(key));
+        if(cacheProperties.l2Enable(cacheName) && redisCache != null){
+            redisCache.evict(cacheName, key);
         }
-        local.invalidate(key);
+        if(cacheProperties.l1Enable() && caffeineCache != null){
+            caffeineCache.evict(key);
+        }
     }
 
     @Override
     public void clear() {
-        stringRedisHelper.luaClean(this.cacheName.concat(":*"));
-        local.invalidateAll();
+        if(cacheProperties.l2Enable(cacheName) && redisCache != null){
+            redisCache.clear(cacheName);
+        }
+        if(cacheProperties.l1Enable() && caffeineCache != null){
+            caffeineCache.clear();
+        }
     }
 }

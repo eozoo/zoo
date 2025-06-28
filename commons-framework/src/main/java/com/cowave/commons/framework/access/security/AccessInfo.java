@@ -24,6 +24,11 @@ import lombok.NoArgsConstructor;
 public class AccessInfo {
 
     /**
+     * 租户id
+     */
+    private String accessTenantId;
+
+    /**
      * 用户id
      */
     private Object accessUserId;
@@ -81,6 +86,7 @@ public class AccessInfo {
 
     public AccessInfo(AccessUserDetails userDetails){
         if(userDetails != null){
+            this.accessTenantId = userDetails.getTenantId();
             this.accessUserId = userDetails.getUserId();
             this.accessUserCode = userDetails.getUserCode();
             this.accessUserAccount = userDetails.getUsername();

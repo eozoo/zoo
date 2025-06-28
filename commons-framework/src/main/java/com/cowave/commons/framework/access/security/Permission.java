@@ -24,6 +24,8 @@ import com.google.common.base.Objects;
 
 import lombok.RequiredArgsConstructor;
 
+import static com.cowave.commons.client.http.constants.HttpHeader.X_User_Payload;
+
 /**
  *
  * @author shanhuiming
@@ -111,7 +113,7 @@ public class Permission {
     }
 
     public boolean isIgnore() {
-        return accessProperties.authPermitEnable() && accessProperties.authEnable();
+        return !accessProperties.authEnable() && StringUtils.isBlank(Access.getRequestHeader(X_User_Payload));
     }
 
     private boolean matchPermit(String srcPermit, String destPermit) {

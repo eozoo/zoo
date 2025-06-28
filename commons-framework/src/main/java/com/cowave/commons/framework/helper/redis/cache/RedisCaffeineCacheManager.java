@@ -9,10 +9,6 @@
  */
 package com.cowave.commons.framework.helper.redis.cache;
 
-import com.cowave.commons.framework.configuration.ApplicationProperties;
-import com.cowave.commons.framework.helper.redis.RedisHelper;
-import com.cowave.commons.framework.helper.redis.StringRedisHelper;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -20,7 +16,6 @@ import org.springframework.cache.CacheManager;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -29,16 +24,10 @@ import java.util.concurrent.TimeUnit;
  */
 @RequiredArgsConstructor
 public class RedisCaffeineCacheManager implements CacheManager {
-
     private final ConcurrentMap<String, Cache> caches = new ConcurrentHashMap<>();
-
     private final CacheProperties cacheProperties;
-
-    private final ApplicationProperties applicationProperties;
-
-    private final RedisHelper redisHelper;
-
-    private final StringRedisHelper stringRedisHelper;
+    private final CaffeineCache caffeineCache;
+    private final RedisCache redisCache;
 
     @Override
     public Collection<String> getCacheNames() {
@@ -52,27 +41,6 @@ public class RedisCaffeineCacheManager implements CacheManager {
             return cache;
         }
         return caches.computeIfAbsent(cacheName,
-                k -> new RedisCaffeineCache(cacheName, cacheProperties,
-                        applicationProperties, caffeine(), redisHelper, stringRedisHelper));
-    }
-
-    private com.github.benmanes.caffeine.cache.Cache<Object, Object> caffeine(){
-        Caffeine<Object, Object> caffeineBuilder = Caffeine.newBuilder();
-        if(cacheProperties.l1ExpireAfterAccess() > 0){
-            caffeineBuilder.expireAfterAccess(cacheProperties.l1ExpireAfterAccess(), TimeUnit.SECONDS);
-        }
-        if(cacheProperties.l1ExpireAfterWrite() > 0){
-            caffeineBuilder.expireAfterWrite(cacheProperties.l1ExpireAfterWrite(), TimeUnit.SECONDS);
-        }
-        if(cacheProperties.l1InitialCapacity() > 0){
-            caffeineBuilder.initialCapacity(cacheProperties.l1InitialCapacity());
-        }
-        if(cacheProperties.l1MaximumSize() > 0){
-            caffeineBuilder.maximumSize(cacheProperties.l1MaximumSize());
-        }
-        if(cacheProperties.l1RefreshAfterWrite() > 0){
-            caffeineBuilder.refreshAfterWrite(cacheProperties.l1RefreshAfterWrite(), TimeUnit.SECONDS);
-        }
-        return caffeineBuilder.build();
+                k -> new RedisCaffeineCache(cacheName, cacheProperties, caffeineCache, redisCache));
     }
 }
