@@ -49,12 +49,12 @@ public class MinioHelper {
     /**
      * 创建存储桶
      *
-     * @param bucket   存储桶名称
-     * @param isPublic 是否公开的
+     * @param bucket    存储桶名称
+     * @param isPrivate 是否私有的
      */
-    public void makeBucket(String bucket, boolean isPublic) throws Exception{
+    public void makeBucket(String bucket, boolean isPrivate) throws Exception{
         minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
-        if(isPublic){
+        if(!isPrivate){
             minioClient.setBucketPolicy(SetBucketPolicyArgs.builder().bucket(bucket)
                     .config(String.format(POLICY_PUBLIC, bucket, bucket)).build());
         }
@@ -103,13 +103,13 @@ public class MinioHelper {
      * 上传
      *
      * @param multipartFile 文件
-     * @param bucket   存储桶
-     * @param path     路径
-     * @param isPublic 是否公开的
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param isPrivate     是否私有的
      */
-    public void upload(MultipartFile multipartFile, String bucket, String path, boolean isPublic) throws Exception{
+    public void upload(MultipartFile multipartFile, String bucket, String path, boolean isPrivate) throws Exception{
         if(!existBucket(bucket)) {
-            makeBucket(bucket, isPublic);
+            makeBucket(bucket, isPrivate);
         }
         PutObjectArgs objectArgs = PutObjectArgs.builder().bucket(bucket).object(path)
                 .stream(multipartFile.getInputStream(), multipartFile.getSize(), -1)
@@ -121,13 +121,13 @@ public class MinioHelper {
      * 上传
      *
      * @param inputStream 输入流
-     * @param bucket   存储桶
-     * @param path     路径
-     * @param isPublic 是否公开的
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param isPrivate   是否私有的
      */
-    public void upload(InputStream inputStream, String bucket, String path, boolean isPublic) throws Exception {
+    public void upload(InputStream inputStream, String bucket, String path, boolean isPrivate) throws Exception {
         if (!existBucket(bucket)) {
-            makeBucket(bucket, isPublic);
+            makeBucket(bucket, isPrivate);
         }
         minioClient.putObject(PutObjectArgs.builder().bucket(bucket).object(path)
                 .stream(inputStream, inputStream.available(), -1).build());

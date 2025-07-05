@@ -33,6 +33,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHit;
@@ -150,6 +151,17 @@ public class EsHelper {
         deleteRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         try {
             restHighLevelClient.delete(deleteRequest, RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            log.error("ES delete failed, index={}", index, e);
+            throw new HttpHintException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void deleteByQuery(String index, QueryBuilder queryBuilder) {
+        DeleteByQueryRequest request = new DeleteByQueryRequest(index);
+		request.setQuery(queryBuilder);
+        try {
+            restHighLevelClient.deleteByQuery(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
             log.error("ES delete failed, index={}", index, e);
             throw new HttpHintException(INTERNAL_SERVER_ERROR);

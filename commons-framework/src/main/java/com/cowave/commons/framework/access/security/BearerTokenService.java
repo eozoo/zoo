@@ -152,7 +152,7 @@ public interface BearerTokenService {
     /**
      * 注销AccessToken
      */
-    AccessTokenInfo revokeAccessToken(String accessId);
+    AccessTokenInfo revokeAccessToken(String tenantId, String accessId);
 
     /**
      * 注销AccessToken和RefreshToken
@@ -167,5 +167,5 @@ public interface BearerTokenService {
     /**
      * 保存的AccessToken信息
      */
-    List<AccessTokenInfo> listAccessToken(String userAccount, Date beginTime, Date endTime);
+    List<AccessTokenInfo> listAccessToken(String tenantId, String userAccount, Date beginTime, Date endTime);
 }

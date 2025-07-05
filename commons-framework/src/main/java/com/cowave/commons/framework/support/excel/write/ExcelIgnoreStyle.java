@@ -7,24 +7,20 @@
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.commons.framework.access.security;
+package com.cowave.commons.framework.support.excel.write;
 
-import lombok.Getter;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import com.alibaba.excel.write.handler.context.CellWriteHandlerContext;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 
 /**
+ *
  * @author shanhuiming
+ *
  */
-@Getter
-public class TenantUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
+public class ExcelIgnoreStyle extends HorizontalCellStyleStrategy {
 
-    /**
-     * 租户id
-     */
-    private final String tenantId;
-
-    public TenantUsernamePasswordAuthenticationToken(String tenantId, Object principal, Object credentials) {
-        super(principal, credentials);
-        this.tenantId = tenantId;
+    @Override
+    protected void setHeadCellStyle(CellWriteHandlerContext context) {
+        context.setIgnoreFillStyle(true);
     }
 }

@@ -41,8 +41,8 @@ import static com.cowave.commons.client.http.constants.HttpCode.*;
  */
 @RequiredArgsConstructor
 public class BearerTokenServiceImpl implements BearerTokenService {
-    public static final String AUTH_ACCESS_KEY = "%s:auth:access:%s";
-    public static final String AUTH_REFRESH_KEY = "%s:auth:refresh:%s:%s";
+    public static final String AUTH_ACCESS_KEY = "%s:auth:%s:access:%s";
+    public static final String AUTH_REFRESH_KEY = "%s:auth:%s:refresh:%s:%s";
     private final ApplicationProperties applicationProperties;
     private final AccessProperties accessProperties;
     private final AccessIdGenerator accessIdGenerator;
@@ -88,9 +88,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             Access.setCookie(accessProperties.tokenKey(), accessToken, "/", accessProperties.accessExpire());
         }
         // 服务端保存
-        if(redisHelper != null){
+        if(accessProperties.accessStore() && redisHelper != null){
             AccessTokenInfo accessTokenInfo = new AccessTokenInfo(userDetails);
-            redisHelper.putExpire(getAccessTokenKey(userDetails.getAccessId()),
+            redisHelper.putExpire(getAccessTokenKey(userDetails.getTenantId(), userDetails.getAccessId()),
                     accessTokenInfo, accessProperties.accessExpire(), TimeUnit.SECONDS);
         }
     }
@@ -106,6 +106,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
+                .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
                 .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
@@ -114,7 +115,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         // 服务端保存
         if(redisHelper != null){
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
-            redisHelper.putExpire(getRefreshTokenKey(userDetails.getAuthType(), userDetails.getUsername()),
+            redisHelper.putExpire(getRefreshTokenKey(userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername()),
                     refreshTokenInfo, accessProperties.refreshExpire(), TimeUnit.SECONDS);
         }
     }
@@ -123,12 +124,13 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     public String refreshAccessToken() throws Exception {
         AccessUserDetails userDetails = parseAccessToken(null);
         if(redisHelper != null){
-            AccessTokenInfo accessTokenInfo = redisHelper.getValue(getAccessTokenKey(userDetails.getAccessId()));
+            AccessTokenInfo accessTokenInfo =
+                    redisHelper.getValue(getAccessTokenKey(userDetails.getTenantId(), userDetails.getAccessId()));
             if(accessTokenInfo != null){
                 userDetails.setLoginIp(accessTokenInfo.getLoginIp());
                 userDetails.setLoginTime(accessTokenInfo.getLoginTime());
                 userDetails.setClusterName(accessTokenInfo.getAccessCluster());
-                redisHelper.delete(getAccessTokenKey(userDetails.getAccessId()));
+                redisHelper.delete(getAccessTokenKey(userDetails.getTenantId(), userDetails.getAccessId()));
             }
         }
         userDetails.setAccessId(IdUtil.fastSimpleUUID());
@@ -149,13 +151,14 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.invalid}");
         }
 
+        String tenantId = (String) claims.get(CLAIM_TENANT_ID);
+        String type = (String) claims.get(CLAIM_TYPE);
         String userAccount = (String) claims.get(CLAIM_USER_ACCOUNT);
         String refreshId = (String) claims.get(CLAIM_REFRESH_ID);
-        String type = (String) claims.get(CLAIM_TYPE);
         assert redisHelper != null;
 
         // 获取服务保存的Token
-        RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(getRefreshTokenKey(type, userAccount));
+        RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(getRefreshTokenKey(tenantId, type, userAccount));
         if (refreshTokenInfo == null) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.notexist}");
         }
@@ -168,8 +171,8 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
         //当前accessToken失效
         String accessId = refreshTokenInfo.getAccessId();
-        if ("Y".equals(tokenConflict)) {
-            redisHelper.delete(getAccessTokenKey(accessId));
+        if ("Y".equals(tokenConflict) && accessProperties.accessStore()) {
+            redisHelper.delete(getAccessTokenKey(tenantId, accessId));
         }
 
         // 更新Token信息
@@ -230,15 +233,18 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
             return null;
         }
-        return doParseAccessToken(claims);
+        return doParseAccessToken(claims, response);
     }
 
-    private AccessUserDetails doParseAccessToken(Claims claims) {
+    private AccessUserDetails doParseAccessToken(Claims claims, HttpServletResponse response) throws IOException {
+        String accessId = (String) claims.get(CLAIM_ACCESS_ID);
+        String tenantId = (String) claims.get(CLAIM_TENANT_ID);
+
         AccessUserDetails userDetails = new AccessUserDetails();
         userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
-        userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
+        userDetails.setAccessId(accessId);
         userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        userDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
+        userDetails.setTenantId(tenantId);
         // user
         userDetails.setUserId(claims.get(CLAIM_USER_ID));
         userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
@@ -257,6 +263,14 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         userDetails.setRoles((List<String>) claims.get(CLAIM_USER_ROLE));
         // permits
         userDetails.setPermissions((List<String>) claims.get(CLAIM_USER_PERM));
+        // 服务端校验
+        if(accessProperties.accessCheck() && redisHelper != null
+                && !redisHelper.existKey(getAccessTokenKey(tenantId, accessId))){
+            if (response == null) {
+                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.denied}");
+            }
+            writeResponse(response, UNAUTHORIZED, "frame.auth.denied");
+        }
         // 保存到上下文中
         Access access = Access.get();
         if (access == null) {
@@ -296,12 +310,12 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             writeResponse(response, INVALID_TOKEN, "frame.auth.ipchanged");
             return null;
         }
-        return doParseAccessToken(claims);
+        return doParseAccessToken(claims, response);
     }
 
     @Override
-    public AccessTokenInfo revokeAccessToken(String accessId) {
-        String accesskey = getAccessTokenKey(accessId);
+    public AccessTokenInfo revokeAccessToken(String tenantId, String accessId) {
+        String accesskey = getAccessTokenKey(tenantId, accessId);
         AccessTokenInfo accessTokenInfo = redisHelper.getValue(accesskey);
         redisHelper.delete(accesskey);
         return accessTokenInfo;
@@ -314,21 +328,25 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             return null;
         }
 
+        String tenantId = userDetails.getTenantId();
         String accessId = userDetails.getAccessId();
         String userAccount = userDetails.getUsername();
         assert redisHelper != null;
-        redisHelper.delete(getAccessTokenKey(accessId));
+        redisHelper.delete(getAccessTokenKey(tenantId, accessId));
 
-        String refreshKey = getRefreshTokenKey(userDetails.getAuthType(), userAccount);
+        String refreshKey = getRefreshTokenKey(tenantId, userDetails.getAuthType(), userAccount);
         RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(refreshKey);
         redisHelper.delete(refreshKey);
         return refreshTokenInfo;
     }
 
     @Override
-    public List<AccessTokenInfo> listAccessToken(String userAccount, Date beginTime, Date endTime) {
+    public List<AccessTokenInfo> listAccessToken(String tenantId, String userAccount, Date beginTime, Date endTime) {
+        if(StringUtils.isBlank(tenantId)){
+            tenantId = "default";
+        }
         List<AccessTokenInfo> list = new ArrayList<>();
-        for (String key : redisHelper.keys(applicationProperties.getName() + ":auth:access:*")) {
+        for (String key : redisHelper.keys(applicationProperties.getName() + ":auth:" + tenantId + ":access:*")) {
             AccessTokenInfo accessTokenInfo = redisHelper.getValue(key);
             if (accessTokenInfo != null) {
                 if ((userAccount != null && !accessTokenInfo.getUserAccount().contains(userAccount))
@@ -342,12 +360,18 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         return list;
     }
 
-    private String getAccessTokenKey(String accessId) {
-        return AUTH_ACCESS_KEY.formatted(applicationProperties.getName(), accessId);
+    private String getAccessTokenKey(String tenantId, String accessId) {
+        if(StringUtils.isBlank(tenantId)){
+            tenantId = "default";
+        }
+        return AUTH_ACCESS_KEY.formatted(applicationProperties.getName(), tenantId, accessId);
     }
 
-    private String getRefreshTokenKey(String type, String userAccount) {
-        return AUTH_REFRESH_KEY.formatted(applicationProperties.getName(), type, userAccount);
+    private String getRefreshTokenKey(String tenantId, String type, String userAccount) {
+        if(StringUtils.isBlank(tenantId)){
+            tenantId = "default";
+        }
+        return AUTH_REFRESH_KEY.formatted(applicationProperties.getName(), tenantId, type, userAccount);
     }
 
     @Override

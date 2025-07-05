@@ -99,6 +99,14 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.accessSecret).orElse("access@cowave.com");
     }
 
+    public boolean accessStore(){
+        return Optional.ofNullable(auth).map(auth -> auth.accessStore).orElse(false);
+    }
+
+    public boolean accessCheck(){
+        return Optional.ofNullable(auth).map(auth -> auth.accessCheck).orElse(false);
+    }
+
     public int refreshExpire(){
         return Optional.ofNullable(auth).map(auth -> auth.refreshExpire).orElse(86400 * 7);
     }
@@ -188,6 +196,16 @@ public class AccessProperties {
          * accessToken密钥
          */
         private String accessSecret = "access@cowave.com";
+
+        /**
+         * 服务端是否保存accessToken
+         */
+        private boolean accessStore;
+
+        /**
+         * 服务端是否校验accessToken
+         */
+        private boolean accessCheck;
 
         /**
          * refreshToken超时
