@@ -9,13 +9,19 @@
  */
 package com.cowave.commons.framework.access.operation;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 操作属性
  *
  * @author shanhuiming
  */
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Data
 public class OperationInfo {
 

@@ -20,10 +20,7 @@ import com.cowave.commons.framework.access.filter.AccessIdGenerator;
 import com.cowave.commons.framework.configuration.ApplicationProperties;
 import com.cowave.commons.framework.helper.redis.RedisHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
@@ -48,10 +45,11 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     private final AccessIdGenerator accessIdGenerator;
     private final ObjectMapper objectMapper;
     private final RedisHelper redisHelper;
+    private final BearerTokenInterceptor bearerTokenInterceptor;
 
     @Override
     public void assignAccessToken(AccessUserDetails userDetails) {
-        String accessToken = Jwts.builder()
+        JwtBuilder jwtBuilder = Jwts.builder()
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_ACCESS_IP, Access.accessIp())
                 .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
@@ -70,7 +68,12 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .claim(CLAIM_DEPT_NAME, userDetails.getDeptName())
                 .claim(CLAIM_CLUSTER_ID, userDetails.getClusterId())
                 .claim(CLAIM_CLUSTER_LEVEL, userDetails.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME, userDetails.getClusterName())
+                .claim(CLAIM_CLUSTER_NAME, userDetails.getClusterName());
+
+        if(bearerTokenInterceptor != null){
+            bearerTokenInterceptor.additionalAccessClaims(jwtBuilder);
+        }
+        String accessToken = jwtBuilder
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
                 .setExpiration(new Date(System.currentTimeMillis() + accessProperties.accessExpire() * 1000L))
@@ -102,12 +105,17 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     private void assignRefreshToken(AccessUserDetails userDetails) {
-        String refreshToken = Jwts.builder()
+        JwtBuilder jwtBuilder = Jwts.builder()
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
-                .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
+                .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N");
+
+        if(bearerTokenInterceptor != null){
+            bearerTokenInterceptor.additionalRefreshClaims(jwtBuilder);
+        }
+        String refreshToken = jwtBuilder
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
                 .compact();
@@ -271,6 +279,12 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             }
             writeResponse(response, UNAUTHORIZED, "frame.auth.denied");
         }
+
+        // 处理自定义校验
+        if(bearerTokenInterceptor != null){
+            bearerTokenInterceptor.additionalParseAccessToken(claims, userDetails);
+        }
+
         // 保存到上下文中
         Access access = Access.get();
         if (access == null) {
