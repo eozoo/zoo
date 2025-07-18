@@ -40,7 +40,7 @@ public class Collections {
     /**
      * 复制集合 -> 新类型的List
      */
-    public static <F, T> List<T> copyToList(Collection<F> collection, Class<T> clazz) {
+    public static <F, T> List<T> convertToList(Collection<F> collection, Class<T> clazz) {
         if (CollectionUtils.isEmpty(collection)) {
             return new ArrayList<>();
         }
@@ -48,9 +48,9 @@ public class Collections {
     }
 
     /**
-     * 复制集合 -> 新类型的List
+     * 复制集合（过滤） -> 新类型的List
      */
-    public static <F, T> List<T> copyToList(Collection<F> collection, Class<T> clazz, Predicate<F> predicate) {
+    public static <F, T> List<T> filterConvertToList(Collection<F> collection, Class<T> clazz, Predicate<F> predicate) {
         if (CollectionUtils.isEmpty(collection)) {
             return new ArrayList<>();
         }
@@ -172,7 +172,7 @@ public class Collections {
     /**
      * 复制集合 -> 新类型的List
      */
-    public static <F, T> List<T> copyToList(Collection<F> collection, Function<F, T> mapper, Predicate<F> filter) {
+    public static <F, T> List<T> filterCopyToList(Collection<F> collection, Function<F, T> mapper, Predicate<F> filter) {
         if (CollectionUtils.isEmpty(collection)) {
             return new ArrayList<>();
         }
@@ -201,7 +201,7 @@ public class Collections {
     /**
      * 复制集合 -> 新类型的List
      */
-    public static <F, T> List<T> flatCopyToList(Collection<F> collection, Function<F, Stream<T>> mapper) {
+    public static <F, T> List<T> flatToList(Collection<F> collection, Function<F, Stream<T>> mapper) {
         if (CollectionUtils.isEmpty(collection)) {
             return new ArrayList<>();
         }
@@ -211,7 +211,7 @@ public class Collections {
     /**
      * 复制集合 -> 新类型的List
      */
-    public static <F, T> List<T> flatCopyToList(Collection<F> collection, Function<F, Stream<T>> mapper, Predicate<F> filter) {
+    public static <F, T> List<T> filterFlatToList(Collection<F> collection, Function<F, Stream<T>> mapper, Predicate<F> filter) {
         if (CollectionUtils.isEmpty(collection)) {
             return new ArrayList<>();
         }
@@ -265,7 +265,7 @@ public class Collections {
      * @param keyMapper   Key转换
      * @param valueMapper Value转换
      */
-    public static <T, K, V> Map<K, V> copyToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
+    public static <T, K, V> Map<K, V> filterCopyToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
         if (CollectionUtils.isEmpty(collection)) {
             return new HashMap<>();
         }
@@ -301,7 +301,7 @@ public class Collections {
      * @param keyMapper   Key转换
      * @param valueMapper Value转换
      */
-    public static <K, T, V> Map<K, V> copyToLinkedMap(Collection<T> collection, Predicate<T> filter, Function<T, K> keyMapper, Function<T, V> valueMapper) {
+    public static <K, T, V> Map<K, V> filterCopyToLinkedMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
         if (CollectionUtils.isEmpty(collection)) {
             return new HashMap<>();
         }
@@ -318,18 +318,6 @@ public class Collections {
             return new HashMap<>();
         }
         return collection.stream().collect(Collectors.groupingBy(keyMapper));
-    }
-
-    /**
-     * 集合分组，并过滤
-     *
-     * @param keyMapper 分组Key转换
-     */
-    public static <K, T> Map<K, List<T>> groupToMap(Collection<T> collection, Function<T, K> keyMapper, Predicate<T> filter) {
-        if (CollectionUtils.isEmpty(collection)) {
-            return new HashMap<>();
-        }
-        return collection.stream().filter(filter).collect(Collectors.groupingBy(keyMapper));
     }
 
     /**
@@ -359,13 +347,25 @@ public class Collections {
     }
 
     /**
-     * 集合分组，并转换成新类型（进行过滤）
+     * 集合分组，并过滤
+     *
+     * @param keyMapper 分组Key转换
+     */
+    public static <K, T> Map<K, List<T>> filterGroupToMap(Collection<T> collection, Function<T, K> keyMapper, Predicate<T> filter) {
+        if (CollectionUtils.isEmpty(collection)) {
+            return new HashMap<>();
+        }
+        return collection.stream().filter(filter).collect(Collectors.groupingBy(keyMapper));
+    }
+
+    /**
+     * 集合分组，并过滤
      *
      * @param keyMapper   分组Key转换
      * @param valueMapper 值转换
      * @param filter      过滤函数
      */
-    public static <K, T, V> Map<K, List<V>> groupToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
+    public static <K, T, V> Map<K, List<V>> filterGroupToMap(Collection<T> collection, Function<T, K> keyMapper, Function<T, V> valueMapper, Predicate<T> filter) {
         if (CollectionUtils.isEmpty(collection)) {
             return new HashMap<>();
         }

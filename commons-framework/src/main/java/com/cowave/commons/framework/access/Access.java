@@ -59,6 +59,8 @@ public class Access {
 
     private AccessUserDetails userDetails;
 
+    private String permit;
+
     private Integer pageIndex;
 
     private Integer pageSize;
@@ -104,6 +106,13 @@ public class Access {
 
     public static void remove(){
         ACCESS.remove();
+    }
+
+    /**
+     * 请求对应的权限标识
+     */
+    public static String permit() {
+        return Optional.ofNullable(get()).map(access -> access.permit).orElse(null);
     }
 
     /**

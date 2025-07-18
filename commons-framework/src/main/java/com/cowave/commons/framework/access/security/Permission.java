@@ -31,10 +31,10 @@ import static com.cowave.commons.client.http.constants.HttpHeader.X_User_Payload
  * @author shanhuiming
  *
  */
+@SuppressWarnings("deprecation")
 @RequiredArgsConstructor
 @ConditionalOnClass(WebSecurityConfigurerAdapter.class)
-@Component("permit")
-@SuppressWarnings("deprecation")
+@Component("permits")
 public class Permission {
     public static final String TENANT_SYSTEM = "system";
     public static final String ROLE_ADMIN = "sysAdmin";
@@ -95,6 +95,11 @@ public class Permission {
      * 是否拥有指定权限
      */
     public boolean hasPermit(String permission) {
+        Access access = Access.get();
+        if (access != null) {
+            access.setPermit(permission);
+        }
+
         if(isIgnore() || StringUtils.isBlank(permission) || isAdmin()) {
             return true;
         }
