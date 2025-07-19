@@ -156,7 +156,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             claims = Jwts.parser().setSigningKey(
                     accessProperties.refreshSecret()).parseClaimsJws(refreshToken).getBody();
         } catch (Exception e) {
-            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.invalid}");
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.invalid}");
         }
 
         String tenantId = (String) claims.get(CLAIM_TENANT_ID);
@@ -168,13 +168,13 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         // 获取服务保存的Token
         RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(getRefreshTokenKey(tenantId, type, userAccount));
         if (refreshTokenInfo == null) {
-            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.notexist}");
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.empty}");
         }
 
         String tokenConflict = (String) claims.get(CLAIM_CONFLICT);
         // 比对id，判断Token是否已经被刷新过
         if ("Y".equals(tokenConflict) && !refreshId.equals(refreshTokenInfo.getRefreshId())) {
-            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.conflict}");
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.changed}");
         }
 
         //当前accessToken失效
@@ -201,9 +201,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             return parseAccessToken(accessToken, response);
         }
         if (response == null) {
-            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.no}");
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.empty}");
         }
-        writeResponse(response, UNAUTHORIZED, "frame.auth.no");
+        writeResponse(response, UNAUTHORIZED, "frame.auth.access.empty");
         return null;
     }
 
@@ -230,15 +230,15 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             claims = Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
             if (response == null) {
-                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.expired}");
+                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.expire}");
             }
-            writeResponse(response, UNAUTHORIZED, "frame.auth.expired");
+            writeResponse(response, UNAUTHORIZED, "frame.auth.access.expire");
             return null;
         } catch (Exception e) {
             if (response == null) {
-                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.invalid}");
+                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.invalid}");
             }
-            writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
+            writeResponse(response, UNAUTHORIZED, "frame.auth.access.invalid");
             return null;
         }
         return doParseAccessToken(claims, response);
@@ -275,9 +275,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         if(accessProperties.accessCheck() && redisHelper != null
                 && !redisHelper.existKey(getAccessTokenKey(tenantId, accessId))){
             if (response == null) {
-                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.denied}");
+                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.denied}");
             }
-            writeResponse(response, UNAUTHORIZED, "frame.auth.denied");
+            writeResponse(response, UNAUTHORIZED, "frame.auth.access.denied");
         }
 
         // 处理自定义校验
@@ -301,7 +301,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         if (accessToken != null) {
             return parseAccessRefreshToken(accessToken, response);
         }
-        writeResponse(response, UNAUTHORIZED, "frame.auth.no");
+        writeResponse(response, UNAUTHORIZED, "frame.auth.access.empty");
         return null;
     }
 
@@ -310,10 +310,10 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             claims = Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
-            writeResponse(response, INVALID_TOKEN, "frame.auth.expired");
+            writeResponse(response, INVALID_TOKEN, "frame.auth.access.expire");
             return null;
         } catch (Exception e) {
-            writeResponse(response, UNAUTHORIZED, "frame.auth.invalid");
+            writeResponse(response, UNAUTHORIZED, "frame.auth.access.invalid");
             return null;
         }
 
@@ -321,7 +321,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         String accessIp = (String) claims.get(CLAIM_ACCESS_IP);
         String tokenConflict = (String) claims.get(CLAIM_CONFLICT);
         if ("Y".equals(tokenConflict) && !Objects.equals(Access.accessIp(), accessIp)) {
-            writeResponse(response, INVALID_TOKEN, "frame.auth.ipchanged");
+            writeResponse(response, INVALID_TOKEN, "frame.auth.access.changed.ip");
             return null;
         }
         return doParseAccessToken(claims, response);

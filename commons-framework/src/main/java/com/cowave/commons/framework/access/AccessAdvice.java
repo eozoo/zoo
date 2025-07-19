@@ -91,17 +91,17 @@ public class AccessAdvice {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public HttpResponse<Response<Void>> handleUsernameNotFoundException(UsernameNotFoundException e) {
-        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.username"));
+        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.user.null"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public HttpResponse<Response<Void>> handleBadCredentialsException(BadCredentialsException e) {
-        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.passwd"));
+        return error(e, UNAUTHORIZED.getStatus(), UNAUTHORIZED.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.pass.invalid"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public HttpResponse<Response<Void>> handleAccessDeniedException(AccessDeniedException e) {
-        return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.permit"));
+        return error(e, FORBIDDEN.getStatus(), FORBIDDEN.getCode(), ERR_LEVEL_0, I18Messages.msg("frame.auth.permit.denied"));
     }
 
     @ExceptionHandler(HttpHintException.class)

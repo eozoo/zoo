@@ -50,7 +50,7 @@ public interface CustomValueParser<T> {
             CustomValueParser parser = (CustomValueParser) Class.forName(valueParser).getDeclaredConstructor().newInstance();
             return parser.parse(value);
         } catch (Exception e) {
-            throw new HttpHintException(BAD_REQUEST, "{frame.dict.parse.failed}", value);
+            throw new HttpHintException(BAD_REQUEST, "{frame.parse.failed}", value);
         }
     }
 }

@@ -21,6 +21,9 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -44,10 +47,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.cowave.commons.client.http.constants.HttpCode.INTERNAL_SERVER_ERROR;
 
@@ -64,7 +64,27 @@ public class EsHelper {
 
     private final ObjectMapper objectMapper;
 
-    public SearchResponse query(String index, SearchSourceBuilder searchSourceBuilder){
+    public <T extends HitEntity> List<T> getByIds(String index, Collection<String> idList, Class<T> clazz) {
+        MultiGetRequest getRequest = new MultiGetRequest();
+        idList.forEach(id -> getRequest.add(new MultiGetRequest.Item(index, id)));
+        try {
+            MultiGetResponse response = restHighLevelClient.mget(getRequest, RequestOptions.DEFAULT);
+            List<T> list = new ArrayList<>();
+            for (MultiGetItemResponse item : response.getResponses()) {
+                if (item.getResponse().isExists()) {
+                    T hitEntity = objectMapper.readValue(item.getResponse().getSourceAsString(), clazz);
+                    hitEntity.setId(item.getId());
+                    list.add(hitEntity);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            log.error("ES query failed, index={}", index, e);
+            throw new HttpHintException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public SearchResponse query(String index, SearchSourceBuilder searchSourceBuilder) {
         SearchRequest searchRequest = new SearchRequest(index);
         searchRequest.source(searchSourceBuilder);
         searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
@@ -76,7 +96,8 @@ public class EsHelper {
         }
     }
 
-    public <T extends HitEntity> Response.Page<T> query(String index, SearchSourceBuilder searchSourceBuilder, Class<T> clazz){
+    public <T extends
+            HitEntity> Response.Page<T> query(String index, SearchSourceBuilder searchSourceBuilder, Class<T> clazz) {
         SearchRequest searchRequest = new SearchRequest(index);
         searchRequest.source(searchSourceBuilder);
         searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
@@ -159,7 +180,7 @@ public class EsHelper {
 
     public void deleteByQuery(String index, QueryBuilder queryBuilder) {
         DeleteByQueryRequest request = new DeleteByQueryRequest(index);
-		request.setQuery(queryBuilder);
+        request.setQuery(queryBuilder);
         try {
             restHighLevelClient.deleteByQuery(request, RequestOptions.DEFAULT);
         } catch (Exception e) {

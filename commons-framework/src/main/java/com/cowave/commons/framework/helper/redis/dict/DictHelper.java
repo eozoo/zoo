@@ -72,13 +72,13 @@ public class DictHelper {
      */
     public void put(Dict dict, String... prefixes) {
         if(dict.getGroupCode() == null){
-            throw new HttpHintException(BAD_REQUEST, "{frame.dict.notnull.groupcode}");
+            throw new HttpHintException(BAD_REQUEST, "{frame.dict.group.null}");
         }
         if(dict.getTypeCode() == null){
-            throw new HttpHintException(BAD_REQUEST, "{frame.dict.notnull.typecode}");
+            throw new HttpHintException(BAD_REQUEST, "{frame.dict.type.null}");
         }
         if(dict.getDictCode() == null){
-            throw new HttpHintException(BAD_REQUEST, "{frame.dict.notnull.code}");
+            throw new HttpHintException(BAD_REQUEST, "{frame.dict.code.null}");
         }
 
         Object dictValue = CustomValueParser.getValue(dict.getDictValue(), dict.getValueType(), dict.getValueParser());
