@@ -55,6 +55,11 @@ public class AccessUserDetails implements UserDetails {
     private String refreshToken;
 
     /**
+     * 二次认证
+     */
+    private boolean mfaRequired;
+
+    /**
      * 授权类型
      */
     private String authType;
@@ -90,6 +95,11 @@ public class AccessUserDetails implements UserDetails {
      * 租户id
      */
     private String tenantId;
+
+    /**
+     * 租户首页
+     */
+    private String tenantIndex;
 
     /**
      * 用户id
