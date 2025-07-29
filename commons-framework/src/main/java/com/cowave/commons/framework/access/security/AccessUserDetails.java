@@ -65,11 +65,6 @@ public class AccessUserDetails implements UserDetails {
     private String authType;
 
     /**
-     * 是否校验客户端冲突
-     */
-    private boolean conflict = true;
-
-    /**
      * 登录iP
      */
     private String loginIp;
@@ -263,8 +258,6 @@ public class AccessUserDetails implements UserDetails {
         this.permissions = refreshTokenInfo.getPermissions();
         this.loginIp = refreshTokenInfo.getLoginIp();
         this.loginTime = refreshTokenInfo.getLoginTime();
-        this.accessIp = refreshTokenInfo.getAccessIp();
-        this.accessTime = refreshTokenInfo.getAccessTime();
     }
 
     public <T> T getUserId(){

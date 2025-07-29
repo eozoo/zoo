@@ -42,7 +42,7 @@ import java.util.stream.IntStream;
  */
 public class StringRedisHelper {
 
-    private static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     static{
         MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -60,7 +60,7 @@ public class StringRedisHelper {
             until cursor == "0"
             """;
 
-    private StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public static StringRedisHelper newStringRedisHelper(StringRedisTemplate stringRedisTemplate){
         return new StringRedisHelper(stringRedisTemplate);
@@ -162,6 +162,16 @@ public class StringRedisHelper {
             }
         });
         return IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get, results::get));
+    }
+
+    public List<Object> pipeline(List<java.util.function.Consumer<RedisOperations<String, Object>>> operationList) {
+        return stringRedisTemplate.executePipelined(new SessionCallback<>() {
+            @Override
+            public Object execute(@NotNull RedisOperations redisOperations) {
+                operationList.forEach(consumer -> consumer.accept(redisOperations));
+                return null;
+            }
+        });
     }
 
     public void luaClean(String pattern){

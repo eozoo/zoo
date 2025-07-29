@@ -32,13 +32,14 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.cowave.commons.client.http.constants.HttpCode.*;
+import static com.cowave.commons.framework.access.security.AuthMode.ACCESS_REFRESH;
 
 /**
  * @author shanhuiming
  */
 @RequiredArgsConstructor
 public class BearerTokenServiceImpl implements BearerTokenService {
-    public static final String AUTH_ACCESS_KEY = "%s:auth:%s:access:%s";
+    public static final String AUTH_ACCESS_KEY = "%s:auth:%s:access:%s:%s:%s";
     public static final String AUTH_REFRESH_KEY = "%s:auth:%s:refresh:%s:%s";
     private final ApplicationProperties applicationProperties;
     private final AccessProperties accessProperties;
@@ -49,18 +50,21 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     @Override
     public void assignAccessToken(AccessUserDetails userDetails) {
+        String tenantId = userDetails.getTenantId();
+        String authType = userDetails.getAuthType();
+        String userAccount = userDetails.getUsername();
         JwtBuilder jwtBuilder = Jwts.builder()
-                .claim(CLAIM_TYPE, userDetails.getAuthType())
+                .claim(CLAIM_MULTIPLE, accessProperties.authMultiple() ? 1 : 0)
+                .claim(CLAIM_TYPE, authType)
                 .claim(CLAIM_ACCESS_IP, Access.accessIp())
                 .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
-                .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N")
-                .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
+                .claim(CLAIM_TENANT_ID, tenantId)
                 .claim(CLAIM_USER_ID, userDetails.getUserId())
                 .claim(CLAIM_USER_CODE, userDetails.getUserCode())
                 .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
                 .claim(CLAIM_USER_TYPE, userDetails.getUserType())
                 .claim(CLAIM_USER_NAME, userDetails.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
+                .claim(CLAIM_USER_ACCOUNT, userAccount)
                 .claim(CLAIM_USER_ROLE, userDetails.getRoles())
                 .claim(CLAIM_USER_PERM, userDetails.getPermissions())
                 .claim(CLAIM_DEPT_ID, userDetails.getDeptId())
@@ -70,7 +74,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .claim(CLAIM_CLUSTER_LEVEL, userDetails.getClusterLevel())
                 .claim(CLAIM_CLUSTER_NAME, userDetails.getClusterName());
 
-        if(bearerTokenInterceptor != null){
+        if (bearerTokenInterceptor != null) {
             bearerTokenInterceptor.additionalAccessClaims(jwtBuilder);
         }
         String accessToken = jwtBuilder
@@ -91,10 +95,23 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             Access.setCookie(accessProperties.tokenKey(), accessToken, "/", accessProperties.accessExpire());
         }
         // 服务端保存
-        if(accessProperties.accessStore() && redisHelper != null){
+        if (accessProperties.accessStore() && redisHelper != null) {
             AccessTokenInfo accessTokenInfo = new AccessTokenInfo(userDetails);
-            redisHelper.putExpire(getAccessTokenKey(userDetails.getTenantId(), userDetails.getAccessId()),
-                    accessTokenInfo, accessProperties.accessExpire(), TimeUnit.SECONDS);
+            String accessKey = getAccessTokenKey(
+                    userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername(), userDetails.getAccessId());
+            // 注销其它令牌
+            if (!accessProperties.authMultiple()) {
+                List<AccessTokenInfo> accessTokenList = redisHelper.getByPattern(
+                        applicationProperties.getName() + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
+                Map<String, AccessTokenInfo> accessTokenMap = new HashMap<>();
+                for(AccessTokenInfo token : accessTokenList){
+                    token.setRevoked(2);
+                    accessTokenMap.put(getAccessTokenKey(tenantId, authType, userAccount, token.getAccessId()), token);
+                }
+                redisHelper.putMultiExpire(accessTokenMap, accessProperties.accessExpire(), TimeUnit.SECONDS);
+            }
+            // 存入本次令牌
+            redisHelper.putExpire(accessKey, accessTokenInfo, accessProperties.accessExpire(), TimeUnit.SECONDS);
         }
     }
 
@@ -109,10 +126,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
-                .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
-                .claim(CLAIM_CONFLICT, userDetails.isConflict() ? "Y" : "N");
+                .claim(CLAIM_TENANT_ID, userDetails.getTenantId());
 
-        if(bearerTokenInterceptor != null){
+        if (bearerTokenInterceptor != null) {
             bearerTokenInterceptor.additionalRefreshClaims(jwtBuilder);
         }
         String refreshToken = jwtBuilder
@@ -121,7 +137,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 .compact();
         userDetails.setRefreshToken(refreshToken);
         // 服务端保存
-        if(redisHelper != null){
+        if (redisHelper != null) {
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
             redisHelper.putExpire(getRefreshTokenKey(userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername()),
                     refreshTokenInfo, accessProperties.refreshExpire(), TimeUnit.SECONDS);
@@ -131,15 +147,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     @Override
     public String refreshAccessToken() throws Exception {
         AccessUserDetails userDetails = parseAccessToken(null);
-        if(redisHelper != null){
-            AccessTokenInfo accessTokenInfo =
-                    redisHelper.getValue(getAccessTokenKey(userDetails.getTenantId(), userDetails.getAccessId()));
-            if(accessTokenInfo != null){
-                userDetails.setLoginIp(accessTokenInfo.getLoginIp());
-                userDetails.setLoginTime(accessTokenInfo.getLoginTime());
-                userDetails.setClusterName(accessTokenInfo.getAccessCluster());
-                redisHelper.delete(getAccessTokenKey(userDetails.getTenantId(), userDetails.getAccessId()));
-            }
+        if (accessProperties.accessStore() && redisHelper != null) {
+            redisHelper.delete(getAccessTokenKey(userDetails.getTenantId(),
+                    userDetails.getAuthType(), userDetails.getUsername(), userDetails.getAccessId()));
         }
         userDetails.setAccessId(IdUtil.fastSimpleUUID());
         userDetails.setAccessIp(Access.accessIp());
@@ -171,16 +181,15 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.empty}");
         }
 
-        String tokenConflict = (String) claims.get(CLAIM_CONFLICT);
         // 比对id，判断Token是否已经被刷新过
-        if ("Y".equals(tokenConflict) && !refreshId.equals(refreshTokenInfo.getRefreshId())) {
+        if (!accessProperties.authMultiple() && !Objects.equals(refreshId, refreshTokenInfo.getRefreshId())) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.changed}");
         }
 
-        //当前accessToken失效
+        //当前accessToken删除
         String accessId = refreshTokenInfo.getAccessId();
-        if ("Y".equals(tokenConflict) && accessProperties.accessStore()) {
-            redisHelper.delete(getAccessTokenKey(tenantId, accessId));
+        if (accessProperties.accessStore()) {
+            redisHelper.delete(getAccessTokenKey(tenantId, type, userAccount, accessId));
         }
 
         // 更新Token信息
@@ -247,16 +256,18 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     private AccessUserDetails doParseAccessToken(Claims claims, HttpServletResponse response) throws IOException {
         String accessId = (String) claims.get(CLAIM_ACCESS_ID);
         String tenantId = (String) claims.get(CLAIM_TENANT_ID);
+        String userAccount = (String) claims.get(CLAIM_USER_ACCOUNT);
+        String authType = (String) claims.get(CLAIM_TYPE);
 
         AccessUserDetails userDetails = new AccessUserDetails();
-        userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
+        userDetails.setAuthType(authType);
         userDetails.setAccessId(accessId);
         userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
         userDetails.setTenantId(tenantId);
         // user
         userDetails.setUserId(claims.get(CLAIM_USER_ID));
         userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
-        userDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
+        userDetails.setUsername(userAccount);
         userDetails.setUserNick((String) claims.get(CLAIM_USER_NAME));
         userDetails.setUserProperties((Map<String, Object>) claims.get(CLAIM_USER_PROPERTIES));
         // dept
@@ -272,16 +283,34 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         // permits
         userDetails.setPermissions((List<String>) claims.get(CLAIM_USER_PERM));
         // 服务端校验
-        if(accessProperties.accessCheck() && redisHelper != null
-                && !redisHelper.existKey(getAccessTokenKey(tenantId, accessId))){
-            if (response == null) {
-                throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.denied}");
+        if (redisHelper != null) {
+            AccessTokenInfo accessToken = redisHelper.getValue(getAccessTokenKey(tenantId, authType, userAccount, accessId));
+            String messageKey = null;
+            // 被注销
+            if (accessProperties.accessStore() && accessProperties.accessCheck() && accessToken == null) {
+                messageKey = "frame.auth.access.revoked";
+            } else if (accessToken != null) {
+                Integer revoked = accessToken.getRevoked();
+                // 正常退出
+                if (Objects.equals(revoked, 1)) {
+                    messageKey = "frame.auth.access.revoked";
+                } else if (Objects.equals(revoked, 2)) {
+                    // 其它设备登录
+                    messageKey = "frame.auth.refresh.changed";
+                }
             }
-            writeResponse(response, UNAUTHORIZED, "frame.auth.access.denied");
+
+            if (messageKey != null) {
+                if (response == null) {
+                    throw new HttpHintException(UNAUTHORIZED, "{" + messageKey + "}");
+                }
+                writeResponse(response, UNAUTHORIZED, messageKey);
+                return null;
+            }
         }
 
         // 处理自定义校验
-        if(bearerTokenInterceptor != null){
+        if (bearerTokenInterceptor != null) {
             bearerTokenInterceptor.additionalParseAccessToken(claims, userDetails);
         }
 
@@ -319,8 +348,8 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
         // IP变化，要求重新刷一下accessToken
         String accessIp = (String) claims.get(CLAIM_ACCESS_IP);
-        String tokenConflict = (String) claims.get(CLAIM_CONFLICT);
-        if ("Y".equals(tokenConflict) && !Objects.equals(Access.accessIp(), accessIp)) {
+        Integer multiple = (Integer) claims.get(CLAIM_MULTIPLE);
+        if (Objects.equals(0, multiple) && !Objects.equals(Access.accessIp(), accessIp)) {
             writeResponse(response, INVALID_TOKEN, "frame.auth.access.changed.ip");
             return null;
         }
@@ -328,63 +357,68 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     @Override
-    public AccessTokenInfo revokeAccessToken(String tenantId, String accessId) {
-        String accesskey = getAccessTokenKey(tenantId, accessId);
+    public void revoke() {
+        // 服务端没有存储，不用处理
+        if (redisHelper == null) {
+            return;
+        }
+
+        AccessUserDetails userDetails = Access.userDetails();
+        if (userDetails == null) {
+            return;
+        }
+
+        String tenantId = userDetails.getTenantId();
+        String authType = userDetails.getAuthType();
+        String accessId = userDetails.getAccessId();
+        String userAccount = userDetails.getUsername();
+        AccessTokenInfo accessTokenInfo = new AccessTokenInfo(userDetails);
+        accessTokenInfo.setRevoked(1);
+        accessTokenInfo.setAccessIp(Access.accessIp());
+        accessTokenInfo.setAccessTime(Access.accessTime());
+        // 如果使用RefreshToken，且不允许重复登录
+        if (ACCESS_REFRESH == accessProperties.authMode() && !accessProperties.authMultiple()) {
+            revokeRefreshToken(tenantId, authType, userAccount);
+        } else {
+            // 标记AccessToken失效（不能直接删除RefreshToken，会影响相同账号在其它设备上的登录）
+            redisHelper.putExpire(getAccessTokenKey(tenantId, authType, userAccount, accessId),
+                    accessTokenInfo, accessProperties.accessExpire(), TimeUnit.SECONDS);
+        }
+    }
+
+    @Override
+    public AccessTokenInfo revokeAccessToken(String tenantId, String authType, String userAccount, String accessId) {
+        String accesskey = getAccessTokenKey(tenantId, authType, userAccount, accessId);
         AccessTokenInfo accessTokenInfo = redisHelper.getValue(accesskey);
         redisHelper.delete(accesskey);
         return accessTokenInfo;
     }
 
     @Override
-    public RefreshTokenInfo revokeAccessRefreshToken() {
-        AccessUserDetails userDetails = Access.userDetails();
-        if(userDetails == null){
-            return null;
-        }
-
-        String tenantId = userDetails.getTenantId();
-        String accessId = userDetails.getAccessId();
-        String userAccount = userDetails.getUsername();
-        assert redisHelper != null;
-        redisHelper.delete(getAccessTokenKey(tenantId, accessId));
-
-        String refreshKey = getRefreshTokenKey(tenantId, userDetails.getAuthType(), userAccount);
+    public RefreshTokenInfo revokeRefreshToken(String tenantId, String authType, String userAccount) {
+        String refreshKey = getRefreshTokenKey(tenantId, authType, userAccount);
         RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(refreshKey);
         redisHelper.delete(refreshKey);
+        redisHelper.deleteByPattern(applicationProperties.getName()
+                + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
         return refreshTokenInfo;
     }
 
     @Override
-    public List<AccessTokenInfo> listAccessToken(String tenantId, String userAccount, Date beginTime, Date endTime) {
-        if(StringUtils.isBlank(tenantId)){
-            tenantId = "default";
-        }
-        List<AccessTokenInfo> list = new ArrayList<>();
-        for (String key : redisHelper.keys(applicationProperties.getName() + ":auth:" + tenantId + ":access:*")) {
-            AccessTokenInfo accessTokenInfo = redisHelper.getValue(key);
-            if (accessTokenInfo != null) {
-                if ((userAccount != null && !accessTokenInfo.getUserAccount().contains(userAccount))
-                        || (beginTime != null && beginTime.after(accessTokenInfo.getAccessTime()))
-                        || (endTime != null && endTime.before(accessTokenInfo.getAccessTime()))) {
-                    continue;
-                }
-                list.add(accessTokenInfo);
-            }
-        }
-        return list;
+    public List<AccessTokenInfo> listAccessToken(String tenantId) {
+        return redisHelper.getByPattern(applicationProperties.getName() + ":auth:" + tenantId + ":access:*");
     }
 
-    private String getAccessTokenKey(String tenantId, String accessId) {
-        if(StringUtils.isBlank(tenantId)){
-            tenantId = "default";
-        }
-        return AUTH_ACCESS_KEY.formatted(applicationProperties.getName(), tenantId, accessId);
+    @Override
+    public List<RefreshTokenInfo> listRefreshToken(String tenantId) {
+        return redisHelper.getByPattern(applicationProperties.getName() + ":auth:" + tenantId + ":refresh:*");
+    }
+
+    private String getAccessTokenKey(String tenantId, String type, String userAccount, String accessId) {
+        return AUTH_ACCESS_KEY.formatted(applicationProperties.getName(), tenantId, type, userAccount, accessId);
     }
 
     private String getRefreshTokenKey(String tenantId, String type, String userAccount) {
-        if(StringUtils.isBlank(tenantId)){
-            tenantId = "default";
-        }
         return AUTH_REFRESH_KEY.formatted(applicationProperties.getName(), tenantId, type, userAccount);
     }
 

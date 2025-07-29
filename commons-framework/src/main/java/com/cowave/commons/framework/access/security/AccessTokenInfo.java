@@ -23,7 +23,7 @@ import java.util.Date;
 public class AccessTokenInfo {
 
     /**
-     * 令牌id
+     * Access Token id
      */
     private String accessId;
 
@@ -48,31 +48,20 @@ public class AccessTokenInfo {
     private String userName;
 
     /**
+     * 是否注销
+     */
+    private int revoked;
+
+    /**
      * 访问IP
      */
     private String accessIp;
-
-    /**
-     * 访问集群
-     */
-    private String accessCluster;
 
     /**
      * 访问时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private Date accessTime;
-
-    /**
-     * 登录IP
-     */
-    private String loginIp;
-
-    /**
-     * 登录时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
-    private Date loginTime;
 
     public AccessTokenInfo(AccessUserDetails accessUserDetails) {
         this.accessId = accessUserDetails.getAccessId();
@@ -82,8 +71,5 @@ public class AccessTokenInfo {
         this.userName = accessUserDetails.getUserNick();
         this.accessIp = accessUserDetails.getAccessIp();
         this.accessTime = accessUserDetails.getAccessTime();
-        this.loginIp = accessUserDetails.getLoginIp();
-        this.loginTime = accessUserDetails.getLoginTime();
-        this.accessCluster = accessUserDetails.getClusterName();
     }
 }

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.cowave.commons.tools.Collections;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
@@ -35,7 +36,7 @@ import javax.validation.constraints.NotNull;
 @SuppressWarnings(value = { "unchecked", "rawtypes" })
 public class RedisHelper{
 
-    private RedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
 
     public static RedisHelper newRedisHelper(RedisTemplate<Object, Object> template){
         return new RedisHelper(template);
@@ -93,6 +94,18 @@ public class RedisHelper{
         return keys;
     }
 
+    public <T> List<T> getByPattern(String pattern) {
+        Collection<String> keyList = keys(pattern);
+        return pipeline(Collections.copyToList(keyList,
+                key -> redisOps -> redisOps.opsForValue().get(key)));
+    }
+
+    public void deleteByPattern(String pattern) {
+        Collection<String> keyList = keys(pattern);
+        pipeline(Collections.copyToList(keyList,
+                key -> redisOps -> redisOps.delete(key)));
+    }
+
     /**
      * @see <a href="https://redis.io/commands/del">Redis Documentation: DEL</a>
      */
@@ -131,7 +144,7 @@ public class RedisHelper{
         return redisTemplate.getExpire(key, timeUnit);
     }
 
-    public <T> Map<String, T> pipeline(Map<String, java.util.function.Consumer<RedisOperations<String, Object>>> operationMap) {
+    public <T> Map<String, T> pipeline(Map<String, java.util.function.Consumer<RedisOperations<String, T>>> operationMap) {
         List<String> keys = new ArrayList<>(operationMap.keySet());
         List<T> results = redisTemplate.executePipelined(new SessionCallback<>() {
             @Override
@@ -141,6 +154,16 @@ public class RedisHelper{
             }
         });
         return IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get, results::get));
+    }
+
+    public <T> List<T> pipeline(List<java.util.function.Consumer<RedisOperations<String, T>>> operationList) {
+        return redisTemplate.executePipelined(new SessionCallback<>() {
+            @Override
+            public Object execute(@NotNull RedisOperations redisOperations) {
+                operationList.forEach(consumer -> consumer.accept(redisOperations));
+                return null;
+            }
+        });
     }
 
     /* ******************************************
@@ -215,6 +238,14 @@ public class RedisHelper{
      */
     public <T> void putExpire(String key, T value, long timeout, TimeUnit timeUnit){
         redisTemplate.opsForValue().set(key, value, timeout, timeUnit);
+    }
+
+    public <T> void putMultiExpire(Map<String, T> map, long timeout, TimeUnit timeUnit) {
+        List<java.util.function.Consumer<RedisOperations<String, Object>>> operationList =
+                map.entrySet().stream().map(entry ->
+                        (java.util.function.Consumer<RedisOperations<String, Object>>) redisOps ->
+                                redisOps.opsForValue().set(entry.getKey(), entry.getValue(), timeout, timeUnit)).toList();
+        pipeline(operationList);
     }
 
     /**

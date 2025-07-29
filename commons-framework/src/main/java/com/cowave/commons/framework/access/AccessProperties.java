@@ -63,6 +63,10 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.enable).orElse(false);
     }
 
+    public boolean authMultiple(){
+        return Optional.ofNullable(auth).map(auth -> auth.multiple).orElse(false);
+    }
+
     public AuthMode authMode(){
         return Optional.ofNullable(auth).map(auth -> auth.mode).orElse(BASIC);
     }
@@ -149,7 +153,12 @@ public class AccessProperties {
         /**
          * 是否开启访问鉴权
          */
-        private boolean enable = false;
+        private boolean enable;
+
+        /**
+         * 同一账号是否允许多设备登录
+         */
+        private boolean multiple;
 
         /**
          * 默认用户
