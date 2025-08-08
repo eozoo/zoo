@@ -465,13 +465,12 @@ public class Access {
     /**
      * 移除cookie（HttpServletResponse）
      */
-    public static void removeCookie(String name) {
-        Optional.ofNullable(httpResponse()).ifPresent(
-                response -> Optional.ofNullable(httpCookies()).ifPresent(
-                        cookies -> Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(name)).forEach(
-                                cookie -> {
-                                    cookie.setMaxAge(0);
-                                    response.addCookie(cookie);
-                                })));
+    public static void removeCookie(String name, String path) {
+        Optional.ofNullable(httpResponse()).ifPresent(response -> {
+            Cookie cookie = new Cookie(name, "");
+            cookie.setMaxAge(0);
+            cookie.setPath(path);
+            response.addCookie(cookie);
+        });
     }
 }

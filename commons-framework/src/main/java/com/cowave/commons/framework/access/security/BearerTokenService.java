@@ -21,102 +21,117 @@ public interface BearerTokenService {
     /**
      * 令牌类型
      */
-    String CLAIM_TYPE = "Token.type";
+    String CLAIM_TYPE = "tt";
+
+    /**
+     * 授权应用id
+     */
+    String CLAIM_OAUTH_ID = "oi";
+
+    /**
+     * 授权应用名称
+     */
+    String CLAIM_OAUTH_NAME = "on";
 
     /**
      * 访问时间
      */
-    String CLAIM_ACCESS_IP = "Token.ip";
+    String CLAIM_ACCESS_IP = "ti";
 
     /**
      * Access令牌
      */
-    String CLAIM_ACCESS_ID = "Token.access";
+    String CLAIM_ACCESS_ID = "ta";
 
     /**
      * Refresh令牌
      */
-    String CLAIM_REFRESH_ID = "Token.refresh";
+    String CLAIM_REFRESH_ID = "tr";
 
     /**
-     * 同一账号是否允许多设备登录
+     * 限制同一账号的登录设备
      */
-    String CLAIM_MULTIPLE = "Token.multiple";
+    String CLAIM_UNIQUE = "tu";
+
+    /**
+     * 存储验证AccessToken
+     */
+    String CLAIM_ACCESS_STORE = "ts";
 
     /**
      * 租户id
      */
-    String CLAIM_TENANT_ID = "Tenant.id";
+    String CLAIM_TENANT_ID = "ei";
 
     /**
      * 用户id
      */
-    String CLAIM_USER_ID = "User.id";
+    String CLAIM_USER_ID = "ui";
 
     /**
      * 用户编号
      */
-    String CLAIM_USER_CODE = "User.code";
+    String CLAIM_USER_CODE = "uc";
 
     /**
      * 用户属性
      */
-    String CLAIM_USER_PROPERTIES = "User.properties";
+    String CLAIM_USER_PROPERTIES = "up";
 
     /**
      * 用户类型
      */
-    String CLAIM_USER_TYPE = "User.type";
+    String CLAIM_USER_TYPE = "ut";
 
     /**
      * 用户名称
      */
-    String CLAIM_USER_NAME = "User.name";
+    String CLAIM_USER_NAME = "un";
 
     /**
      * 用户账号
      */
-    String CLAIM_USER_ACCOUNT = "User.account";
+    String CLAIM_USER_ACCOUNT = "ua";
 
     /**
-     * 用户账号
+     * 用户角色
      */
-    String CLAIM_USER_ROLE = "User.role";
+    String CLAIM_USER_ROLE = "ur";
 
     /**
      * 用户权限
      */
-    String CLAIM_USER_PERM = "User.permission";
+    String CLAIM_USER_PERM = "um";
 
     /**
      * 部门id
      */
-    String CLAIM_DEPT_ID = "Dept.id";
+    String CLAIM_DEPT_ID = "di";
 
     /**
      * 部门编号
      */
-    String CLAIM_DEPT_CODE = "Dept.code";
+    String CLAIM_DEPT_CODE = "dc";
 
     /**
      * 部门名称
      */
-    String CLAIM_DEPT_NAME = "Dept.name";
+    String CLAIM_DEPT_NAME = "dn";
 
     /**
      * 集群id
      */
-    String CLAIM_CLUSTER_ID = "Cluster.id";
+    String CLAIM_CLUSTER_ID = "ci";
 
     /**
      * 集群级别
      */
-    String CLAIM_CLUSTER_LEVEL = "Cluster.level";
+    String CLAIM_CLUSTER_LEVEL = "cl";
 
     /**
      * 集群名称
      */
-    String CLAIM_CLUSTER_NAME = "Cluster.name";
+    String CLAIM_CLUSTER_NAME = "cn";
 
     /**
      * BearerTokenFilter解析AccessToken
@@ -139,6 +154,11 @@ public interface BearerTokenService {
     void assignAccessRefreshToken(AccessUserDetails userDetails);
 
     /**
+     * 授权应用OAuthToken
+     */
+    void assignOauthToken(AccessUserDetails userDetails);
+
+    /**
      * 刷新AccessToken
      */
     String refreshAccessToken() throws Exception;
@@ -147,6 +167,11 @@ public interface BearerTokenService {
      * 刷新AccessToken和RefreshToken
      */
     AccessUserDetails refreshAccessRefreshToken(String refreshToken);
+
+    /**
+     * 刷新OAuthToken
+     */
+    AccessUserDetails refreshOauthToken(String oauthToken);
 
     /**
      * 注销
@@ -164,6 +189,11 @@ public interface BearerTokenService {
     RefreshTokenInfo revokeRefreshToken(String tenantId, String authType, String userAccount);
 
     /**
+     * 注销OAuthToken
+     */
+    RefreshTokenInfo revokeOauthToken(String tenantId, String authType, String userAccount, String appId);
+
+    /**
      * 验证AccessToken
      */
     boolean validAccessToken(String accessToken);
@@ -177,4 +207,9 @@ public interface BearerTokenService {
      * 获取RefreshTokenInfo列表
      */
     List<RefreshTokenInfo> listRefreshToken(String tenantId);
+
+    /**
+     * 获取OAuthToken列表
+     */
+    List<RefreshTokenInfo> listOauthToken(String tenantId);
 }

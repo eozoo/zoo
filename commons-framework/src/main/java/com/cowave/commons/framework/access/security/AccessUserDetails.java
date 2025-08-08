@@ -177,6 +177,26 @@ public class AccessUserDetails implements UserDetails {
      */
     private List<? extends GrantedAuthority> authorities;
 
+    /**
+     * 限制同一账号的登录设备
+     */
+    private boolean unique = true;
+
+    /**
+     * 是否存储验证AccessToken
+     */
+    private boolean storeAccess = true;
+
+    /**
+     * 授权应用id
+     */
+    private String oauthId;
+
+    /**
+     * 授权应用名称
+     */
+    private String oauthName;
+
     public AccessUserDetails(){
 
     }
@@ -258,6 +278,8 @@ public class AccessUserDetails implements UserDetails {
         this.permissions = refreshTokenInfo.getPermissions();
         this.loginIp = refreshTokenInfo.getLoginIp();
         this.loginTime = refreshTokenInfo.getLoginTime();
+        this.oauthId = refreshTokenInfo.getOauthId();
+        this.oauthName = refreshTokenInfo.getOauthName();
     }
 
     public <T> T getUserId(){

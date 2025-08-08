@@ -59,12 +59,13 @@ public class AccessProperties {
      */
     private AuthConfig auth;
 
+    /**
+     * OAuth授权配置
+     */
+    private OauthConfig oauth;
+
     public boolean authEnable(){
         return Optional.ofNullable(auth).map(auth -> auth.enable).orElse(false);
-    }
-
-    public boolean authMultiple(){
-        return Optional.ofNullable(auth).map(auth -> auth.multiple).orElse(false);
     }
 
     public AuthMode authMode(){
@@ -107,20 +108,32 @@ public class AccessProperties {
         return Optional.ofNullable(auth).map(auth -> auth.accessSecret).orElse("access@cowave.com");
     }
 
-    public boolean accessStore(){
-        return Optional.ofNullable(auth).map(auth -> auth.accessStore).orElse(false);
-    }
-
-    public boolean accessCheck(){
-        return Optional.ofNullable(auth).map(auth -> auth.accessCheck).orElse(false);
-    }
-
     public int refreshExpire(){
         return Optional.ofNullable(auth).map(auth -> auth.refreshExpire).orElse(86400 * 7);
     }
 
     public String refreshSecret(){
         return Optional.ofNullable(auth).map(auth -> auth.refreshSecret).orElse("refresh@cowave.com");
+    }
+
+    public String oauthAppId(){
+        return Optional.ofNullable(oauth).map(oauth -> oauth.appId).orElse(null);
+    }
+
+    public String oauthAppSecret(){
+        return Optional.ofNullable(oauth).map(oauth -> oauth.appSecret).orElse(null);
+    }
+
+    public String oauthAppRedirectUri(){
+        return Optional.ofNullable(oauth).map(oauth -> oauth.appRedirectUri).orElse(null);
+    }
+
+    public String oauthCodeUri(){
+        return Optional.ofNullable(oauth).map(oauth -> oauth.oauthCodeUri).orElse(null);
+    }
+
+    public String oauthTokenUri(){
+        return Optional.ofNullable(oauth).map(oauth -> oauth.oauthTokenUri).orElse(null);
     }
 
     @Data
@@ -154,11 +167,6 @@ public class AccessProperties {
          * 是否开启访问鉴权
          */
         private boolean enable;
-
-        /**
-         * 同一账号是否允许多设备登录
-         */
-        private boolean multiple;
 
         /**
          * 默认用户
@@ -211,16 +219,6 @@ public class AccessProperties {
         private String accessSecret = "access@cowave.com";
 
         /**
-         * 服务端是否保存accessToken
-         */
-        private boolean accessStore;
-
-        /**
-         * 服务端是否校验accessToken
-         */
-        private boolean accessCheck;
-
-        /**
          * refreshToken超时
          */
         private int refreshExpire = 3600 * 24 * 7;
@@ -229,5 +227,34 @@ public class AccessProperties {
          * refreshToken密钥
          */
         private String refreshSecret = "refresh@cowave.com";
+    }
+
+    @Data
+    public static class OauthConfig {
+
+        /**
+         * 应用id
+         */
+        private String appId;
+
+        /**
+         * 应用密钥
+         */
+        private String appSecret;
+
+        /**
+         * 重定向地址
+         */
+        private String appRedirectUri;
+
+        /**
+         * 授权码地址
+         */
+        private String oauthCodeUri;
+
+        /**
+         * 令牌地址
+         */
+        private String oauthTokenUri;
     }
 }

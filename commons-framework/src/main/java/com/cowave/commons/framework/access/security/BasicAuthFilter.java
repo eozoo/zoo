@@ -9,6 +9,7 @@
  */
 package com.cowave.commons.framework.access.security;
 
+import com.cowave.commons.client.http.constants.HttpHeader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +23,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -66,15 +66,15 @@ public class BasicAuthFilter extends OncePerRequestFilter {
     }
 
     private void basicAuth(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String basicHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String basicHeader = request.getHeader(HttpHeader.Authorization);
         if (basicHeader == null){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Access to the application\"");
+            response.setHeader("WWW-Authenticate", "Basic realm=\"Access to the application\"");
             return;
         }
         if(!basicHeader.startsWith("Basic ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Access to the application\"");
+            response.setHeader("WWW-Authenticate", "Basic realm=\"Access to the application\"");
             return;
         }
 
@@ -92,12 +92,12 @@ public class BasicAuthFilter extends OncePerRequestFilter {
 
             if (userDetails == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"User not exist!\"");
+                response.setHeader("WWW-Authenticate", "Basic realm=\"User not exist!\"");
                 return;
             }
             if (!passwordEncoder.matches(password, userDetails.getPassword())) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Password not correct!\"");
+                response.setHeader("WWW-Authenticate", "Basic realm=\"Password not correct!\"");
                 return;
             }
             UsernamePasswordAuthenticationToken authentication =
@@ -107,7 +107,7 @@ public class BasicAuthFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error("", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Basic failed!\"");
+            response.setHeader("WWW-Authenticate", "Basic realm=\"Basic failed!\"");
         }
     }
 }

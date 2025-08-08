@@ -42,6 +42,16 @@ public class RefreshTokenInfo {
     private String authType;
 
     /**
+     * 授权应用id
+     */
+    private String oauthId;
+
+    /**
+     * 授权应用名称
+     */
+    private String oauthName;
+
+    /**
      * 租户id
      */
     private String tenantId;
@@ -122,25 +132,27 @@ public class RefreshTokenInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private Date loginTime;
 
-    public RefreshTokenInfo(AccessUserDetails accessUserDetails){
-        this.accessId = accessUserDetails.getAccessId();
-        this.refreshId = accessUserDetails.getRefreshId();
-        this.authType = accessUserDetails.getAuthType();
-        this.tenantId = accessUserDetails.getTenantId();
-        this.userId = accessUserDetails.getUserId();
-        this.userCode = accessUserDetails.getUserCode();
-        this.userAccount = accessUserDetails.getUsername();
-        this.userName = accessUserDetails.getUserNick();
-        this.userProperties = accessUserDetails.getUserProperties();
-        this.deptId = accessUserDetails.getDeptId();
-        this.deptCode = accessUserDetails.getDeptCode();
-        this.deptName = accessUserDetails.getDeptName();
-        this.clusterId = accessUserDetails.getClusterId();
-        this.clusterLevel = accessUserDetails.getClusterLevel();
-        this.clusterName = accessUserDetails.getClusterName();
-        this.roles = accessUserDetails.getRoles();
-        this.permissions = accessUserDetails.getPermissions();
-        this.loginIp = accessUserDetails.getLoginIp();
-        this.loginTime = accessUserDetails.getLoginTime();
+    public RefreshTokenInfo(AccessUserDetails userDetails){
+        this.accessId = userDetails.getAccessId();
+        this.refreshId = userDetails.getRefreshId();
+        this.authType = userDetails.getAuthType();
+        this.oauthId = userDetails.getOauthId();
+        this.oauthName = userDetails.getOauthName();
+        this.tenantId = userDetails.getTenantId();
+        this.userId = userDetails.getUserId();
+        this.userCode = userDetails.getUserCode();
+        this.userAccount = userDetails.getUsername();
+        this.userName = userDetails.getUserNick();
+        this.userProperties = userDetails.getUserProperties();
+        this.deptId = userDetails.getDeptId();
+        this.deptCode = userDetails.getDeptCode();
+        this.deptName = userDetails.getDeptName();
+        this.clusterId = userDetails.getClusterId();
+        this.clusterLevel = userDetails.getClusterLevel();
+        this.clusterName = userDetails.getClusterName();
+        this.roles = userDetails.getRoles();
+        this.permissions = userDetails.getPermissions();
+        this.loginIp = userDetails.getLoginIp();
+        this.loginTime = userDetails.getLoginTime();
     }
 }
