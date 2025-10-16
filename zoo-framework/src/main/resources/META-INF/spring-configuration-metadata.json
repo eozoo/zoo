@@ -1,0 +1,2107 @@
+{
+  "groups": [
+    {
+      "name": "management.endpoint.git",
+      "type": "com.cowave.zoo.framework.support.actuator.GitEndpoint",
+      "sourceType": "com.cowave.zoo.framework.support.actuator.GitEndpoint"
+    },
+    {
+      "name": "spring.access",
+      "type": "com.cowave.zoo.framework.access.AccessProperties",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.auth",
+      "type": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.cross",
+      "type": "com.cowave.zoo.framework.access.AccessProperties$CrossControl",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.application",
+      "type": "com.cowave.zoo.framework.configuration.ApplicationProperties",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.cache",
+      "type": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties"
+    },
+    {
+      "name": "spring.cache.l1",
+      "type": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties"
+    },
+    {
+      "name": "spring.datasource",
+      "type": "com.cowave.zoo.framework.helper.datasource.DynamicDataSourceProperties",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.DynamicDataSourceProperties"
+    },
+    {
+      "name": "spring.datasource.druid",
+      "type": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.minio",
+      "type": "com.cowave.zoo.framework.helper.minio.MinioProperties",
+      "sourceType": "com.cowave.zoo.framework.helper.minio.MinioProperties"
+    },
+    {
+      "name": "spring.rest",
+      "type": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties"
+    },
+    {
+      "name": "spring.socket-io",
+      "type": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "zoo.kafka.admin",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getAdmin()"
+    },
+    {
+      "name": "zoo.kafka.admin.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"
+    },
+    {
+      "name": "zoo.kafka.admin.fail-fast",
+      "type": "java.lang.Boolean",
+      "description": "Whether to fail fast if the broker is not available on startup.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.admin.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional admin-specific properties used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"
+    },
+    {
+      "name": "zoo.kafka.admin.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "zoo.kafka.admin.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.admin.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Applies to all components unless overridden.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
+    },
+    {
+      "name": "zoo.kafka.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
+    },
+    {
+      "name": "zoo.kafka.consumer",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getConsumer()"
+    },
+    {
+      "name": "zoo.kafka.consumer.auto-commit-interval",
+      "type": "java.time.Duration",
+      "description": "Frequency with which the consumer offsets are auto-committed to Kafka if 'enable.auto.commit' is set to true.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.auto-offset-reset",
+      "type": "java.lang.String",
+      "description": "What to do when there is no initial offset in Kafka or if the current offset no longer exists on the server.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for consumers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.enable-auto-commit",
+      "type": "java.lang.Boolean",
+      "description": "Whether the consumer's offset is periodically committed in the background.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.fetch-max-wait",
+      "type": "java.time.Duration",
+      "description": "Maximum amount of time the server blocks before answering the fetch request if there isn't sufficient data to immediately satisfy the requirement given by \"fetch-min-size\".",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.fetch-min-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Minimum amount of data the server should return for a fetch request.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.group-id",
+      "type": "java.lang.String",
+      "description": "Unique string that identifies the consumer group to which this consumer belongs.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.heartbeat-interval",
+      "type": "java.time.Duration",
+      "description": "Expected time between heartbeats to the consumer coordinator.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.isolation-level",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$IsolationLevel",
+      "description": "Isolation level for reading messages that have been written transactionally.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "defaultValue": "read-uncommitted"
+    },
+    {
+      "name": "zoo.kafka.consumer.key-deserializer",
+      "type": "java.lang.Class<?>",
+      "description": "Deserializer class for keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.max-poll-records",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of records returned in a single call to poll().",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional consumer-specific properties used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.consumer.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "zoo.kafka.consumer.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.consumer.value-deserializer",
+      "type": "java.lang.Class<?>",
+      "description": "Deserializer class for values.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"
+    },
+    {
+      "name": "zoo.kafka.jaas",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getJaas()"
+    },
+    {
+      "name": "zoo.kafka.jaas.control-flag",
+      "type": "org.springframework.kafka.security.jaas.KafkaJaasLoginModuleInitializer$ControlFlag",
+      "description": "Control flag for login configuration.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "defaultValue": "required"
+    },
+    {
+      "name": "zoo.kafka.jaas.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable JAAS configuration.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.jaas.login-module",
+      "type": "java.lang.String",
+      "description": "Login module.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
+      "defaultValue": "com.sun.security.auth.module.Krb5LoginModule"
+    },
+    {
+      "name": "zoo.kafka.jaas.options",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional JAAS options.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas"
+    },
+    {
+      "name": "zoo.kafka.listener",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getListener()"
+    },
+    {
+      "name": "zoo.kafka.listener.ack-count",
+      "type": "java.lang.Integer",
+      "description": "Number of records between offset commits when ackMode is \"COUNT\" or \"COUNT_TIME\".",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.ack-mode",
+      "type": "org.springframework.kafka.listener.ContainerProperties$AckMode",
+      "description": "Listener AckMode. See the spring-kafka documentation.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.ack-time",
+      "type": "java.time.Duration",
+      "description": "Time between offset commits when ackMode is \"TIME\" or \"COUNT_TIME\".",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.client-id",
+      "type": "java.lang.String",
+      "description": "Prefix for the listener's consumer client.id property.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.concurrency",
+      "type": "java.lang.Integer",
+      "description": "Number of threads to run in the listener containers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.idle-between-polls",
+      "type": "java.time.Duration",
+      "description": "Sleep interval between Consumer.poll(Duration) calls.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": 0
+    },
+    {
+      "name": "zoo.kafka.listener.idle-event-interval",
+      "type": "java.time.Duration",
+      "description": "Time between publishing idle consumer events (no data received).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.idle-partition-event-interval",
+      "type": "java.time.Duration",
+      "description": "Time between publishing idle partition consumer events (no data received for partition).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.immediate-stop",
+      "type": "java.lang.Boolean",
+      "description": "Whether the container stops after the current record is processed or after all the records from the previous poll are processed.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.listener.log-container-config",
+      "type": "java.lang.Boolean",
+      "description": "Whether to log the container configuration during initialization (INFO level).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.missing-topics-fatal",
+      "type": "java.lang.Boolean",
+      "description": "Whether the container should fail to start if at least one of the configured topics are not present on the broker.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.listener.monitor-interval",
+      "type": "java.time.Duration",
+      "description": "Time between checks for non-responsive consumers. If a duration suffix is not specified, seconds will be used.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.no-poll-threshold",
+      "type": "java.lang.Float",
+      "description": "Multiplier applied to \"pollTimeout\" to determine if a consumer is non-responsive.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.poll-timeout",
+      "type": "java.time.Duration",
+      "description": "Timeout to use when polling the consumer.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener"
+    },
+    {
+      "name": "zoo.kafka.listener.type",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener$Type",
+      "description": "Listener type.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": "single"
+    },
+    {
+      "name": "zoo.kafka.producer",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getProducer()"
+    },
+    {
+      "name": "zoo.kafka.producer.acks",
+      "type": "java.lang.String",
+      "description": "Number of acknowledgments the producer requires the leader to have received before considering a request complete.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.batch-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Default batch size. A small batch size will make batching less common and may reduce throughput (a batch size of zero disables batching entirely).",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for producers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.buffer-memory",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Total memory size the producer can use to buffer records waiting to be sent to the server.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.compression-type",
+      "type": "java.lang.String",
+      "description": "Compression type for all data generated by the producer.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.key-serializer",
+      "type": "java.lang.Class<?>",
+      "description": "Serializer class for keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional producer-specific properties used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.retries",
+      "type": "java.lang.Integer",
+      "description": "When greater than zero, enables retrying of failed sends.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "zoo.kafka.producer.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.producer.transaction-id-prefix",
+      "type": "java.lang.String",
+      "description": "When non empty, enables transaction support for producer.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.producer.value-serializer",
+      "type": "java.lang.Class<?>",
+      "description": "Serializer class for values.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"
+    },
+    {
+      "name": "zoo.kafka.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional properties, common to producers and consumers, used to configure the client.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"
+    },
+    {
+      "name": "zoo.kafka.retry",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getRetry()"
+    },
+    {
+      "name": "zoo.kafka.retry.topic",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
+      "sourceMethod": "getTopic()"
+    },
+    {
+      "name": "zoo.kafka.retry.topic.attempts",
+      "type": "java.lang.Integer",
+      "description": "Total number of processing attempts made before sending the message to the DLT.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": 3
+    },
+    {
+      "name": "zoo.kafka.retry.topic.delay",
+      "type": "java.time.Duration",
+      "description": "Canonical backoff period. Used as an initial value in the exponential case, and as a minimum value in the uniform case.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": "1s"
+    },
+    {
+      "name": "zoo.kafka.retry.topic.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable topic-based non-blocking retries.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.retry.topic.max-delay",
+      "type": "java.time.Duration",
+      "description": "Maximum wait between retries. If less than the delay then the default of 30 seconds is applied.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": 0
+    },
+    {
+      "name": "zoo.kafka.retry.topic.multiplier",
+      "type": "java.lang.Double",
+      "description": "Multiplier to use for generating the next backoff delay.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": 0
+    },
+    {
+      "name": "zoo.kafka.retry.topic.random-back-off",
+      "type": "java.lang.Boolean",
+      "description": "Whether to have the backoff delays.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "zoo.kafka.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "zoo.kafka.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "zoo.kafka.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getStreams()"
+    },
+    {
+      "name": "zoo.kafka.streams.application-id",
+      "type": "java.lang.String",
+      "description": "Kafka streams application.id property; default spring.application.name.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.streams.auto-startup",
+      "type": "java.lang.Boolean",
+      "description": "Whether or not to auto-start the streams factory bean.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "defaultValue": true
+    },
+    {
+      "name": "zoo.kafka.streams.bootstrap-servers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-delimited list of host:port pairs to use for establishing the initial connections to the Kafka cluster. Overrides the global property, for streams.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.streams.cache-max-size-buffering",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Maximum memory size to be used for buffering across all threads.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.streams.cleanup",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceMethod": "getCleanup()"
+    },
+    {
+      "name": "zoo.kafka.streams.cleanup.on-shutdown",
+      "type": "java.lang.Boolean",
+      "description": "Cleanup the application’s local state directory on shutdown.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.streams.cleanup.on-startup",
+      "type": "java.lang.Boolean",
+      "description": "Cleanup the application’s local state directory on startup.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.kafka.streams.client-id",
+      "type": "java.lang.String",
+      "description": "ID to pass to the server when making requests. Used for server-side logging.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.streams.properties",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Additional Kafka properties used to configure the streams.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.streams.replication-factor",
+      "type": "java.lang.Integer",
+      "description": "The replication factor for change log topics and repartition topics created by the stream processing application.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.streams.security",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceMethod": "getSecurity()"
+    },
+    {
+      "name": "zoo.kafka.streams.security.protocol",
+      "type": "java.lang.String",
+      "description": "Security protocol used to communicate with brokers.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
+      "sourceMethod": "getSsl()"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.key-password",
+      "type": "java.lang.String",
+      "description": "Password of the private key in either key store key or key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.key-store-certificate-chain",
+      "type": "java.lang.String",
+      "description": "Certificate chain in PEM format with a list of X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.key-store-key",
+      "type": "java.lang.String",
+      "description": "Private key in PEM format with PKCS#8 keys.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.key-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.key-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the key store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.key-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the key store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.protocol",
+      "type": "java.lang.String",
+      "description": "SSL protocol to use.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.trust-store-certificates",
+      "type": "java.lang.String",
+      "description": "Trusted certificates in PEM format with X.509 certificates.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.trust-store-location",
+      "type": "org.springframework.core.io.Resource",
+      "description": "Location of the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.trust-store-password",
+      "type": "java.lang.String",
+      "description": "Store password for the trust store file.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.ssl.trust-store-type",
+      "type": "java.lang.String",
+      "description": "Type of the trust store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl"
+    },
+    {
+      "name": "zoo.kafka.streams.state-dir",
+      "type": "java.lang.String",
+      "description": "Directory location for the state store.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"
+    },
+    {
+      "name": "zoo.kafka.template",
+      "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
+      "sourceMethod": "getTemplate()"
+    },
+    {
+      "name": "zoo.kafka.template.default-topic",
+      "type": "java.lang.String",
+      "description": "Default topic to which messages are sent.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template"
+    },
+    {
+      "name": "zoo.kafka.template.transaction-id-prefix",
+      "type": "java.lang.String",
+      "description": "Transaction id prefix, override the transaction id prefix in the producer factory.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template"
+    },
+    {
+      "name": "zoo.redis.client-name",
+      "type": "java.lang.String",
+      "description": "Client name to be set on connections with CLIENT SETNAME.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "zoo.redis.client-type",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$ClientType",
+      "description": "Type of client to use. By default, auto-detected according to the classpath.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "zoo.redis.cluster",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getCluster()"
+    },
+    {
+      "name": "zoo.redis.cluster.max-redirects",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of redirects to follow when executing commands across the cluster.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
+    },
+    {
+      "name": "zoo.redis.cluster.nodes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-separated list of \"host:port\" pairs to bootstrap from. This represents an \"initial\" list of cluster nodes and is required to have at least one entry.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster"
+    },
+    {
+      "name": "zoo.redis.connect-timeout",
+      "type": "java.time.Duration",
+      "description": "Connection timeout.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "zoo.redis.database",
+      "type": "java.lang.Integer",
+      "description": "Database index used by the connection factory.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": 0
+    },
+    {
+      "name": "zoo.redis.host",
+      "type": "java.lang.String",
+      "description": "Redis server host.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "zoo.redis.jedis",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getJedis()"
+    },
+    {
+      "name": "zoo.redis.jedis.pool",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
+      "sourceMethod": "getPool()"
+    },
+    {
+      "name": "zoo.redis.jedis.pool.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "zoo.redis.jedis.pool.max-active",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "zoo.redis.jedis.pool.max-idle",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "zoo.redis.jedis.pool.max-wait",
+      "type": "java.time.Duration",
+      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": "-1ms"
+    },
+    {
+      "name": "zoo.redis.jedis.pool.min-idle",
+      "type": "java.lang.Integer",
+      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 0
+    },
+    {
+      "name": "zoo.redis.jedis.pool.time-between-eviction-runs",
+      "type": "java.time.Duration",
+      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "zoo.redis.lettuce",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getLettuce()"
+    },
+    {
+      "name": "zoo.redis.lettuce.cluster",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "sourceMethod": "getCluster()"
+    },
+    {
+      "name": "zoo.redis.lettuce.cluster.refresh",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
+      "sourceMethod": "getRefresh()"
+    },
+    {
+      "name": "zoo.redis.lettuce.cluster.refresh.adaptive",
+      "type": "java.lang.Boolean",
+      "description": "Whether adaptive topology refreshing using all available refresh triggers should be used.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.redis.lettuce.cluster.refresh.dynamic-refresh-sources",
+      "type": "java.lang.Boolean",
+      "description": "Whether to discover and query all cluster nodes for obtaining the cluster topology. When set to false, only the initial seed nodes are used as sources for topology discovery.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
+      "defaultValue": true
+    },
+    {
+      "name": "zoo.redis.lettuce.cluster.refresh.period",
+      "type": "java.time.Duration",
+      "description": "Cluster topology refresh period.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh"
+    },
+    {
+      "name": "zoo.redis.lettuce.pool",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "sourceMethod": "getPool()"
+    },
+    {
+      "name": "zoo.redis.lettuce.pool.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable the pool. Enabled automatically if \"commons-pool2\" is available. With Jedis, pooling is implicitly enabled in sentinel mode and this setting only applies to single node setup.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "zoo.redis.lettuce.pool.max-active",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "zoo.redis.lettuce.pool.max-idle",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of \"idle\" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 8
+    },
+    {
+      "name": "zoo.redis.lettuce.pool.max-wait",
+      "type": "java.time.Duration",
+      "description": "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": "-1ms"
+    },
+    {
+      "name": "zoo.redis.lettuce.pool.min-idle",
+      "type": "java.lang.Integer",
+      "description": "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if both it and time between eviction runs are positive.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
+      "defaultValue": 0
+    },
+    {
+      "name": "zoo.redis.lettuce.pool.time-between-eviction-runs",
+      "type": "java.time.Duration",
+      "description": "Time between runs of the idle object evictor thread. When positive, the idle object evictor thread starts, otherwise no idle object eviction is performed.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool"
+    },
+    {
+      "name": "zoo.redis.lettuce.shutdown-timeout",
+      "type": "java.time.Duration",
+      "description": "Shutdown timeout.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
+      "defaultValue": "100ms"
+    },
+    {
+      "name": "zoo.redis.password",
+      "type": "java.lang.String",
+      "description": "Login password of the redis server.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "zoo.redis.port",
+      "type": "java.lang.Integer",
+      "description": "Redis server port.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": 6379
+    },
+    {
+      "name": "zoo.redis.sentinel",
+      "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "sourceMethod": "getSentinel()"
+    },
+    {
+      "name": "zoo.redis.sentinel.master",
+      "type": "java.lang.String",
+      "description": "Name of the Redis server.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "zoo.redis.sentinel.nodes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Comma-separated list of \"host:port\" pairs.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "zoo.redis.sentinel.password",
+      "type": "java.lang.String",
+      "description": "Password for authenticating with sentinel(s).",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "zoo.redis.sentinel.username",
+      "type": "java.lang.String",
+      "description": "Login username for authenticating with sentinel(s).",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel"
+    },
+    {
+      "name": "zoo.redis.ssl",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable SSL support.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "zoo.redis.timeout",
+      "type": "java.time.Duration",
+      "description": "Read timeout.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "zoo.redis.url",
+      "type": "java.lang.String",
+      "description": "Connection URL. Overrides host, port, and password. User is ignored. Example: redis:\/\/user:password@example.com:6379",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "zoo.redis.username",
+      "type": "java.lang.String",
+      "description": "Login username of the redis server.",
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"
+    },
+    {
+      "name": "management.endpoint.git.cache.time-to-live",
+      "type": "java.time.Duration",
+      "description": "Maximum time that a response can be cached.",
+      "sourceType": "com.cowave.zoo.framework.support.actuator.GitEndpoint",
+      "defaultValue": "0ms"
+    },
+    {
+      "name": "management.endpoint.git.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable the git endpoint.",
+      "sourceType": "com.cowave.zoo.framework.support.actuator.GitEndpoint",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.always-success",
+      "type": "java.lang.Boolean",
+      "description": "AccessResponse是否永远200",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.access.auth.access-expire",
+      "type": "java.lang.Integer",
+      "description": "accessToken超时",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": 86400
+    },
+    {
+      "name": "spring.access.auth.access-secret",
+      "type": "java.lang.String",
+      "description": "accessToken密钥",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "access@cowave.com"
+    },
+    {
+      "name": "spring.access.auth.auth-urls",
+      "type": "java.lang.String[]",
+      "description": "认证的url",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.basic-urls",
+      "type": "java.lang.String[]",
+      "description": "Token模式中使用basic认证的url",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.basic-with-config-user",
+      "type": "java.lang.Boolean",
+      "description": "basic认证使用配置用户",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.access.auth.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否开启认证",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.auth.ignore-urls",
+      "type": "java.lang.String[]",
+      "description": "忽略的url",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.mode",
+      "type": "com.cowave.zoo.framework.access.security.AuthMode",
+      "description": "认证方式：（basic、access、access-refresh）",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.auth.refresh-expire",
+      "type": "java.lang.Integer",
+      "description": "refreshToken超时",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": 0
+    },
+    {
+      "name": "spring.access.auth.refresh-secret",
+      "type": "java.lang.String",
+      "description": "refreshToken密钥",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "refresh@cowave.com"
+    },
+    {
+      "name": "spring.access.auth.token-key",
+      "type": "java.lang.String",
+      "description": "Token保存的key",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "Authorization"
+    },
+    {
+      "name": "spring.access.auth.token-store",
+      "type": "java.lang.String",
+      "description": "Token保存方式（header、cookie）",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig",
+      "defaultValue": "header"
+    },
+    {
+      "name": "spring.access.auth.users",
+      "type": "java.util.List<com.cowave.zoo.framework.access.security.AccessUser>",
+      "description": "默认用户",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$AuthConfig"
+    },
+    {
+      "name": "spring.access.content-security-policy",
+      "type": "java.lang.String",
+      "description": "CSP白名单 <p\/> script-src 'self' <p\/> default-src * data: blob: 'unsafe-inline' 'unsafe-eval'",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties"
+    },
+    {
+      "name": "spring.access.cross.allow-credentials",
+      "type": "java.lang.Boolean",
+      "description": "跨域调用允许包含用户凭据",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$CrossControl",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.access.cross.allow-headers",
+      "type": "java.lang.String",
+      "description": "跨域调用允许的Header",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$CrossControl",
+      "defaultValue": "*"
+    },
+    {
+      "name": "spring.access.cross.allow-methods",
+      "type": "java.lang.String",
+      "description": "跨域调用允许的方法",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$CrossControl",
+      "defaultValue": "*"
+    },
+    {
+      "name": "spring.access.cross.allow-origin",
+      "type": "java.lang.String",
+      "description": "跨域调用允许的域名",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties$CrossControl",
+      "defaultValue": "*"
+    },
+    {
+      "name": "spring.access.filter",
+      "type": "java.lang.String[]",
+      "description": "AccessFilter拦截的url",
+      "sourceType": "com.cowave.zoo.framework.access.AccessProperties",
+      "defaultValue": [
+        "\/*"
+      ]
+    },
+    {
+      "name": "spring.application.cluster-id",
+      "type": "java.lang.Integer",
+      "description": "集群id",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties",
+      "defaultValue": 10
+    },
+    {
+      "name": "spring.application.cluster-level",
+      "type": "java.lang.Integer",
+      "description": "集群等级",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties",
+      "defaultValue": 1
+    },
+    {
+      "name": "spring.application.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties",
+      "defaultValue": "default"
+    },
+    {
+      "name": "spring.application.cluster-properties",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "description": "集群属性",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.application.name",
+      "type": "java.lang.String",
+      "description": "应用名称",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.application.version",
+      "type": "java.lang.String",
+      "description": "应用版本",
+      "sourceType": "com.cowave.zoo.framework.configuration.ApplicationProperties"
+    },
+    {
+      "name": "spring.cache.l1.enable",
+      "type": "java.lang.Boolean",
+      "description": "启用一级缓存",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.cache.l1.expire-after-access",
+      "type": "java.lang.Long",
+      "description": "访问后过期时间，单位秒",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.expire-after-write",
+      "type": "java.lang.Long",
+      "description": "写入后过期时间，单位秒",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.initial-capacity",
+      "type": "java.lang.Integer",
+      "description": "初始化大小",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.maximum-size",
+      "type": "java.lang.Long",
+      "description": "最大缓存对象个数，超过此数量时之前放入的缓存将失效",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l1.refresh-after-write",
+      "type": "java.lang.Long",
+      "description": "写入后刷新时间，单位秒",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L1Properties",
+      "defaultValue": -1
+    },
+    {
+      "name": "spring.cache.l2",
+      "type": "java.util.Map<java.lang.Object,com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L2Properties>",
+      "description": "L2 Redis缓存配置，区分Key",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties"
+    },
+    {
+      "name": "spring.cache.l2[enable]",
+      "type": "java.lang.Boolean",
+      "description": "启用本地缓存",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.cache.l2[expireAfterAccess]",
+      "type": "java.lang.Integer",
+      "description": "访问后过期时间，单位秒",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": 60
+    },
+    {
+      "name": "spring.cache.l2[expireAfterWrite]",
+      "type": "java.lang.Integer",
+      "description": "写入后过期时间，单位秒",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": 60
+    },
+    {
+      "name": "spring.cache.l2[first]",
+      "type": "java.lang.Boolean",
+      "description": "优先二级缓存",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties$L2Properties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.cache.log-enable",
+      "type": "java.lang.Boolean",
+      "description": "打印过程日志",
+      "sourceType": "com.cowave.zoo.framework.helper.redis.cache.CacheProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.datasource.druid.access-to-underlying-connection-allowed",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.active-connection-stack-trace",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.active-connections",
+      "type": "java.util.Set<com.alibaba.druid.pool.DruidPooledConnection>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.async-close-connection-enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.async-init",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.break-after-acquire-failure",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.check-execute-time",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.clear-filters-enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.connect-properties",
+      "type": "java.util.Properties",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.connection-error-retry-attempts",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.connection-init-sqls",
+      "type": "java.util.Collection<java.lang.String>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.create-scheduler",
+      "type": "java.util.concurrent.ScheduledExecutorService",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.db-type",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.default-auto-commit",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.default-catalog",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.default-read-only",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.default-transaction-isolation",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.destroy-scheduler",
+      "type": "java.util.concurrent.ScheduledExecutorService",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.driver",
+      "type": "java.sql.Driver",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.driver-class-name",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.dup-close-log-enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.exception-sorter",
+      "type": "com.alibaba.druid.pool.ExceptionSorter",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.exception-sorter-class-name",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.fail-fast",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.filter-class-names",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.init-exception-throw",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.init-global-variants",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.init-variants",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.initial-size",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.keep-alive",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.keep-alive-between-time-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.kill-when-socket-read-timeout",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.log-abandoned",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.log-different-thread",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.login-timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-active",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-create-task-count",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-evictable-idle-time-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-open-prepared-statements",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-pool-prepared-statement-per-connection-size",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-wait",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.max-wait-thread-count",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.min-evictable-idle-time-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.min-idle",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.name",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.not-full-timeout-retry-count",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.object-name",
+      "type": "javax.management.ObjectName",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.on-fatal-error-max-active",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.oracle",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.password",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.password-callback",
+      "type": "javax.security.auth.callback.PasswordCallback",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.phy-max-use-count",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.phy-timeout-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.pool-prepared-statements",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.pooling-connection-info",
+      "type": "java.util.List<java.util.Map<java.lang.String,java.lang.Object>>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.proxy-filters",
+      "type": "java.util.List<com.alibaba.druid.filter.Filter>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.query-timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.remove-abandoned",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.remove-abandoned-timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.remove-abandoned-timeout-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.reset-stat-enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.share-prepared-statements",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.sql-stat-map",
+      "type": "java.util.Map<java.lang.String,com.alibaba.druid.stat.JdbcSqlStat>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.stat-data",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.stat-data-for-m-bean",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.stat-logger",
+      "type": "com.alibaba.druid.pool.DruidDataSourceStatLogger",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.test-on-borrow",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.test-on-return",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.test-while-idle",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.time-between-connect-error-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.time-between-eviction-runs-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.time-between-log-stats-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.transaction-query-timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.transaction-threshold-millis",
+      "type": "java.lang.Long",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.url",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.use-global-data-source-stat",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.use-local-session-state",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.use-oracle-implicit-cache",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.use-ping-method",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.use-unfair-lock",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.user-callback",
+      "type": "javax.security.auth.callback.NameCallback",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.username",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.valid-connection-checker",
+      "type": "com.alibaba.druid.pool.ValidConnectionChecker",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.valid-connection-checker-class-name",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.validation-query",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.validation-query-timeout",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.druid.wall-stat-map",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper"
+    },
+    {
+      "name": "spring.datasource.dynamic",
+      "type": "java.util.Map<java.lang.String,org.springframework.boot.autoconfigure.jdbc.DataSourceProperties>",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.DynamicDataSourceProperties"
+    },
+    {
+      "name": "spring.minio.access-key",
+      "type": "java.lang.String",
+      "description": "访问key",
+      "sourceType": "com.cowave.zoo.framework.helper.minio.MinioProperties"
+    },
+    {
+      "name": "spring.minio.endpoint",
+      "type": "java.lang.String",
+      "description": "Minio地址：127.0.0.1:9000",
+      "sourceType": "com.cowave.zoo.framework.helper.minio.MinioProperties"
+    },
+    {
+      "name": "spring.minio.secret-key",
+      "type": "java.lang.String",
+      "description": "访问秘钥",
+      "sourceType": "com.cowave.zoo.framework.helper.minio.MinioProperties"
+    },
+    {
+      "name": "spring.rest.connect-timeout",
+      "type": "java.lang.Integer",
+      "description": "连接超时",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "defaultValue": 10000
+    },
+    {
+      "name": "spring.rest.pool-connections",
+      "type": "java.lang.Integer",
+      "description": "最大连接数",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "defaultValue": 100
+    },
+    {
+      "name": "spring.rest.pool-timeout",
+      "type": "java.lang.Integer",
+      "description": "获取连接超时",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "defaultValue": 30000
+    },
+    {
+      "name": "spring.rest.retry-interval",
+      "type": "java.lang.Long",
+      "description": "重试间隔",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "defaultValue": 1000
+    },
+    {
+      "name": "spring.rest.retry-max",
+      "type": "java.lang.Integer",
+      "description": "最大重试次数",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "defaultValue": 3
+    },
+    {
+      "name": "spring.rest.socket-timeout",
+      "type": "java.lang.Integer",
+      "description": "响应超时",
+      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
+      "defaultValue": 120000
+    },
+    {
+      "name": "spring.socket-io.allow-custom-requests",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.socket-io.boss-count",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 1
+    },
+    {
+      "name": "spring.socket-io.context-path",
+      "type": "java.lang.String",
+      "description": "socket路径",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": "\/socket.io"
+    },
+    {
+      "name": "spring.socket-io.host",
+      "type": "java.lang.String",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties"
+    },
+    {
+      "name": "spring.socket-io.max-frame-payload-length",
+      "type": "java.lang.Integer",
+      "description": "每帧处理数据的最大长度，防止他人利用大数据来攻击服务器",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 1048576
+    },
+    {
+      "name": "spring.socket-io.max-http-content-length",
+      "type": "java.lang.Integer",
+      "description": "http交互最大内容长度",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 1048576
+    },
+    {
+      "name": "spring.socket-io.ping-interval",
+      "type": "java.lang.Integer",
+      "description": "客户端向服务器发送心跳周期",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 25000
+    },
+    {
+      "name": "spring.socket-io.ping-timeout",
+      "type": "java.lang.Integer",
+      "description": "间隔内没有接收到心跳就会发送超时事件",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 6000000
+    },
+    {
+      "name": "spring.socket-io.port",
+      "type": "java.lang.Integer",
+      "description": "socket端口，默认复用Http端口",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties"
+    },
+    {
+      "name": "spring.socket-io.upgrade-timeout",
+      "type": "java.lang.Integer",
+      "description": "HTTP握手升级为ws协议超时时间，默认10秒",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 1000000
+    },
+    {
+      "name": "spring.socket-io.work-count",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
+      "defaultValue": 100
+    },
+    {
+      "name": "zoo.kafka.listener.only-log-record-metadata",
+      "type": "java.lang.Boolean",
+      "description": "Whether to suppress the entire record from being written to the log when retries are being attempted.",
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
+      "defaultValue": true,
+      "deprecated": true,
+      "deprecation": {
+        "reason": "Use KafkaUtils#setConsumerRecordFormatter instead."
+      }
+    },
+    {
+      "name": "spring.datasource.druid.max-idle",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper",
+      "deprecated": true,
+      "deprecation": {}
+    },
+    {
+      "name": "spring.datasource.druid.num-tests-per-eviction-run",
+      "type": "java.lang.Integer",
+      "sourceType": "com.cowave.zoo.framework.helper.datasource.druid.DruidDataSourceWrapper",
+      "deprecated": true,
+      "deprecation": {}
+    }
+  ],
+  "hints": []
+}
