@@ -135,8 +135,8 @@ public class DictHelper {
     /**
      * 获取字典Label
      */
-    public String getDictName(String dictCode) {
-        Dict dict = getDict(dictCode);
+    public String getDictName(String dictCode, String... prefixes) {
+        Dict dict = getDict(dictCode, prefixes);
         if(dict == null){
             return null;
         }
@@ -146,8 +146,8 @@ public class DictHelper {
     /**
      * 获取字典值
      */
-    public <T> T getDictValue(String dictCode) {
-        Dict dict = getDict(dictCode);
+    public <T> T getDictValue(String dictCode, String... prefixes) {
+        Dict dict = getDict(dictCode, prefixes);
         if(dict == null){
             return null;
         }
