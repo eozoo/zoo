@@ -10,7 +10,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.zoo.framework.support.mybatis.pg;
+package com.cowave.zoo.framework.support.mybatis.handler;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.type.JdbcType;
+import org.postgresql.jdbc.PgArray;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,20 +29,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-import org.apache.ibatis.type.MappedJdbcTypes;
-import org.apache.ibatis.type.MappedTypes;
-
 /**
- *
  * @author shanhuiming
- *
  */
-@MappedTypes({List.class})
-@MappedJdbcTypes(JdbcType.ARRAY)
-public class PgListHandler<T> extends BaseTypeHandler<List<T>> {
+@Slf4j
+class PgArrayHandler {
 
     private static final ConcurrentHashMap<Class<?>, String> STANDARD_MAPPING;
 
@@ -72,42 +69,63 @@ public class PgListHandler<T> extends BaseTypeHandler<List<T>> {
         STANDARD_MAPPING.put(URL.class, JdbcType.DATALINK.name());
     }
 
-    @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, List<T> parameter, JdbcType jdbcType) throws SQLException {
-        if(CollectionUtils.isEmpty(parameter)) {
-            ps.setArray(i, null);
-        }else {
-            T t = parameter.get(0);
-            String typeName = STANDARD_MAPPING.getOrDefault(t.getClass(), JdbcType.VARCHAR.name());
-            Connection conn = ps.getConnection();
-            Array array = conn.createArrayOf(typeName, parameter.toArray());
-            ps.setArray(i, array);
-        }
+    public static <T> void setBasicArrayParameter(PreparedStatement ps, int i, List<T> parameter, JdbcType jdbcType) throws SQLException {
+        T t = parameter.get(0);
+        String typeName = STANDARD_MAPPING.getOrDefault(t.getClass(), JdbcType.VARCHAR.name());
+        Connection conn = ps.getConnection();
+        Array array = conn.createArrayOf(typeName, parameter.toArray());
+        ps.setArray(i, array);
     }
 
-    @Override
-    public List<T> getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    public static <T> List<T> getNullableResult(ResultSet rs, String columnName) throws SQLException {
         return getList(rs.getArray(columnName));
     }
 
-    @Override
-    public List<T> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+    public static <T> List<T> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         return getList(rs.getArray(columnIndex));
     }
 
-    @Override
-    public List<T> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    public static <T> List<T> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         return getList(cs.getArray(columnIndex));
     }
 
     @SuppressWarnings("unchecked")
-    private List<T> getList(Array array) {
+    private static <T> List<T> getList(Array array) {
         if (array == null) {
             return new ArrayList<>();
         }
+
         try {
             return Arrays.asList((T[]) array.getArray());
         } catch (Exception e) {
+            log.error("", e);
+            return new ArrayList<>();
+        }
+    }
+
+    public static <T> List<T> getJsonArrayResult(ResultSet rs, String columnName) throws SQLException {
+        return getJsonList(rs.getArray(columnName));
+    }
+
+    public static <T> List<T> getJsonArrayResult(ResultSet rs, int columnIndex) throws SQLException {
+        return getJsonList(rs.getArray(columnIndex));
+    }
+
+    public static <T> List<T> getJsonArrayResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return getJsonList(cs.getArray(columnIndex));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> List<T> getJsonList(Array array) {
+        if (array == null) {
+            return new ArrayList<>();
+        }
+
+        try {
+            String arrayString = ((PgArray) array).toString();
+            return JSON.parseObject(arrayString, new TypeReference<>() {});
+        } catch (Exception e) {
+            log.error("", e);
             return new ArrayList<>();
         }
     }

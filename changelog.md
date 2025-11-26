@@ -1,3 +1,30 @@
+## [2.7.6](https://github.com/eozoo/zoo/-/tags/2.7.6) (2025-11-26)
+
+
+
+    ### Features
+
+  -  [<font style="font-family: monospace;">[`90351f0f6bb933a`](https://github.com/eozoo/zoo/commit/90351f0f6bb933a)</font>] (**oauth**)   定义一些OAuth配置
+  -  [<font style="font-family: monospace;">[`cc64d50ecdf6601`](https://github.com/eozoo/zoo/commit/cc64d50ecdf6601)</font>] (**tenant**)   支持租户
+  -  [<font style="font-family: monospace;">[`b75fb06b28d3400`](https://github.com/eozoo/zoo/commit/b75fb06b28d3400)</font>] (**nacos**)   配置中心依赖
+  -  [<font style="font-family: monospace;">[`a7d5c14f442764c`](https://github.com/eozoo/zoo/commit/a7d5c14f442764c)</font>] (**tools**)   枚举接口EnumVal
+  -  [<font style="font-family: monospace;">[`74cfc2af8873113`](https://github.com/eozoo/zoo/commit/74cfc2af8873113)</font>] (**validator**)   枚举参数校验@IsEnum
+
+
+    ### Bug Fixes
+
+  -  [<font style="font-family: monospace;">[`f3840c6163cbb2b`](https://github.com/eozoo/zoo/commit/f3840c6163cbb2b)</font>] (**hutool**)   5.8.21 -> 5.7.22 jakarta不兼容
+  -  [<font style="font-family: monospace;">[`ad779ab40a5f1f2`](https://github.com/eozoo/zoo/commit/ad779ab40a5f1f2)</font>] (**redis**)   Jedis和Lettuce的注入冲突问题
+  -  [<font style="font-family: monospace;">[`1c51598fc55780d`](https://github.com/eozoo/zoo/commit/1c51598fc55780d)</font>] (**asserts**)   isBlank判断写错
+  -  [<font style="font-family: monospace;">[`d6bf9f1df67c5fc`](https://github.com/eozoo/zoo/commit/d6bf9f1df67c5fc)</font>] (**HttpResponse**)   覆盖getStatusCode，避免不存在的status报错问题
+  -  [<font style="font-family: monospace;">[`e3cf1d6b5c10f05`](https://github.com/eozoo/zoo/commit/e3cf1d6b5c10f05)</font>] (**operation**)   taskExecutor注入失败问题
+  -  [<font style="font-family: monospace;">[`2539783710f4aca`](https://github.com/eozoo/zoo/commit/2539783710f4aca)</font>] (**build**)   jar构建配置错误
+  -  [<font style="font-family: monospace;">[`5df6fcdf0f0a2e0`](https://github.com/eozoo/zoo/commit/5df6fcdf0f0a2e0)</font>] (**socket-io**)   连接处理判断问题
+  -  [<font style="font-family: monospace;">[`998b9865d495a3a`](https://github.com/eozoo/zoo/commit/998b9865d495a3a)</font>] (**DateUtils**)   方法没有定义成static
+  -  [<font style="font-family: monospace;">[`6ebf60fdf8f3a26`](https://github.com/eozoo/zoo/commit/6ebf60fdf8f3a26)</font>] (**token**)   accessToken漏填ip问题
+  -  [<font style="font-family: monospace;">[`e8f0b32ec0f5782`](https://github.com/eozoo/zoo/commit/e8f0b32ec0f5782)</font>] (**mybatis**)   DatabaseProvider获取修改
+  -  [<font style="font-family: monospace;">[`941c6175389f623`](https://github.com/eozoo/zoo/commit/941c6175389f623)</font>] (**access**)   检查空判断
+
 ## [2.7.5](https://github.com/eozoo/zoo/-/tags/2.7.5) (2024-11-09)
 
 

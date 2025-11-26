@@ -100,7 +100,7 @@ public class AccessFilter implements Filter {
         String method = httpServletRequest.getMethod().toLowerCase();
 
         Access access = new Access(true, accessId, accessIp, accessUrl, method, System.currentTimeMillis());
-        parseUserPayload(access, httpServletRequest);
+        parseAuthorizationIfNeed(access);
         Access.set(access);
 
         // 请求参数、日志
@@ -145,13 +145,20 @@ public class AccessFilter implements Filter {
         MDC.remove("accessId");
     }
 
-    private void parseUserPayload(Access access, HttpServletRequest httpServletRequest){
-        String userPayload = httpServletRequest.getHeader(X_User_Payload);
-        if(StringUtils.isBlank(userPayload)){
+    private void parseAuthorizationIfNeed(Access access){
+        String jwt = Access.getRequestHeader(accessProperties.tokenKey());
+        if (StringUtils.isBlank(jwt) || accessProperties.authEnable()) {
             return;
         }
 
-        String json = new String(Base64.getUrlDecoder().decode(userPayload));
+        String[] parts = jwt.split("\\.");
+        if(parts.length != 3){
+            return;
+        }
+
+        // 如果携带了访问令牌但是服务没有开启鉴权，这里解析一下认证信息
+        String payload = parts[1];
+        String json = new String(Base64.getUrlDecoder().decode(payload));
         try {
             Map<String, Object> claims = objectMapper.readValue(json, Map.class);
             AccessUserDetails userDetails = new AccessUserDetails();
