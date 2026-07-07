@@ -13,10 +13,12 @@
 package com.cowave.zoo.framework.access.security;
 
 import com.cowave.zoo.framework.access.AccessProperties;
+import com.cowave.zoo.framework.access.annotation.AnonymousAccess;
 import com.cowave.zoo.framework.access.filter.AccessIdGenerator;
 import com.cowave.zoo.framework.configuration.ApplicationProperties;
 import com.cowave.zoo.framework.helper.redis.RedisHelper;
 import com.cowave.zoo.tools.Collections;
+import com.cowave.zoo.tools.SpringContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,22 +27,26 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -67,7 +73,7 @@ public class SecurityConfiguration {
     @Bean
     public BearerTokenService bearerTokenService(
             AccessIdGenerator accessIdGenerator, ObjectMapper objectMapper,
-            @Nullable RedisHelper redisHelper, @Nullable BearerTokenInterceptor bearerTokenInterceptor){
+            @Nullable RedisHelper redisHelper, @Nullable BearerTokenInterceptor bearerTokenInterceptor) {
         return new BearerTokenServiceImpl(applicationProperties, accessProperties,
                 accessIdGenerator, objectMapper, redisHelper, bearerTokenInterceptor);
     }
@@ -83,8 +89,8 @@ public class SecurityConfiguration {
     @ConditionalOnMissingBean(AuthenticationManager.class)
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder, TenantUserDetailsService userDetailsService) {
-		return new ProviderManager(new TenantAuthenticationProvider(userDetailsService, passwordEncoder));
-	}
+        return new ProviderManager(new TenantAuthenticationProvider(userDetailsService, passwordEncoder));
+    }
 
     /**
      * basic认证
@@ -107,8 +113,20 @@ public class SecurityConfiguration {
         // username:password Base64编码
         httpSecurity.httpBasic();
         if (accessProperties.authEnable()) {
-            if (ArrayUtils.isNotEmpty(accessProperties.ignoreUrls())) {
-                httpSecurity.authorizeRequests().antMatchers(accessProperties.ignoreUrls()).permitAll().anyRequest().authenticated();
+            Map<String, Set<String>> anonymousUrls = getAnonymousUrl();
+            if (ArrayUtils.isNotEmpty(accessProperties.ignoreUrls()) || !anonymousUrls.isEmpty()) { // TODO
+                httpSecurity.authorizeRequests()
+                        .antMatchers(accessProperties.ignoreUrls()).permitAll()
+                        .antMatchers(anonymousUrls.getOrDefault("ALL", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.GET, anonymousUrls.getOrDefault("GET", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.PUT, anonymousUrls.getOrDefault("PUT", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.POST, anonymousUrls.getOrDefault("POST", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.PATCH, anonymousUrls.getOrDefault("PATCH", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.DELETE, anonymousUrls.getOrDefault("DELETE", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.HEAD, anonymousUrls.getOrDefault("HEAD", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.OPTIONS, anonymousUrls.getOrDefault("OPTIONS", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.TRACE, anonymousUrls.getOrDefault("TRACE", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .anyRequest().authenticated();
             } else {
                 httpSecurity.authorizeRequests().anyRequest().authenticated();
             }
@@ -143,7 +161,7 @@ public class SecurityConfiguration {
     }
 
     private SecurityFilterChain newBearerSecurityFilterChain(HttpSecurity httpSecurity, BearerTokenService bearerTokenService,
-            TenantUserDetailsService userDetailsService, PasswordEncoder passwordEncoder, boolean useRefreshToken) throws Exception {
+                                                             TenantUserDetailsService userDetailsService, PasswordEncoder passwordEncoder, boolean useRefreshToken) throws Exception {
         if (ArrayUtils.isNotEmpty(accessProperties.authUrls())) {
             httpSecurity.requestMatchers(requestMatchers ->
                     requestMatchers.antMatchers(accessProperties.authUrls())
@@ -161,8 +179,20 @@ public class SecurityConfiguration {
             String[] ignoreUrls = accessProperties.ignoreUrls();
             String[] tokenIgnoreUrls = Stream.of(basicUrls, ignoreUrls)
                     .filter(Objects::nonNull).flatMap(Arrays::stream).filter(Objects::nonNull).toArray(String[]::new);
-            if (ArrayUtils.isNotEmpty(tokenIgnoreUrls)) {
-                httpSecurity.authorizeRequests().antMatchers(tokenIgnoreUrls).permitAll().anyRequest().authenticated();
+            Map<String, Set<String>> anonymousUrls = getAnonymousUrl();
+            if (ArrayUtils.isNotEmpty(tokenIgnoreUrls) || !anonymousUrls.isEmpty()) {
+                httpSecurity.authorizeRequests()
+                        .antMatchers(tokenIgnoreUrls).permitAll()
+                        .antMatchers(anonymousUrls.getOrDefault("ALL", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.GET, anonymousUrls.getOrDefault("GET", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.PUT, anonymousUrls.getOrDefault("PUT", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.POST, anonymousUrls.getOrDefault("POST", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.PATCH, anonymousUrls.getOrDefault("PATCH", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.DELETE, anonymousUrls.getOrDefault("DELETE", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.HEAD, anonymousUrls.getOrDefault("HEAD", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.OPTIONS, anonymousUrls.getOrDefault("OPTIONS", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .antMatchers(HttpMethod.TRACE, anonymousUrls.getOrDefault("TRACE", new HashSet<>()).toArray(new String[0])).permitAll()
+                        .anyRequest().authenticated();
             } else {
                 httpSecurity.authorizeRequests().anyRequest().authenticated();
             }
@@ -170,7 +200,7 @@ public class SecurityConfiguration {
             boolean basicWithConfigUser = accessProperties.basicWithConfigUser();
 
             // Bearer Token认证
-            BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(useRefreshToken, bearerTokenService, ignoreUrls);
+            BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(useRefreshToken, bearerTokenService, ignoreUrls, anonymousUrls);
             httpSecurity.addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
             // Basic认证
@@ -184,5 +214,29 @@ public class SecurityConfiguration {
             httpSecurity.authorizeRequests().anyRequest().permitAll();
         }
         return httpSecurity.build();
+    }
+
+    private Map<String, Set<String>> getAnonymousUrl() {
+        RequestMappingHandlerMapping requestMappingHandlerMapping = SpringContext.getBean("requestMappingHandlerMapping");
+        Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
+
+        Map<String, Set<String>> anonymousUrls = new HashMap<>();
+        for (Map.Entry<RequestMappingInfo, HandlerMethod> infoEntry : handlerMethodMap.entrySet()) {
+            HandlerMethod handlerMethod = infoEntry.getValue();
+            AnonymousAccess anonymousAccess = handlerMethod.getMethodAnnotation(AnonymousAccess.class);
+            if (anonymousAccess != null) {
+                RequestMappingInfo requestMappingInfo = infoEntry.getKey();
+                List<RequestMethod> requestMethods = new ArrayList<>(requestMappingInfo.getMethodsCondition().getMethods());
+                if (requestMethods.isEmpty()) {
+                    anonymousUrls.computeIfAbsent("ALL", k -> new HashSet<>())
+                            .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
+                } else {
+                    RequestMethod requestMethod = requestMethods.get(0);
+                    anonymousUrls.computeIfAbsent(requestMethod.name(), k -> new HashSet<>())
+                            .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
+                }
+            }
+        }
+        return anonymousUrls;
     }
 }

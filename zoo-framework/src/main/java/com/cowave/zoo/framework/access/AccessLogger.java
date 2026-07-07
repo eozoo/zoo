@@ -56,7 +56,12 @@ public class AccessLogger {
             "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.PatchMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
+            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping) " +
+            "|| @annotation(com.cowave.zoo.framework.access.annotation.AnonymousGetMapping) " +
+            "|| @annotation(com.cowave.zoo.framework.access.annotation.AnonymousPostMapping) " +
+            "|| @annotation(com.cowave.zoo.framework.access.annotation.AnonymousPatchMapping) " +
+            "|| @annotation(com.cowave.zoo.framework.access.annotation.AnonymousPutMapping) " +
+            "|| @annotation(com.cowave.zoo.framework.access.annotation.AnonymousDeleteMapping)")
     public void request() {
 
     }

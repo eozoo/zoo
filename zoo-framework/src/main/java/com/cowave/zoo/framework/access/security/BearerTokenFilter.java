@@ -13,9 +13,7 @@
 package com.cowave.zoo.framework.access.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -42,11 +40,23 @@ public class BearerTokenFilter extends OncePerRequestFilter {
 
     private final boolean useRefreshToken;
 
-    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String[] ignoreUrls) {
+    public BearerTokenFilter(boolean useRefreshToken, BearerTokenService bearerTokenService, String[] ignoreUrls, Map<String, Set<String>> anonymousUrls) {
         this.useRefreshToken = useRefreshToken;
         this.bearerTokenService = bearerTokenService;
         if(ArrayUtils.isNotEmpty(ignoreUrls)){
             Arrays.stream(ignoreUrls).map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
+        }
+
+        if (anonymousUrls != null && !anonymousUrls.isEmpty()) {
+            for (Map.Entry<String, Set<String>> entry : anonymousUrls.entrySet()) {
+                String method = entry.getKey();
+                Set<String> urls = entry.getValue();
+                if ("ALL".equals(method)) {
+                    urls.stream().map(AntPathRequestMatcher::new).forEach(permitAllMatchers::add);
+                } else {
+                    urls.stream().map(url -> new AntPathRequestMatcher(url, method)).forEach(permitAllMatchers::add);
+                }
+            }
         }
     }
 
