@@ -114,7 +114,7 @@ public class SecurityConfiguration {
         httpSecurity.httpBasic();
         if (accessProperties.authEnable()) {
             Map<String, Set<String>> anonymousUrls = getAnonymousUrl();
-            if (ArrayUtils.isNotEmpty(accessProperties.ignoreUrls()) || !anonymousUrls.isEmpty()) { // TODO
+            if (ArrayUtils.isNotEmpty(accessProperties.ignoreUrls()) || !anonymousUrls.isEmpty()) {
                 httpSecurity.authorizeRequests()
                         .antMatchers(accessProperties.ignoreUrls()).permitAll()
                         .antMatchers(anonymousUrls.getOrDefault("ALL", new HashSet<>()).toArray(new String[0])).permitAll()
@@ -231,9 +231,10 @@ public class SecurityConfiguration {
                     anonymousUrls.computeIfAbsent("ALL", k -> new HashSet<>())
                             .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
                 } else {
-                    RequestMethod requestMethod = requestMethods.get(0);
-                    anonymousUrls.computeIfAbsent(requestMethod.name(), k -> new HashSet<>())
-                            .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
+                    for (RequestMethod requestMethod : requestMethods) {
+                        anonymousUrls.computeIfAbsent(requestMethod.name(), k -> new HashSet<>())
+                                .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
+                    }
                 }
             }
         }

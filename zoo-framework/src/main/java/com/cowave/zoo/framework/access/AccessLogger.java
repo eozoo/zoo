@@ -15,13 +15,15 @@ package com.cowave.zoo.framework.access;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.cowave.zoo.framework.access.annotation.SensitiveSerializerModifier;
 import com.cowave.zoo.http.client.response.HttpResponse;
 import com.cowave.zoo.http.client.response.Response;
 import com.cowave.zoo.framework.access.filter.AccessIdGenerator;
 import com.cowave.zoo.framework.access.security.AccessInfoSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -41,7 +43,6 @@ import static com.cowave.zoo.http.client.constants.HttpCode.SUCCESS;
  * @author shanhuiming
  */
 @Aspect
-@RequiredArgsConstructor
 @Component
 public class AccessLogger {
 
@@ -50,6 +51,19 @@ public class AccessLogger {
     private final AccessIdGenerator accessIdGenerator;
 
     private final ObjectMapper objectMapper;
+
+    private final ObjectWriter sensitiveWriter;
+
+    public AccessLogger(AccessIdGenerator accessIdGenerator, ObjectMapper objectMapper) {
+        this.accessIdGenerator = accessIdGenerator;
+        this.objectMapper = objectMapper;
+
+        ObjectMapper sensitiveMapper = objectMapper.copy();
+        SimpleModule module = new SimpleModule();
+        module.setSerializerModifier(new SensitiveSerializerModifier());
+        sensitiveMapper.registerModule(module);
+        this.sensitiveWriter = sensitiveMapper.writer();
+    }
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.GetMapping) " +
@@ -154,7 +168,7 @@ public class AccessLogger {
                     LOGGER.info("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                 } else {
                     if (!LOGGER.isInfoEnabled()) {
-                        LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
+                        LOGGER.warn("<< {} {}ms {code={}, msg={}} {} {}", status, cost, code, msg, access.getAccessUrl(), sensitiveWriter.writeValueAsString(access.getAccessLogParams()));
                     } else {
                         LOGGER.warn("<< {} {}ms {code={}, msg={}}", status, cost, code, msg);
                     }
@@ -165,7 +179,7 @@ public class AccessLogger {
                     LOGGER.info("<< {} {}ms {}", status, cost, msg);
                 } else {
                     if (!LOGGER.isInfoEnabled()) {
-                        LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
+                        LOGGER.warn("<< {} {}ms {} {} {}", status, cost, msg, access.getAccessUrl(), sensitiveWriter.writeValueAsString(access.getAccessLogParams()));
                     } else {
                         LOGGER.warn("<< {} {}ms {}", status, cost, msg);
                     }
@@ -176,7 +190,7 @@ public class AccessLogger {
                     LOGGER.info("<< {} {}ms", status, cost);
                 } else {
                     if (!LOGGER.isInfoEnabled()) {
-                        LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
+                        LOGGER.warn("<< {} {}ms {} {}", status, cost, access.getAccessUrl(), sensitiveWriter.writeValueAsString(access.getAccessLogParams()));
                     } else {
                         LOGGER.info("<< {} {}ms", status, cost);
                     }
@@ -184,11 +198,11 @@ public class AccessLogger {
             }
         } else {
             if (response != null) {
-                LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, objectMapper.writeValueAsString(data));
+                LOGGER.debug("<< {} {}ms {code={}, msg={}, data={}}", status, cost, code, msg, sensitiveWriter.writeValueAsString(data));
             } else if (httpResponse != null) {
-                LOGGER.debug("<< {} {}ms {}", status, cost, objectMapper.writeValueAsString(data));
+                LOGGER.debug("<< {} {}ms {}", status, cost, sensitiveWriter.writeValueAsString(data));
             } else {
-                LOGGER.debug("<< {} {}ms {}", status, cost, objectMapper.writeValueAsString(resp));
+                LOGGER.debug("<< {} {}ms {}", status, cost, sensitiveWriter.writeValueAsString(resp));
             }
         }
     }

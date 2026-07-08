@@ -70,7 +70,7 @@ public class Access {
 
     private boolean responseLogged;
 
-    private Map<String, Object> requestParam = new HashMap<>();
+    private Map<String, Object> accessLogParams = new HashMap<>();
 
     public Access(boolean accessFiltered, String accessId, String accessIp, String accessUrl, String accessMethod, Long accessTime){
         this.accessFiltered = accessFiltered;
@@ -391,8 +391,8 @@ public class Access {
     /**
      * 获取请求参数
      */
-    public static Map<String, Object> getRequestParam() {
-        return Optional.ofNullable(get()).map(access -> access.requestParam).orElse(null);
+    public static Map<String, Object> getAccessLogParams() {
+        return Optional.ofNullable(get()).map(access -> access.accessLogParams).orElse(null);
     }
 
     /**

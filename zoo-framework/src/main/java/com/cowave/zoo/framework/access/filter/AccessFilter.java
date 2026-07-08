@@ -12,6 +12,8 @@
  */
 package com.cowave.zoo.framework.access.filter;
 
+import com.cowave.zoo.framework.access.annotation.Sensitive;
+import com.cowave.zoo.framework.access.annotation.SensitiveSerializerModifier;
 import com.cowave.zoo.http.client.asserts.I18Messages;
 import com.cowave.zoo.http.client.response.Response;
 import com.cowave.zoo.framework.access.Access;
@@ -19,23 +21,34 @@ import com.cowave.zoo.framework.access.AccessLogger;
 import com.cowave.zoo.framework.access.AccessProperties;
 import com.cowave.zoo.framework.access.security.AccessUserDetails;
 import com.cowave.zoo.tools.ServletUtils;
+import com.cowave.zoo.tools.SpringContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.slf4j.MDC;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.http.MediaType;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.cowave.zoo.http.client.constants.HttpCode.BAD_REQUEST;
 import static com.cowave.zoo.http.client.constants.HttpCode.SUCCESS;
@@ -43,12 +56,9 @@ import static com.cowave.zoo.http.client.constants.HttpHeader.*;
 import static com.cowave.zoo.framework.access.security.BearerTokenService.*;
 
 /**
- *
  * @author shanhuiming
- *
  */
 @Slf4j
-@RequiredArgsConstructor
 public class AccessFilter implements Filter {
 
     private final TransactionIdSetter transactionIdSetter;
@@ -58,6 +68,140 @@ public class AccessFilter implements Filter {
     private final AccessProperties accessProperties;
 
     private final ObjectMapper objectMapper;
+
+    private final ObjectWriter sensitiveWriter;
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final Map<String, Map<String, Set<String>>> sensitiveParamMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, Class<?>>> sensitiveBodyMap = new ConcurrentHashMap<>();
+
+    public AccessFilter(TransactionIdSetter transactionIdSetter, AccessIdGenerator accessIdGenerator,
+                        AccessProperties accessProperties, ObjectMapper objectMapper) {
+        this.transactionIdSetter = transactionIdSetter;
+        this.accessIdGenerator = accessIdGenerator;
+        this.accessProperties = accessProperties;
+        this.objectMapper = objectMapper;
+
+        ObjectMapper sensitiveMapper = objectMapper.copy();
+        SimpleModule module = new SimpleModule();
+        module.setSerializerModifier(new SensitiveSerializerModifier());
+        sensitiveMapper.registerModule(module);
+        this.sensitiveWriter = sensitiveMapper.writer();
+
+        DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
+        RequestMappingHandlerMapping requestMappingHandlerMapping = SpringContext.getBean("requestMappingHandlerMapping");
+        Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = requestMappingHandlerMapping.getHandlerMethods();
+        for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethodMap.entrySet()) {
+            RequestMappingInfo requestMappingInfo = entry.getKey();
+            HandlerMethod handlerMethod = entry.getValue();
+            // param参数，保存<url，参数名称集合>
+            Set<String> paramFields = new HashSet<>();
+            // body参数，保存<url, body对象class>
+            Class<?> bodyClass = null;
+            Method method = handlerMethod.getMethod();
+            String[] names = discoverer.getParameterNames(method);
+            Parameter[] parameters = method.getParameters();
+            for (int i = 0; i < parameters.length; i++) {
+                Parameter parameter = parameters[i];
+                Class<?> paramType = parameter.getType();
+                if (parameter.isAnnotationPresent(RequestParam.class) && parameter.isAnnotationPresent(Sensitive.class)) {
+                    // @RequestParam参数，可能被重命名，要取实际的参数名
+                    RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+                    String paramName = requestParam.name();
+                    if (StringUtils.isBlank(paramName)) {
+                        paramName = requestParam.value();
+                    }
+                    if (StringUtils.isBlank(paramName)) {
+                        paramName = names[i];
+                    }
+                    paramFields.add(paramName);
+                } else if (parameter.isAnnotationPresent(RequestBody.class)) {
+                    // @RequestBody参数，扫描其中字段，只要存在有@Sensitive的字段，就记录这个paramType
+                    if (hasSensitiveFields(paramType)) {
+                        bodyClass = paramType;
+                    }
+                } else if (parameter.isAnnotationPresent(Sensitive.class) && isPrimitiveOrWrapper(paramType)) {
+                    // 值参数，有@Sensitive，当成Param处理
+                    paramFields.add(names[i]);
+                } else if (!isPrimitiveOrWrapper(paramType)) {
+                    // 对象参数，没有注解，查找标记了@Sensitive的字段，当成Param处理
+                    paramFields.addAll(findSensitiveFields(paramType));
+                }
+            }
+
+            if (paramFields.isEmpty() && bodyClass == null) {
+                continue;
+            }
+
+            Set<String> urlPatterns = requestMappingInfo.getPathPatternsCondition().getPatternValues();
+            Set<RequestMethod> httpMethods = requestMappingInfo.getMethodsCondition().getMethods();
+            if (httpMethods.isEmpty()) {
+                for (String urlPattern : urlPatterns) {
+                    if (!paramFields.isEmpty()) {
+                        sensitiveParamMap.computeIfAbsent("ALL",
+                                k -> new HashMap<>()).put(urlPattern, paramFields);
+                    }
+                    if (bodyClass != null) {
+                        sensitiveBodyMap.computeIfAbsent("ALL",
+                                k -> new HashMap<>()).put(urlPattern, bodyClass);
+                    }
+                }
+            } else {
+                for (RequestMethod httpMethod : httpMethods) {
+                    for (String urlPattern : urlPatterns) {
+                        if (!paramFields.isEmpty()) {
+                            sensitiveParamMap.computeIfAbsent(httpMethod.name(),
+                                    k -> new HashMap<>()).put(urlPattern, paramFields);
+                        }
+                        if (bodyClass != null) {
+                            sensitiveBodyMap.computeIfAbsent(httpMethod.name(),
+                                    k -> new HashMap<>()).put(urlPattern, bodyClass);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean hasSensitiveFields(Class<?> clazz) {
+        Class<?> current = clazz;
+        while (current != null && current != Object.class) {
+            for (Field field : current.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Sensitive.class)) {
+                    return true;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return false;
+    }
+
+    private Set<String> findSensitiveFields(Class<?> clazz) {
+        Set<String> fields = new HashSet<>();
+        Class<?> current = clazz;
+        while (current != null && current != Object.class) {
+            for (Field field : current.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Sensitive.class)) {
+                    fields.add(field.getName());
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() ||
+                clazz.equals(String.class) ||
+                clazz.equals(Integer.class) ||
+                clazz.equals(Long.class) ||
+                clazz.equals(Double.class) ||
+                clazz.equals(Float.class) ||
+                clazz.equals(Boolean.class) ||
+                clazz.equals(Character.class) ||
+                clazz.equals(Byte.class) ||
+                clazz.equals(Short.class);
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -76,7 +220,7 @@ public class AccessFilter implements Filter {
         // 设置响应头
         httpServletResponse.setHeader(X_Request_ID, accessId);
         // 设置响应头 Content-Security-Policy
-        if(StringUtils.isNotBlank(accessProperties.getContentSecurityPolicy())){
+        if (StringUtils.isNotBlank(accessProperties.getContentSecurityPolicy())) {
             httpServletResponse.setHeader(Content_Security_Policy, accessProperties.getContentSecurityPolicy());
         }
         // 设置响应头 Access-Control
@@ -91,7 +235,7 @@ public class AccessFilter implements Filter {
         // 设置国际化
         I18Messages.setLanguage(language);
         // 设置Seata事务id
-        if(transactionIdSetter != null && xid != null){
+        if (transactionIdSetter != null && xid != null) {
             transactionIdSetter.setXid(xid);
         }
         // 设置Access
@@ -103,16 +247,22 @@ public class AccessFilter implements Filter {
         parseAuthorizationIfNeed(access);
         Access.set(access);
 
+        // 日志脱敏信息
+        Set<String> sensitiveParamFields = findMatchingValue(sensitiveParamMap, httpServletRequest);
+        Class<?> sensitiveBodyClass = findMatchingValue(sensitiveBodyMap, httpServletRequest);
+
         // 请求参数、日志
-        AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(httpServletRequest, objectMapper, access);
-        try{
+        AccessRequestWrapper accessRequestWrapper = new AccessRequestWrapper(
+                httpServletRequest, objectMapper, sensitiveWriter, access, sensitiveParamFields, sensitiveBodyClass);
+        try {
             accessRequestWrapper.recordAccessParams();
-        }catch (Exception e){
+        } catch (Exception e) {
+            AccessLogger.error("", e);
             int httpStatus = BAD_REQUEST.getStatus();
-            if(accessProperties.isAlwaysSuccess()){
+            if (accessProperties.isAlwaysSuccess()) {
                 httpStatus = SUCCESS.getStatus();
             }
-            HttpServletResponse httpResponse = (HttpServletResponse)response;
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
             httpResponse.setStatus(httpStatus);
@@ -133,8 +283,8 @@ public class AccessFilter implements Filter {
             } else {
                 if (!AccessLogger.isInfoEnabled()) {
                     AccessLogger.warn("<< {} {}ms {} {}", status, cost,
-                            access.getAccessUrl(), objectMapper.writeValueAsString(access.getRequestParam()));
-                }else{
+                            access.getAccessUrl(), sensitiveWriter.writeValueAsString(access.getAccessLogParams()));
+                } else {
                     AccessLogger.warn("<< {} {}ms", status, cost);
                 }
             }
@@ -145,14 +295,35 @@ public class AccessFilter implements Filter {
         MDC.remove("accessId");
     }
 
-    private void parseAuthorizationIfNeed(Access access){
+    private <T> T findMatchingValue(Map<String, Map<String, T>> map, HttpServletRequest httpServletRequest) {
+        String url = httpServletRequest.getRequestURI();
+        Map<String, T> methodMap = map.get(httpServletRequest.getMethod());
+        if (methodMap != null) {
+            for (Map.Entry<String, T> entry : methodMap.entrySet()) {
+                if (antPathMatcher.match(entry.getKey(), url)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        Map<String, T> allMap = map.get("ALL");
+        if (allMap != null) {
+            for (Map.Entry<String, T> entry : allMap.entrySet()) {
+                if (antPathMatcher.match(entry.getKey(), url)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private void parseAuthorizationIfNeed(Access access) {
         String jwt = Access.getRequestHeader(accessProperties.tokenKey());
         if (StringUtils.isBlank(jwt) || accessProperties.authEnable()) {
             return;
         }
 
         String[] parts = jwt.split("\\.");
-        if(parts.length != 3){
+        if (parts.length != 3) {
             return;
         }
 

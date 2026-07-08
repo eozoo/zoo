@@ -19,8 +19,6 @@ import com.cowave.zoo.tools.ServletUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.github.pagehelper.page.PageMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
@@ -37,9 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- *
  * @author shanhuiming
- *
  */
 public class AccessRequestWrapper extends HttpServletRequestWrapper {
     private static final String PAGE = "page";
@@ -57,14 +53,20 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
 
     private final ObjectMapper objectMapper;
 
-    private final ObjectWriter objectWriter;
+    private final ObjectWriter sensitiveWriter;
 
-    public AccessRequestWrapper(HttpServletRequest request, ObjectMapper objectMapper, Access access) throws IOException {
+    private final Set<String> sensitiveParamFields;
+
+    private final Class<?> sensitiveBodyClass;
+
+    public AccessRequestWrapper(HttpServletRequest request, ObjectMapper objectMapper, ObjectWriter sensitiveWriter,
+                                Access access, Set<String> sensitiveParamFields, Class<?> sensitiveBodyClass) throws IOException {
         super(request);
         this.access = access;
         this.objectMapper = objectMapper;
-        this.objectWriter = objectMapper.writer(new SimpleFilterProvider().addFilter(
-                "passwdFilter", SimpleBeanPropertyFilter.serializeAllExcept("password", "passwd")));
+        this.sensitiveWriter = sensitiveWriter;
+        this.sensitiveParamFields = sensitiveParamFields;
+        this.sensitiveBodyClass = sensitiveBodyClass;
         this.contentType = getContentType();
         setCharacterEncoding("UTF-8");
         setCharacterEncoding("UTF-8");
@@ -118,51 +120,71 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
         // params
         Map<String, String> paramMap = new HashMap<>();
         Enumeration<String> parameterNames = getParameterNames();
-        while (parameterNames.hasMoreElements()) {
-            String paramName = parameterNames.nextElement();
-            String[] paramValues = getParameterValues(paramName);
-            if(paramValues.length > 1){
-                paramMap.put(paramName, String.join(", ", paramValues));
-            }else if(paramValues.length == 1){
-                paramMap.put(paramName, paramValues[0]);
+        if (sensitiveParamFields != null && !sensitiveParamFields.isEmpty()) {
+            while (parameterNames.hasMoreElements()) {
+                String paramName = parameterNames.nextElement();
+                if (sensitiveParamFields.contains(paramName)) {
+                    paramMap.put(paramName, "******");
+                } else {
+                    String[] paramValues = getParameterValues(paramName);
+                    if (paramValues.length > 1) {
+                        paramMap.put(paramName, String.join(", ", paramValues));
+                    } else if (paramValues.length == 1) {
+                        paramMap.put(paramName, paramValues[0]);
+                    }
+                }
+            }
+        } else {
+            while (parameterNames.hasMoreElements()) {
+                String paramName = parameterNames.nextElement();
+                String[] paramValues = getParameterValues(paramName);
+                if (paramValues.length > 1) {
+                    paramMap.put(paramName, String.join(", ", paramValues));
+                } else if (paramValues.length == 1) {
+                    paramMap.put(paramName, paramValues[0]);
+                }
             }
         }
 
         // body
         Object bodyObject = null;
         if (StringUtils.isNotBlank(body)) {
-            bodyObject = objectMapper.readValue(body, Object.class);
+            if (sensitiveBodyClass != null) {
+                bodyObject = objectMapper.readValue(body, sensitiveBodyClass);
+            } else {
+                bodyObject = objectMapper.readValue(body, Object.class);
+            }
         }
 
-        Map<String, Object> requestParams = new HashMap<>();
+        Map<String, Object> accessLogParams = new HashMap<>();
         // 请求日志
         StringBuilder logBuilder = new StringBuilder();
         logBuilder.append(">> ").append(getProtocol()).append(" ").append(getMethod()).append(" ").append(url);
-        if(StringUtils.isNotBlank(contentType)){
+        if (StringUtils.isNotBlank(contentType)) {
             logBuilder.append(" ").append(contentType);
         }
         logBuilder.append(" ").append(remote);
 
-        if(!paramMap.isEmpty()){
-            requestParams.put("params", paramMap);
-            logBuilder.append(" params=").append(objectWriter.writeValueAsString(paramMap));
+        if (!paramMap.isEmpty()) {
+            accessLogParams.put("params", paramMap);
+            logBuilder.append(" params=").append(sensitiveWriter.writeValueAsString(paramMap));
         }
-        if(bodyObject != null){
-            requestParams.put("body", bodyObject);
-            logBuilder.append(" body=").append(objectWriter.writeValueAsString(bodyObject));
+        if (bodyObject != null) {
+            accessLogParams.put("body", bodyObject);
+            logBuilder.append(" body=").append(sensitiveWriter.writeValueAsString(bodyObject));
         }
         AccessLogger.info(logBuilder.toString());
 
         // 记录请求参数
-        access.setRequestParam(requestParams);
+        access.setAccessLogParams(accessLogParams);
 
         // 尝试获取分页参数
         Object index = getPageIndex(paramMap);
-        if(index == null && bodyObject instanceof Map bodyMap){
+        if (index == null && bodyObject instanceof Map bodyMap) {
             index = getPageIndex(bodyMap);
         }
         Object size = getPageSize(paramMap);
-        if(size == null && bodyObject instanceof Map bodyMap){
+        if (size == null && bodyObject instanceof Map bodyMap) {
             size = getPageSize(bodyMap);
         }
 
@@ -176,24 +198,24 @@ public class AccessRequestWrapper extends HttpServletRequestWrapper {
         PageMethod.clearPage();
     }
 
-    private Object getPageIndex(Map<String, ?> paramMap){
+    private Object getPageIndex(Map<String, ?> paramMap) {
         Object page = paramMap.get(PAGE);
-        if(page == null){
+        if (page == null) {
             page = paramMap.get(PAGE_INDEX);
         }
-        if(page == null){
+        if (page == null) {
             page = paramMap.get(PAGE_NO);
         }
-        if(page == null){
+        if (page == null) {
             page = paramMap.get(PAGE_NUM);
         }
-        if(page == null){
+        if (page == null) {
             page = paramMap.get(PAGE_NUMBER);
         }
         return page;
     }
 
-    private Object getPageSize(Map<String, ?> paramMap){
+    private Object getPageSize(Map<String, ?> paramMap) {
         return paramMap.get(PAGE_SIZE);
     }
 }
