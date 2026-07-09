@@ -18,8 +18,8 @@
     <url>https://github.com/eozoo/zoo</url>
 
     <modules>
-        <module>archetype-mvc</module>
         <module>archetype-ddd</module>
+        <module>archetype-simple</module>
     </modules>
 
     <build>

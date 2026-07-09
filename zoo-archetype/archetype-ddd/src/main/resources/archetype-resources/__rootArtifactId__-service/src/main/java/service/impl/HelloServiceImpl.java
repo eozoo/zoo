@@ -16,8 +16,8 @@
 package ${package}.service.impl;
 
 import ${package}.service.HelloService;
-import ${package}.infra.dao.HelloDao;
-import ${package}.domain.HelloModel;
+import ${package}.domain.entity.HelloModel;
+import ${package}.domain.repository.HelloRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,10 +30,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class HelloServiceImpl implements HelloService {
 
-    private final HelloDao helloDao;
+    private final HelloRepository helloRepository;
 
     @Override
-    public HelloModel ddd() {
-        return helloDao.ddd();
+    public HelloModel hello() {
+        return helloRepository.hello();
     }
 }

@@ -13,21 +13,27 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package ${package}.client;
+package ${package}.service.impl;
 
-import ${package}.domain.entity.HelloModel;
-import com.cowave.zoo.http.client.annotation.HttpClient;
-import com.cowave.zoo.http.client.annotation.HttpLine;
-import com.cowave.zoo.http.client.invoke.codec.decoder.ResponseDecoder;
+import ${package}.service.HelloService;
+import ${package}.infra.dao.HelloDao;
+import ${package}.domain.HelloModel;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author ${author}
  *
  */
-@HttpClient(url = "http://localhost:${serverPort}", decoder = ResponseDecoder.class)
-public interface HelloClient {
+@RequiredArgsConstructor
+@Service
+public class HelloServiceImpl implements HelloService {
 
-    @HttpLine("GET #if(${serverPath} == '/')/api/v1/hello#else${serverPath}/api/v1/hello#end")
-    HelloModel hello();
+    private final HelloDao helloDao;
+
+    @Override
+    public HelloModel hello() {
+        return helloDao.hello();
+    }
 }

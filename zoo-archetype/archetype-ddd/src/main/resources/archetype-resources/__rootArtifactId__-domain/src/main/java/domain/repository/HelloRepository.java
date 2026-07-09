@@ -13,21 +13,17 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package ${package}.client;
+package ${package}.domain.repository;
 
 import ${package}.domain.entity.HelloModel;
-import com.cowave.zoo.http.client.annotation.HttpClient;
-import com.cowave.zoo.http.client.annotation.HttpLine;
-import com.cowave.zoo.http.client.invoke.codec.decoder.ResponseDecoder;
 
 /**
+ * 仓储接口，将领域的业务定义与底层技术实现分离
  *
  * @author ${author}
  *
  */
-@HttpClient(url = "http://localhost:${serverPort}", decoder = ResponseDecoder.class)
-public interface HelloClient {
+public interface HelloRepository {
 
-    @HttpLine("GET #if(${serverPath} == '/')/api/v1/hello#else${serverPath}/api/v1/hello#end")
     HelloModel hello();
 }

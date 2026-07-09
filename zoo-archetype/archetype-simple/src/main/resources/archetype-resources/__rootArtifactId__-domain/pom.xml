@@ -7,18 +7,10 @@
         <version>${version}</version>
     </parent>
 
-    <artifactId>${rootArtifactId}-service</artifactId>
+    <artifactId>${rootArtifactId}-domain</artifactId>
     <packaging>jar</packaging>
 
-    <name>${rootArtifactId}-service</name>
-    <description>业务处理</description>
+    <name>${rootArtifactId}-domain</name>
+    <description>领域模型</description>
     <url>https://github.com/eozoo/zoo</url>
-
-    <dependencies>
-        <dependency>
-            <groupId>${groupId}</groupId>
-            <artifactId>${rootArtifactId}-domain</artifactId>
-            <version>${version}</version>
-        </dependency>
-    </dependencies>
 </project>

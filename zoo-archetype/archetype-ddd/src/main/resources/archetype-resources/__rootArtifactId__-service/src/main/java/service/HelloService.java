@@ -15,7 +15,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.service;
 
-import ${package}.domain.HelloModel;
+import ${package}.domain.entity.HelloModel;
 
 /**
  *
@@ -24,5 +24,5 @@ import ${package}.domain.HelloModel;
  */
 public interface HelloService {
 
-    HelloModel ddd();
+    HelloModel hello();
 }

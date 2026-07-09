@@ -16,7 +16,7 @@
 package ${package}.app;
 
 import ${package}.service.HelloService;
-import ${package}.domain.HelloModel;
+import ${package}.domain.entity.HelloModel;
 import com.cowave.zoo.http.client.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -25,23 +25,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Hello
  *
  * @author ${author}
+ *
  */
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/hello")
+@RequestMapping("/api/v1")
 public class HelloController {
 
     private final HelloService helloService;
 
     /**
-     * ddd
+     * Hello
      */
-    @GetMapping("/ddd")
-    public Response<HelloModel> ddd() {
-        return Response.success(helloService.ddd());
+    @GetMapping("/hello")
+    public Response<HelloModel> hello() {
+        return Response.success(helloService.hello());
     }
 }

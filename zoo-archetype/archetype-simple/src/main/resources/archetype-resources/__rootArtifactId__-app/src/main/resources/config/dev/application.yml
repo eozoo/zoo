@@ -1,0 +1,20 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+server:
+  port: ${serverPort}
+  servlet:
+    context-path: ${serverPath}
+
+spring:
+  application:
+    name: ${rootArtifactId}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

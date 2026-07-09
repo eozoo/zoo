@@ -15,7 +15,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.client;
 
-import ${package}.domain.entity.HelloModel;
+import ${package}.domain.HelloModel;
 import com.cowave.zoo.http.client.annotation.HttpClient;
 import com.cowave.zoo.http.client.annotation.HttpLine;
 import com.cowave.zoo.http.client.invoke.codec.decoder.ResponseDecoder;

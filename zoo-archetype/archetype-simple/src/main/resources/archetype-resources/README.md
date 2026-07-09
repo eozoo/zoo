@@ -9,11 +9,11 @@ ${symbol_pound}${symbol_pound}${symbol_pound} 工程目录
 
 <pre>
 ${rootArtifactId}
-   ├─${rootArtifactId}-app       ${symbol_pound}${symbol_pound} 服务入口，定义启动类、controller接口、定时任务触发等，依赖${rootArtifactId}-service 和 ${rootArtifactId}-infra；
+   ├─${rootArtifactId}-app       ${symbol_pound}${symbol_pound} 服务入口，定义启动类、controller接口、定时任务触发等，依赖${rootArtifactId}-service；
    ├─${rootArtifactId}-client    ${symbol_pound}${symbol_pound} 远程调用，提供给外部调用的客户端，比如Rpc调用，依赖${rootArtifactId}-domain；
-   ├─${rootArtifactId}-domain    ${symbol_pound}${symbol_pound} 领域模型，定义服务的各种领域模型和对象，infra层的仓储接口，以及沉淀核心的业务逻辑；
-   ├─${rootArtifactId}-infra     ${symbol_pound}${symbol_pound} 基础组件，负责领域仓储接口的具体技术实现，比如数据库、缓存、消息中间件等处理，依赖${rootArtifactId}-domain；
-   ├─${rootArtifactId}-service   ${symbol_pound}${symbol_pound} 业务处理，负责业务编排和领域能力调用，与${rootArtifactId}-infra完全解耦，只依赖${rootArtifactId}-domain；
+   ├─${rootArtifactId}-domain    ${symbol_pound}${symbol_pound} 领域模型，定义服务的各种领域模型和对象；
+   ├─${rootArtifactId}-infra     ${symbol_pound}${symbol_pound} 基础组件，对基础组件调用的封装，比如数据库、缓存、消息中间件等处理，依赖${rootArtifactId}-domain；
+   ├─${rootArtifactId}-service   ${symbol_pound}${symbol_pound} 业务处理，定义具体业务的实现逻辑，依赖${rootArtifactId}-infra；
    │   ├─bin
    │   │  ├─env.properties                         ${symbol_pound}${symbol_pound} 环境变量定义               （默认，可覆盖）
    │   │  ├─setenv.sh                              ${symbol_pound}${symbol_pound} 运行前设置                （默认，可覆盖）

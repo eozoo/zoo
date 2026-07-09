@@ -13,23 +13,35 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package ${package}.infra.dao;
+package ${package}.app;
 
-import ${package}.domain.entity.HelloModel;
-import ${package}.domain.repository.HelloRepository;
+import ${package}.service.HelloService;
+import ${package}.domain.HelloModel;
+import com.cowave.zoo.http.client.response.Response;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author ${author}
  *
  */
+@Validated
 @RequiredArgsConstructor
-@Repository
-public class HelloDao implements HelloRepository {
+@RestController
+@RequestMapping("/api/v1")
+public class HelloController {
 
-    public HelloModel hello(){
-        return new HelloModel();
+    private final HelloService helloService;
+
+    /**
+     * Hello
+     */
+    @GetMapping("/hello")
+    public Response<HelloModel> hello() {
+        return Response.success(helloService.hello());
     }
 }

@@ -13,21 +13,16 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package ${package}.client;
+package ${package}.service;
 
-import ${package}.domain.entity.HelloModel;
-import com.cowave.zoo.http.client.annotation.HttpClient;
-import com.cowave.zoo.http.client.annotation.HttpLine;
-import com.cowave.zoo.http.client.invoke.codec.decoder.ResponseDecoder;
+import ${package}.domain.HelloModel;
 
 /**
  *
  * @author ${author}
  *
  */
-@HttpClient(url = "http://localhost:${serverPort}", decoder = ResponseDecoder.class)
-public interface HelloClient {
+public interface HelloService {
 
-    @HttpLine("GET #if(${serverPath} == '/')/api/v1/hello#else${serverPath}/api/v1/hello#end")
     HelloModel hello();
 }

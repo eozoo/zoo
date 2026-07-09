@@ -9,10 +9,10 @@
         <version>2.7.6</version>
     </parent>
 
-    <artifactId>archetype-ddd</artifactId>
+    <artifactId>archetype-simple</artifactId>
     <packaging>maven-archetype</packaging>
 
-    <name>archetype-ddd</name>
-    <description>ddd工程模板</description>
+    <name>archetype-simple</name>
+    <description>simple工程模板</description>
     <url>https://github.com/eozoo/zoo</url>
 </project>
