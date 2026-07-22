@@ -18,9 +18,7 @@ import com.cowave.zoo.http.client.asserts.I18Messages;
 import com.cowave.zoo.http.client.response.Response;
 import com.cowave.zoo.http.client.response.ResponseCode;
 import com.cowave.zoo.framework.access.Access;
-import com.cowave.zoo.framework.access.AccessProperties;
 import com.cowave.zoo.framework.access.filter.AccessIdGenerator;
-import com.cowave.zoo.framework.configuration.ApplicationProperties;
 import com.cowave.zoo.framework.helper.redis.RedisHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -31,6 +29,7 @@ import org.springframework.http.MediaType;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.Key;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -49,12 +48,10 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     public static final String AUTH_REFRESH_KEY = "%s:auth:%s:refresh:%s:%s";
     // {applicationName}:auth:{tenantId}:oauth:{type}:{userAccount}:{appId}
     public static final String AUTH_OAUTH_KEY = "%s:auth:%s:oauth:%s:%s:%s";
-    private final ApplicationProperties applicationProperties;
-    private final AccessProperties accessProperties;
-    private final AccessIdGenerator accessIdGenerator;
-    private final ObjectMapper objectMapper;
     private final RedisHelper redisHelper;
-    private final BearerTokenInterceptor bearerTokenInterceptor;
+    private final ObjectMapper objectMapper;
+    private final AccessIdGenerator accessIdGenerator;
+    private final BearerTokenDelegate bearerTokenDelegate;
 
     @Override
     public void assignAccessToken(AccessUserDetails userDetails) {
@@ -62,41 +59,21 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     public void doAssignAccessToken(AccessUserDetails userDetails, boolean useRefreshToken) {
-        String tenantId = userDetails.getTenantId();
-        String authType = userDetails.getAuthType();
-        String userAccount = userDetails.getUsername();
-        JwtBuilder jwtBuilder = Jwts.builder()
-                .claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
-                .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
-                .claim(CLAIM_TYPE, authType)
-                .claim(CLAIM_ACCESS_IP, Access.accessIp())
-                .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
-                .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
-                .claim(CLAIM_TENANT_ID, tenantId)
-                .claim(CLAIM_USER_ID, userDetails.getUserId())
-                .claim(CLAIM_USER_CODE, userDetails.getUserCode())
-                .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
-                .claim(CLAIM_USER_TYPE, userDetails.getUserType())
-                .claim(CLAIM_USER_NAME, userDetails.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT, userAccount)
-                .claim(CLAIM_USER_ROLE, userDetails.getRoles())
-                .claim(CLAIM_USER_PERM, userDetails.getPermissions())
-                .claim(CLAIM_DEPT_ID, userDetails.getDeptId())
-                .claim(CLAIM_DEPT_CODE, userDetails.getDeptCode())
-                .claim(CLAIM_DEPT_NAME, userDetails.getDeptName())
-                .claim(CLAIM_CLUSTER_ID, userDetails.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, userDetails.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME, userDetails.getClusterName());
-        if (bearerTokenInterceptor != null) {
-            bearerTokenInterceptor.additionalAccessClaims(jwtBuilder);
-        }
+        JwtBuilder jwtBuilder = Jwts.builder();
+        // 构造accessToken
+        bearerTokenDelegate.setAccessClaims(jwtBuilder, userDetails);
+        String issuer = bearerTokenDelegate.getAccessIssuer();
+        int accessExpire = bearerTokenDelegate.getAccessExpireSeconds();
+        SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
+        Key signingKey = bearerTokenDelegate.getAccessSigningKey(algorithm);
         String accessToken = jwtBuilder
+                .setIssuer(issuer)
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
-                .setExpiration(new Date(System.currentTimeMillis() + accessProperties.accessExpire() * 1000L))
+                .signWith(algorithm, signingKey)
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
                 .compact();
+        // 填充userDetails
         userDetails.setAccessToken(accessToken);
-
         // 保存到上下文中
         Access access = Access.get();
         if (access == null) {
@@ -104,23 +81,23 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         }
         access.setUserDetails(userDetails);
         Access.set(access);
-
         // 尝试设置Cookie
-        if ("cookie".equals(accessProperties.tokenStore())) {
-            Access.setCookie(accessProperties.tokenKey(), accessToken, "/", accessProperties.accessExpire());
+        if ("cookie".equals(bearerTokenDelegate.tokenStore())) {
+            Access.setCookie(bearerTokenDelegate.tokenKey(), accessToken, "/", accessExpire);
         }
-
         // 服务端保存
         if (userDetails.isAccessValid() && redisHelper != null) {
             // 仅使用accessToken且不允许同时登录，那么删掉其它令牌
             if(userDetails.isAccessUnique() && !useRefreshToken){
-                redisHelper.deleteByPattern(
-                        applicationProperties.getName() + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
+                String tenantId = userDetails.getTenantId();
+                String authType = userDetails.getAuthType();
+                String userAccount = userDetails.getUsername();
+                redisHelper.deleteByPattern(bearerTokenDelegate.getAccessIssuer()
+                        + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
             }
-
             // 记录本次发放的令牌
             AccessTokenInfo accessTokenInfo = new AccessTokenInfo(userDetails);
-            redisHelper.putExpire(getAccessTokenKey(userDetails), accessTokenInfo, accessProperties.accessExpire(), TimeUnit.SECONDS);
+            redisHelper.putExpire(getAccessTokenKey(userDetails), accessTokenInfo, accessExpire, TimeUnit.SECONDS);
         }
     }
 
@@ -131,82 +108,61 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     private void assignRefreshToken(AccessUserDetails userDetails) {
-        JwtBuilder jwtBuilder = Jwts.builder()
-                .claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
-                .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
-                .claim(CLAIM_TYPE, userDetails.getAuthType())
-                .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
-                .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
-                .claim(CLAIM_TENANT_ID, userDetails.getTenantId());
-
-        if (bearerTokenInterceptor != null) {
-            bearerTokenInterceptor.additionalRefreshClaims(jwtBuilder);
-        }
+        JwtBuilder jwtBuilder = Jwts.builder();
+        // 构造refreshToken
+        bearerTokenDelegate.setRefreshClaims(jwtBuilder, userDetails);
+        String issuer = bearerTokenDelegate.getRefreshIssuer();
+        SignatureAlgorithm algorithm = bearerTokenDelegate.getRefreshAlgorithm();
+        Key signingKey = bearerTokenDelegate.getRefreshSigningKey(algorithm);
         String refreshToken = jwtBuilder
+                .setIssuer(issuer)
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
+                .signWith(algorithm, signingKey)
                 .compact();
         userDetails.setRefreshToken(refreshToken);
         // 服务端保存
         if (redisHelper != null) {
+            int refreshExpire = bearerTokenDelegate.getRefreshExpireSeconds();
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
-            redisHelper.putExpire(getRefreshTokenKey(userDetails), refreshTokenInfo, accessProperties.refreshExpire(), TimeUnit.SECONDS);
+            redisHelper.putExpire(getRefreshTokenKey(userDetails), refreshTokenInfo, refreshExpire, TimeUnit.SECONDS);
         }
     }
 
+    @Override
     public void assignOauthToken(AccessUserDetails userDetails) {
-        String tenantId = userDetails.getTenantId();
-        String authType = userDetails.getAuthType();
-        String userAccount = userDetails.getUsername();
-        JwtBuilder oauthAccessBuilder = Jwts.builder()
-                .claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
-                .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
-                .claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
-                .claim(CLAIM_OAUTH_NAME, userDetails.getOauthName())
-                .claim(CLAIM_TYPE, authType)
-                .claim(CLAIM_ACCESS_IP, Access.accessIp())
-                .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
-                .claim(CLAIM_TENANT_ID, tenantId)
-                .claim(CLAIM_USER_ID, userDetails.getUserId())
-                .claim(CLAIM_USER_CODE, userDetails.getUserCode())
-                .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
-                .claim(CLAIM_USER_TYPE, userDetails.getUserType())
-                .claim(CLAIM_USER_NAME, userDetails.getUserNick())
-                .claim(CLAIM_USER_ACCOUNT, userAccount)
-                .claim(CLAIM_USER_ROLE, userDetails.getRoles())
-                .claim(CLAIM_USER_PERM, userDetails.getPermissions())
-                .claim(CLAIM_DEPT_ID, userDetails.getDeptId())
-                .claim(CLAIM_DEPT_CODE, userDetails.getDeptCode())
-                .claim(CLAIM_DEPT_NAME, userDetails.getDeptName())
-                .claim(CLAIM_CLUSTER_ID, userDetails.getClusterId())
-                .claim(CLAIM_CLUSTER_LEVEL, userDetails.getClusterLevel())
-                .claim(CLAIM_CLUSTER_NAME, userDetails.getClusterName());
+        // 构造accessToken
+        JwtBuilder oauthAccessBuilder = Jwts.builder();
+        bearerTokenDelegate.setOauthAccessClaims(oauthAccessBuilder, userDetails);
+        String accessIssuer = bearerTokenDelegate.getAccessIssuer();
+        int accessExpire = bearerTokenDelegate.getAccessExpireSeconds();
+        SignatureAlgorithm accessAlgorithm = bearerTokenDelegate.getAccessAlgorithm();
+        Key accessSigningKey = bearerTokenDelegate.getAccessSigningKey(accessAlgorithm);
         String oauthAccess = oauthAccessBuilder
+                .setIssuer(accessIssuer)
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.accessSecret())
-                .setExpiration(new Date(System.currentTimeMillis() + accessProperties.accessExpire() * 1000L))
+                .signWith(accessAlgorithm, accessSigningKey)
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpire * 1000L))
                 .compact();
         userDetails.setAccessToken(oauthAccess);
-
-        JwtBuilder oauthRefreshBuilder = Jwts.builder()
-                .claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
-                .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
-                .claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
-                .claim(CLAIM_OAUTH_NAME, userDetails.getOauthName())
-                .claim(CLAIM_TYPE, userDetails.getAuthType())
-                .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
-                .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
-                .claim(CLAIM_TENANT_ID, userDetails.getTenantId());
+        // 构造refreshToken
+        JwtBuilder oauthRefreshBuilder = Jwts.builder();
+        bearerTokenDelegate.setOauthRefreshClaims(oauthRefreshBuilder, userDetails);
+        String refreshIssuer = bearerTokenDelegate.getRefreshIssuer();
+        SignatureAlgorithm refreshAlgorithm = bearerTokenDelegate.getRefreshAlgorithm();
+        Key refreshSigningKey = bearerTokenDelegate.getRefreshSigningKey(refreshAlgorithm);
         String oauthRefreshToken = oauthRefreshBuilder
+                .setIssuer(refreshIssuer)
                 .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS512, accessProperties.refreshSecret())
+                .signWith(refreshAlgorithm, refreshSigningKey)
                 .compact();
         userDetails.setRefreshToken(oauthRefreshToken);
         // 服务端保存
         if (redisHelper != null) {
+            int refreshExpire = bearerTokenDelegate.getRefreshExpireSeconds();
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
-            String oauthKey = getOauthTokenKey(userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername(), userDetails.getOauthId());
-            redisHelper.putExpire(oauthKey, refreshTokenInfo, accessProperties.refreshExpire(), TimeUnit.SECONDS);
+            String oauthKey = getOauthTokenKey(userDetails.getTenantId(),
+                    userDetails.getAuthType(), userDetails.getUsername(), userDetails.getOauthId());
+            redisHelper.putExpire(oauthKey, refreshTokenInfo, refreshExpire, TimeUnit.SECONDS);
         }
     }
 
@@ -226,37 +182,34 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     @Override
     public AccessUserDetails refreshAccessRefreshToken(String refreshToken) {
+        assert redisHelper != null;
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(
-                    accessProperties.refreshSecret()).parseClaimsJws(refreshToken).getBody();
+            SignatureAlgorithm algorithm = bearerTokenDelegate.getRefreshAlgorithm();
+            Key verificationKey = bearerTokenDelegate.getRefreshVerificationKey(algorithm);
+            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(refreshToken).getBody();
         } catch (Exception e) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.invalid}");
         }
 
-        String tenantId = (String) claims.get(CLAIM_TENANT_ID);
-        String authType = (String) claims.get(CLAIM_TYPE);
-        String userAccount = (String) claims.get(CLAIM_USER_ACCOUNT);
-        String refreshId = (String) claims.get(CLAIM_REFRESH_ID);
-        Integer accessUnique = (Integer) claims.get(CLAIM_ACCESS_UNIQUE);
-        Integer accessValid = (Integer) claims.get(CLAIM_ACCESS_VALID);
-        assert redisHelper != null;
-
+        AccessUserDetails details = bearerTokenDelegate.parseRefreshClaims(claims);
         // 获取服务保存的Token
-        RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(getRefreshTokenKey(tenantId, authType, userAccount));
+        String refreshTokenKey = getRefreshTokenKey(details.getTenantId(), details.getAuthType(), details.getUsername());
+        RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(refreshTokenKey);
         if (refreshTokenInfo == null) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.empty}");
         }
 
         // 比对id，判断Token是否已经被刷新过
-        if (accessUnique == 1 && !Objects.equals(refreshId, refreshTokenInfo.getRefreshId())) {
+        if (details.isAccessUnique() && !Objects.equals(details.getRefreshId(), refreshTokenInfo.getRefreshId())) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.changed}");
         }
 
         //当前accessToken删除
         String accessId = refreshTokenInfo.getAccessId();
-        if (accessValid == 1) {
-            redisHelper.delete(getAccessTokenKey(tenantId, authType, userAccount, accessId));
+        if (details.isAccessValid()) {
+            String accessTokenKey = getAccessTokenKey(details.getTenantId(), details.getAuthType(), details.getUsername(), accessId);
+            redisHelper.delete(accessTokenKey);
         }
 
         // 更新Token信息
@@ -272,30 +225,27 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     @Override
     public AccessUserDetails refreshOauthToken(String oauthToken) {
+        assert redisHelper != null;
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(
-                    accessProperties.refreshSecret()).parseClaimsJws(oauthToken).getBody();
+            SignatureAlgorithm algorithm = bearerTokenDelegate.getRefreshAlgorithm();
+            Key verificationKey = bearerTokenDelegate.getRefreshVerificationKey(algorithm);
+            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(oauthToken).getBody();
         } catch (Exception e) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.invalid}");
         }
 
-        String tenantId = (String) claims.get(CLAIM_TENANT_ID);
-        String type = (String) claims.get(CLAIM_TYPE);
-        String userAccount = (String) claims.get(CLAIM_USER_ACCOUNT);
-        String refreshId = (String) claims.get(CLAIM_REFRESH_ID);
-        Integer unique = (Integer) claims.get(CLAIM_ACCESS_UNIQUE);
-        String appId = (String) claims.get(CLAIM_OAUTH_ID);
-        assert redisHelper != null;
-
+        AccessUserDetails details = bearerTokenDelegate.parseOauthRefreshClaims(claims);
         // 获取服务保存的Token
-        RefreshTokenInfo oauthTokenInfo = redisHelper.getValue(getOauthTokenKey(tenantId, type, userAccount, appId));
+        String oauthTokenKey = getOauthTokenKey(
+                details.getTenantId(), details.getAuthType(), details.getUsername(), details.getOauthId());
+        RefreshTokenInfo oauthTokenInfo = redisHelper.getValue(oauthTokenKey);
         if (oauthTokenInfo == null) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.empty}");
         }
 
         // 比对id，判断Token是否已经被刷新过
-        if (unique == 1 && !Objects.equals(refreshId, oauthTokenInfo.getRefreshId())) {
+        if (details.isAccessUnique() && !Objects.equals(details.getRefreshId(), oauthTokenInfo.getRefreshId())) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.changed}");
         }
 
@@ -325,10 +275,10 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     private String getAccessToken() {
         String authorization;
-        if ("cookie".equals(accessProperties.tokenStore())) {
-            authorization = Access.getCookie(accessProperties.tokenKey());
+        if ("cookie".equals(bearerTokenDelegate.tokenStore())) {
+            authorization = Access.getCookie(bearerTokenDelegate.tokenKey());
         } else {
-            authorization = Access.getRequestHeader(accessProperties.tokenKey());
+            authorization = Access.getRequestHeader(bearerTokenDelegate.tokenKey());
         }
 
         if (StringUtils.isEmpty(authorization)) {
@@ -343,7 +293,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     private AccessUserDetails parseAccessToken(String accessToken, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessToken).getBody();
+            SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
+            Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
+            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
             if (response == null) {
                 throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.expire}");
@@ -361,41 +313,23 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     private AccessUserDetails doParseAccessToken(Claims claims, HttpServletResponse response, boolean useRefreshToken) throws IOException {
-        String oauthAppId = (String) claims.get(CLAIM_OAUTH_ID);
-        if(StringUtils.isNotBlank(accessProperties.oauthAppId()) && !accessProperties.oauthAppId().equals(oauthAppId)){
+        AccessUserDetails userDetails = bearerTokenDelegate.parseAccessClaims(claims);
+        if (useRefreshToken) {
+            // IP变化，要求重新刷一下accessToken
+            if (userDetails.isAccessUnique() && !Objects.equals(Access.accessIp(), userDetails.getAccessIp())) {
+                writeResponse(response, INVALID_TOKEN, "frame.auth.access.changed.ip");
+                return null;
+            }
+        }
+        // OAuth令牌访问应用限制
+        String oauthAppId = bearerTokenDelegate.oauthAppId();
+        if(StringUtils.isNotBlank(oauthAppId) && !oauthAppId.equals(userDetails.getOauthId())){
             if (response == null) {
                 throw new HttpHintException(UNAUTHORIZED, "{frame.oauth.invalid}");
             }
             writeResponse(response, UNAUTHORIZED, "frame.oauth.invalid");
             return null;
         }
-
-        AccessUserDetails userDetails = new AccessUserDetails();
-        userDetails.setAccessUnique(1 == (Integer) claims.get(CLAIM_ACCESS_UNIQUE));
-        userDetails.setAccessValid(1 == (Integer) claims.get(CLAIM_ACCESS_VALID));
-        userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
-        userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
-        userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        userDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
-        // user
-        userDetails.setUserId(claims.get(CLAIM_USER_ID));
-        userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
-        userDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
-        userDetails.setUserNick((String) claims.get(CLAIM_USER_NAME));
-        userDetails.setUserProperties((Map<String, Object>) claims.get(CLAIM_USER_PROPERTIES));
-        // dept
-        userDetails.setDeptId(claims.get(CLAIM_DEPT_ID));
-        userDetails.setDeptCode(claims.get(CLAIM_DEPT_CODE));
-        userDetails.setDeptName((String) claims.get(CLAIM_DEPT_NAME));
-        // cluster
-        userDetails.setClusterId((Integer) claims.get(CLAIM_CLUSTER_ID));
-        userDetails.setClusterLevel((Integer) claims.get(CLAIM_CLUSTER_LEVEL));
-        userDetails.setClusterName((String) claims.get(CLAIM_CLUSTER_NAME));
-        // roles
-        userDetails.setRoles((List<String>) claims.get(CLAIM_USER_ROLE));
-        // permits
-        userDetails.setPermissions((List<String>) claims.get(CLAIM_USER_PERM));
-
         // 服务端校验AccessToken
         if (userDetails.isAccessValid()) {
             if (useRefreshToken) {
@@ -427,12 +361,6 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 }
             }
         }
-
-        // 处理自定义校验
-        if (bearerTokenInterceptor != null) {
-            bearerTokenInterceptor.additionalParseAccessToken(claims, userDetails);
-        }
-
         // 保存到上下文中
         Access access = Access.get();
         if (access == null) {
@@ -456,20 +384,14 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     private AccessUserDetails parseAccessRefreshToken(String accessToken, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessToken).getBody();
+            SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
+            Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
+            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
             writeResponse(response, INVALID_TOKEN, "frame.auth.access.expire");
             return null;
         } catch (Exception e) {
             writeResponse(response, UNAUTHORIZED, "frame.auth.access.invalid");
-            return null;
-        }
-
-        // IP变化，要求重新刷一下accessToken
-        String accessIp = (String) claims.get(CLAIM_ACCESS_IP);
-        Integer unique = (Integer) claims.get(CLAIM_ACCESS_UNIQUE);
-        if (Objects.equals(1, unique) && !Objects.equals(Access.accessIp(), accessIp)) {
-            writeResponse(response, INVALID_TOKEN, "frame.auth.access.changed.ip");
             return null;
         }
         return doParseAccessToken(claims, response, true);
@@ -487,11 +409,11 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             return;
         }
 
-        if (ACCESS == accessProperties.authMode()) {
+        if (ACCESS == bearerTokenDelegate.authMode()) {
             redisHelper.delete(getAccessTokenKey(userDetails));
         }
 
-        if (ACCESS_REFRESH == accessProperties.authMode()) {
+        if (ACCESS_REFRESH == bearerTokenDelegate.authMode()) {
             if (userDetails.isAccessUnique()) {
                 // 不允许同时登录，就直接删除
                 revokeRefreshToken(userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername());
@@ -523,9 +445,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         String refreshKey = getRefreshTokenKey(tenantId, authType, userAccount);
         RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(refreshKey);
         redisHelper.delete(refreshKey);
-        redisHelper.deleteByPattern(applicationProperties.getName()
+        redisHelper.deleteByPattern(bearerTokenDelegate.getAccessIssuer()
                 + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
-        redisHelper.deleteByPattern(applicationProperties.getName()
+        redisHelper.deleteByPattern(bearerTokenDelegate.getRefreshIssuer()
                 + ":auth:" + tenantId + ":oauth:" + authType + ":" + userAccount + ":*");
         return refreshTokenInfo;
     }
@@ -540,17 +462,17 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     @Override
     public List<AccessTokenInfo> listAccessToken(String tenantId) {
-        return redisHelper.getByPattern(applicationProperties.getName() + ":auth:" + tenantId + ":access:*");
+        return redisHelper.getByPattern(bearerTokenDelegate.getAccessIssuer() + ":auth:" + tenantId + ":access:*");
     }
 
     @Override
     public List<RefreshTokenInfo> listRefreshToken(String tenantId) {
-        return redisHelper.getByPattern(applicationProperties.getName() + ":auth:" + tenantId + ":refresh:*");
+        return redisHelper.getByPattern(bearerTokenDelegate.getRefreshIssuer() + ":auth:" + tenantId + ":refresh:*");
     }
 
     @Override
     public List<RefreshTokenInfo> listOauthToken(String tenantId) {
-        return redisHelper.getByPattern(applicationProperties.getName() + ":auth:" + tenantId + ":oauth:*");
+        return redisHelper.getByPattern(bearerTokenDelegate.getRefreshIssuer() + ":auth:" + tenantId + ":oauth:*");
     }
 
     private String getAccessTokenKey(AccessUserDetails userDetails) {
@@ -559,7 +481,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     private String getAccessTokenKey(String tenantId, String type, String userAccount, String accessId) {
-        return AUTH_ACCESS_KEY.formatted(applicationProperties.getName(), tenantId, type, userAccount, accessId);
+        return AUTH_ACCESS_KEY.formatted(bearerTokenDelegate.getAccessIssuer(), tenantId, type, userAccount, accessId);
     }
 
     private String getRefreshTokenKey(AccessUserDetails userDetails) {
@@ -567,11 +489,11 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     }
 
     private String getRefreshTokenKey(String tenantId, String type, String userAccount) {
-        return AUTH_REFRESH_KEY.formatted(applicationProperties.getName(), tenantId, type, userAccount);
+        return AUTH_REFRESH_KEY.formatted(bearerTokenDelegate.getRefreshIssuer(), tenantId, type, userAccount);
     }
 
     private String getOauthTokenKey(String tenantId, String type, String userAccount, String appId) {
-        return AUTH_OAUTH_KEY.formatted(applicationProperties.getName(), tenantId, type, userAccount, appId);
+        return AUTH_OAUTH_KEY.formatted(bearerTokenDelegate.getRefreshIssuer(), tenantId, type, userAccount, appId);
     }
 
     @Override
@@ -583,7 +505,9 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             accessToken = accessToken.replace("Bearer ", "");
         }
         try {
-            Jwts.parser().setSigningKey(accessProperties.accessSecret()).parseClaimsJws(accessToken).getBody();
+            SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
+            Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
+            Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(accessToken).getBody();
         } catch (Exception e) {
             return false;
         }
@@ -592,7 +516,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
     private void writeResponse(HttpServletResponse response, ResponseCode responseCode, String messageKey) throws IOException {
         int httpStatus = responseCode.getStatus();
-        if (accessProperties.isAlwaysSuccess()) {
+        if (bearerTokenDelegate.alwaysReturnHttp200()) {
             httpStatus = SUCCESS.getStatus();
         }
         response.setStatus(httpStatus);

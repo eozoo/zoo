@@ -50,10 +50,10 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.cowave.zoo.framework.access.security.BearerTokenDelegate.*;
 import static com.cowave.zoo.http.client.constants.HttpCode.BAD_REQUEST;
 import static com.cowave.zoo.http.client.constants.HttpCode.SUCCESS;
 import static com.cowave.zoo.http.client.constants.HttpHeader.*;
-import static com.cowave.zoo.framework.access.security.BearerTokenService.*;
 
 /**
  * @author shanhuiming

@@ -25,9 +25,7 @@ import java.util.Optional;
 import static com.cowave.zoo.framework.access.security.AuthMode.BASIC;
 
 /**
- *
  * @author shanhuiming
- *
  */
 @Data
 @RefreshScope
@@ -67,75 +65,95 @@ public class AccessProperties {
      */
     private OauthConfig oauth;
 
-    public boolean authEnable(){
+    public boolean authEnable() {
         return Optional.ofNullable(auth).map(auth -> auth.enable).orElse(false);
     }
 
-    public AuthMode authMode(){
+    public AuthMode authMode() {
         return Optional.ofNullable(auth).map(auth -> auth.mode).orElse(BASIC);
     }
 
-    public String[] authUrls(){
+    public String[] authUrls() {
         return Optional.ofNullable(auth).map(auth -> auth.authUrls).orElse(null);
     }
 
-    public String[] ignoreUrls(){
+    public String[] ignoreUrls() {
         return Optional.ofNullable(auth).map(auth -> auth.ignoreUrls).orElse(null);
     }
 
-    public String[] basicUrls(){
+    public String[] basicUrls() {
         return Optional.ofNullable(auth).map(auth -> auth.basicUrls).orElse(null);
     }
 
-    public boolean basicWithConfigUser(){
-         return Optional.ofNullable(auth).map(auth -> auth.basicWithConfigUser).orElse(false);
+    public boolean basicWithConfigUser() {
+        return Optional.ofNullable(auth).map(auth -> auth.basicWithConfigUser).orElse(false);
     }
 
-    public List<AccessUser> accessUsers(){
+    public List<AccessUser> accessUsers() {
         return Optional.ofNullable(auth).map(auth -> auth.users).orElse(List.of(AccessUser.defaultUser()));
     }
 
-    public String tokenStore(){
+    public String tokenStore() {
         return Optional.ofNullable(auth).map(auth -> auth.tokenStore).orElse("header");
     }
 
-    public String tokenKey(){
+    public String tokenKey() {
         return Optional.ofNullable(auth).map(auth -> auth.tokenKey).orElse("Authorization");
     }
 
-    public int accessExpire(){
+    public int accessExpire() {
         return Optional.ofNullable(auth).map(auth -> auth.accessExpire).orElse(86400);
     }
 
-    public String accessSecret(){
+    public String algorithm() {
+        return Optional.ofNullable(auth).map(auth -> auth.algorithm).orElse("HS512");
+    }
+
+    public String accessSecret() {
         return Optional.ofNullable(auth).map(auth -> auth.accessSecret).orElse("access@cowave.com");
     }
 
-    public int refreshExpire(){
+    public String accessPublicKey() {
+        return Optional.ofNullable(auth).map(auth -> auth.accessPublicKey).orElse(null);
+    }
+
+    public String accessPrivateKey() {
+        return Optional.ofNullable(auth).map(auth -> auth.accessPrivateKey).orElse(null);
+    }
+
+    public int refreshExpire() {
         return Optional.ofNullable(auth).map(auth -> auth.refreshExpire).orElse(86400 * 7);
     }
 
-    public String refreshSecret(){
+    public String refreshSecret() {
         return Optional.ofNullable(auth).map(auth -> auth.refreshSecret).orElse("refresh@cowave.com");
     }
 
-    public String oauthAppId(){
+    public String refreshPublicKey() {
+        return Optional.ofNullable(auth).map(auth -> auth.refreshPublicKey).orElse(null);
+    }
+
+    public String refreshPrivateKey() {
+        return Optional.ofNullable(auth).map(auth -> auth.refreshPrivateKey).orElse(null);
+    }
+
+    public String oauthAppId() {
         return Optional.ofNullable(oauth).map(oauth -> oauth.appId).orElse(null);
     }
 
-    public String oauthAppSecret(){
+    public String oauthAppSecret() {
         return Optional.ofNullable(oauth).map(oauth -> oauth.appSecret).orElse(null);
     }
 
-    public String oauthAppRedirectUri(){
+    public String oauthAppRedirectUri() {
         return Optional.ofNullable(oauth).map(oauth -> oauth.appRedirectUri).orElse(null);
     }
 
-    public String oauthCodeUri(){
+    public String oauthCodeUri() {
         return Optional.ofNullable(oauth).map(oauth -> oauth.oauthCodeUri).orElse(null);
     }
 
-    public String oauthTokenUri(){
+    public String oauthTokenUri() {
         return Optional.ofNullable(oauth).map(oauth -> oauth.oauthTokenUri).orElse(null);
     }
 
@@ -212,6 +230,11 @@ public class AccessProperties {
         private String tokenKey = "Authorization";
 
         /**
+         * JWT签名算法，默认HS512。可选: HS256、HS384、HS512、RS256、RS384、RS512、ES256、ES384、ES512
+         */
+        private String algorithm = "HS512";
+
+        /**
          * accessToken超时
          */
         private int accessExpire = 86400;
@@ -222,6 +245,16 @@ public class AccessProperties {
         private String accessSecret = "access@cowave.com";
 
         /**
+         * accessToken验签公钥（RSA/EC时使用，支持PEM字符串 或 file:/path/to/key.pem）
+         */
+        private String accessPublicKey;
+
+        /**
+         * accessToken签名私钥（RSA/EC时使用，支持PEM字符串 或 file:/path/to/key.pem）
+         */
+        private String accessPrivateKey;
+
+        /**
          * refreshToken超时
          */
         private int refreshExpire = 3600 * 24 * 7;
@@ -230,6 +263,16 @@ public class AccessProperties {
          * refreshToken密钥
          */
         private String refreshSecret = "refresh@cowave.com";
+
+        /**
+         * refreshToken验签公钥（RSA/EC时使用，支持PEM字符串 或 file:/path/to/key.pem）
+         */
+        private String refreshPublicKey;
+
+        /**
+         * refreshToken签名私钥（RSA/EC时使用，支持PEM字符串 或 file:/path/to/key.pem）
+         */
+        private String refreshPrivateKey;
     }
 
     @Data

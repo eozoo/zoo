@@ -34,7 +34,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -69,18 +68,23 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+    @ConditionalOnMissingBean(BearerTokenDelegate.class)
+    @Bean
+    public BearerTokenDelegate bearerTokenDelegate() {
+        return new BearerTokenDelegateImpl(accessProperties, applicationProperties);
+    }
+
     @ConditionalOnMissingBean(BearerTokenService.class)
     @Bean
-    public BearerTokenService bearerTokenService(
-            AccessIdGenerator accessIdGenerator, ObjectMapper objectMapper,
-            @Nullable RedisHelper redisHelper, @Nullable BearerTokenInterceptor bearerTokenInterceptor) {
-        return new BearerTokenServiceImpl(applicationProperties, accessProperties,
-                accessIdGenerator, objectMapper, redisHelper, bearerTokenInterceptor);
+    public BearerTokenService bearerTokenService(@Nullable RedisHelper redisHelper, ObjectMapper objectMapper,
+                                                 AccessIdGenerator accessIdGenerator, BearerTokenDelegate bearerTokenDelegate) {
+        return new BearerTokenServiceImpl(redisHelper, objectMapper, accessIdGenerator, bearerTokenDelegate);
     }
 
     @ConditionalOnMissingBean(TenantUserDetailsService.class)
     @Bean
-    public TenantUserDetailsService tenantUserDetailsService(PasswordEncoder passwordEncoder, @Nullable BearerTokenService bearerTokenService) {
+    public TenantUserDetailsService tenantUserDetailsService(
+            PasswordEncoder passwordEncoder, @Nullable BearerTokenService bearerTokenService) {
         List<AccessUser> userList = accessProperties.accessUsers();
         return new AccessUserDetailsServiceImpl(accessProperties.authMode(), applicationProperties,
                 passwordEncoder, bearerTokenService, Collections.copyToMap(userList, AccessUser::getUsername));

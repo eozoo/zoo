@@ -1,7 +1,5 @@
 package com.cowave.zoo.framework.access.annotation;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.lang.annotation.*;
 
 /**
