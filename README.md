@@ -156,14 +156,26 @@ mvn archetype:generate                \
    └─README.md   
 ```
 
-### DDD工程对象约定（仅供参考）
+### DDD实体对象约定（仅供参考）
 
-  | 对象后缀命名        | 说明                     | 定义&引用模块                    |
-  |---------------|------------------------|----------------------------|
-  | DO/PO         | DDD领域实体，与库表定义一致（可省略后缀） | domain定义，所有模块引用（除了client）  |
-  | DPO           | 持久层视图对象，多表联合查询结果集      | domain定义，所有模块引用（除了client）  |
-  | Command/Query | 业务入参封装                 | domain定义，所有模块引用（除了client）  |
-  | BO            | 业务过程对象                 | domain定义，仅domain/service引用 |
-  | VO            | 返回客户端数据对象              | domain定义，仅app/service引用    |
-  | DTO           | 服务间调用返回数据对象            | client定义，由引用方的infra适配      |
-  | Request       | 服务间调用请求参数对象            | client定义，由引用方的infra适配      |
+  | 对象后缀命名        | 说明                   | 定义&引用模块                    |
+  |---------------|----------------------|----------------------------|
+  | PO/DO         | 领域对象，与持久层库表一致（可省略后缀） | domain定义，所有模块引用（除了client）  |
+  | PTO           | 持久层传输对象，多表联合查询结果集    | domain定义，所有模块引用（除了client）  |
+  | Command/Query | 业务入参封装               | domain定义，所有模块引用（除了client）  |
+  | VO            | 返回客户端数据对象            | domain定义，仅app/service引用    |
+  | BO            | 业务过程对象               | domain定义，仅domain/service引用 |
+  | DTO           | 服务间调用返回数据对象          | client定义，由引用方的infra适配      |
+  | Req/Request   | 服务间调用请求参数对象          | client定义，由引用方的infra适配      |
+
+```text
+定义PTO是考虑到多表联合查询的场景（也可以拆分成简单查询然后在代码中组装数据，方式各有优劣），
+这样在一些场景中可以一步到位，与PO/DO对象一样直接从infra层查出来交给上层app模块，不用中间再组装数据对象；
+如果需要确实中间处理再出去的，可以在service层转换成VO再交给app模块；
+
+定义Command/Query，也是想省掉中间不必要的数据对象转换，如果用app层的Request直接透传到infra层不是太合适，
+所以从domain层的biz角度出发来定义Command/Query，让app和service层使用，这样透传到infra会比较能接受；
+
+其中PTO/Command/VO允许继承PO/DO，如果字段区别不大的话，这样可以省掉大量重复定义；
+除了DTO/Req/Request放在client模块，其它统一放在domain中也是为尽量简单，不特别违背DDD设计理念的情况下；
+```
