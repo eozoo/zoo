@@ -24,6 +24,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author shanhuiming
@@ -187,8 +188,8 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         AccessUserDetails userDetails = new AccessUserDetails();
         userDetails.setOauthId((String) claims.get(CLAIM_OAUTH_ID));
         // token
-        userDetails.setAccessUnique(1 == (Integer) claims.get(CLAIM_ACCESS_UNIQUE));
-        userDetails.setAccessValid(1 == (Integer) claims.get(CLAIM_ACCESS_VALID));
+        userDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
+        userDetails.setAccessValid(Objects.equals(1, claims.get(CLAIM_ACCESS_VALID)));
         userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         userDetails.setAccessIp((String) claims.get(CLAIM_ACCESS_IP));
         userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
@@ -264,8 +265,8 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         tokenDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         tokenDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        tokenDetails.setAccessUnique(1 == (Integer) claims.get(CLAIM_ACCESS_UNIQUE));
-        tokenDetails.setAccessValid(1 == (Integer) claims.get(CLAIM_ACCESS_VALID));
+        tokenDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
+        tokenDetails.setAccessValid(Objects.equals(1, claims.get(CLAIM_ACCESS_VALID)));
         return tokenDetails;
     }
 
@@ -276,7 +277,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         tokenDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         tokenDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        tokenDetails.setAccessUnique(1 == (Integer) claims.get(CLAIM_ACCESS_UNIQUE));
+        tokenDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
         tokenDetails.setOauthId((String) claims.get(CLAIM_OAUTH_ID));
         return tokenDetails;
     }

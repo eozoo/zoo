@@ -264,7 +264,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     public AccessUserDetails parseAccessToken(HttpServletResponse response) throws IOException {
         String accessToken = getAccessToken();
         if (accessToken != null) {
-            return parseAccessToken(accessToken, response);
+            return doParseAccessToken(accessToken, response);
         }
         if (response == null) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.empty}");
@@ -290,7 +290,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         return authorization;
     }
 
-    private AccessUserDetails parseAccessToken(String accessToken, HttpServletResponse response) throws IOException {
+    private AccessUserDetails doParseAccessToken(String accessToken, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
@@ -309,16 +309,27 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             writeResponse(response, UNAUTHORIZED, "frame.auth.access.invalid");
             return null;
         }
-        return doParseAccessToken(claims, response, false);
+        AccessUserDetails userDetails = bearerTokenDelegate.parseAccessClaims(claims);
+        boolean validated = validateUserDetails(userDetails, response, false);
+        if(validated) {
+            // 保存到上下文中
+            Access access = Access.get();
+            if (access == null) {
+                access = Access.newAccess(accessIdGenerator);
+            }
+            access.setUserDetails(userDetails);
+            Access.set(access);
+            return userDetails;
+        }
+        return null;
     }
 
-    private AccessUserDetails doParseAccessToken(Claims claims, HttpServletResponse response, boolean useRefreshToken) throws IOException {
-        AccessUserDetails userDetails = bearerTokenDelegate.parseAccessClaims(claims);
+    protected boolean validateUserDetails(AccessUserDetails userDetails, HttpServletResponse response, boolean useRefreshToken) throws IOException {
         if (useRefreshToken) {
             // IP变化，要求重新刷一下accessToken
             if (userDetails.isAccessUnique() && !Objects.equals(Access.accessIp(), userDetails.getAccessIp())) {
                 writeResponse(response, INVALID_TOKEN, "frame.auth.access.changed.ip");
-                return null;
+                return false;
             }
         }
         // OAuth令牌访问应用限制
@@ -328,7 +339,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 throw new HttpHintException(UNAUTHORIZED, "{frame.oauth.invalid}");
             }
             writeResponse(response, UNAUTHORIZED, "frame.oauth.invalid");
-            return null;
+            return false;
         }
         // 服务端校验AccessToken
         if (userDetails.isAccessValid()) {
@@ -337,51 +348,44 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 // 确认refreshTokenInfo存在
                 if (refreshTokenInfo == null) {
                     writeResponse(response, UNAUTHORIZED, "frame.auth.access.revoked");
-                    return null;
+                    return false;
                 }
 
                 // 不允许同时登录，确认refreshTokenInfo对应关系
                 if (userDetails.isAccessUnique() && !userDetails.getRefreshId().equals(refreshTokenInfo.getRefreshId())) {
                     writeResponse(response, UNAUTHORIZED, "frame.auth.refresh.changed");
-                    return null;
+                    return false;
                 }
 
                 // 允许同时登录，检查是否手动标记注销
                 AccessTokenInfo accessTokenInfo = redisHelper.getValue(getAccessTokenKey(userDetails));
                 if(accessTokenInfo == null || accessTokenInfo.getRevoked() == 1){
                     writeResponse(response, UNAUTHORIZED, "frame.auth.access.revoked");
-                    return null;
+                    return false;
                 }
             }else{
                 AccessTokenInfo accessTokenInfo = redisHelper.getValue(getAccessTokenKey(userDetails));
                 // 确认accessTokenInfo存在
                 if (accessTokenInfo == null) {
                     writeResponse(response, UNAUTHORIZED, "frame.auth.access.revoked");
-                    return null;
+                    return false;
                 }
             }
         }
-        // 保存到上下文中
-        Access access = Access.get();
-        if (access == null) {
-            access = Access.newAccess(accessIdGenerator);
-        }
-        access.setUserDetails(userDetails);
-        Access.set(access);
-        return userDetails;
+        return true;
     }
 
     @Override
     public AccessUserDetails parseAccessRefreshToken(HttpServletResponse response) throws IOException {
         String accessToken = getAccessToken();
         if (accessToken != null) {
-            return parseAccessRefreshToken(accessToken, response);
+            return doParseAccessRefreshToken(accessToken, response);
         }
         writeResponse(response, UNAUTHORIZED, "frame.auth.access.empty");
         return null;
     }
 
-    private AccessUserDetails parseAccessRefreshToken(String accessToken, HttpServletResponse response) throws IOException {
+    private AccessUserDetails doParseAccessRefreshToken(String accessToken, HttpServletResponse response) throws IOException {
         Claims claims;
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
@@ -394,7 +398,19 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             writeResponse(response, UNAUTHORIZED, "frame.auth.access.invalid");
             return null;
         }
-        return doParseAccessToken(claims, response, true);
+        AccessUserDetails userDetails = bearerTokenDelegate.parseAccessClaims(claims);
+        boolean validated = validateUserDetails(userDetails, response, true);
+        if(validated) {
+            // 保存到上下文中
+            Access access = Access.get();
+            if (access == null) {
+                access = Access.newAccess(accessIdGenerator);
+            }
+            access.setUserDetails(userDetails);
+            Access.set(access);
+            return userDetails;
+        }
+        return null;
     }
 
     @Override
@@ -514,7 +530,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         return true;
     }
 
-    private void writeResponse(HttpServletResponse response, ResponseCode responseCode, String messageKey) throws IOException {
+    protected void writeResponse(HttpServletResponse response, ResponseCode responseCode, String messageKey) throws IOException {
         int httpStatus = responseCode.getStatus();
         if (bearerTokenDelegate.alwaysReturnHttp200()) {
             httpStatus = SUCCESS.getStatus();

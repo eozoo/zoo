@@ -420,7 +420,7 @@ public class BearerTokenServiceTest {
         // 篡改 payload 中间的一个字符，让签名对不上
         String[] parts = token.split("\\.");
         String tamperedPayload = parts[1].substring(0, parts[1].length() / 2)
-                + "X" + parts[1].substring(parts[1].length() / 2 + 1);
+                + "Xss" + parts[1].substring(parts[1].length() / 2 + 1);
         String tamperedToken = parts[0] + "." + tamperedPayload + "." + parts[2];
         assertFalse(tokenService.validAccessToken(tamperedToken));
     }

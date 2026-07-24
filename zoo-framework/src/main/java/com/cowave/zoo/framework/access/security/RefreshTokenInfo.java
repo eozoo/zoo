@@ -125,6 +125,16 @@ public class RefreshTokenInfo {
     private String clusterName;
 
     /**
+     * 限制同一账号的登录设备
+     */
+    private boolean accessUnique;
+
+    /**
+     * 是否存储验证AccessToken
+     */
+    private boolean accessValid;
+
+    /**
      * 登录iP
      */
     private String loginIp;
@@ -157,5 +167,7 @@ public class RefreshTokenInfo {
         this.permissions = userDetails.getPermissions();
         this.loginIp = userDetails.getLoginIp();
         this.loginTime = userDetails.getLoginTime();
+        this.accessUnique = userDetails.isAccessUnique();
+        this.accessValid = userDetails.isAccessValid();
     }
 }

@@ -116,6 +116,28 @@ mvn archetype:generate                \
 ```text
 {artifactId}
    ├─{artifactId}-domain    ## 领域模型，定义服务的各种领域模型和对象，infra层的适配接口，以及沉淀核心的biz业务逻辑；
+   │   ├─domain_1
+   │   │  ├─biz                           ## 负责处理command操作请求，依赖repository接口，提供给上层service模块使用
+   │   │  │  ├─xxxBiz
+   │   │  │  └─impl
+   │   │  │    ├─xxxBizImpl
+   │   │  │    └─...
+   │   │  ├─entity
+   │   │  │  ├─bo                         ## 业务处理过程对象
+   │   │  │  ├─command                    ## 业务命令操作对象
+   │   │  │  ├─pto                        ## 持久层传输对象，多表联合查询结果集
+   │   │  │  ├─query                      ## 业务查询请求对象
+   │   │  │  ├─vo                         ## 客户端数据视图对象
+   │   │  │  └─...                        ## 领域对象直接放在entity根目录下，与持久层库表一致，PO/DO后缀可省略
+   │   │  ├─enums
+   │   │  ├─repository
+   │   │  │  ├─xxxRepository              ## 定义所以持久层操作接口，由infra层的dao实现，提供给biz使用
+   │   │  │  └─facade
+   │   │  │     ├─xxxRepositoryFacade     ## Repository接口的门面，负责处理query操作请求，提供给上层service模块使用
+   │   │  │     └─...
+   │   │  └─...   
+   │   └─domain_2
+   │
    ├─{artifactId}-infra     ## 基础组件，负责领域仓储接口的具体技术实现，比如数据库、缓存、消息中间件等处理，依赖${rootArtifactId}-domain；
    ├─{artifactId}-service   ## 业务处理，负责业务编排和领域能力调用，与${rootArtifactId}-infra完全解耦，只依赖${rootArtifactId}-domain；
    ├─{artifactId}-client    ## 远程调用，提供给外部调用的客户端，比如Rpc调用，依赖${rootArtifactId}-domain；
@@ -156,14 +178,54 @@ mvn archetype:generate                \
    └─README.md   
 ```
 
-### DDD工程对象约定（仅供参考）
+### DDD实体对象约定（仅供参考）
 
-  | 对象后缀命名        | 说明                     | 定义&引用模块                    |
-  |---------------|------------------------|----------------------------|
-  | DO/PO         | DDD领域实体，与库表定义一致（可省略后缀） | domain定义，所有模块引用（除了client）  |
-  | DPO           | 持久层视图对象，多表联合查询结果集      | domain定义，所有模块引用（除了client）  |
-  | Command/Query | 业务入参封装                 | domain定义，所有模块引用（除了client）  |
-  | BO            | 业务过程对象                 | domain定义，仅domain/service引用 |
-  | VO            | 返回客户端数据对象              | domain定义，仅app/service引用    |
-  | DTO           | 服务间调用返回数据对象            | client定义，由引用方的infra适配      |
-  | Request       | 服务间调用请求参数对象            | client定义，由引用方的infra适配      |
+  | 对象后缀命名        | 说明                   | 定义&引用模块                    |
+  |---------------|----------------------|----------------------------|
+  | PO/DO         | 领域对象，与持久层库表一致（可省略后缀） | domain定义，所有模块引用（除了client）  |
+  | PTO           | 持久层传输对象，多表联合查询结果集    | domain定义，所有模块引用（除了client）  |
+  | Command/Query | 业务入参封装               | domain定义，所有模块引用（除了client）  |
+  | VO            | 客户端数据视图对象            | domain定义，仅app/service引用    |
+  | BO            | 业务处理过程对象             | domain定义，仅domain/service引用 |
+  | DTO           | 服务间调用返回数据对象          | client定义，由引用方的infra适配      |
+  | Req/Request   | 服务间调用请求参数对象          | client定义，由引用方的infra适配      |
+
+```text
+对象约定的思路：
+
+定义PTO是考虑到多表联合查询的场景（也可以拆分成简单查询然后在代码中组装数据，方式各有优劣），
+这样在一些场景中可以一步到位，与PO/DO对象一样直接从infra层查出来交给上层app模块，不用中间再组装数据对象；
+如果需要确实中间处理再出去的，可以在service层转换成VO再交给app模块；
+
+定义Command/Query，也是想省掉中间不必要的数据对象转换，如果用app层的Request直接透传到infra层不是太合适，
+所以从domain层的biz角度出发来定义Command/Query，让app和service层使用，这样透传到infra会比较能接受；
+
+其中PTO/Command/VO允许继承PO/DO，如果字段区别不大的话，这样可以省掉大量重复定义；
+除了DTO/Req/Request放在client模块，其它统一放在domain中也是为尽量简单，不特别违背DDD设计理念的情况下；
+```
+
+### DDD工程代码模块的依赖约定（仅供参考）
+
+```text
+app模块：
+@Controller组件只依赖@Service组件，应保证入口处尽可能简单干净；
+除了@Controller，app模块还包含其它与系统外部打交道的各种方式的入口，比如socketio，kafka等消息队列，
+至于这些方式的依赖统一在infra模块引入，然后出口在infra层实现，并将接口定义在domain模块中，类似Repository接口；
+
+service模块：
+@Service组件依赖的应该只有domain模块中定义的Biz接口（Command操作）和RepositoryFacade接口（Query操作）；
+@Service组件之间不应该存在相互引用（引起循环依赖），也不应该绕过Biz和RepositoryFacade，去依赖Dao或Mapper；
+
+domain模块：
+domain模块中的biz之间不应该存在相互引用（引起循环依赖），应该依赖对应的Repository接口；
+
+infra模块：
+@Repository组件之间不应该存在互相引用（引起循环依赖），应该依赖对应的Mapper；
+
+client模块：
+与其它模块不存在任何引用关系，完全独立的一个接口调用声明；
+
+关于聚合根的操作：
+聚合根下面的实体，在domain中不应该定义对应的biz/Repository/RepositoryFacade接口，
+在infra层也不应该有独立的Dao，只需要定义对应的Mapper，子实体的持久化操作统一通过聚合根的Dao来调用；
+```

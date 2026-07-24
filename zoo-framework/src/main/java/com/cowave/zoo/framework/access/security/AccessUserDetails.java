@@ -283,6 +283,8 @@ public class AccessUserDetails implements UserDetails {
         this.loginTime = refreshTokenInfo.getLoginTime();
         this.oauthId = refreshTokenInfo.getOauthId();
         this.oauthName = refreshTokenInfo.getOauthName();
+        this.accessUnique = refreshTokenInfo.isAccessUnique();
+        this.accessValid = refreshTokenInfo.isAccessValid();
     }
 
     public <T> T getUserId(){
