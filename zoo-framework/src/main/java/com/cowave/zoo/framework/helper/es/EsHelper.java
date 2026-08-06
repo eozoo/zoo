@@ -182,8 +182,14 @@ public class EsHelper {
     }
 
     public void deleteByQuery(String index, QueryBuilder queryBuilder) {
+        deleteByQuery(index, queryBuilder, false);
+    }
+
+    public void deleteByQuery(String index, QueryBuilder queryBuilder, boolean refresh) {
         DeleteByQueryRequest request = new DeleteByQueryRequest(index);
         request.setQuery(queryBuilder);
+        request.setRefresh(refresh);
+        request.setConflicts("proceed");
         try {
             restHighLevelClient.deleteByQuery(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
