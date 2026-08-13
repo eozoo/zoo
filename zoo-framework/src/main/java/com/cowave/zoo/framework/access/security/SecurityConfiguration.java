@@ -231,13 +231,24 @@ public class SecurityConfiguration {
             if (anonymousAccess != null) {
                 RequestMappingInfo requestMappingInfo = infoEntry.getKey();
                 List<RequestMethod> requestMethods = new ArrayList<>(requestMappingInfo.getMethodsCondition().getMethods());
+
+                // PathPattern → Ant: {*var}→**, {var}→*, 末尾变量额外生成 */  兜底trailing slash
+                Set<String> antPatterns = new HashSet<>();
+                for (String pathPattern : requestMappingInfo.getPathPatternsCondition().getPatternValues()) {
+                    String antPattern = pathPattern
+                            .replaceAll("\\{\\*[^}]+}", "**")
+                            .replaceAll("\\{[^}]+}", "*");
+                    antPatterns.add(antPattern);
+                    if (pathPattern.matches(".*\\{[^}]+}$")) {
+                        antPatterns.add(antPattern + "/");
+                    }
+                }
+
                 if (requestMethods.isEmpty()) {
-                    anonymousUrls.computeIfAbsent("ALL", k -> new HashSet<>())
-                            .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
+                    anonymousUrls.computeIfAbsent("ALL", k -> new HashSet<>()).addAll(antPatterns);
                 } else {
                     for (RequestMethod requestMethod : requestMethods) {
-                        anonymousUrls.computeIfAbsent(requestMethod.name(), k -> new HashSet<>())
-                                .addAll(requestMappingInfo.getPathPatternsCondition().getPatternValues());
+                        anonymousUrls.computeIfAbsent(requestMethod.name(), k -> new HashSet<>()).addAll(antPatterns);
                     }
                 }
             }

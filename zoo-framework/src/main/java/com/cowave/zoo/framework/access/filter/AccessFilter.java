@@ -134,28 +134,41 @@ public class AccessFilter implements Filter {
             }
 
             Set<String> urlPatterns = requestMappingInfo.getPathPatternsCondition().getPatternValues();
+
+            // PathPattern → Ant: {*var}→**, {var}→*, 末尾变量额外生成 */  兜底trailing slash
+            Set<String> antPatterns = new HashSet<>();
+            for (String pathPattern : urlPatterns) {
+                String antPattern = pathPattern
+                        .replaceAll("\\{\\*[^}]+}", "**")
+                        .replaceAll("\\{[^}]+}", "*");
+                antPatterns.add(antPattern);
+                if (pathPattern.matches(".*\\{[^}]+}$")) {
+                    antPatterns.add(antPattern + "/");
+                }
+            }
+
             Set<RequestMethod> httpMethods = requestMappingInfo.getMethodsCondition().getMethods();
             if (httpMethods.isEmpty()) {
-                for (String urlPattern : urlPatterns) {
+                for (String antPattern : antPatterns) {
                     if (!paramFields.isEmpty()) {
                         sensitiveParamMap.computeIfAbsent("ALL",
-                                k -> new HashMap<>()).put(urlPattern, paramFields);
+                                k -> new HashMap<>()).put(antPattern, paramFields);
                     }
                     if (bodyClass != null) {
                         sensitiveBodyMap.computeIfAbsent("ALL",
-                                k -> new HashMap<>()).put(urlPattern, bodyClass);
+                                k -> new HashMap<>()).put(antPattern, bodyClass);
                     }
                 }
             } else {
                 for (RequestMethod httpMethod : httpMethods) {
-                    for (String urlPattern : urlPatterns) {
+                    for (String antPattern : antPatterns) {
                         if (!paramFields.isEmpty()) {
                             sensitiveParamMap.computeIfAbsent(httpMethod.name(),
-                                    k -> new HashMap<>()).put(urlPattern, paramFields);
+                                    k -> new HashMap<>()).put(antPattern, paramFields);
                         }
                         if (bodyClass != null) {
                             sensitiveBodyMap.computeIfAbsent(httpMethod.name(),
-                                    k -> new HashMap<>()).put(urlPattern, bodyClass);
+                                    k -> new HashMap<>()).put(antPattern, bodyClass);
                         }
                     }
                 }
