@@ -98,22 +98,22 @@ public class Permission {
      * 是否拥有指定权限
      */
     public boolean hasPermit(String permission) {
-        Access access = Access.get();
-        if (access != null) {
-            access.setPermit(permission);
-        }
-
         if(isIgnore() || StringUtils.isBlank(permission) || isAdmin()) {
             return true;
         }
 
-        List<String> permits = Access.userPermissions();
+        List<String> permits = Access.userPermits();
         if(CollectionUtils.isEmpty(permits)) {
             return false;
         }
 
-        for(String permit : permits){
-            if(StringUtils.isNotBlank(permit) && matchPermit(permit, permission)){
+        for (String permit : permits) {
+            if (StringUtils.isNotBlank(permit) && matchPermit(permit, permission)) {
+                Access access = Access.get();
+                if (access != null) {
+                    access.setPermit(permission);
+                    access.setScopeIds(Access.userPermitScopes().get(permission));
+                }
                 return true;
             }
         }

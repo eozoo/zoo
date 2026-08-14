@@ -104,9 +104,14 @@ public interface BearerTokenDelegate {
     String CLAIM_USER_ROLE = "ur";
 
     /**
-     * 用户权限
+     * 用户操作权限
      */
     String CLAIM_USER_PERM = "um";
+
+    /**
+     * 用户数据权限
+     */
+    String CLAIM_USER_SCOPE = "us";
 
     /**
      * 部门id

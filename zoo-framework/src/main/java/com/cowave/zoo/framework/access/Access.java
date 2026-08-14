@@ -64,6 +64,8 @@ public class Access {
 
     private String permit;
 
+    private List<Integer> scopeIds;
+
     private Integer pageIndex;
 
     private Integer pageSize;
@@ -112,10 +114,17 @@ public class Access {
     }
 
     /**
-     * 请求对应的权限标识
+     * 当前操作权限key
      */
     public static String permit() {
         return Optional.ofNullable(get()).map(access -> access.permit).orElse(null);
+    }
+
+    /**
+     * 当前操作权限对应的数据权限
+     */
+    public static List<Integer> scopeIds() {
+        return Optional.ofNullable(get()).map(access -> access.scopeIds).orElse(null);
     }
 
     /**
@@ -301,10 +310,17 @@ public class Access {
     }
 
     /**
-     * 用户权限（鉴权信息）
+     * 操作权限（鉴权信息）
      */
-    public static List<String> userPermissions() {
+    public static List<String> userPermits() {
         return Optional.ofNullable(userDetails()).map(AccessUserDetails::getPermissions).orElse(new ArrayList<>());
+    }
+
+    /**
+     * 数据权限（鉴权信息，permit -> scopeId列表）
+     */
+    public static Map<String, List<Integer>> userPermitScopes() {
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getPermitScopes).orElse(new HashMap<>());
     }
 
     /**

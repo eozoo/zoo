@@ -168,6 +168,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .claim(CLAIM_USER_ROLE, userDetails.getRoles())
                 .claim(CLAIM_USER_PERM, userDetails.getPermissions())
+                .claim(CLAIM_USER_SCOPE, userDetails.getPermitScopes())
                 .claim(CLAIM_DEPT_ID, userDetails.getDeptId())
                 .claim(CLAIM_DEPT_CODE, userDetails.getDeptCode())
                 .claim(CLAIM_DEPT_NAME, userDetails.getDeptName())
@@ -213,6 +214,8 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         userDetails.setRoles((List<String>) claims.get(CLAIM_USER_ROLE));
         // permits
         userDetails.setPermissions((List<String>) claims.get(CLAIM_USER_PERM));
+        // 数据权限（permit -> scopeId列表）
+        userDetails.setPermitScopes((Map<String, List<Integer>>) claims.get(CLAIM_USER_SCOPE));
         return userDetails;
     }
 

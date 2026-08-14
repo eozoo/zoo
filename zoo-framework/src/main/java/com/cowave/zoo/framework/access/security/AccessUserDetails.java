@@ -141,9 +141,14 @@ public class AccessUserDetails implements UserDetails {
     private List<String> roles;
 
     /**
-     * 用户Permissions
+     * 用户操作权限
      */
     private List<String> permissions;
+
+    /**
+     * 用户数据权限<permit, scopeId>
+     */
+    private Map<String, List<Integer>> permitScopes;
 
     /**
      * 部门id
