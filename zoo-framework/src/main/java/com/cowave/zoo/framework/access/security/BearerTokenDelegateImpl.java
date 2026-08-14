@@ -117,11 +117,6 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     }
 
     @Override
-    public String oauthAppId() {
-        return accessProperties.oauthAppId();
-    }
-
-    @Override
     public boolean alwaysReturnHttp200() {
         return accessProperties.isAlwaysSuccess();
     }
@@ -181,13 +176,15 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     public void setOauthAccessClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
         setAccessClaims(jwtBuilder, userDetails);
         jwtBuilder.claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
-                .claim(CLAIM_OAUTH_NAME, userDetails.getOauthName());
+                .claim(CLAIM_OAUTH_NAME, userDetails.getOauthName())
+                .claim(CLAIM_OAUTH_APPS, userDetails.getApps());
     }
 
     @Override
     public AccessUserDetails parseAccessClaims(Claims claims) {
         AccessUserDetails userDetails = new AccessUserDetails();
         userDetails.setOauthId((String) claims.get(CLAIM_OAUTH_ID));
+        userDetails.setOauthName((String) claims.get(CLAIM_OAUTH_NAME));
         // token
         userDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
         userDetails.setAccessValid(Objects.equals(1, claims.get(CLAIM_ACCESS_VALID)));
@@ -202,6 +199,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         userDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         userDetails.setUserNick((String) claims.get(CLAIM_USER_NAME));
         userDetails.setUserProperties((Map<String, Object>) claims.get(CLAIM_USER_PROPERTIES));
+        userDetails.setUserType((String) claims.get(CLAIM_USER_TYPE));
         // dept
         userDetails.setDeptId(claims.get(CLAIM_DEPT_ID));
         userDetails.setDeptCode(claims.get(CLAIM_DEPT_CODE));
@@ -216,6 +214,8 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         userDetails.setPermissions((List<String>) claims.get(CLAIM_USER_PERM));
         // 数据权限（permit -> scopeId列表）
         userDetails.setPermitScopes((Map<String, List<Integer>>) claims.get(CLAIM_USER_SCOPE));
+        // 授权应用列表
+        userDetails.setApps((List<String>) claims.get(CLAIM_OAUTH_APPS));
         return userDetails;
     }
 

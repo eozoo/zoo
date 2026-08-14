@@ -332,15 +332,6 @@ public class BearerTokenServiceImpl implements BearerTokenService {
                 return false;
             }
         }
-        // OAuth令牌访问应用限制
-        String oauthAppId = bearerTokenDelegate.oauthAppId();
-        if(StringUtils.isNotBlank(oauthAppId) && !oauthAppId.equals(userDetails.getOauthId())){
-            if (response == null) {
-                throw new HttpHintException(UNAUTHORIZED, "{frame.oauth.invalid}");
-            }
-            writeResponse(response, UNAUTHORIZED, "frame.oauth.invalid");
-            return false;
-        }
         // 服务端校验AccessToken
         if (userDetails.isAccessValid()) {
             if (useRefreshToken) {

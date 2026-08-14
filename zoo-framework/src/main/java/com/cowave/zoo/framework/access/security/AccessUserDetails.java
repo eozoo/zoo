@@ -196,14 +196,19 @@ public class AccessUserDetails implements UserDetails {
     private boolean accessValid = false;
 
     /**
-     * 授权应用id
+     * 申请应用id
      */
     private String oauthId;
 
     /**
-     * 授权应用名称
+     * 申请应用名称
      */
     private String oauthName;
+
+    /**
+     * 授权应用列表
+     */
+    private List<String> apps;
 
     public AccessUserDetails(){
 
@@ -275,6 +280,7 @@ public class AccessUserDetails implements UserDetails {
         this.userCode = refreshTokenInfo.getUserCode();
         this.username = refreshTokenInfo.getUserAccount();
         this.userNick = refreshTokenInfo.getUserName();
+        this.userType = refreshTokenInfo.getUserType();
         this.userProperties = refreshTokenInfo.getUserProperties();
         this.deptId = refreshTokenInfo.getDeptId();
         this.deptCode = refreshTokenInfo.getDeptCode();
@@ -284,10 +290,12 @@ public class AccessUserDetails implements UserDetails {
         this.clusterName = refreshTokenInfo.getClusterName();
         this.roles = refreshTokenInfo.getRoles();
         this.permissions = refreshTokenInfo.getPermissions();
+        this.permitScopes = refreshTokenInfo.getPermitScopes();
         this.loginIp = refreshTokenInfo.getLoginIp();
         this.loginTime = refreshTokenInfo.getLoginTime();
         this.oauthId = refreshTokenInfo.getOauthId();
         this.oauthName = refreshTokenInfo.getOauthName();
+        this.apps = refreshTokenInfo.getApps();
         this.accessUnique = refreshTokenInfo.isAccessUnique();
         this.accessValid = refreshTokenInfo.isAccessValid();
     }

@@ -45,14 +45,19 @@ public class RefreshTokenInfo {
     private String authType;
 
     /**
-     * 授权应用id
+     * 申请应用id
      */
     private String oauthId;
 
     /**
-     * 授权应用名称
+     * 申请应用名称
      */
     private String oauthName;
+
+    /**
+     * 授权应用列表
+     */
+    private List<String> apps;
 
     /**
      * 租户id
@@ -80,6 +85,11 @@ public class RefreshTokenInfo {
     private String userName;
 
     /**
+     * 用户类型
+     */
+    private String userType;
+
+    /**
      * 用户属性
      */
     private Map<String, Object> userProperties;
@@ -90,9 +100,14 @@ public class RefreshTokenInfo {
     private List<String> roles;
 
     /**
-     * 用户Permissions
+     * 用户操作权限
      */
     private List<String> permissions;
+
+    /**
+     * 用户数据权限<permit, scopeId>
+     */
+    private Map<String, List<Integer>> permitScopes;
 
     /**
      * 部门id
@@ -151,11 +166,13 @@ public class RefreshTokenInfo {
         this.authType = userDetails.getAuthType();
         this.oauthId = userDetails.getOauthId();
         this.oauthName = userDetails.getOauthName();
+        this.apps = userDetails.getApps();
         this.tenantId = userDetails.getTenantId();
         this.userId = userDetails.getUserId();
         this.userCode = userDetails.getUserCode();
         this.userAccount = userDetails.getUsername();
         this.userName = userDetails.getUserNick();
+        this.userType = userDetails.getUserType();
         this.userProperties = userDetails.getUserProperties();
         this.deptId = userDetails.getDeptId();
         this.deptCode = userDetails.getDeptCode();
@@ -165,6 +182,7 @@ public class RefreshTokenInfo {
         this.clusterName = userDetails.getClusterName();
         this.roles = userDetails.getRoles();
         this.permissions = userDetails.getPermissions();
+        this.permitScopes = userDetails.getPermitScopes();
         this.loginIp = userDetails.getLoginIp();
         this.loginTime = userDetails.getLoginTime();
         this.accessUnique = userDetails.isAccessUnique();

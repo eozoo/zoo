@@ -29,14 +29,19 @@ public interface BearerTokenDelegate {
     String CLAIM_TYPE = "tt";
 
     /**
-     * 授权应用id
+     * 申请应用id
      */
     String CLAIM_OAUTH_ID = "oi";
 
     /**
-     * 授权应用名称
+     * 申请应用名称
      */
     String CLAIM_OAUTH_NAME = "on";
+
+    /**
+     * 授权应用列表
+     */
+    String CLAIM_OAUTH_APPS = "oa";
 
     /**
      * 访问IP
@@ -157,11 +162,6 @@ public interface BearerTokenDelegate {
      * 认证方式：（basic、access、access-refresh）
      */
     AuthMode authMode();
-
-    /**
-     * 应用id，验证OAuth令牌是否有资格访问
-     */
-    String oauthAppId();
 
     /**
      * Http Response是否始终返回200状态码。
