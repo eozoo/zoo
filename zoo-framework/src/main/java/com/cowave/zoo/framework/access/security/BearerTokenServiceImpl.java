@@ -23,7 +23,9 @@ import com.cowave.zoo.framework.helper.redis.RedisHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +50,16 @@ public class BearerTokenServiceImpl implements BearerTokenService {
     public static final String AUTH_REFRESH_KEY = "%s:auth:%s:refresh:%s:%s";
     // {applicationName}:auth:{tenantId}:oauth:{type}:{userAccount}:{appId}
     public static final String AUTH_OAUTH_KEY = "%s:auth:%s:oauth:%s:%s:%s";
+    // {applicationName}:auth:{tenantId}:index 在线信息索引ZSET 值={type}|{userAccount} score=loginTime
+    public static final String ONLINE_INDEX_KEY = "%s:auth:%s:index";
+    // {applicationName}:auth:{tenantId}:index:{type}:{userAccount} 令牌信息索引SET
+    public static final String GRANT_INDEX_KEY = "%s:auth:%s:index:%s:%s";
+    // 在线索引的成员分隔符，取首个出现的位置，账号本身含分隔符也不影响解析
+    private static final char MEMBER_SEPARATOR = ':';
+    // 在线索引数据类型
+    private static final String GRANT_ACCESS = "access:";
+    private static final String GRANT_OAUTH = "oauth:";
+
     private final RedisHelper redisHelper;
     private final ObjectMapper objectMapper;
     private final AccessIdGenerator accessIdGenerator;
@@ -87,17 +99,18 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         }
         // 服务端保存
         if (userDetails.isAccessValid() && redisHelper != null) {
+            String tenantId = userDetails.getTenantId();
+            String authType = userDetails.getAuthType();
+            String userAccount = userDetails.getUsername();
             // 仅使用accessToken且不允许同时登录，那么删掉其它令牌
             if(userDetails.isAccessUnique() && !useRefreshToken){
-                String tenantId = userDetails.getTenantId();
-                String authType = userDetails.getAuthType();
-                String userAccount = userDetails.getUsername();
-                redisHelper.deleteByPattern(bearerTokenDelegate.getAccessIssuer()
-                        + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
+                revokeGrantToken(tenantId, authType, userAccount, GRANT_ACCESS);
             }
             // 记录本次发放的令牌
             AccessTokenInfo accessTokenInfo = new AccessTokenInfo(userDetails);
             redisHelper.putExpire(getAccessTokenKey(userDetails), accessTokenInfo, accessExpire, TimeUnit.SECONDS);
+            // 添加在线用户令牌索引数据
+            indexGrant(tenantId, authType, userAccount, GRANT_ACCESS + userDetails.getAccessId());
         }
     }
 
@@ -125,6 +138,8 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             int refreshExpire = bearerTokenDelegate.getRefreshExpireSeconds();
             RefreshTokenInfo refreshTokenInfo = new RefreshTokenInfo(userDetails);
             redisHelper.putExpire(getRefreshTokenKey(userDetails), refreshTokenInfo, refreshExpire, TimeUnit.SECONDS);
+            // 添加在线用户索引数据
+            indexOnline(userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername(), refreshTokenInfo.getLoginTime());
         }
     }
 
@@ -163,6 +178,8 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             String oauthKey = getOauthTokenKey(userDetails.getTenantId(),
                     userDetails.getAuthType(), userDetails.getUsername(), userDetails.getOauthId());
             redisHelper.putExpire(oauthKey, refreshTokenInfo, refreshExpire, TimeUnit.SECONDS);
+            // 添加在线用户令牌索引数据
+            indexGrant(userDetails.getTenantId(), userDetails.getAuthType(), userDetails.getUsername(), GRANT_OAUTH + userDetails.getOauthId());
         }
     }
 
@@ -171,6 +188,8 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         AccessUserDetails userDetails = parseAccessToken(null);
         if (userDetails.isAccessValid() && redisHelper != null) {
             redisHelper.delete(getAccessTokenKey(userDetails));
+            unIndexGrant(userDetails.getTenantId(), userDetails.getAuthType(),
+                    userDetails.getUsername(), GRANT_ACCESS + userDetails.getAccessId());
         }
         userDetails.setAccessId(IdUtil.fastSimpleUUID());
         userDetails.setAccessIp(Access.accessIp());
@@ -210,6 +229,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         if (details.isAccessValid()) {
             String accessTokenKey = getAccessTokenKey(details.getTenantId(), details.getAuthType(), details.getUsername(), accessId);
             redisHelper.delete(accessTokenKey);
+            unIndexGrant(details.getTenantId(), details.getAuthType(), details.getUsername(), GRANT_ACCESS + accessId);
         }
 
         // 更新Token信息
@@ -418,6 +438,8 @@ public class BearerTokenServiceImpl implements BearerTokenService {
 
         if (ACCESS == bearerTokenDelegate.authMode()) {
             redisHelper.delete(getAccessTokenKey(userDetails));
+            unIndexGrant(userDetails.getTenantId(), userDetails.getAuthType(),
+                    userDetails.getUsername(), GRANT_ACCESS + userDetails.getAccessId());
         }
 
         if (ACCESS_REFRESH == bearerTokenDelegate.authMode()) {
@@ -444,6 +466,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         String accesskey = getAccessTokenKey(tenantId, authType, userAccount, accessId);
         AccessTokenInfo accessTokenInfo = redisHelper.getValue(accesskey);
         redisHelper.delete(accesskey);
+        unIndexGrant(tenantId, authType, userAccount, GRANT_ACCESS + accessId);
         return accessTokenInfo;
     }
 
@@ -452,10 +475,14 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         String refreshKey = getRefreshTokenKey(tenantId, authType, userAccount);
         RefreshTokenInfo refreshTokenInfo = redisHelper.getValue(refreshKey);
         redisHelper.delete(refreshKey);
-        redisHelper.deleteByPattern(bearerTokenDelegate.getAccessIssuer()
-                + ":auth:" + tenantId + ":access:" + authType + ":" + userAccount + ":*");
-        redisHelper.deleteByPattern(bearerTokenDelegate.getRefreshIssuer()
-                + ":auth:" + tenantId + ":oauth:" + authType + ":" + userAccount + ":*");
+        // 按授权索引删除令牌
+        String grantKey = getGrantIndexKey(tenantId, authType, userAccount);
+        List<String> tokenKeys = grantTokenKeys(tenantId, authType, userAccount, redisHelper.getSet(grantKey), null);
+        if (!tokenKeys.isEmpty()) {
+            redisHelper.delete(tokenKeys);
+        }
+        redisHelper.delete(grantKey);
+        redisHelper.removeFromZset(getOnlineIndexKey(tenantId), onlineMember(authType, userAccount));
         return refreshTokenInfo;
     }
 
@@ -464,22 +491,221 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         String oauthkey = getOauthTokenKey(tenantId, authType, userAccount, appId);
         RefreshTokenInfo oauthToken = redisHelper.getValue(oauthkey);
         redisHelper.delete(oauthkey);
+        unIndexGrant(tenantId, authType, userAccount, GRANT_OAUTH + appId);
         return oauthToken;
     }
 
     @Override
-    public List<AccessTokenInfo> listAccessToken(String tenantId) {
-        return redisHelper.getByPattern(bearerTokenDelegate.getAccessIssuer() + ":auth:" + tenantId + ":access:*");
+    public List<OnlineIndex> listOnlineIndex(String tenantId, Date beginTime, Date endTime) {
+        Set<ZSetOperations.TypedTuple<String>> tuples;
+        if (beginTime == null && endTime == null) {
+            tuples = redisHelper.reverseRangeOfZsetWithScores(getOnlineIndexKey(tenantId), 0, -1);
+        } else {
+            double min = beginTime == null ? Double.NEGATIVE_INFINITY : beginTime.getTime();
+            double max = endTime == null ? Double.POSITIVE_INFINITY : endTime.getTime();
+            tuples = redisHelper.reverseRangeOfZsetByScoreWithScores(getOnlineIndexKey(tenantId), min, max);
+        }
+
+        List<OnlineIndex> list = new ArrayList<>();
+        if (tuples == null) {
+            return list;
+        }
+
+        for (ZSetOperations.TypedTuple<String> tuple : tuples) {
+            String value = tuple.getValue();
+            if (value == null) {
+                continue;
+            }
+
+            int index = value.indexOf(MEMBER_SEPARATOR);
+            if (index < 0) {
+                continue;
+            }
+
+            Double score = tuple.getScore();
+            list.add(new OnlineIndex(value.substring(0, index), value.substring(index + 1),
+                    score == null ? null : new Date(score.longValue())));
+        }
+        return list;
     }
 
     @Override
-    public List<RefreshTokenInfo> listRefreshToken(String tenantId) {
-        return redisHelper.getByPattern(bearerTokenDelegate.getRefreshIssuer() + ":auth:" + tenantId + ":refresh:*");
+    public List<OnlineToken> listOnlineToken(String tenantId, List<OnlineIndex> indexList) {
+        List<OnlineToken> onlineTokens = new ArrayList<>();
+        if (indexList == null || indexList.isEmpty()) {
+            return onlineTokens;
+        }
+
+        // MGET
+        List<String> refreshKeys = new ArrayList<>(indexList.size());
+        for (OnlineIndex index : indexList) {
+            refreshKeys.add(getRefreshTokenKey(tenantId, index.getAuthType(), index.getUserAccount()));
+        }
+
+        List<RefreshTokenInfo> refreshTokenList = redisHelper.getMultiValue(refreshKeys);
+        if (CollectionUtils.isEmpty(refreshTokenList)) {
+            return onlineTokens;
+        }
+
+        List<OnlineIndex> livedList = new ArrayList<>();
+        List<Object> expiredList = new ArrayList<>();
+        for (int i = 0; i < indexList.size(); i++) {
+            OnlineIndex index = indexList.get(i);
+            RefreshTokenInfo refreshToken = refreshTokenList.get(i);
+            // 令牌过期，索引还在
+            if (refreshToken == null) {
+                expiredList.add(onlineMember(index.getAuthType(), index.getUserAccount()));
+                continue;
+            }
+            livedList.add(index);
+            onlineTokens.add(new OnlineToken(refreshToken));
+        }
+
+        // 清除过期索引
+        if (!expiredList.isEmpty()) {
+            redisHelper.removeFromZset(getOnlineIndexKey(tenantId), expiredList.toArray());
+        }
+
+        // 补充令牌信息
+        if (!livedList.isEmpty()) {
+            fillGrantToken(tenantId, livedList, onlineTokens);
+        }
+        return onlineTokens;
     }
 
-    @Override
-    public List<RefreshTokenInfo> listOauthToken(String tenantId) {
-        return redisHelper.getByPattern(bearerTokenDelegate.getRefreshIssuer() + ":auth:" + tenantId + ":oauth:*");
+    private void fillGrantToken(String tenantId, List<OnlineIndex> indexList, List<OnlineToken> onlineTokens) {
+        List<OnlineRecord> records = new ArrayList<>();
+        for (int i = 0; i < indexList.size(); i++) {
+            OnlineIndex index = indexList.get(i);
+            // 令牌索引数据key
+            String grantIndexKey = getGrantIndexKey(tenantId, index.getAuthType(), index.getUserAccount());
+            Set<String> grantIndexSet = redisHelper.getSet(grantIndexKey);
+            if (grantIndexSet == null) {
+                continue;
+            }
+
+            for (String grantIndex : grantIndexSet) {
+                // 令牌key grant格式 access:accessId 或 oauth:oauthId
+                String grantTokenKey = getGrantTokenKey(tenantId, index.getAuthType(), index.getUserAccount(), grantIndex);
+                if (grantTokenKey != null) {
+                    records.add(new OnlineRecord(i, grantIndexKey, grantIndex, grantTokenKey));
+                }
+            }
+        }
+        if (records.isEmpty()) {
+            return;
+        }
+
+        List<String> tokenKeys = new ArrayList<>(records.size());
+        for (OnlineRecord record : records) {
+            tokenKeys.add(record.grantTokenKey());
+        }
+        List<Object> tokens = redisHelper.getMultiValue(tokenKeys);
+        if (CollectionUtils.isEmpty(tokens)) {
+            return;
+        }
+
+        Map<String, List<Object>> expiredGrants = new HashMap<>();
+        for (int i = 0; i < records.size(); i++) {
+            OnlineRecord record = records.get(i);
+            Object token = tokens.get(i);
+            if (token == null) {
+                // 令牌过期，索引还在
+                expiredGrants.computeIfAbsent(record.grantKey(), key -> new ArrayList<>()).add(record.grant());
+                continue;
+            }
+
+            OnlineToken onlineToken = onlineTokens.get(record.ownerIndex());
+            if (record.grant().startsWith(GRANT_ACCESS)) {
+                onlineToken.getAccessTokens().add((AccessTokenInfo) token);
+            } else {
+                onlineToken.getOauthTokens().add((RefreshTokenInfo) token);
+            }
+        }
+        // 清除过期索引
+        expiredGrants.forEach((grantKey, grants) -> redisHelper.removeFromSet(grantKey, grants.toArray()));
+    }
+
+    // 添加在线用户索引数据，过期时间跟随最新会话（最新会话都失效了其余必然也失效）
+    private void indexOnline(String tenantId, String authType, String userAccount, Date loginTime) {
+        String onlineKey = getOnlineIndexKey(tenantId);
+        redisHelper.putZset(onlineKey, onlineMember(authType, userAccount), loginTime == null ? 0D : loginTime.getTime());
+        redisHelper.expire(onlineKey, bearerTokenDelegate.getRefreshExpireSeconds(), TimeUnit.SECONDS);
+    }
+
+    // 添加在线用户令牌索引数据
+    private void indexGrant(String tenantId, String authType, String userAccount, String grant) {
+        String grantKey = getGrantIndexKey(tenantId, authType, userAccount);
+        redisHelper.offerSet(grantKey, grant);
+        redisHelper.expire(grantKey, bearerTokenDelegate.getRefreshExpireSeconds(), TimeUnit.SECONDS);
+    }
+
+    // 删除令牌索引
+    private void unIndexGrant(String tenantId, String authType, String userAccount, String grant) {
+        redisHelper.removeFromSet(getGrantIndexKey(tenantId, authType, userAccount), grant);
+    }
+
+    // 撤销用户名下指定类型的令牌
+    private void revokeGrantToken(String tenantId, String authType, String userAccount, String grantPrefix) {
+        String grantIndexKey = getGrantIndexKey(tenantId, authType, userAccount);
+        Set<String> grantIndexSet = redisHelper.getSet(grantIndexKey);
+        List<String> tokenKeys = grantTokenKeys(tenantId, authType, userAccount, grantIndexSet, grantPrefix);
+        if (tokenKeys.isEmpty()) {
+            return;
+        }
+
+        // 删除令牌
+        redisHelper.delete(tokenKeys);
+        // 删除索引
+        List<Object> revokedIndex = new ArrayList<>();
+        for (String grantIndex : grantIndexSet) {
+            if (grantIndex.startsWith(grantPrefix)) {
+                revokedIndex.add(grantIndex);
+            }
+        }
+        redisHelper.removeFromSet(grantIndexKey, revokedIndex.toArray());
+    }
+
+    // 令牌索引转换成令牌Key
+    private List<String> grantTokenKeys(String tenantId, String authType, String userAccount, Set<String> grantIndexSet, String grantPrefix) {
+        List<String> tokenKeys = new ArrayList<>();
+        if (grantIndexSet == null) {
+            return tokenKeys;
+        }
+
+        for (String grantIndex : grantIndexSet) {
+            if (grantPrefix != null && !grantIndex.startsWith(grantPrefix)) {
+                continue;
+            }
+
+            String tokenKey = getGrantTokenKey(tenantId, authType, userAccount, grantIndex);
+            if (tokenKey != null) {
+                tokenKeys.add(tokenKey);
+            }
+        }
+        return tokenKeys;
+    }
+
+    private static String onlineMember(String authType, String userAccount) {
+        return authType + MEMBER_SEPARATOR + userAccount;
+    }
+
+    private String getOnlineIndexKey(String tenantId) {
+        return ONLINE_INDEX_KEY.formatted(bearerTokenDelegate.getRefreshIssuer(), tenantId);
+    }
+
+    private String getGrantIndexKey(String tenantId, String type, String userAccount) {
+        return GRANT_INDEX_KEY.formatted(bearerTokenDelegate.getRefreshIssuer(), tenantId, type, userAccount);
+    }
+
+    private String getGrantTokenKey(String tenantId, String authType, String userAccount, String grantIndex) {
+        if (grantIndex.startsWith(GRANT_ACCESS)) {
+            return getAccessTokenKey(tenantId, authType, userAccount, grantIndex.substring(GRANT_ACCESS.length()));
+        }
+        if (grantIndex.startsWith(GRANT_OAUTH)) {
+            return getOauthTokenKey(tenantId, authType, userAccount, grantIndex.substring(GRANT_OAUTH.length()));
+        }
+        return null;
     }
 
     private String getAccessTokenKey(AccessUserDetails userDetails) {

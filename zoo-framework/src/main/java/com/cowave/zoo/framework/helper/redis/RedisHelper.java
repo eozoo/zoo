@@ -88,9 +88,10 @@ public class RedisHelper {
     public Collection<String> keys(String pattern){
         List<String> keys = new ArrayList<>();
         redisTemplate.execute((RedisConnection connection) -> {
-            Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(100).build());
-            while (cursor.hasNext()) {
-                keys.add(new String(cursor.next(), StandardCharsets.UTF_8));
+            try (Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(100).build())) {
+                while (cursor.hasNext()) {
+                    keys.add(new String(cursor.next(), StandardCharsets.UTF_8));
+                }
             }
             return null;
         });
@@ -806,6 +807,20 @@ public class RedisHelper {
      */
     public <T> Set<T> rangeOfZsetByScore(String key, double min, double max){
         return redisTemplate.opsForZSet().rangeByScore(key, min, max);
+    }
+
+    /**
+     * @see <a href="https://redis.io/commands/zrevrange">Redis Documentation: ZREVRANGE</a>
+     */
+    public <T> Set<ZSetOperations.TypedTuple<T>> reverseRangeOfZsetWithScores(String key, long start, long end){
+        return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+    }
+
+    /**
+     * @see <a href="https://redis.io/commands/zrevrangebyscore">Redis Documentation: ZREVRANGEBYSCORE</a>
+     */
+    public <T> Set<ZSetOperations.TypedTuple<T>> reverseRangeOfZsetByScoreWithScores(String key, double min, double max){
+        return redisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, min, max);
     }
 
     /**

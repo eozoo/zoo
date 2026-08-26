@@ -14,6 +14,7 @@ package com.cowave.zoo.framework.access.security;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -87,17 +88,12 @@ public interface BearerTokenService {
     boolean validAccessToken(String accessToken);
 
     /**
-     * 获取AccessToken列表
+     * 在线用户索引
      */
-    List<AccessTokenInfo> listAccessToken(String tenantId);
+    List<OnlineIndex> listOnlineIndex(String tenantId, Date beginTime, Date endTime);
 
     /**
-     * 获取RefreshTokenInfo列表
+     * 在线用户令牌
      */
-    List<RefreshTokenInfo> listRefreshToken(String tenantId);
-
-    /**
-     * 获取OAuthToken列表
-     */
-    List<RefreshTokenInfo> listOauthToken(String tenantId);
+    List<OnlineToken> listOnlineToken(String tenantId, List<OnlineIndex> members);
 }

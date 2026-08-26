@@ -1389,6 +1389,20 @@ public class StringRedisHelper {
     }
 
     /**
+     * @see <a href="https://redis.io/commands/zrevrange">Redis Documentation: ZREVRANGE</a>
+     */
+    public Set<ZSetOperations.TypedTuple<String>> reverseRangeOfZsetWithScores(String key, long start, long end){
+        return stringRedisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+    }
+
+    /**
+     * @see <a href="https://redis.io/commands/zrevrangebyscore">Redis Documentation: ZREVRANGEBYSCORE</a>
+     */
+    public Set<ZSetOperations.TypedTuple<String>> reverseRangeOfZsetByScoreWithScores(String key, double min, double max){
+        return stringRedisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, min, max);
+    }
+
+    /**
      * @see <a href="https://redis.io/commands/zpopmin">Redis Documentation: ZPOPMIN</a>
      */
     public Set<ZSetOperations.TypedTuple<String>> popMinOfZset(final String key, int count){
