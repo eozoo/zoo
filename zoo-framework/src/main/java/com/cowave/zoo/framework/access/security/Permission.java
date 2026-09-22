@@ -65,18 +65,18 @@ public class Permission {
      * 是否系统管理员
      */
     public boolean isSystemAdmin() {
-        String tenantId = Access.tenantId();
+        String tenantCode = Access.tenantCode();
         List<String> roles = Access.userRoles();
-        return StringUtils.isNotBlank(tenantId) && !roles.isEmpty()
-                && TENANT_SYSTEM.equals(tenantId) && roles.contains(ROLE_ADMIN);
+        return StringUtils.isNotBlank(tenantCode) && !roles.isEmpty()
+                && TENANT_SYSTEM.equals(tenantCode) && roles.contains(ROLE_ADMIN);
     }
 
     /**
      * 是否系统用户
      */
     public boolean isSystemUser() {
-        String tenantId = Access.tenantId();
-        return StringUtils.isNotBlank(tenantId) && TENANT_SYSTEM.equals(tenantId);
+        String tenantCode = Access.tenantCode();
+        return StringUtils.isNotBlank(tenantCode) && TENANT_SYSTEM.equals(tenantCode);
     }
 
     /**

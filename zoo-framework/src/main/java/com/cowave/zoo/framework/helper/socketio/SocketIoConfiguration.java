@@ -31,9 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.Nullable;
 
 /**
- *
  * @author shanhuiming
- *
  */
 @ConditionalOnProperty(name = "spring.socket-io.enable", havingValue = "true", matchIfMissing = true)
 @ConditionalOnClass(SocketIOServer.class)
@@ -85,8 +83,10 @@ public class SocketIoConfiguration {
     }
 
     @Bean
-    public SocketIoHelper socketIoHelper(SocketIOServer socketIoServer){
-        return new SocketIoHelper(socketIoServer);
+    public SocketIoHelper socketIoHelper(SocketIOServer socketIoServer,
+                                         BearerTokenService bearerTokenService,
+                                         AccessProperties accessProperties){
+        return new SocketIoHelper(socketIoServer, bearerTokenService, accessProperties);
     }
 
     @Bean

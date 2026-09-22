@@ -70,30 +70,45 @@ public interface BearerTokenService {
     /**
      * 注销AccessToken
      */
-    AccessTokenInfo revokeAccessToken(String tenantId, String authType, String userAccount, String accessId);
+    AccessTokenInfo revokeAccessToken(String userAccount, String sessionId,
+                                      String tenantCode, String accessId);
 
     /**
      * 注销RefreshToken
      */
-    RefreshTokenInfo revokeRefreshToken(String tenantId, String authType, String userAccount);
+    RefreshTokenInfo revokeRefreshToken(String userAccount, String sessionId);
+
+    /**
+     * 注销用户全部登录会话
+     */
+    void revokeUserTokens(String userAccount);
 
     /**
      * 注销OAuthToken
      */
-    RefreshTokenInfo revokeOauthToken(String tenantId, String authType, String userAccount, String appId);
+    RefreshTokenInfo revokeOauthToken(String userAccount, String sessionId,
+                                      String tenantCode, String appId);
 
     /**
      * 验证AccessToken
      */
     boolean validAccessToken(String accessToken);
 
+    /** 校验Socket连接Access Token */
+    AccessUserDetails validateSocketAccessToken(String accessToken);
+
     /**
      * 在线用户索引
      */
-    List<OnlineIndex> listOnlineIndex(String tenantId, Date beginTime, Date endTime);
+    List<OnlineIndex> listOnlineIndex(Date beginTime, Date endTime);
+
+    /**
+     * 指定租户在线用户索引
+     */
+    List<OnlineIndex> listTenantOnlineIndex(String tenantCode, Date beginTime, Date endTime);
 
     /**
      * 在线用户令牌
      */
-    List<OnlineToken> listOnlineToken(String tenantId, List<OnlineIndex> members);
+    List<OnlineToken> listOnlineToken(List<OnlineIndex> members);
 }

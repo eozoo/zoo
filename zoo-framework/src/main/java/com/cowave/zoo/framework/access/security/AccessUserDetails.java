@@ -53,6 +53,11 @@ public class AccessUserDetails implements UserDetails {
     private String refreshId;
 
     /**
+     * 登录会话id，刷新令牌时保持不变
+     */
+    private String sessionId;
+
+    /**
      * refreshToken
      */
     private String refreshToken;
@@ -92,12 +97,12 @@ public class AccessUserDetails implements UserDetails {
     /**
      * 租户id
      */
-    private String tenantId;
+    private Object tenantId;
 
     /**
-     * 租户首页
+     * 租户编码
      */
-    private String tenantIndex;
+    private String tenantCode;
 
     /**
      * 用户id
@@ -268,14 +273,17 @@ public class AccessUserDetails implements UserDetails {
         accessUserDetails.setAccessTime(Access.accessTime());
         accessUserDetails.setAccessId(IdUtil.fastSimpleUUID());
         accessUserDetails.setRefreshId(IdUtil.fastSimpleUUID());
+        accessUserDetails.setSessionId(IdUtil.fastSimpleUUID());
         return accessUserDetails;
     }
 
     AccessUserDetails(RefreshTokenInfo refreshTokenInfo){
         this.accessId = refreshTokenInfo.getAccessId();
         this.refreshId = refreshTokenInfo.getRefreshId();
+        this.sessionId = refreshTokenInfo.getSessionId();
         this.authType = refreshTokenInfo.getAuthType();
         this.tenantId = refreshTokenInfo.getTenantId();
+        this.tenantCode = refreshTokenInfo.getTenantCode();
         this.userId = refreshTokenInfo.getUserId();
         this.userCode = refreshTokenInfo.getUserCode();
         this.username = refreshTokenInfo.getUserAccount();
@@ -298,6 +306,14 @@ public class AccessUserDetails implements UserDetails {
         this.apps = refreshTokenInfo.getApps();
         this.accessUnique = refreshTokenInfo.isAccessUnique();
         this.accessValid = refreshTokenInfo.isAccessValid();
+    }
+
+    public <T> T getTenantId(){
+        return (T)tenantId;
+    }
+
+    public <T> T getTenantId(Function<Object, T> converter) {
+        return converter.apply(tenantId);
     }
 
     public <T> T getUserId(){

@@ -13,17 +13,17 @@
 package com.cowave.zoo.framework.helper.socketio.listener;
 
 import com.corundumstudio.socketio.AuthorizationListener;
+import com.corundumstudio.socketio.AuthorizationResult;
 import com.corundumstudio.socketio.HandshakeData;
 import com.cowave.zoo.framework.access.AccessProperties;
+import com.cowave.zoo.framework.access.security.AccessUserDetails;
 import com.cowave.zoo.framework.access.security.BearerTokenService;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 
 /**
- *
  * @author shanhuiming
- *
  */
 @RequiredArgsConstructor
 public class SocketIoAuthorizationListener implements AuthorizationListener {
@@ -34,11 +34,22 @@ public class SocketIoAuthorizationListener implements AuthorizationListener {
     private final BearerTokenService bearerTokenService;
 
     @Override
-    public boolean isAuthorized(HandshakeData handshakeData) {
+    public AuthorizationResult getAuthorizationResult(HandshakeData handshakeData) {
         if(bearerTokenService == null){
-            return true;
+            return AuthorizationResult.SUCCESSFUL_AUTHORIZATION;
         }
-        String accessToken = handshakeData.getSingleUrlParam(accessProperties.tokenKey());
-        return bearerTokenService.validAccessToken(accessToken);
+
+        String accessToken = handshakeData.getHttpHeaders().get(accessProperties.tokenKey());
+        if (accessToken == null) {
+            return AuthorizationResult.FAILED_AUTHORIZATION;
+        }
+
+        AccessUserDetails userDetails = bearerTokenService.validateSocketAccessToken(accessToken);
+        if (userDetails == null) {
+            return AuthorizationResult.FAILED_AUTHORIZATION;
+        }
+
+        handshakeData.setAuthToken(userDetails);
+        return new AuthorizationResult(true);
     }
 }

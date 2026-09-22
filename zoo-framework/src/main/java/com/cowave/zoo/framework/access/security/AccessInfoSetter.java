@@ -13,7 +13,6 @@
 package com.cowave.zoo.framework.access.security;
 
 import com.cowave.zoo.framework.access.Access;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -24,21 +23,14 @@ public interface AccessInfoSetter {
 
     default void setAccessInfo() {
         AccessInfo accessInfo = Access.accessInfo();
-        String tenantId = this.getTenantId();
-        if(StringUtils.isBlank(tenantId)){
-            this.setTenantId(accessInfo.getAccessTenantId());
-        }
-        this.setCreateBy(accessInfo.getAccessUserCode());
-        this.setUpdateBy(accessInfo.getAccessUserCode());
+        this.setTenantId(accessInfo.getAccessTenantId());
+        this.setCreateBy(accessInfo.getAccessUserAccount());
+        this.setUpdateBy(accessInfo.getAccessUserAccount());
         this.setCreateTime(accessInfo.getAccessTime());
         this.setUpdateTime(accessInfo.getAccessTime());
     }
 
-    default String getTenantId(){
-        return null;
-    }
-
-    default void setTenantId(String tenantId){
+    default void setTenantId(Integer tenantId){
 
     }
 

@@ -59,6 +59,11 @@ public interface BearerTokenDelegate {
     String CLAIM_REFRESH_ID = "tr";
 
     /**
+     * 登录会话id
+     */
+    String CLAIM_SESSION_ID = "si";
+
+    /**
      * 限制同一账号的登录设备
      */
     String CLAIM_ACCESS_UNIQUE = "tu";
@@ -72,6 +77,11 @@ public interface BearerTokenDelegate {
      * 租户id
      */
     String CLAIM_TENANT_ID = "ei";
+
+    /**
+     * 租户编码
+     */
+    String CLAIM_TENANT_CODE = "ec";
 
     /**
      * 用户id

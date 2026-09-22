@@ -20,36 +20,39 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 /**
- *
  * @author shanhuiming
- *
  */
 @Slf4j
 public class SocketIoExceptionListener implements ExceptionListener {
 
     @Override
+    public void onAuthException(Throwable e, SocketIOClient socketIoClient) {
+        log.warn("socketIo authorization failed, sessionId={}", socketIoClient.getSessionId(), e);
+    }
+
+    @Override
     public void onEventException(Exception e, List<Object> list, SocketIOClient socketIoClient) {
-        log.error("socketIo event error, " + socketIoClient.getHandshakeData().getUrlParams(), e);
+        log.error("socketIo event error, sessionId={}", socketIoClient.getSessionId(), e);
     }
 
     @Override
     public void onDisconnectException(Exception e, SocketIOClient socketIoClient) {
-        log.error("socketIo disconnect error, " + socketIoClient.getHandshakeData().getUrlParams(), e);
+        log.error("socketIo disconnect error, sessionId={}", socketIoClient.getSessionId(), e);
     }
 
     @Override
     public void onConnectException(Exception e, SocketIOClient socketIoClient) {
-        log.error("socketIo connect error" + socketIoClient.getHandshakeData().getUrlParams(), e);
+        log.error("socketIo connect error, sessionId={}", socketIoClient.getSessionId(), e);
     }
 
     @Override
     public void onPingException(Exception e, SocketIOClient socketIoClient) {
-        log.error("socketIo ping error" + socketIoClient.getHandshakeData().getUrlParams(), e);
+        log.error("socketIo ping error, sessionId={}", socketIoClient.getSessionId(), e);
     }
 
     @Override
     public void onPongException(Exception e, SocketIOClient socketIoClient) {
-        log.error("socketIo pong error" + socketIoClient.getHandshakeData().getUrlParams(), e);
+        log.error("socketIo pong error, sessionId={}", socketIoClient.getSessionId(), e);
     }
 
     @Override

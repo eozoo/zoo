@@ -247,8 +247,23 @@ public class Access {
     /**
      * 租户id（鉴权信息）
      */
-    public static String tenantId() {
-        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getTenantId).orElse(null);
+    public static <T> T tenantId() {
+        return (T) Optional.ofNullable(userDetails()).map(AccessUserDetails::getTenantId).orElse(null);
+    }
+
+    /**
+     * 租户id（鉴权信息）
+     */
+    public static <T> T tenantId(Function<Object, T> converter) {
+        return Optional.ofNullable(userDetails()).map(
+                userDetails -> converter.apply(userDetails.getTenantId())).orElse(null);
+    }
+
+    /**
+     * 租户编码（鉴权信息）
+     */
+    public static String tenantCode() {
+        return Optional.ofNullable(userDetails()).map(AccessUserDetails::getTenantCode).orElse(null);
     }
 
     /**

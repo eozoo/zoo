@@ -36,6 +36,11 @@ public class AccessTokenInfo {
     private String refreshId;
 
     /**
+     * 登录会话id
+     */
+    private String sessionId;
+
+    /**
      * 令牌类型
      */
     private String accessType;
@@ -69,6 +74,7 @@ public class AccessTokenInfo {
     public AccessTokenInfo(AccessUserDetails accessUserDetails) {
         this.accessId = accessUserDetails.getAccessId();
         this.refreshId = accessUserDetails.getRefreshId();
+        this.sessionId = accessUserDetails.getSessionId();
         this.accessType = accessUserDetails.getAuthType();
         this.userAccount = accessUserDetails.getUsername();
         this.userName = accessUserDetails.getUserNick();

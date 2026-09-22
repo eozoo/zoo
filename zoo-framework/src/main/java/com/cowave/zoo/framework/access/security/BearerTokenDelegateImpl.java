@@ -1,3 +1,15 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
 package com.cowave.zoo.framework.access.security;
 
 import com.cowave.zoo.framework.access.Access;
@@ -149,12 +161,14 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public void setAccessClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
         jwtBuilder.claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
+                .claim(CLAIM_SESSION_ID, userDetails.getSessionId())
                 .claim(CLAIM_ACCESS_IP, Access.accessIp())
                 .claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
                 .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
                 .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
+                .claim(CLAIM_TENANT_CODE, userDetails.getTenantCode())
                 .claim(CLAIM_USER_ID, userDetails.getUserId())
                 .claim(CLAIM_USER_CODE, userDetails.getUserCode())
                 .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
@@ -192,7 +206,9 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         userDetails.setAccessIp((String) claims.get(CLAIM_ACCESS_IP));
         userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
         userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        userDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
+        userDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
+        userDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
+        userDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
         // user
         userDetails.setUserId(claims.get(CLAIM_USER_ID));
         userDetails.setUserCode(claims.get(CLAIM_USER_CODE));
@@ -250,8 +266,10 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
                 .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
+                .claim(CLAIM_SESSION_ID, userDetails.getSessionId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
-                .claim(CLAIM_TENANT_ID, userDetails.getTenantId());
+                .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
+                .claim(CLAIM_TENANT_CODE, userDetails.getTenantCode());
     }
 
     @Override
@@ -264,10 +282,12 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public AccessUserDetails parseRefreshClaims(Claims claims) {
         AccessUserDetails tokenDetails = new AccessUserDetails();
-        tokenDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
+        tokenDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
+        tokenDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         tokenDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         tokenDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
+        tokenDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
         tokenDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
         tokenDetails.setAccessValid(Objects.equals(1, claims.get(CLAIM_ACCESS_VALID)));
         return tokenDetails;
@@ -276,10 +296,12 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public AccessUserDetails parseOauthRefreshClaims(Claims claims) {
         AccessUserDetails tokenDetails = new AccessUserDetails();
-        tokenDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
+        tokenDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
+        tokenDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         tokenDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         tokenDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
+        tokenDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
         tokenDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
         tokenDetails.setOauthId((String) claims.get(CLAIM_OAUTH_ID));
         return tokenDetails;

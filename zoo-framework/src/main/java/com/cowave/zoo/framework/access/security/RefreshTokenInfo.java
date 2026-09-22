@@ -40,6 +40,11 @@ public class RefreshTokenInfo {
     private String refreshId;
 
     /**
+     * 登录会话id
+     */
+    private String sessionId;
+
+    /**
      * 类型
      */
     private String authType;
@@ -62,7 +67,12 @@ public class RefreshTokenInfo {
     /**
      * 租户id
      */
-    private String tenantId;
+    private Object tenantId;
+
+    /**
+     * 租户编码
+     */
+    private String tenantCode;
 
     /**
      * 用户id
@@ -163,11 +173,13 @@ public class RefreshTokenInfo {
     public RefreshTokenInfo(AccessUserDetails userDetails){
         this.accessId = userDetails.getAccessId();
         this.refreshId = userDetails.getRefreshId();
+        this.sessionId = userDetails.getSessionId();
         this.authType = userDetails.getAuthType();
         this.oauthId = userDetails.getOauthId();
         this.oauthName = userDetails.getOauthName();
         this.apps = userDetails.getApps();
         this.tenantId = userDetails.getTenantId();
+        this.tenantCode = userDetails.getTenantCode();
         this.userId = userDetails.getUserId();
         this.userCode = userDetails.getUserCode();
         this.userAccount = userDetails.getUsername();

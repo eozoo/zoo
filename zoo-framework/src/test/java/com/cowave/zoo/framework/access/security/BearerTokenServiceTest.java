@@ -66,6 +66,7 @@ public class BearerTokenServiceTest {
         details.setAccessId("test-access-id");
         details.setRefreshId("test-refresh-id");
         details.setTenantId("test-tenant");
+        details.setTenantCode("test-code");
         details.setUserId(1L);
         details.setUserCode("U001");
         details.setUsername("testuser");

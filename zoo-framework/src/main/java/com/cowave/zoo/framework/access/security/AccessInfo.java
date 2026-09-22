@@ -29,7 +29,12 @@ public class AccessInfo {
     /**
      * 租户id
      */
-    private String accessTenantId;
+    private Object accessTenantId;
+
+    /**
+     * 租户编码
+     */
+    private String accessTenantCode;
 
     /**
      * 用户id
@@ -71,6 +76,10 @@ public class AccessInfo {
      */
     private Date accessTime = new Date();
 
+    public <T> T getAccessTenantId(){
+        return (T)accessTenantId;
+    }
+
     public <T> T getAccessUserId(){
         return (T)accessUserId;
     }
@@ -90,6 +99,7 @@ public class AccessInfo {
     public AccessInfo(AccessUserDetails userDetails){
         if(userDetails != null){
             this.accessTenantId = userDetails.getTenantId();
+            this.accessTenantCode = userDetails.getTenantCode();
             this.accessUserId = userDetails.getUserId();
             this.accessUserCode = userDetails.getUserCode();
             this.accessUserAccount = userDetails.getUsername();

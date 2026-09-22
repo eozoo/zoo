@@ -12,55 +12,67 @@
  */
 package com.cowave.zoo.framework.helper.socketio;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-
 import com.corundumstudio.socketio.listener.DataListener;
+import com.cowave.zoo.framework.access.AccessProperties;
+import com.cowave.zoo.framework.access.security.AccessUserDetails;
+import com.cowave.zoo.framework.access.security.BearerTokenService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 /**
- *
  * @author shanhuiming
- *
  */
-@Slf4j
 @RequiredArgsConstructor
 public class SocketIoHelper {
-
-    static Map<String, Map<String, SocketIOClient>> namespcaeClientMap = new ConcurrentHashMap<>();
-
-    static Map<String, SocketIOClient> rootClientMap = new ConcurrentHashMap<>();
-
+    private static final String IDENTITY_KEY = SocketIdentity.class.getName();
     private final SocketIOServer socketIoServer;
+    private final BearerTokenService bearerTokenService;
+    private final AccessProperties accessProperties;
+    private final Map<String, Map<String, SocketIOClient>> namespaceClients = new ConcurrentHashMap<>();
+    private final Map<String, SocketIOClient> rootClients = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void init() {
-        // 连接
-        socketIoServer.addConnectListener(client -> {
-            String clientId = client.getHandshakeData().getSingleUrlParam("clientId");
-            if (clientId != null) {
-                SocketIoHelper.rootClientMap.put(clientId, client);
-            }
-        });
-        // 断开
-        socketIoServer.addDisconnectListener(client -> {
-            String clientId = client.getHandshakeData().getSingleUrlParam("clientId");
-            if (clientId != null) {
-                SocketIoHelper.rootClientMap.remove(clientId);
-            }
-        });
+        socketIoServer.addConnectListener(client -> registerClient(client, rootClients));
+        socketIoServer.addDisconnectListener(client -> removeClient(client, rootClients));
         socketIoServer.start();
+    }
+
+    private void registerClient(SocketIOClient client, Map<String, SocketIOClient> clients) {
+        SocketIdentity identity = authenticate(client);
+        if (identity == null) {
+            client.disconnect();
+            return;
+        }
+
+        client.set(IDENTITY_KEY, identity);
+        clients.put(client.getSessionId().toString(), client);
+    }
+
+    private void removeClient(SocketIOClient client, Map<String, SocketIOClient> clients) {
+        clients.remove(client.getSessionId().toString(), client);
+        namespaceClients.values().forEach(map -> map.remove(client.getSessionId().toString(), client));
+    }
+
+    private SocketIdentity authenticate(SocketIOClient client) {
+        AccessUserDetails authorizedDetails = (AccessUserDetails) client.getHandshakeData().getAuthToken();
+        if (authorizedDetails != null) {
+            return new SocketIdentity(authorizedDetails);
+        }
+
+        String token = client.getHandshakeData().getHttpHeaders().get(accessProperties.tokenKey());
+        AccessUserDetails details = bearerTokenService.validateSocketAccessToken(token);
+        return details == null ? null : new SocketIdentity(details);
     }
 
     @PreDestroy
@@ -68,197 +80,186 @@ public class SocketIoHelper {
         if (socketIoServer != null) {
             socketIoServer.stop();
         }
+        rootClients.clear();
+        namespaceClients.clear();
     }
 
     /**
-     * 注册数据事件
+     * 获取连接身份
      */
-    public <T> void registerDataListener(String eventName, Class<T> eventClass, DataListener<T> listener){
-        socketIoServer.addEventListener(eventName, eventClass, listener);
+    public SocketIdentity identity(SocketIOClient client) {
+        return client.get(IDENTITY_KEY);
     }
 
     /**
-     * NameSpace注册数据事件
+     * 注册全局事件监听器
      */
-    public <T> void registerDataListener(String namespace, String eventName, Class<T> eventClass, DataListener<T> listener){
-        socketIoServer.addNamespace(namespace).addEventListener(eventName, eventClass, listener);
+    public <T> void registerDataListener(String event, Class<T> type, DataListener<T> listener) {
+        socketIoServer.addEventListener(event, type, listener);
     }
 
     /**
-     * NameSpace注册连接事件
+     * 注册 namespace 事件监听器
+     */
+    public <T> void registerDataListener(String namespace, String event, Class<T> type, DataListener<T> listener) {
+        socketIoServer.addNamespace(namespace).addEventListener(event, type, listener);
+    }
+
+    /**
+     * 注册 namespace 连接监听器
      */
     public void registerConnectListener(String namespace) {
-        socketIoServer.addNamespace(namespace).addConnectListener(client -> {
-            Map<String, SocketIOClient> clientMap =
-                    SocketIoHelper.namespcaeClientMap.computeIfAbsent(namespace, k -> new HashMap<>());
-            String clientId = client.getHandshakeData().getSingleUrlParam("clientId");
-            if (clientId != null) {
-                clientMap.put(clientId, client);
-            }
-        });
+        socketIoServer.addNamespace(namespace).addConnectListener(client ->
+                registerClient(client, namespaceClients.computeIfAbsent(namespace, key -> new ConcurrentHashMap<>())));
     }
 
     /**
-     * NameSpace注册断连事件
+     * 注册 namespace 断开监听器
      */
     public void registerDisconnectListener(String namespace) {
         socketIoServer.addNamespace(namespace).addDisconnectListener(client -> {
-            Map<String, SocketIOClient> clientMap = SocketIoHelper.namespcaeClientMap.get(namespace);
-            if (clientMap != null) {
-                String clientId = client.getHandshakeData().getSingleUrlParam("clientId");
-                if (clientId != null) {
-                    clientMap.remove(clientId);
-                }
+            Map<String, SocketIOClient> clients = namespaceClients.get(namespace);
+            if (clients != null) {
+                clients.remove(client.getSessionId().toString(), client);
             }
         });
     }
 
     /**
-     * 发送数据
-     * @param event 事件
-     * @param data 数据
+     * 向所有全局连接发送事件
      */
-    public <T> void send(String event, T data){
-        for(SocketIOClient client : rootClientMap.values()){
-            client.sendEvent(event, data);
-        }
+    public <T> void send(String event, T data) {
+        rootClients.values().forEach(client -> client.sendEvent(event, data));
     }
 
     /**
-     * 发送数据到room
-     * @param room 房间
-     * @param event 事件
-     * @param data 数据
+     * 向指定会话发送事件
      */
-    public <T> void sendInRoom(String room, String event, T data){
-        if(StringUtils.isBlank(room)){
+    public <T> void sendClients(Collection<String> sessionIds, String event, T data) {
+        if (CollectionUtils.isEmpty(sessionIds)) {
             return;
         }
-        for(SocketIOClient client : rootClientMap.values()){
-            client.joinRoom(room);
-            client.sendEvent(event, data);
-        }
+        sessionIds.stream().map(rootClients::get).filter(client -> client != null)
+                .forEach(client -> client.sendEvent(event, data));
     }
 
     /**
-     * 发送数据到客户端
-     * @param clientIds 客户端id
-     * @param event 事件
-     * @param data 数据
-     */
-    public <T> void sendClients(Collection<String> clientIds, String event, T data){
-        if(CollectionUtils.isEmpty(clientIds)){
-            return;
-        }
-        for(String clientId : clientIds){
-            SocketIOClient client = rootClientMap.get(clientId);
-            if(client != null){
-                client.sendEvent(event, data);
-            }
-        }
-    }
-
-    /**
-     * 发送数据到room中的客户端
-     * @param room 房间
-     * @param clientIds 客户端id
-     * @param data 数据
-     * @param event 事件
-     */
-    public <T> void sendClientsInRoom(String room, Collection<String> clientIds, String event, T data){
-        if (StringUtils.isBlank(room) || CollectionUtils.isEmpty(clientIds)) {
-            return;
-        }
-        for(String clientId : clientIds){
-            SocketIOClient client = rootClientMap.get(clientId);
-            if(client != null){
-                client.joinRoom(room);
-                client.sendEvent(event, data);
-            }
-        }
-    }
-
-    /**
-     * 发送数据到指定namespace
-     * @param namespace 命名空间
-     * @param event 事件
-     * @param data 数据
+     * 向 namespace 所有连接发送事件
      */
     public <T> void sendNamespace(String namespace, String event, T data) {
-        if(StringUtils.isBlank(namespace)){
-            return;
-        }
-        Map<String, SocketIOClient> clientMap = namespcaeClientMap.get(namespace);
-        if (clientMap != null) {
-            for (SocketIOClient client : clientMap.values()) {
-                client.sendEvent(event, data);
-            }
+        Map<String, SocketIOClient> clients = namespaceClients.get(namespace);
+        if (clients != null) {
+            clients.values().forEach(client -> client.sendEvent(event, data));
         }
     }
 
     /**
-     * 发送数据到指定namespace中的room
-     * @param namespace 命名空间
-     * @param room 房间
-     * @param event 事件
-     * @param data 数据
+     * 将连接加入Room
+     */
+    public void joinRoom(SocketIOClient client, String room) {
+        if (client != null && StringUtils.isNotBlank(room)) {
+            client.joinRoom(room);
+        }
+    }
+
+    /**
+     * 将连接移出Room
+     */
+    public void leaveRoom(SocketIOClient client, String room) {
+        if (client != null && StringUtils.isNotBlank(room)) {
+            client.leaveRoom(room);
+        }
+    }
+
+    /**
+     * 向Room发送事件
+     */
+    public <T> void sendInRoom(String room, String event, T data) {
+        if (StringUtils.isBlank(room)) {
+            return;
+        }
+        rootClients.values().forEach(client -> {
+            if (client.getAllRooms().contains(room)) {
+                client.sendEvent(event, data);
+            }
+        });
+    }
+
+    /**
+     * 向 namespace 的 Room 发送事件
      */
     public <T> void sendInRoomOfNamespace(String namespace, String room, String event, T data) {
-        if(StringUtils.isBlank(namespace) || StringUtils.isBlank(room)){
+        if (StringUtils.isBlank(namespace) || StringUtils.isBlank(room)) {
             return;
         }
-        Map<String, SocketIOClient> clientMap = namespcaeClientMap.get(namespace);
-        if (clientMap != null) {
-            for (SocketIOClient client : clientMap.values()) {
-                client.joinRoom(room);
-                client.sendEvent(event, data);
-            }
+        Map<String, SocketIOClient> clients = namespaceClients.get(namespace);
+        if (clients != null) {
+            clients.values().stream().filter(client -> client.getAllRooms().contains(room))
+                    .forEach(client -> client.sendEvent(event, data));
         }
     }
 
     /**
-     * 发送数据到指定namespace下的客户端
-     * @param namespace 命名空间
-     * @param clientIds 客户端id
-     * @param data 数据
-     * @param event 事件
+     * 向 namespace 的指定用户 Room 发送事件
      */
-    public <T> void sendClientsOfNamespace(String namespace, Collection<String> clientIds, String event, T data) {
-        if (StringUtils.isBlank(namespace) || CollectionUtils.isEmpty(clientIds)) {
+    public <T> void sendClientsInRoomOfNamespace(String namespace, String room,
+                                                 Collection<String> userCodes, String event, T data) {
+        if (StringUtils.isBlank(namespace) || StringUtils.isBlank(room) || CollectionUtils.isEmpty(userCodes)) {
             return;
         }
-        Map<String, SocketIOClient> clientMap = namespcaeClientMap.get(namespace);
-        if (clientMap != null) {
-            for (String clientId : clientIds) {
-                SocketIOClient client = clientMap.get(clientId);
-                if (client != null) {
-                    client.sendEvent(event, data);
-                }
-            }
+        Map<String, SocketIOClient> clients = namespaceClients.get(namespace);
+        if (clients != null) {
+            clients.values().stream()
+                    .filter(client -> client.getAllRooms().contains(room))
+                    .filter(client -> {
+                        SocketIdentity identity = identity(client);
+                        return identity != null && userCodes.contains(
+                                String.valueOf(identity.getUserDetails().getUserCode()));
+                    })
+                    .forEach(client -> client.sendEvent(event, data));
         }
     }
 
     /**
-     * 发送数据到指定namespace下room中的客户端
-     * @param namespace 命名空间
-     * @param room 房间
-     * @param clientIds 客户端id
-     * @param data 数据
-     * @param event 事件
+     * 向 namespace 的指定用户发送事件
      */
-    public <T> void sendClientsInRoomOfNamespace(String namespace, String room, Collection<String> clientIds, String event, T data) {
-        if (StringUtils.isBlank(namespace) || StringUtils.isBlank(room) || CollectionUtils.isEmpty(clientIds)) {
+    public <T> void sendClientsOfNamespace(String namespace, Collection<String> sessionIds, String event, T data) {
+        if (StringUtils.isBlank(namespace) || CollectionUtils.isEmpty(sessionIds)) {
             return;
         }
-        Map<String, SocketIOClient> clientMap = namespcaeClientMap.get(namespace);
-        if (clientMap != null) {
-            for (String clientId : clientIds) {
-                SocketIOClient client = clientMap.get(clientId);
-                if (client != null) {
-                    client.joinRoom(room);
-                    client.sendEvent(event, data);
-                }
-            }
+        Map<String, SocketIOClient> clients = namespaceClients.get(namespace);
+        if (clients != null) {
+            clients.values().stream().filter(client -> {
+                SocketIdentity identity = identity(client);
+                return identity != null && sessionIds.contains(String.valueOf(identity.getUserDetails().getUserCode()));
+            }).forEach(client -> client.sendEvent(event, data));
         }
+    }
+
+    /**
+     * 断开全部连接
+     */
+    public void disconnectUser(String account) {
+        disconnect(c -> account.equals(identity(c).getUserAccount()));
+    }
+
+    /**
+     * 断开指定会话的连接
+     */
+    public void disconnectSession(String account, String session) {
+        disconnect(c -> account.equals(identity(c).getUserAccount()) && session.equals(identity(c).getSessionId()));
+    }
+
+    /**
+     * 断开指定租户的连接
+     */
+    public void disconnectTenant(String account, String tenant) {
+        disconnect(c -> account.equals(identity(c).getUserAccount()) && tenant.equals(identity(c).getTenantCode()));
+    }
+
+    private void disconnect(Predicate<SocketIOClient> predicate) {
+        rootClients.values().stream().filter(predicate).forEach(SocketIOClient::disconnect);
+        namespaceClients.values().stream().flatMap(
+                map -> map.values().stream()).filter(predicate).forEach(SocketIOClient::disconnect);
     }
 }

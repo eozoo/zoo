@@ -349,8 +349,10 @@ public class AccessFilter implements Filter {
             userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
             userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
             userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
+            userDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
             // tenant
-            userDetails.setTenantId((String) claims.get(CLAIM_TENANT_ID));
+            userDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
+            userDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
             // user
             userDetails.setUserId(claims.get(CLAIM_USER_ID));
             userDetails.setUserCode(claims.get(CLAIM_USER_CODE));

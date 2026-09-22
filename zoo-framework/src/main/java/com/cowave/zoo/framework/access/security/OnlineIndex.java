@@ -12,7 +12,6 @@
  */
 package com.cowave.zoo.framework.access.security;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,14 +21,8 @@ import java.util.Date;
  * @author shanhuiming
  */
 @NoArgsConstructor
-@AllArgsConstructor
 @Data
 public class OnlineIndex {
-
-    /**
-     * 令牌类型
-     */
-    private String authType;
 
     /**
      * 用户账号
@@ -37,7 +30,30 @@ public class OnlineIndex {
     private String userAccount;
 
     /**
+     * 登录会话id
+     */
+    private String sessionId;
+
+    /**
+     * 当前租户编码
+     */
+    private String tenantCode;
+
+    /**
      * 登录时间
      */
     private Date loginTime;
+
+    public OnlineIndex(String userAccount, String sessionId, Date loginTime) {
+        this.userAccount = userAccount;
+        this.sessionId = sessionId;
+        this.loginTime = loginTime;
+    }
+
+    public OnlineIndex(String userAccount, String sessionId, String tenantCode, Date loginTime) {
+        this.userAccount = userAccount;
+        this.sessionId = sessionId;
+        this.tenantCode = tenantCode;
+        this.loginTime = loginTime;
+    }
 }
