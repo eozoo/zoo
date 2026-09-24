@@ -1,0 +1,12 @@
+com.cowave.zoo.framework.configuration.ApplicationConfiguration
+com.cowave.zoo.framework.configuration.AsyncConfiguration
+com.cowave.zoo.framework.configuration.I18nConfiguration
+com.cowave.zoo.framework.configuration.ValidatorConfiguration
+com.cowave.zoo.framework.helper.redis.connection.LettuceAutoConfiguration
+com.cowave.zoo.framework.helper.redis.connection.JedisAutoConfiguration
+com.cowave.zoo.framework.helper.redis.RedisAutoConfiguration
+com.cowave.zoo.framework.helper.redis.redisson.RedissonAutoConfiguration
+com.cowave.zoo.framework.helper.kafka.KafkaAutoConfiguration
+com.cowave.zoo.framework.support.mybatis.logger.SqlLoggerMybatisConfiguration
+com.cowave.zoo.framework.access.limit.RedisAccessLimiterConfiguration
+com.cowave.zoo.framework.access.limit.GuavaAccessLimiterConfiguration

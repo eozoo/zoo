@@ -12,8 +12,8 @@
  */
 package com.cowave.zoo.framework.access;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.cowave.zoo.framework.access.annotation.SensitiveSerializerModifier;
 import com.cowave.zoo.http.client.response.HttpResponse;

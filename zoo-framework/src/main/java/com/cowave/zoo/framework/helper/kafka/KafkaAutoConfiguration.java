@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -92,9 +93,9 @@ public class KafkaAutoConfiguration {
     @ConditionalOnMissingBean
     @Primary
     @Bean
-    public KafkaAdmin kafkaAdmin(KafkaProperties kafkaProperties) {
+    public KafkaAdmin kafkaAdmin(KafkaProperties kafkaProperties, SslBundles sslBundles) {
         String username = checkSecurityProperties(kafkaProperties);
-        KafkaAdmin kafkaAdmin = new KafkaAdmin(kafkaProperties.buildAdminProperties());
+        KafkaAdmin kafkaAdmin = new KafkaAdmin(kafkaProperties.buildAdminProperties(sslBundles));
         kafkaAdmin.setFatalIfBrokerNotAvailable(kafkaProperties.getAdmin().isFailFast());
         if (StringUtils.isNotBlank(username)) {
             kafkaProperties.getProperties().put("username", username);
@@ -149,10 +150,10 @@ public class KafkaAutoConfiguration {
 
     @Conditional(ZooKafkaCondition.class)
     @Bean
-    public KafkaAdmin zooKafkaAdmin(Environment environment) {
+    public KafkaAdmin zooKafkaAdmin(Environment environment, SslBundles sslBundles) {
         KafkaProperties kafkaProperties = Binder.get(environment).bind("zoo.kafka", KafkaProperties.class).get();
         String username = checkSecurityProperties(kafkaProperties);
-        KafkaAdmin kafkaAdmin = new KafkaAdmin(kafkaProperties.buildAdminProperties());
+        KafkaAdmin kafkaAdmin = new KafkaAdmin(kafkaProperties.buildAdminProperties(sslBundles));
         kafkaAdmin.setFatalIfBrokerNotAvailable(kafkaProperties.getAdmin().isFailFast());
         if (StringUtils.isNotBlank(username)) {
             kafkaProperties.getProperties().put("username", username);

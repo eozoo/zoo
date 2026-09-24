@@ -17,7 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.cowave.zoo.http.client.asserts.HttpHintException;
 import org.apache.commons.codec.digest.DigestUtils;

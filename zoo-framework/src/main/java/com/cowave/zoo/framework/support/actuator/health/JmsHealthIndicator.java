@@ -15,8 +15,8 @@ package com.cowave.zoo.framework.support.actuator.health;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
 
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;

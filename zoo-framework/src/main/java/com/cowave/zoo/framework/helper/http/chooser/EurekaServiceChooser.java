@@ -19,7 +19,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  *

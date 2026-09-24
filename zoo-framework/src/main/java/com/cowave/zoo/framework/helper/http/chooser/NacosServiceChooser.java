@@ -19,7 +19,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  *

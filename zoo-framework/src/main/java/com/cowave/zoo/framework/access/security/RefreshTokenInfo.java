@@ -100,6 +100,11 @@ public class RefreshTokenInfo {
     private String userType;
 
     /**
+     * 登录来源
+     */
+    private String loginSource;
+
+    /**
      * 用户属性
      */
     private Map<String, Object> userProperties;
@@ -185,6 +190,7 @@ public class RefreshTokenInfo {
         this.userAccount = userDetails.getUsername();
         this.userName = userDetails.getUserNick();
         this.userType = userDetails.getUserType();
+        this.loginSource = userDetails.getLoginSource();
         this.userProperties = userDetails.getUserProperties();
         this.deptId = userDetails.getDeptId();
         this.deptCode = userDetails.getDeptCode();

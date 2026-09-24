@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions.Builder;
@@ -91,7 +92,7 @@ public class LettuceRedisConnectionConfiguration extends AbstractRedisConnection
     }
 
     private void applyProperties(LettuceClientConfigurationBuilder builder) {
-        if (getProperties().isSsl()) {
+        if (getProperties().getSsl().isEnabled()) {
             builder.useSsl();
         }
         if (getProperties().getTimeout() != null) {
@@ -150,16 +151,16 @@ public class LettuceRedisConnectionConfiguration extends AbstractRedisConnection
             return LettucePoolingClientConfiguration.builder().poolConfig(getPoolConfig(properties));
         }
 
-        private GenericObjectPoolConfig<?> getPoolConfig(Pool properties) {
-            GenericObjectPoolConfig<?> config = new GenericObjectPoolConfig<>();
+        private GenericObjectPoolConfig<StatefulConnection<?, ?>> getPoolConfig(Pool properties) {
+            GenericObjectPoolConfig<StatefulConnection<?, ?>> config = new GenericObjectPoolConfig<>();
             config.setMaxTotal(properties.getMaxActive());
             config.setMaxIdle(properties.getMaxIdle());
             config.setMinIdle(properties.getMinIdle());
             if (properties.getTimeBetweenEvictionRuns() != null) {
-                config.setTimeBetweenEvictionRunsMillis(properties.getTimeBetweenEvictionRuns().toMillis());
+                config.setTimeBetweenEvictionRuns(properties.getTimeBetweenEvictionRuns());
             }
             if (properties.getMaxWait() != null) {
-                config.setMaxWaitMillis(properties.getMaxWait().toMillis());
+                config.setMaxWait(properties.getMaxWait());
             }
             return config;
         }

@@ -20,7 +20,7 @@ import com.cowave.zoo.framework.access.security.AccessUserDetails;
 import com.cowave.zoo.framework.access.security.BearerTokenService;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * @author shanhuiming
@@ -41,7 +41,9 @@ public class SocketIoAuthorizationListener implements AuthorizationListener {
 
         String accessToken = handshakeData.getHttpHeaders().get(accessProperties.tokenKey());
         if (accessToken == null) {
-            return AuthorizationResult.FAILED_AUTHORIZATION;
+            // Browser Socket.IO clients send auth data in the namespace CONNECT packet,
+            // which is validated by AuthTokenListener after the transport handshake.
+            return AuthorizationResult.SUCCESSFUL_AUTHORIZATION;
         }
 
         AccessUserDetails userDetails = bearerTokenService.validateSocketAccessToken(accessToken);

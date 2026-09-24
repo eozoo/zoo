@@ -12,24 +12,16 @@
  */
 package com.cowave.zoo.framework.helper.rest;
 
-import com.cowave.zoo.http.client.request.ssl.NoopTlsSocketFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.springframework.beans.factory.ObjectProvider;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.core5.util.TimeValue;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,8 +31,6 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.*;
-import java.net.SocketException;
 import java.util.List;
 
 /**
@@ -76,63 +66,24 @@ public class RestConfiguration {
 
     @ConditionalOnMissingBean(HttpClient.class)
     @Bean
-    public HttpClient httpClient(SSLConnectionSocketFactory sslConnectionSocketFactory) {
-        Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                .register("https", sslConnectionSocketFactory).build();
-        // 连接池
-        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
-        // 连接池最大连接数
-        connectionManager.setMaxTotal(restProperties.getPoolConnections());
-        // 路由是对maxTotal的细分
-        connectionManager.setDefaultMaxPerRoute(500);
-        // 返回数据等待时间
-        connectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(restProperties.getSocketTimeout()).build());
-
-        // 连接设置
+    public HttpClient httpClient() {
+        PoolingHttpClientConnectionManager connectionManager =
+                PoolingHttpClientConnectionManagerBuilder.create()
+                        .setMaxConnTotal(restProperties.getPoolConnections())
+                        .setMaxConnPerRoute(500)
+                        .build();
         RequestConfig requestConfig = RequestConfig.custom()
-                // 连接服务等待时间
-                .setConnectTimeout(restProperties.getConnectTimeout())
-                // 连接池获取连接等待时间
-                .setConnectionRequestTimeout(restProperties.getPoolTimeout()).build();
-
-        // 重试次数
-        HttpClientBuilder httpClientBuilder = HttpClients.custom();
-        httpClientBuilder.setDefaultRequestConfig(requestConfig);
-        httpClientBuilder.setConnectionManager(connectionManager);
-        httpClientBuilder.setRetryHandler((exception, execCount, context) -> {
-            if (execCount > restProperties.getRetryMax()) {
-                return false;
-            }
-
-            try {
-                Thread.sleep( execCount * restProperties.getRetryInterval());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
-            }
-
-            // io异常触发重试
-            return exception instanceof ConnectTimeoutException
-                    || exception instanceof NoHttpResponseException
-                    || exception instanceof SocketException;
-        });
-        return httpClientBuilder.build();
-    }
-
-    @ConditionalOnMissingBean(SSLConnectionSocketFactory.class)
-    @Bean
-    public SSLConnectionSocketFactory sslConnectionSocketFactory(
-            ObjectProvider<SSLSocketFactory> sslSocketFactoryProvider ,
-            ObjectProvider<HostnameVerifier> hostnameVerifierProvider) throws Exception {
-        SSLSocketFactory sslSocketFactory = sslSocketFactoryProvider.getIfAvailable();
-        HostnameVerifier hostnameVerifier = hostnameVerifierProvider.getIfAvailable();
-        if(sslSocketFactory == null){
-            sslSocketFactory = new NoopTlsSocketFactory();
-        }
-        if(hostnameVerifier == null){
-            hostnameVerifier = new NoopHostnameVerifier();
-        }
-        return new SSLConnectionSocketFactory(sslSocketFactory, hostnameVerifier);
+                .setConnectTimeout(Timeout.ofMilliseconds(restProperties.getConnectTimeout()))
+                .setConnectionRequestTimeout(Timeout.ofMilliseconds(restProperties.getPoolTimeout()))
+                .setResponseTimeout(Timeout.ofMilliseconds(restProperties.getSocketTimeout()))
+                .build();
+        DefaultHttpRequestRetryStrategy retryStrategy = new DefaultHttpRequestRetryStrategy(
+                restProperties.getRetryMax(),
+                TimeValue.ofMilliseconds(restProperties.getRetryInterval()));
+        return HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .setDefaultRequestConfig(requestConfig)
+                .setRetryStrategy(retryStrategy)
+                .build();
     }
 }

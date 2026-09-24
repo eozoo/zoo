@@ -1,9 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.cowave.zoo</groupId>
+        <artifactId>zoo</artifactId>
+        <version>3.5.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
     <groupId>com.cowave.zoo</groupId>
     <artifactId>zoo-dependencies</artifactId>
-    <version>2.7.6</version>
+    <version>3.5.0</version>
     <packaging>pom</packaging>
 
     <name>zoo-dependencies</name>
@@ -43,15 +49,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skip.pmd>false</skip.pmd>
-        <zoo.version>2.7.6</zoo.version>
-        <spring.boot.version>2.7.0</spring.boot.version>
-        <spring.cloud.version>3.1.5</spring.cloud.version>
+        <zoo.version>3.5.0</zoo.version>
+        <spring.boot.version>3.5.16</spring.boot.version>
+        <spring.cloud.version>2025.0.2</spring.cloud.version>
+        <spring.cloud.alibaba.version>2025.0.0.0</spring.cloud.alibaba.version>
+        <spring.boot.admin.version>3.5.10</spring.boot.admin.version>
         <grpc.version>1.48.2</grpc.version>
         <proto.java.version>3.25.5</proto.java.version>
         <proto.java.util.version>3.25.5</proto.java.util.version>
-        <spring.starter.druid.version>1.2.9</spring.starter.druid.version>
-        <spring.starter.grpc.version>2.13.1.RELEASE</spring.starter.grpc.version>
+        <spring.starter.druid.version>1.2.27</spring.starter.druid.version>
+        <spring.starter.grpc.version>3.1.0.RELEASE</spring.starter.grpc.version>
+        <netty.version>4.1.114.Final</netty.version>
         <flowable.version>6.8.0</flowable.version>
+        <httpclient5.version>5.5.2</httpclient5.version>
+        <httpcore5.version>5.3.6</httpcore5.version>
     </properties>
 
     <build>
@@ -80,7 +91,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.5.6</version>
                 <configuration>
                     <skip>false</skip>
                     <testFailureIgnore>true</testFailureIgnore>
@@ -451,6 +462,17 @@ See the License for the specific language governing permissions and limitations 
 
     <dependencyManagement>
         <dependencies>
+            <!-- Apache HttpClient 5, managed for Spring Boot 3.5.x -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
             <!-- spring-boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -458,6 +480,49 @@ See the License for the specific language governing permissions and limitations 
                 <version>${spring.boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- netty-socketio requires a newer Netty API than Spring Boot 2.7 defaults. -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-buffer</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport</artifactId>
+                <version>${netty.version}</version>
             </dependency>
             <!-- grpc -->
             <dependency>
@@ -478,56 +543,21 @@ See the License for the specific language governing permissions and limitations 
             <!-- spring-cloud -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-commons</artifactId>
+                <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring.cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-config-client</artifactId>
-                <version>${spring.cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-config-server</artifactId>
-                <version>${spring.cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-loadbalancer</artifactId>
-                <version>${spring.cloud.version}</version>
-            </dependency>
-            <!-- eureka -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-                <version>${spring.cloud.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-                <version>${spring.cloud.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <!-- nacos -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-                <version>2021.0.5.0</version>
+                <version>${spring.cloud.alibaba.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-                <version>2021.0.5.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-bootstrap</artifactId>
-                <version>3.1.5</version>
+                <version>${spring.cloud.alibaba.version}</version>
             </dependency>
             <!-- seata -->
             <dependency>
@@ -535,22 +565,16 @@ See the License for the specific language governing permissions and limitations 
                 <artifactId>seata-spring-boot-starter</artifactId>
                 <version>2.2.0</version>
             </dependency>
-            <!-- gateway -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-gateway</artifactId>
-                <version>${spring.cloud.version}</version>
-            </dependency>
             <!-- spring-boot-admin -->
             <dependency>
                 <groupId>de.codecentric</groupId>
                 <artifactId>spring-boot-admin-starter-server</artifactId>
-                <version>${spring.boot.version}</version>
+                <version>${spring.boot.admin.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.codecentric</groupId>
                 <artifactId>spring-boot-admin-starter-client</artifactId>
-                <version>${spring.boot.version}</version>
+                <version>${spring.boot.admin.version}</version>
             </dependency>
             <!-- grpc -->
             <dependency>
@@ -582,7 +606,7 @@ See the License for the specific language governing permissions and limitations 
             <!-- druid -->
             <dependency>
                 <groupId>com.alibaba</groupId>
-                <artifactId>druid-spring-boot-starter</artifactId>
+                <artifactId>druid-spring-boot-3-starter</artifactId>
                 <version>${spring.starter.druid.version}</version>
                 <exclusions>
                     <exclusion>
@@ -595,7 +619,12 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>2.3.2</version>
+                <version>3.0.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>3.0.5</version>
             </dependency>
             <!-- pagehelper -->
             <dependency>
@@ -606,8 +635,23 @@ See the License for the specific language governing permissions and limitations 
             <!-- mybatis-plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
+                <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+                <version>4.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.5.4.1</version>
+                <version>3.5.12</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring</artifactId>
+                <version>3.5.12</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>3.5.12</version>
             </dependency>
             <!-- mongodb -->
             <dependency>
@@ -670,22 +714,17 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.10.0</version>
+                <version>1.15.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
+                <version>4.6.0</version>
             </dependency>
              <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.14.0</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.2</version>
+                <version>2.22.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-fileupload</groupId>
@@ -718,21 +757,16 @@ See the License for the specific language governing permissions and limitations 
                 <artifactId>schedule-fom</artifactId>
                 <version>2.7.6</version>
             </dependency>
-            <!-- javax -->
+            <!-- jakarta -->
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>4.0.2</version>
             </dependency>
             <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>1.3.2</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.resource</groupId>
-                <artifactId>javax.resource-api</artifactId>
-                <version>1.7.1</version>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>2.1.1</version>
             </dependency>
             <dependency>
                 <groupId>com.github.spotbugs</groupId>
@@ -749,24 +783,24 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
-                <version>7.0.1</version>
+                <version>9.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.dromara.dynamictp</groupId>
                 <artifactId>dynamic-tp-spring-boot-starter-common</artifactId>
-                <version>1.1.9</version>
+                <version>1.2.2</version>
             </dependency>
             <!-- hutool -->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
-                <version>5.7.22</version>
+                <version>5.8.38</version>
             </dependency>
             <!-- jwt -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
-                <version>0.9.1</version>
+                <version>0.12.7</version>
             </dependency>
             <!-- pmd -->
             <dependency>
@@ -774,28 +808,17 @@ See the License for the specific language governing permissions and limitations 
                 <artifactId>p3c-pmd</artifactId>
                 <version>2.0.0</version>
             </dependency>
-            <!-- logback -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.2.13</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>1.2.13</version>
-            </dependency>
             <!-- lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.24</version>
+                <version>1.18.38</version>
             </dependency>
             <!-- socketio -->
             <dependency>
                 <groupId>com.corundumstudio.socketio</groupId>
                 <artifactId>netty-socketio</artifactId>
-                <version>2.0.14</version>
+                <version>2.0.13</version>
             </dependency>
             <!-- easyexcel -->
             <dependency>
@@ -807,13 +830,13 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
-                <version>8.4.3</version>
+                <version>8.5.17</version>
             </dependency>
             <!-- reflections -->
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
-                <version>0.9.10</version>
+                <version>0.10.2</version>
             </dependency>
             <!-- ssh -->
             <dependency>
@@ -825,7 +848,7 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
-                <version>1.19.0</version>
+                <version>1.20.0</version>
             </dependency>
             <dependency>
                 <groupId>com.vividsolutions</groupId>
@@ -855,7 +878,7 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>32.0.0-jre</version>
+                <version>33.4.8-jre</version>
             </dependency>
             <dependency>
                 <groupId>eu.bitwalker</groupId>
@@ -865,7 +888,7 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>com.github.oshi</groupId>
                 <artifactId>oshi-core</artifactId>
-                <version>6.1.6</version>
+                <version>6.8.2</version>
             </dependency>
             <dependency>
                 <groupId>com.github.tobato</groupId>
@@ -880,7 +903,7 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>org.dom4j</groupId>
                 <artifactId>dom4j</artifactId>
-                <version>2.1.3</version>
+                <version>2.1.4</version>
             </dependency>
             <dependency>
                 <groupId>org.redisson</groupId>

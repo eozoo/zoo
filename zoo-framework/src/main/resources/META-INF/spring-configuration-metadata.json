@@ -65,8 +65,7 @@
     {
       "name": "zoo.kafka.admin",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getAdmin()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.admin.client-id",
@@ -90,8 +89,7 @@
     {
       "name": "zoo.kafka.admin.security",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "sourceMethod": "getSecurity()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"      
     },
     {
       "name": "zoo.kafka.admin.security.protocol",
@@ -102,8 +100,7 @@
     {
       "name": "zoo.kafka.admin.ssl",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin",
-      "sourceMethod": "getSsl()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Admin"      
     },
     {
       "name": "zoo.kafka.admin.ssl.key-password",
@@ -186,8 +183,7 @@
     {
       "name": "zoo.kafka.consumer",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getConsumer()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.consumer.auto-commit-interval",
@@ -271,8 +267,7 @@
     {
       "name": "zoo.kafka.consumer.security",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "sourceMethod": "getSecurity()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"      
     },
     {
       "name": "zoo.kafka.consumer.security.protocol",
@@ -283,8 +278,7 @@
     {
       "name": "zoo.kafka.consumer.ssl",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer",
-      "sourceMethod": "getSsl()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Consumer"      
     },
     {
       "name": "zoo.kafka.consumer.ssl.key-password",
@@ -361,8 +355,7 @@
     {
       "name": "zoo.kafka.jaas",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Jaas",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getJaas()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.jaas.control-flag",
@@ -394,8 +387,7 @@
     {
       "name": "zoo.kafka.listener",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Listener",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getListener()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.listener.ack-count",
@@ -494,8 +486,7 @@
     {
       "name": "zoo.kafka.producer",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getProducer()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.producer.acks",
@@ -554,8 +545,7 @@
     {
       "name": "zoo.kafka.producer.security",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
-      "sourceMethod": "getSecurity()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"      
     },
     {
       "name": "zoo.kafka.producer.security.protocol",
@@ -566,8 +556,7 @@
     {
       "name": "zoo.kafka.producer.ssl",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer",
-      "sourceMethod": "getSsl()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Producer"      
     },
     {
       "name": "zoo.kafka.producer.ssl.key-password",
@@ -656,14 +645,12 @@
     {
       "name": "zoo.kafka.retry",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getRetry()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.retry.topic",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry$Topic",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry",
-      "sourceMethod": "getTopic()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Retry"      
     },
     {
       "name": "zoo.kafka.retry.topic.attempts",
@@ -710,8 +697,7 @@
     {
       "name": "zoo.kafka.security",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getSecurity()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.security.protocol",
@@ -722,8 +708,7 @@
     {
       "name": "zoo.kafka.ssl",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getSsl()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.ssl.key-password",
@@ -794,8 +779,7 @@
     {
       "name": "zoo.kafka.streams",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getStreams()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.streams.application-id",
@@ -825,8 +809,7 @@
     {
       "name": "zoo.kafka.streams.cleanup",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Cleanup",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceMethod": "getCleanup()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"      
     },
     {
       "name": "zoo.kafka.streams.cleanup.on-shutdown",
@@ -863,8 +846,7 @@
     {
       "name": "zoo.kafka.streams.security",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Security",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceMethod": "getSecurity()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"      
     },
     {
       "name": "zoo.kafka.streams.security.protocol",
@@ -875,8 +857,7 @@
     {
       "name": "zoo.kafka.streams.ssl",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Ssl",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams",
-      "sourceMethod": "getSsl()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Streams"      
     },
     {
       "name": "zoo.kafka.streams.ssl.key-password",
@@ -953,8 +934,7 @@
     {
       "name": "zoo.kafka.template",
       "type": "org.springframework.boot.autoconfigure.kafka.KafkaProperties$Template",
-      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties",
-      "sourceMethod": "getTemplate()"
+      "sourceType": "org.springframework.boot.autoconfigure.kafka.KafkaProperties"      
     },
     {
       "name": "zoo.kafka.template.default-topic",
@@ -983,8 +963,7 @@
     {
       "name": "zoo.redis.cluster",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Cluster",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getCluster()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"      
     },
     {
       "name": "zoo.redis.cluster.max-redirects",
@@ -1021,14 +1000,12 @@
     {
       "name": "zoo.redis.jedis",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getJedis()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"      
     },
     {
       "name": "zoo.redis.jedis.pool",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis",
-      "sourceMethod": "getPool()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Jedis"      
     },
     {
       "name": "zoo.redis.jedis.pool.enabled",
@@ -1073,20 +1050,17 @@
     {
       "name": "zoo.redis.lettuce",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getLettuce()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"      
     },
     {
       "name": "zoo.redis.lettuce.cluster",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceMethod": "getCluster()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce"      
     },
     {
       "name": "zoo.redis.lettuce.cluster.refresh",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster$Refresh",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster",
-      "sourceMethod": "getRefresh()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce$Cluster"      
     },
     {
       "name": "zoo.redis.lettuce.cluster.refresh.adaptive",
@@ -1111,8 +1085,7 @@
     {
       "name": "zoo.redis.lettuce.pool",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Pool",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce",
-      "sourceMethod": "getPool()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Lettuce"      
     },
     {
       "name": "zoo.redis.lettuce.pool.enabled",
@@ -1177,8 +1150,7 @@
     {
       "name": "zoo.redis.sentinel",
       "type": "org.springframework.boot.autoconfigure.data.redis.RedisProperties$Sentinel",
-      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties",
-      "sourceMethod": "getSentinel()"
+      "sourceType": "org.springframework.boot.autoconfigure.data.redis.RedisProperties"      
     },
     {
       "name": "zoo.redis.sentinel.master",

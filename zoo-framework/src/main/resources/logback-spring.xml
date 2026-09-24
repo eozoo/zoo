@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -10,7 +10,7 @@
 
     <appender name="root" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/log/root.log</file>
-        <rollingPolicy class="com.cowave.zoo.framework.support.logging.SizeAndTimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${user.dir}/log/root.log.%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
             <maxFileSize>20MB</maxFileSize>
             <maxHistory>60</maxHistory>
@@ -19,18 +19,14 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%5level| [%t] %logger{0}:%L %m%n</pattern>
         </encoder>
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
-                <expression>return mdc.get("accessId") == null;</expression>
-            </evaluator>
-            <OnMatch>ACCEPT</OnMatch>
-            <OnMismatch>DENY</OnMismatch>
+        <filter class="com.cowave.zoo.framework.support.logging.AccessLoggerFilter">
+            <accessLog>false</accessLog>
         </filter>
     </appender>
 
     <appender name="access" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/log/access.log</file>
-        <rollingPolicy class="com.cowave.zoo.framework.support.logging.SizeAndTimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${user.dir}/log/access.log.%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
             <maxFileSize>20MB</maxFileSize>
             <maxHistory>60</maxHistory>
@@ -39,12 +35,8 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} |%5level| %X{accessId} [%23t] %logger{0}:%L %m%n</pattern>
         </encoder>
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
-                <expression>return mdc.get("accessId") != null;</expression>
-            </evaluator>
-            <OnMatch>ACCEPT</OnMatch>
-            <OnMismatch>DENY</OnMismatch>
+        <filter class="com.cowave.zoo.framework.support.logging.AccessLoggerFilter">
+            <accessLog>true</accessLog>
         </filter>
     </appender>
 
@@ -79,4 +71,5 @@
     </root>
 
     <logger name="org.apache.kafka" level="warn"/>
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="error"/>
 </configuration>

@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  *

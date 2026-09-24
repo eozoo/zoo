@@ -99,6 +99,11 @@ public interface BearerTokenDelegate {
     String CLAIM_USER_PROPERTIES = "up";
 
     /**
+     * 登录来源
+     */
+    String CLAIM_LOGIN_SOURCE = "ls";
+
+    /**
      * 用户类型
      */
     String CLAIM_USER_TYPE = "ut";

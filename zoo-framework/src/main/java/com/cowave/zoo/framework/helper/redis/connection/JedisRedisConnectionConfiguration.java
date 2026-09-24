@@ -73,7 +73,7 @@ public class JedisRedisConnectionConfiguration extends AbstractRedisConnectionCo
 
     private JedisClientConfigurationBuilder applyProperties(JedisClientConfigurationBuilder builder) {
         PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-        map.from(getProperties().isSsl()).whenTrue().toCall(builder::useSsl);
+        map.from(getProperties().getSsl().isEnabled()).whenTrue().toCall(builder::useSsl);
         map.from(getProperties().getTimeout()).to(builder::readTimeout);
         map.from(getProperties().getConnectTimeout()).to(builder::connectTimeout);
         map.from(getProperties().getClientName()).whenHasText().to(builder::clientName);

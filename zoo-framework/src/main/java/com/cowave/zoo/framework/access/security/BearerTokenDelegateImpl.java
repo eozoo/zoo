@@ -173,6 +173,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
                 .claim(CLAIM_USER_CODE, userDetails.getUserCode())
                 .claim(CLAIM_USER_PROPERTIES, userDetails.getUserProperties())
                 .claim(CLAIM_USER_TYPE, userDetails.getUserType())
+                .claim(CLAIM_LOGIN_SOURCE, userDetails.getLoginSource())
                 .claim(CLAIM_USER_NAME, userDetails.getUserNick())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .claim(CLAIM_USER_ROLE, userDetails.getRoles())
@@ -216,6 +217,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         userDetails.setUserNick((String) claims.get(CLAIM_USER_NAME));
         userDetails.setUserProperties((Map<String, Object>) claims.get(CLAIM_USER_PROPERTIES));
         userDetails.setUserType((String) claims.get(CLAIM_USER_TYPE));
+        userDetails.setLoginSource(claims.get(CLAIM_LOGIN_SOURCE, String.class));
         // dept
         userDetails.setDeptId(claims.get(CLAIM_DEPT_ID));
         userDetails.setDeptCode(claims.get(CLAIM_DEPT_CODE));
@@ -263,6 +265,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public void setRefreshClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
         jwtBuilder.claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
+                .claim(CLAIM_LOGIN_SOURCE, userDetails.getLoginSource())
                 .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
@@ -282,6 +285,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public AccessUserDetails parseRefreshClaims(Claims claims) {
         AccessUserDetails tokenDetails = new AccessUserDetails();
+        tokenDetails.setLoginSource(claims.get(CLAIM_LOGIN_SOURCE, String.class));
         tokenDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
         tokenDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
@@ -296,6 +300,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public AccessUserDetails parseOauthRefreshClaims(Claims claims) {
         AccessUserDetails tokenDetails = new AccessUserDetails();
+        tokenDetails.setLoginSource(claims.get(CLAIM_LOGIN_SOURCE, String.class));
         tokenDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
         tokenDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));

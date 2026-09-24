@@ -28,7 +28,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * @author shanhuiming
@@ -90,7 +90,7 @@ public class SocketIoConfiguration {
     }
 
     @Bean
-    public SpringAnnotationScanner springAnnotationScanner(SocketIOServer socketIoServer) {
+    public static SpringAnnotationScanner springAnnotationScanner(SocketIOServer socketIoServer) {
         return new SpringAnnotationScanner(socketIoServer);
     }
 }

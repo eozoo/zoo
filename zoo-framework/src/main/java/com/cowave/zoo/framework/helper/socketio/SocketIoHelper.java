@@ -14,6 +14,7 @@ package com.cowave.zoo.framework.helper.socketio;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.AuthTokenResult;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.cowave.zoo.framework.access.AccessProperties;
 import com.cowave.zoo.framework.access.security.AccessUserDetails;
@@ -22,10 +23,11 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -40,6 +42,7 @@ public class SocketIoHelper {
     private final AccessProperties accessProperties;
     private final Map<String, Map<String, SocketIOClient>> namespaceClients = new ConcurrentHashMap<>();
     private final Map<String, SocketIOClient> rootClients = new ConcurrentHashMap<>();
+    private final Set<String> authNamespaces = ConcurrentHashMap.newKeySet();
 
     @PostConstruct
     private void init() {
@@ -75,6 +78,33 @@ public class SocketIoHelper {
         return details == null ? null : new SocketIdentity(details);
     }
 
+    private AuthTokenResult authenticateAuthData(Object authData, SocketIOClient client) {
+        if (!(authData instanceof Map<?, ?> auth)) {
+            return new AuthTokenResult(false, "Socket authentication data is invalid");
+        }
+
+        Object tokenValue = auth.get("token");
+        if (!(tokenValue instanceof String token) || token.isBlank()) {
+            return new AuthTokenResult(false, "Socket access token is missing");
+        }
+
+        AccessUserDetails details = bearerTokenService.validateSocketAccessToken(token);
+        if (details == null) {
+            return new AuthTokenResult(false, "Socket access token is invalid");
+        }
+
+        client.getHandshakeData().setAuthToken(details);
+        return AuthTokenResult.AuthTokenResultSuccess;
+    }
+
+    private com.corundumstudio.socketio.SocketIONamespace namespace(String namespace) {
+        com.corundumstudio.socketio.SocketIONamespace socketNamespace = socketIoServer.addNamespace(namespace);
+        if (authNamespaces.add(namespace)) {
+            socketNamespace.addAuthTokenListener(this::authenticateAuthData);
+        }
+        return socketNamespace;
+    }
+
     @PreDestroy
     private void destroy() {
         if (socketIoServer != null) {
@@ -102,14 +132,14 @@ public class SocketIoHelper {
      * 注册 namespace 事件监听器
      */
     public <T> void registerDataListener(String namespace, String event, Class<T> type, DataListener<T> listener) {
-        socketIoServer.addNamespace(namespace).addEventListener(event, type, listener);
+        namespace(namespace).addEventListener(event, type, listener);
     }
 
     /**
      * 注册 namespace 连接监听器
      */
     public void registerConnectListener(String namespace) {
-        socketIoServer.addNamespace(namespace).addConnectListener(client ->
+        namespace(namespace).addConnectListener(client ->
                 registerClient(client, namespaceClients.computeIfAbsent(namespace, key -> new ConcurrentHashMap<>())));
     }
 
@@ -117,7 +147,7 @@ public class SocketIoHelper {
      * 注册 namespace 断开监听器
      */
     public void registerDisconnectListener(String namespace) {
-        socketIoServer.addNamespace(namespace).addDisconnectListener(client -> {
+        namespace(namespace).addDisconnectListener(client -> {
             Map<String, SocketIOClient> clients = namespaceClients.get(namespace);
             if (clients != null) {
                 clients.remove(client.getSessionId().toString(), client);

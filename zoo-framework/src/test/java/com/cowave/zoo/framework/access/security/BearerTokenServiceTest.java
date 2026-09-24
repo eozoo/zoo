@@ -90,7 +90,7 @@ public class BearerTokenServiceTest {
     @Test
     void hmacHS256_signAndVerify() {
         authConfig.setAlgorithm("HS256");
-        authConfig.setAccessSecret("my-hs256-secret");
+        authConfig.setAccessSecret("test-hs256-secret-0123456789-abcdefghijklmnopqrstuvwxyz");
         AccessUserDetails userDetails = newUserDetails();
 
         BearerTokenServiceImpl tokenService = newTokenService();
@@ -106,7 +106,7 @@ public class BearerTokenServiceTest {
     @Test
     void hmacHS384_signAndVerify() {
         authConfig.setAlgorithm("HS384");
-        authConfig.setAccessSecret("my-hs384-secret");
+        authConfig.setAccessSecret("test-hs384-secret-0123456789-abcdefghijklmnopqrstuvwxyz-384");
         AccessUserDetails userDetails = newUserDetails();
 
         BearerTokenServiceImpl tokenService = newTokenService();
@@ -122,7 +122,7 @@ public class BearerTokenServiceTest {
     @Test
     void hmacHS512_signAndVerify() {
         authConfig.setAlgorithm("HS512");
-        authConfig.setAccessSecret("my-hs512-secret");
+        authConfig.setAccessSecret("test-hs512-secret-0123456789-abcdefghijklmnopqrstuvwxyz-512-secret");
         AccessUserDetails userDetails = newUserDetails();
 
         BearerTokenServiceImpl tokenService = newTokenService();
@@ -137,7 +137,7 @@ public class BearerTokenServiceTest {
      */
     @Test
     void hmac_defaultAlgorithmIsHS512() {
-        authConfig.setAccessSecret("default-secret");
+        authConfig.setAccessSecret("test-default-hs512-secret-0123456789-abcdefghijklmnopqrstuvwxyz-512");
         AccessUserDetails userDetails = newUserDetails();
 
         BearerTokenServiceImpl service = newTokenService();
@@ -350,7 +350,7 @@ public class BearerTokenServiceTest {
     @Test
     void hmAlgorithm_doesNotRequireKeyPair() {
         authConfig.setAlgorithm("HS512");
-        authConfig.setAccessSecret("my-secret");
+        authConfig.setAccessSecret("test-hs512-secret-0123456789-abcdefghijklmnopqrstuvwxyz-min");
         // HMAC 不需要公私钥配置，构造函数不抛异常
         BearerTokenServiceImpl service = newTokenService();
         assertNotNull(service);

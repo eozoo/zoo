@@ -45,7 +45,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.util.ReflectionUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;

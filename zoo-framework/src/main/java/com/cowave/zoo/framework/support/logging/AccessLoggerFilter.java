@@ -12,24 +12,26 @@
  */
 package com.cowave.zoo.framework.support.logging;
 
-import ch.qos.logback.core.rolling.TriggeringPolicy;
-import ch.qos.logback.core.rolling.helper.ArchiveRemover;
-import ch.qos.logback.core.spi.ContextAware;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
 
 /**
+ *
  * @author shanhuiming
- * @see ch.qos.logback.core.rolling.TimeBasedFileNamingAndTriggeringPolicy
+ *
  */
-public interface TimeBasedFileNamingAndTriggeringPolicy<E> extends TriggeringPolicy<E>, ContextAware {
-    void setTimeBasedRollingPolicy(TimeBasedRollingPolicy<E> var1);
+public class AccessLoggerFilter extends Filter<ILoggingEvent> {
+    private boolean accessLog;
 
-    String getElapsedPeriodsFileName();
+    public void setAccessLog(boolean accessLog) {
+        this.accessLog = accessLog;
+    }
 
-    String getCurrentPeriodsFileNameWithoutCompressionSuffix();
-
-    ArchiveRemover getArchiveRemover();
-
-    long getCurrentTime();
-
-    void setCurrentTime(long var1);
+    @Override
+    public FilterReply decide(ILoggingEvent event) {
+        boolean hasAccessId = event.getMDCPropertyMap().get("accessId") != null;
+        boolean accepted = accessLog == hasAccessId;
+        return accepted ? FilterReply.ACCEPT : FilterReply.DENY;
+    }
 }

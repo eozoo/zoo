@@ -24,12 +24,13 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionCommands;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.connection.RedisServerCommands;
+import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.connection.stream.Record;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  *
@@ -188,6 +189,18 @@ public class RedisHelper {
     public <T> T getValueAndDelete(String key){
         ValueOperations<String, T> operation = redisTemplate.opsForValue();
         return operation.getAndDelete(key);
+    }
+
+    /**
+     * 原子比较并删除，值已变更或不存在时保留当前数据
+     */
+    public boolean compareAndDelete(String key, Object expectedValue) {
+        byte[] script = ("if redis.call('get', KEYS[1]) == ARGV[1] then "
+                + "return redis.call('del', KEYS[1]) else return 0 end").getBytes(StandardCharsets.UTF_8);
+        Long deleted = (Long) redisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.scriptingCommands().eval(script, ReturnType.INTEGER, 1,
+                        getKeySerializer().serialize(key), getValueSerializer().serialize(expectedValue)));
+        return Long.valueOf(1).equals(deleted);
     }
 
     /**

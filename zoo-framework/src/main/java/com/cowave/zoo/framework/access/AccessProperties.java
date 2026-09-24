@@ -110,7 +110,8 @@ public class AccessProperties {
     }
 
     public String accessSecret() {
-        return Optional.ofNullable(auth).map(auth -> auth.accessSecret).orElse("access@cowave.com");
+        return Optional.ofNullable(auth).map(auth -> auth.accessSecret)
+                .orElse("access-secret-change-this-value-0123456789-abcdefghijklmnopqrstuvwxyz");
     }
 
     public String accessPublicKey() {
@@ -126,7 +127,8 @@ public class AccessProperties {
     }
 
     public String refreshSecret() {
-        return Optional.ofNullable(auth).map(auth -> auth.refreshSecret).orElse("refresh@cowave.com");
+        return Optional.ofNullable(auth).map(auth -> auth.refreshSecret)
+                .orElse("refresh-secret-change-this-value-0123456789-abcdefghijklmnopqrstuvwxyz");
     }
 
     public String refreshPublicKey() {
@@ -242,7 +244,7 @@ public class AccessProperties {
         /**
          * accessToken密钥
          */
-        private String accessSecret = "access@cowave.com";
+        private String accessSecret = "access-secret-change-this-value-0123456789-abcdefghijklmnopqrstuvwxyz";
 
         /**
          * accessToken验签公钥（RSA/EC时使用，支持PEM字符串 或 file:/path/to/key.pem）
@@ -262,7 +264,7 @@ public class AccessProperties {
         /**
          * refreshToken密钥
          */
-        private String refreshSecret = "refresh@cowave.com";
+        private String refreshSecret = "refresh-secret-change-this-value-0123456789-abcdefghijklmnopqrstuvwxyz";
 
         /**
          * refreshToken验签公钥（RSA/EC时使用，支持PEM字符串 或 file:/path/to/key.pem）

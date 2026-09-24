@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import io.minio.*;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;

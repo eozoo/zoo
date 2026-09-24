@@ -20,7 +20,7 @@ import com.cowave.zoo.framework.configuration.ApplicationProperties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Objects;
@@ -34,9 +34,8 @@ import static com.cowave.zoo.http.client.constants.HttpHeader.X_User_Payload;
  * @author shanhuiming
  *
  */
-@SuppressWarnings("deprecation")
 @RequiredArgsConstructor
-@ConditionalOnClass(WebSecurityConfigurerAdapter.class)
+@ConditionalOnClass(SecurityFilterChain.class)
 @Component("permits")
 public class Permission {
     public static final String TENANT_SYSTEM = "system";

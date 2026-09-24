@@ -35,7 +35,7 @@ public class ZooBanner implements Banner {
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-        String appInfo = ":: Spring Boot 2.7.0 :: Zoo 2.7.6 :: ";
+        String appInfo = ":: Spring Boot 3.5.16 :: Zoo 3.5.0 :: ";
         Resource resource = new DefaultResourceLoader().getResource("classpath:META-INF/git.info");
         if (resource.exists()) {
             try (InputStream input = resource.getInputStream()) {

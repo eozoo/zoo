@@ -28,10 +28,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.MediaType;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Key;
+import java.security.PublicKey;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -236,7 +239,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getRefreshAlgorithm();
             Key verificationKey = bearerTokenDelegate.getRefreshVerificationKey(algorithm);
-            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(refreshToken).getBody();
+            claims = parseSignedClaims(refreshToken, algorithm, verificationKey);
         } catch (Exception e) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.invalid}");
         }
@@ -254,6 +257,15 @@ public class BearerTokenServiceImpl implements BearerTokenService {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.changed}");
         }
 
+        // 刷新前校验并更新用户信息，失败时不轮换令牌
+        AccessUserDetails userDetails = new AccessUserDetails(refreshTokenInfo);
+        reloadRefreshUserDetails(userDetails);
+
+        // 校验通过后原子消费旧刷新记录，同一旧令牌仅允许一个请求完成轮换
+        if (!redisHelper.compareAndDelete(refreshTokenKey, refreshTokenInfo)) {
+            throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.changed}");
+        }
+
         //当前accessToken删除
         String accessId = refreshTokenInfo.getAccessId();
         if (details.isAccessValid()) {
@@ -265,7 +277,6 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         }
 
         // 更新Token信息
-        AccessUserDetails userDetails = new AccessUserDetails(refreshTokenInfo);
         userDetails.setAccessId(IdUtil.fastSimpleUUID());
         userDetails.setRefreshId(IdUtil.fastSimpleUUID());
         userDetails.setAccessIp(Access.accessIp());
@@ -275,6 +286,10 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         return userDetails;
     }
 
+    protected void reloadRefreshUserDetails(AccessUserDetails userDetails) {
+
+    }
+
     @Override
     public AccessUserDetails refreshOauthToken(String oauthToken) {
         assert redisHelper != null;
@@ -282,7 +297,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getRefreshAlgorithm();
             Key verificationKey = bearerTokenDelegate.getRefreshVerificationKey(algorithm);
-            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(oauthToken).getBody();
+            claims = parseSignedClaims(oauthToken, algorithm, verificationKey);
         } catch (Exception e) {
             throw new HttpHintException(UNAUTHORIZED, "{frame.auth.refresh.invalid}");
         }
@@ -347,7 +362,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
             Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
-            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(accessToken).getBody();
+            claims = parseSignedClaims(accessToken, algorithm, verificationKey);
         } catch (ExpiredJwtException e) {
             if (response == null) {
                 throw new HttpHintException(UNAUTHORIZED, "{frame.auth.access.expire}");
@@ -433,7 +448,7 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
             Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
-            claims = Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(accessToken).getBody();
+            claims = parseSignedClaims(accessToken, algorithm, verificationKey);
         } catch (ExpiredJwtException e) {
             writeResponse(response, INVALID_TOKEN, "frame.auth.access.expire");
             return null;
@@ -875,11 +890,27 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
             Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
-            Jwts.parser().setSigningKey(verificationKey).parseClaimsJws(accessToken).getBody();
+            JwtParserBuilder parser = Jwts.parser();
+            if (algorithm.name().startsWith("HS")) {
+                parser.verifyWith((SecretKey) verificationKey);
+            } else {
+                parser.verifyWith((PublicKey) verificationKey);
+            }
+            parser.build().parseSignedClaims(accessToken).getPayload();
         } catch (Exception e) {
             return false;
         }
         return true;
+    }
+
+    private Claims parseSignedClaims(String token, SignatureAlgorithm algorithm, Key verificationKey) {
+        JwtParserBuilder parser = Jwts.parser();
+        if (algorithm.name().startsWith("HS")) {
+            parser.verifyWith((SecretKey) verificationKey);
+        } else {
+            parser.verifyWith((PublicKey) verificationKey);
+        }
+        return parser.build().parseSignedClaims(token).getPayload();
     }
 
     @Override
@@ -893,8 +924,13 @@ public class BearerTokenServiceImpl implements BearerTokenService {
         try {
             SignatureAlgorithm algorithm = bearerTokenDelegate.getAccessAlgorithm();
             Key verificationKey = bearerTokenDelegate.getAccessVerificationKey(algorithm);
-            Claims claims = Jwts.parser().setSigningKey(verificationKey)
-                    .parseClaimsJws(accessToken).getBody();
+            JwtParserBuilder parser = Jwts.parser();
+            if (algorithm.name().startsWith("HS")) {
+                parser.verifyWith((SecretKey) verificationKey);
+            } else {
+                parser.verifyWith((PublicKey) verificationKey);
+            }
+            Claims claims = parser.build().parseSignedClaims(accessToken).getPayload();
             AccessUserDetails details = bearerTokenDelegate.parseAccessClaims(claims);
             return validateUserDetails(details, null, false) ? details : null;
         } catch (Exception ignored) {

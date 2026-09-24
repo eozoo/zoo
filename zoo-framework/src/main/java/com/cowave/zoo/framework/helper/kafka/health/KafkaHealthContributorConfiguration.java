@@ -14,6 +14,7 @@ package com.cowave.zoo.framework.helper.kafka.health;
 
 import java.util.Map;
 
+import com.cowave.zoo.framework.helper.datasource.health.DataSourceHealthIndicator;
 import com.cowave.zoo.framework.helper.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.CompositeHealthContributorConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
@@ -35,6 +36,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 @AutoConfiguration(after = { KafkaAutoConfiguration.class })
 public class KafkaHealthContributorConfiguration
         extends CompositeHealthContributorConfiguration<KafkaHealthIndicator, KafkaAdmin> {
+
+    public KafkaHealthContributorConfiguration() {
+        super(KafkaHealthIndicator::new);
+    }
 
     @Bean
     @ConditionalOnMissingBean(name = { "kafkaHealthIndicator" })

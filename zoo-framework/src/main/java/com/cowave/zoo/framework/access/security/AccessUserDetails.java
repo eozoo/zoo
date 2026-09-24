@@ -125,6 +125,11 @@ public class AccessUserDetails implements UserDetails {
     private String userType;
 
     /**
+     * 登录来源
+     */
+    private String loginSource;
+
+    /**
      * 用户账号
      */
     private String username;
@@ -289,6 +294,7 @@ public class AccessUserDetails implements UserDetails {
         this.username = refreshTokenInfo.getUserAccount();
         this.userNick = refreshTokenInfo.getUserName();
         this.userType = refreshTokenInfo.getUserType();
+        this.loginSource = refreshTokenInfo.getLoginSource();
         this.userProperties = refreshTokenInfo.getUserProperties();
         this.deptId = refreshTokenInfo.getDeptId();
         this.deptCode = refreshTokenInfo.getDeptCode();

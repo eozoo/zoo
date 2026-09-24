@@ -14,6 +14,7 @@ package com.cowave.zoo.framework.helper.redis.health;
 
 import java.util.Map;
 
+import com.cowave.zoo.framework.helper.kafka.health.KafkaHealthIndicator;
 import com.cowave.zoo.framework.helper.redis.StringRedisHelper;
 import org.springframework.boot.actuate.autoconfigure.health.CompositeHealthContributorConfiguration;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
@@ -33,6 +34,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class RedisHealthContributorConfiguration
         extends CompositeHealthContributorConfiguration<RedisHealthIndicator, StringRedisHelper> {
+
+    public RedisHealthContributorConfiguration() {
+        super(RedisHealthIndicator::new);
+    }
 
     @Bean
     public HealthContributor redisHealthIndicator(Map<String, StringRedisHelper> redisMap) {

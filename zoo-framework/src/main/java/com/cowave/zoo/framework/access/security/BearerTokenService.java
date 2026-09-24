@@ -12,7 +12,7 @@
  */
 package com.cowave.zoo.framework.access.security;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
