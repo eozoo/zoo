@@ -10,33 +10,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.zoo.framework.helper.http.exception;
+package com.cowave.zoo.framework.helper.rest;
 
-import com.cowave.zoo.http.client.HttpExceptionHandler;
-import com.cowave.zoo.http.client.asserts.HttpException;
 import io.seata.core.context.RootContext;
-import io.seata.core.exception.TransactionException;
-import io.seata.tm.api.GlobalTransactionContext;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+
+import java.io.IOException;
 
 /**
- *
  * @author shanhuiming
- *
  */
-@Slf4j
-public class DefaultHttpExceptionHandler implements HttpExceptionHandler {
+@Order(1)
+public class SeataInterceptor implements ClientHttpRequestInterceptor {
 
     @Override
-    public void handle(HttpException e) {
+    public ClientHttpResponse intercept(
+            HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         String xid = RootContext.getXID();
-        if(StringUtils.isNotBlank(xid)){
-            try {
-                GlobalTransactionContext.reload(xid).rollback();
-            } catch (TransactionException ex) {
-                log.error("Rollback failed[" + xid + "]", ex);
-            }
+        if (StringUtils.isNotBlank(xid)) {
+            request.getHeaders().set(RootContext.KEY_XID, xid);
         }
+        return execution.execute(request, body);
     }
 }

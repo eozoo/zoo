@@ -15,11 +15,14 @@ package com.cowave.zoo.framework.access.annotation;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -32,9 +35,17 @@ public class SensitiveSerializerModifier extends BeanSerializerModifier {
     public List<BeanPropertyWriter> changeProperties(
             SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
         List<BeanPropertyWriter> writers = new ArrayList<>(beanProperties.size());
+        Map<String, BeanPropertyDefinition> properties = beanDesc.findProperties().stream().collect(Collectors.toMap(
+                BeanPropertyDefinition::getName, property -> property,
+                (first, second) -> first));
         for (BeanPropertyWriter writer : beanProperties) {
             AnnotatedMember member = writer.getMember();
-            if (member != null && member.hasAnnotation(Sensitive.class)) {
+            BeanPropertyDefinition property = properties.get(writer.getName());
+            boolean sensitive = member != null && member.hasAnnotation(Sensitive.class);
+            if (!sensitive && property != null && property.getField() != null) {
+                sensitive = property.getField().hasAnnotation(Sensitive.class);
+            }
+            if (sensitive) {
                 writers.add(new SensitiveBeanPropertyWriter(writer));
             } else {
                 writers.add(writer);

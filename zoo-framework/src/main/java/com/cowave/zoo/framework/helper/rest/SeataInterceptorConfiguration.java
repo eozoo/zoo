@@ -10,16 +10,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.zoo.framework.helper.rest.interceptor;
+package com.cowave.zoo.framework.helper.rest;
 
-import com.cowave.zoo.framework.configuration.ApplicationProperties;
 import io.seata.core.context.RootContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.boot.web.client.RestTemplateCustomizer;
+import org.springframework.core.annotation.Order;
 
 /**
  *
@@ -27,13 +25,21 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
  *
  */
 @ConditionalOnClass({RootContext.class})
-@RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 public class SeataInterceptorConfiguration {
 
     @Bean
-    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(
-            @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
-        return new SeataInterceptor(port, applicationProperties);
+    public SeataInterceptor restSeataInterceptor() {
+        return new SeataInterceptor();
+    }
+
+    @Order(1)
+    @Bean
+    public RestTemplateCustomizer restSeataCustomizer(SeataInterceptor interceptor) {
+        return restTemplate -> {
+            if (!restTemplate.getInterceptors().contains(interceptor)) {
+                restTemplate.getInterceptors().add(interceptor);
+            }
+        };
     }
 }

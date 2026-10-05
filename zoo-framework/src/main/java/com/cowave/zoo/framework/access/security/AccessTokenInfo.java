@@ -36,9 +36,9 @@ public class AccessTokenInfo {
     private String refreshId;
 
     /**
-     * 登录会话id
+     * 登录设备标识
      */
-    private String sessionId;
+    private String deviceId;
 
     /**
      * 授权租户编码
@@ -79,7 +79,7 @@ public class AccessTokenInfo {
     public AccessTokenInfo(AccessUserDetails accessUserDetails) {
         this.accessId = accessUserDetails.getAccessId();
         this.refreshId = accessUserDetails.getRefreshId();
-        this.sessionId = accessUserDetails.getSessionId();
+        this.deviceId = accessUserDetails.getDeviceId();
         this.tenantCode = accessUserDetails.getTenantCode();
         this.accessType = accessUserDetails.getAuthType();
         this.userAccount = accessUserDetails.getUsername();

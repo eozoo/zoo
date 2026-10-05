@@ -10,32 +10,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.zoo.framework.helper.http.interceptor;
+package com.cowave.zoo.framework.helper.http.fallback;
 
-import com.cowave.zoo.http.client.HttpClientInterceptor;
-import com.cowave.zoo.http.client.request.HttpRequest;
+import com.cowave.zoo.http.client.HttpFallback;
+import com.cowave.zoo.http.client.response.HttpResponse;
 import io.seata.core.context.RootContext;
+import io.seata.core.exception.TransactionException;
+import io.seata.tm.api.GlobalTransactionContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.annotation.Order;
+
+import java.lang.reflect.Method;
 
 /**
  * @author shanhuiming
  */
-@Order(1)
-public class HttpSeataInterceptor implements HttpClientInterceptor {
+@Slf4j
+public class DefaultHttpFallback implements HttpFallback {
 
     @Override
-    public void apply(HttpRequest request) {
+    public void fallback(Method method, Object[] args, HttpResponse<?> response, Throwable cause) {
         String xid = RootContext.getXID();
         if (StringUtils.isNotBlank(xid)) {
-            // 清除已有的XID请求头
-            String[] names = request.headers().keySet().stream()
-                    .filter(RootContext.KEY_XID::equalsIgnoreCase).toArray(String[]::new);
-            for (String existing : names) {
-                request.header(existing, (String[]) null);
+            try {
+                GlobalTransactionContext.reload(xid).rollback();
+            } catch (TransactionException exception) {
+                log.error("Rollback failed[" + xid + "]", exception);
             }
-            // 写入当前事务上下文的XID
-            request.header(RootContext.KEY_XID, xid);
         }
     }
 }

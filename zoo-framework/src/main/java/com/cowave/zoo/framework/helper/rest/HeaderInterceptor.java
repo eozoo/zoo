@@ -10,36 +10,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.zoo.framework.helper.http.interceptor;
+package com.cowave.zoo.framework.helper.rest;
 
-import com.cowave.zoo.http.client.HttpClientInterceptor;
-import com.cowave.zoo.http.client.request.HttpRequest;
 import com.cowave.zoo.framework.helper.http.RequestHeaders;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+
+import java.io.IOException;
 
 /**
  * @author shanhuiming
  */
 @Order(0)
 @RequiredArgsConstructor
-public class HttpHeaderInterceptor implements HttpClientInterceptor {
+public class HeaderInterceptor implements ClientHttpRequestInterceptor {
 
     private final String port;
 
     private final int clusterId;
 
     @Override
-    public void apply(HttpRequest request) {
-        RequestHeaders.apply(port, clusterId,
-                name -> request.headers().keySet().stream().anyMatch(name::equalsIgnoreCase),
-                (name, value) -> {
-                    String[] names = request.headers().keySet().stream()
-                            .filter(name::equalsIgnoreCase).toArray(String[]::new);
-                    for (String existing : names) {
-                        request.header(existing, (String[]) null);
-                    }
-                    request.header(name, value);
-                });
+    public ClientHttpResponse intercept(
+            HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        RequestHeaders.apply(port, clusterId, request.getHeaders()::containsKey, request.getHeaders()::set);
+        return execution.execute(request, body);
     }
 }

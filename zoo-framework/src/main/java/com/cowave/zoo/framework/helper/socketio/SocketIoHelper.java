@@ -274,10 +274,10 @@ public class SocketIoHelper {
     }
 
     /**
-     * 断开指定会话的连接
+     * 断开指定设备的连接
      */
-    public void disconnectSession(String account, String session) {
-        disconnect(c -> account.equals(identity(c).getUserAccount()) && session.equals(identity(c).getSessionId()));
+    public void disconnectDevice(String account, String deviceId) {
+        disconnect(c -> account.equals(identity(c).getUserAccount()) && deviceId.equals(identity(c).getDeviceId()));
     }
 
     /**

@@ -70,31 +70,31 @@ public interface BearerTokenService {
     /**
      * 注销AccessToken
      */
-    AccessTokenInfo revokeAccessToken(String userAccount, String sessionId,
-                                      String tenantCode, String accessId);
+    AccessTokenInfo revokeAccessToken(String userAccount, String deviceId, String tenantCode, String accessId);
 
     /**
      * 注销RefreshToken
      */
-    RefreshTokenInfo revokeRefreshToken(String userAccount, String sessionId);
+    RefreshTokenInfo revokeRefreshToken(String userAccount, String deviceId);
 
     /**
-     * 注销用户全部登录会话
+     * 账号级撤销，比如修改密码后下线全部设备及OAuth授权
      */
     void revokeUserTokens(String userAccount);
 
     /**
-     * 注销OAuthToken
+     * 注销指定账号、租户、应用的OAuth Refresh，不影响已签发Access的有效期
      */
-    RefreshTokenInfo revokeOauthToken(String userAccount, String sessionId,
-                                      String tenantCode, String appId);
+    RefreshTokenInfo revokeOauthToken(String userAccount, String tenantCode, String appId);
 
     /**
-     * 验证AccessToken
+     * 验证Access JWT签名及有效期，不查询Redis令牌记录
      */
     boolean validAccessToken(String accessToken);
 
-    /** 校验Socket连接Access Token */
+    /**
+     *  校验Socket连接Access Token
+     */
     AccessUserDetails validateSocketAccessToken(String accessToken);
 
     /**

@@ -10,30 +10,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
  */
-package com.cowave.zoo.framework.helper.rest.interceptor;
+package com.cowave.zoo.framework.helper.rest;
 
 import com.cowave.zoo.framework.configuration.ApplicationProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.web.client.RestTemplateCustomizer;
+import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 
 /**
  *
  * @author shanhuiming
  *
  */
-@ConditionalOnMissingClass("io.seata.core.context.RootContext")
-@RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 public class HeaderInterceptorConfiguration {
 
     @Bean
-    public ClientHttpRequestInterceptor clientHttpRequestInterceptor(
+    public HeaderInterceptor restHeaderInterceptor(
             @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
-        return new HeaderInterceptor(port, applicationProperties);
+        return new HeaderInterceptor(port, applicationProperties.getClusterId());
+    }
+
+    @Order(0)
+    @Bean
+    public RestTemplateCustomizer restHeaderCustomizer(HeaderInterceptor interceptor) {
+        return restTemplate -> {
+            if (!restTemplate.getInterceptors().contains(interceptor)) {
+                restTemplate.getInterceptors().add(interceptor);
+            }
+        };
     }
 }

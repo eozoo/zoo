@@ -40,9 +40,9 @@ public class RefreshTokenInfo {
     private String refreshId;
 
     /**
-     * 登录会话id
+     * 登录设备标识
      */
-    private String sessionId;
+    private String deviceId;
 
     /**
      * 类型
@@ -155,14 +155,14 @@ public class RefreshTokenInfo {
     private String clusterName;
 
     /**
-     * 限制同一账号的登录设备
+     * 是否限制同一账号单设备登录
      */
-    private boolean accessUnique;
+    private boolean deviceLimit;
 
     /**
-     * 是否存储验证AccessToken
+     * 是否存储并校验Access令牌状态
      */
-    private boolean accessValid;
+    private boolean accessStore;
 
     /**
      * 登录iP
@@ -178,7 +178,7 @@ public class RefreshTokenInfo {
     public RefreshTokenInfo(AccessUserDetails userDetails){
         this.accessId = userDetails.getAccessId();
         this.refreshId = userDetails.getRefreshId();
-        this.sessionId = userDetails.getSessionId();
+        this.deviceId = userDetails.getDeviceId();
         this.authType = userDetails.getAuthType();
         this.oauthId = userDetails.getOauthId();
         this.oauthName = userDetails.getOauthName();
@@ -203,7 +203,7 @@ public class RefreshTokenInfo {
         this.permitScopes = userDetails.getPermitScopes();
         this.loginIp = userDetails.getLoginIp();
         this.loginTime = userDetails.getLoginTime();
-        this.accessUnique = userDetails.isAccessUnique();
-        this.accessValid = userDetails.isAccessValid();
+        this.deviceLimit = userDetails.isDeviceLimit();
+        this.accessStore = userDetails.isAccessStore();
     }
 }

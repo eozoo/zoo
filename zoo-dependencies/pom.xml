@@ -61,8 +61,7 @@
         <spring.starter.grpc.version>3.1.0.RELEASE</spring.starter.grpc.version>
         <netty.version>4.1.114.Final</netty.version>
         <flowable.version>6.8.0</flowable.version>
-        <httpclient5.version>5.5.2</httpclient5.version>
-        <httpcore5.version>5.3.6</httpcore5.version>
+        <okhttp.version>5.5.0</okhttp.version>
     </properties>
 
     <build>
@@ -462,17 +461,6 @@ See the License for the specific language governing permissions and limitations 
 
     <dependencyManagement>
         <dependencies>
-            <!-- Apache HttpClient 5, managed for Spring Boot 3.5.x -->
-            <dependency>
-                <groupId>org.apache.httpcomponents.client5</groupId>
-                <artifactId>httpclient5</artifactId>
-                <version>${httpclient5.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents.core5</groupId>
-                <artifactId>httpcore5</artifactId>
-                <version>${httpcore5.version}</version>
-            </dependency>
             <!-- spring-boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -731,6 +719,12 @@ See the License for the specific language governing permissions and limitations 
                 <artifactId>commons-fileupload</artifactId>
                 <version>1.5</version>
             </dependency>
+            <!-- OkHttp -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-jvm</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
             <!-- zoo-framework -->
             <dependency>
                 <groupId>com.cowave.zoo</groupId>
@@ -745,7 +739,7 @@ See the License for the specific language governing permissions and limitations 
             <dependency>
                 <groupId>com.cowave.zoo</groupId>
                 <artifactId>http-client</artifactId>
-                <version>2.7.6</version>
+                <version>3.5.0</version>
             </dependency>
             <dependency>
                 <groupId>com.cowave.zoo</groupId>

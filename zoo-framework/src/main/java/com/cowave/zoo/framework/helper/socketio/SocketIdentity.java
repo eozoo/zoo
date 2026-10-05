@@ -21,7 +21,7 @@ import lombok.Getter;
 @Getter
 public class SocketIdentity {
     private final String userAccount;
-    private final String sessionId;
+    private final String deviceId;
     private final String tenantCode;
     private final String accessId;
     private final AccessUserDetails userDetails;
@@ -29,7 +29,7 @@ public class SocketIdentity {
     public SocketIdentity(AccessUserDetails userDetails) {
         this.userDetails = userDetails;
         this.userAccount = userDetails.getUsername();
-        this.sessionId = userDetails.getSessionId();
+        this.deviceId = userDetails.getDeviceId();
         this.tenantCode = userDetails.getTenantCode();
         this.accessId = userDetails.getAccessId();
     }

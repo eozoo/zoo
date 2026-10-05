@@ -13,10 +13,10 @@
 package com.cowave.zoo.framework.access.security;
 
 /**
- * 待加载的授权令牌，ownerIndex指向它所属的会话
+ * 待加载的授权令牌，ownerIndex指向展示行；OAuth属于账号，不属于展示行对应的设备
  *
  * @author shanhuiming
  */
-public record OnlineRecord(int ownerIndex, String grantKey, String grant, String grantTokenKey) {
+public record OnlineRecord(int ownerIndex, String userAccount, String tokenKey) {
 
 }

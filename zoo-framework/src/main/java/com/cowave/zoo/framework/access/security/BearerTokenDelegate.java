@@ -59,19 +59,19 @@ public interface BearerTokenDelegate {
     String CLAIM_REFRESH_ID = "tr";
 
     /**
-     * 登录会话id
+     * 登录设备标识
      */
-    String CLAIM_SESSION_ID = "si";
+    String CLAIM_DEVICE_ID = "di";
 
     /**
-     * 限制同一账号的登录设备
+     * 是否限制同一账号单设备登录
      */
-    String CLAIM_ACCESS_UNIQUE = "tu";
+    String CLAIM_DEVICE_LIMIT = "tu";
 
     /**
-     * 存储验证AccessToken
+     * 是否存储并校验Access令牌状态
      */
-    String CLAIM_ACCESS_VALID = "ts";
+    String CLAIM_ACCESS_STORE = "ts";
 
     /**
      * 租户id
@@ -136,7 +136,7 @@ public interface BearerTokenDelegate {
     /**
      * 部门id
      */
-    String CLAIM_DEPT_ID = "di";
+    String CLAIM_DEPT_ID = "de";
 
     /**
      * 部门编号

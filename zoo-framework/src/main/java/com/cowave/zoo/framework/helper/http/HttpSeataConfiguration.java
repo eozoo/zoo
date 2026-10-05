@@ -12,25 +12,15 @@
  */
 package com.cowave.zoo.framework.helper.http;
 
-import com.cowave.zoo.http.client.HttpClientInterceptor;
-import com.cowave.zoo.http.client.HttpExceptionHandler;
-import com.cowave.zoo.http.client.HttpServiceChooser;
+import com.cowave.zoo.framework.helper.http.fallback.DefaultHttpFallback;
+import com.cowave.zoo.http.client.HttpFallback;
 import com.cowave.zoo.http.client.invoke.proxy.HttpMethodInvoker;
-import com.cowave.zoo.framework.configuration.ApplicationProperties;
-import com.cowave.zoo.framework.helper.http.chooser.DefaultServiceChooser;
-import com.cowave.zoo.framework.helper.http.chooser.EurekaServiceChooser;
-import com.cowave.zoo.framework.helper.http.chooser.NacosServiceChooser;
-import com.cowave.zoo.framework.helper.http.exception.DefaultHttpExceptionHandler;
 import com.cowave.zoo.framework.helper.http.interceptor.HttpSeataInterceptor;
 import io.seata.core.context.RootContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import jakarta.annotation.Nullable;
 
 /**
  *
@@ -39,30 +29,16 @@ import jakarta.annotation.Nullable;
  */
 @ConditionalOnClass({HttpMethodInvoker.class, RootContext.class})
 @Configuration(proxyBeanMethods = false)
-@RequiredArgsConstructor
 public class HttpSeataConfiguration {
 
-    @Nullable
-    private final EurekaServiceChooser eurekaServiceChooser;
-
-    @Nullable
-    private final NacosServiceChooser nacosServiceChooser;
-
-    @ConditionalOnMissingBean(HttpServiceChooser.class)
+    @ConditionalOnMissingBean(HttpFallback.class)
     @Bean
-    public HttpServiceChooser httpServiceChooser(){
-        return new DefaultServiceChooser(eurekaServiceChooser, nacosServiceChooser);
+    public DefaultHttpFallback httpFallback() {
+        return new DefaultHttpFallback();
     }
 
     @Bean
-    public HttpClientInterceptor httpClientInterceptor(
-            @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
-        return new HttpSeataInterceptor(port, applicationProperties);
-    }
-
-    @ConditionalOnMissingBean(HttpExceptionHandler.class)
-    @Bean
-    public DefaultHttpExceptionHandler httpExceptionHandler(){
-        return new DefaultHttpExceptionHandler();
+    public HttpSeataInterceptor httpSeataInterceptor() {
+        return new HttpSeataInterceptor();
     }
 }

@@ -161,10 +161,10 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public void setAccessClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
         jwtBuilder.claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
-                .claim(CLAIM_SESSION_ID, userDetails.getSessionId())
+                .claim(CLAIM_DEVICE_ID, userDetails.getDeviceId())
                 .claim(CLAIM_ACCESS_IP, Access.accessIp())
-                .claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
-                .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
+                .claim(CLAIM_DEVICE_LIMIT, userDetails.isDeviceLimit() ? 1 : 0)
+                .claim(CLAIM_ACCESS_STORE, userDetails.isAccessStore() ? 1 : 0)
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_ACCESS_ID, userDetails.getAccessId())
                 .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
@@ -190,7 +190,8 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public void setOauthAccessClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
         setAccessClaims(jwtBuilder, userDetails);
-        jwtBuilder.claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
+        jwtBuilder.claim(CLAIM_DEVICE_ID, null)
+                .claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
                 .claim(CLAIM_OAUTH_NAME, userDetails.getOauthName())
                 .claim(CLAIM_OAUTH_APPS, userDetails.getApps());
     }
@@ -201,13 +202,13 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         userDetails.setOauthId((String) claims.get(CLAIM_OAUTH_ID));
         userDetails.setOauthName((String) claims.get(CLAIM_OAUTH_NAME));
         // token
-        userDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
-        userDetails.setAccessValid(Objects.equals(1, claims.get(CLAIM_ACCESS_VALID)));
+        userDetails.setDeviceLimit(Objects.equals(1, claims.get(CLAIM_DEVICE_LIMIT)));
+        userDetails.setAccessStore(Objects.equals(1, claims.get(CLAIM_ACCESS_STORE)));
         userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         userDetails.setAccessIp((String) claims.get(CLAIM_ACCESS_IP));
         userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
         userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        userDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
+        userDetails.setDeviceId((String) claims.get(CLAIM_DEVICE_ID));
         userDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
         userDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));
         // user
@@ -264,12 +265,12 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
 
     @Override
     public void setRefreshClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
-        jwtBuilder.claim(CLAIM_ACCESS_UNIQUE, userDetails.isAccessUnique() ? 1 : 0)
+        jwtBuilder.claim(CLAIM_DEVICE_LIMIT, userDetails.isDeviceLimit() ? 1 : 0)
                 .claim(CLAIM_LOGIN_SOURCE, userDetails.getLoginSource())
-                .claim(CLAIM_ACCESS_VALID, userDetails.isAccessValid() ? 1 : 0)
+                .claim(CLAIM_ACCESS_STORE, userDetails.isAccessStore() ? 1 : 0)
                 .claim(CLAIM_TYPE, userDetails.getAuthType())
                 .claim(CLAIM_REFRESH_ID, userDetails.getRefreshId())
-                .claim(CLAIM_SESSION_ID, userDetails.getSessionId())
+                .claim(CLAIM_DEVICE_ID, userDetails.getDeviceId())
                 .claim(CLAIM_USER_ACCOUNT, userDetails.getUsername())
                 .claim(CLAIM_TENANT_ID, userDetails.getTenantId())
                 .claim(CLAIM_TENANT_CODE, userDetails.getTenantCode());
@@ -278,7 +279,8 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
     @Override
     public void setOauthRefreshClaims(JwtBuilder jwtBuilder, AccessUserDetails userDetails) {
         setRefreshClaims(jwtBuilder, userDetails);
-        jwtBuilder.claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
+        jwtBuilder.claim(CLAIM_DEVICE_ID, null)
+                .claim(CLAIM_OAUTH_ID, userDetails.getOauthId())
                 .claim(CLAIM_OAUTH_NAME, userDetails.getOauthName());
     }
 
@@ -291,9 +293,9 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         tokenDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         tokenDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        tokenDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
-        tokenDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
-        tokenDetails.setAccessValid(Objects.equals(1, claims.get(CLAIM_ACCESS_VALID)));
+        tokenDetails.setDeviceId((String) claims.get(CLAIM_DEVICE_ID));
+        tokenDetails.setDeviceLimit(Objects.equals(1, claims.get(CLAIM_DEVICE_LIMIT)));
+        tokenDetails.setAccessStore(Objects.equals(1, claims.get(CLAIM_ACCESS_STORE)));
         return tokenDetails;
     }
 
@@ -306,8 +308,7 @@ public class BearerTokenDelegateImpl implements BearerTokenDelegate {
         tokenDetails.setAuthType((String) claims.get(CLAIM_TYPE));
         tokenDetails.setUsername((String) claims.get(CLAIM_USER_ACCOUNT));
         tokenDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-        tokenDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
-        tokenDetails.setAccessUnique(Objects.equals(1, claims.get(CLAIM_ACCESS_UNIQUE)));
+        tokenDetails.setDeviceLimit(Objects.equals(1, claims.get(CLAIM_DEVICE_LIMIT)));
         tokenDetails.setOauthId((String) claims.get(CLAIM_OAUTH_ID));
         return tokenDetails;
     }

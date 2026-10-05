@@ -51,11 +51,6 @@
       "sourceType": "com.cowave.zoo.framework.helper.minio.MinioProperties"
     },
     {
-      "name": "spring.rest",
-      "type": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties"
-    },
-    {
       "name": "spring.socket-io",
       "type": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties",
       "sourceType": "com.cowave.zoo.framework.helper.socketio.SocketIoProperties"
@@ -1935,48 +1930,6 @@
       "type": "java.lang.String",
       "description": "访问秘钥",
       "sourceType": "com.cowave.zoo.framework.helper.minio.MinioProperties"
-    },
-    {
-      "name": "spring.rest.connect-timeout",
-      "type": "java.lang.Integer",
-      "description": "连接超时",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "defaultValue": 10000
-    },
-    {
-      "name": "spring.rest.pool-connections",
-      "type": "java.lang.Integer",
-      "description": "最大连接数",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "defaultValue": 100
-    },
-    {
-      "name": "spring.rest.pool-timeout",
-      "type": "java.lang.Integer",
-      "description": "获取连接超时",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "defaultValue": 30000
-    },
-    {
-      "name": "spring.rest.retry-interval",
-      "type": "java.lang.Long",
-      "description": "重试间隔",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "defaultValue": 1000
-    },
-    {
-      "name": "spring.rest.retry-max",
-      "type": "java.lang.Integer",
-      "description": "最大重试次数",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "defaultValue": 3
-    },
-    {
-      "name": "spring.rest.socket-timeout",
-      "type": "java.lang.Integer",
-      "description": "响应超时",
-      "sourceType": "com.cowave.zoo.framework.helper.rest.RestProperties",
-      "defaultValue": 120000
     },
     {
       "name": "spring.socket-io.allow-custom-requests",

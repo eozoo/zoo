@@ -12,7 +12,6 @@
  */
 package com.cowave.zoo.framework.helper.http;
 
-import com.cowave.zoo.http.client.HttpClientInterceptor;
 import com.cowave.zoo.http.client.HttpServiceChooser;
 import com.cowave.zoo.http.client.invoke.proxy.HttpMethodInvoker;
 import com.cowave.zoo.framework.configuration.ApplicationProperties;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,7 +33,6 @@ import jakarta.annotation.Nullable;
  * @author shanhuiming
  *
  */
-@ConditionalOnMissingClass("io.seata.core.context.RootContext")
 @ConditionalOnClass({HttpMethodInvoker.class})
 @Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
@@ -54,8 +51,8 @@ public class HttpClientConfiguration {
     }
 
     @Bean
-    public HttpClientInterceptor httpClientInterceptor(
+    public HttpHeaderInterceptor httpHeaderInterceptor(
             @Value("${server.port:8080}") String port, ApplicationProperties applicationProperties) {
-        return new HttpHeaderInterceptor(port, applicationProperties);
+        return new HttpHeaderInterceptor(port, applicationProperties.getClusterId());
     }
 }

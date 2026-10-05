@@ -53,9 +53,9 @@ public class AccessUserDetails implements UserDetails {
     private String refreshId;
 
     /**
-     * 登录会话id，刷新令牌时保持不变
+     * 登录设备标识，刷新令牌时保持不变
      */
-    private String sessionId;
+    private String deviceId;
 
     /**
      * refreshToken
@@ -196,14 +196,14 @@ public class AccessUserDetails implements UserDetails {
     private List<? extends GrantedAuthority> authorities;
 
     /**
-     * 限制同一账号的登录设备
+     * 是否限制同一账号单设备登录
      */
-    private boolean accessUnique = true;
+    private boolean deviceLimit = true;
 
     /**
-     * 是否存储验证AccessToken
+     * 是否存储并校验Access令牌状态
      */
-    private boolean accessValid = false;
+    private boolean accessStore = false;
 
     /**
      * 申请应用id
@@ -278,14 +278,14 @@ public class AccessUserDetails implements UserDetails {
         accessUserDetails.setAccessTime(Access.accessTime());
         accessUserDetails.setAccessId(IdUtil.fastSimpleUUID());
         accessUserDetails.setRefreshId(IdUtil.fastSimpleUUID());
-        accessUserDetails.setSessionId(IdUtil.fastSimpleUUID());
+        accessUserDetails.setDeviceId(IdUtil.fastSimpleUUID());
         return accessUserDetails;
     }
 
     AccessUserDetails(RefreshTokenInfo refreshTokenInfo){
         this.accessId = refreshTokenInfo.getAccessId();
         this.refreshId = refreshTokenInfo.getRefreshId();
-        this.sessionId = refreshTokenInfo.getSessionId();
+        this.deviceId = refreshTokenInfo.getDeviceId();
         this.authType = refreshTokenInfo.getAuthType();
         this.tenantId = refreshTokenInfo.getTenantId();
         this.tenantCode = refreshTokenInfo.getTenantCode();
@@ -310,8 +310,8 @@ public class AccessUserDetails implements UserDetails {
         this.oauthId = refreshTokenInfo.getOauthId();
         this.oauthName = refreshTokenInfo.getOauthName();
         this.apps = refreshTokenInfo.getApps();
-        this.accessUnique = refreshTokenInfo.isAccessUnique();
-        this.accessValid = refreshTokenInfo.isAccessValid();
+        this.deviceLimit = refreshTokenInfo.isDeviceLimit();
+        this.accessStore = refreshTokenInfo.isAccessStore();
     }
 
     public <T> T getTenantId(){

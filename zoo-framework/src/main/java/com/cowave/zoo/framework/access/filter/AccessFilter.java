@@ -310,6 +310,10 @@ public class AccessFilter implements Filter {
 
     private <T> T findMatchingValue(Map<String, Map<String, T>> map, HttpServletRequest httpServletRequest) {
         String url = httpServletRequest.getRequestURI();
+        String contextPath = httpServletRequest.getContextPath();
+        if (StringUtils.isNotBlank(contextPath) && url.startsWith(contextPath)) {
+            url = url.substring(contextPath.length());
+        }
         Map<String, T> methodMap = map.get(httpServletRequest.getMethod());
         if (methodMap != null) {
             for (Map.Entry<String, T> entry : methodMap.entrySet()) {
@@ -349,7 +353,7 @@ public class AccessFilter implements Filter {
             userDetails.setAuthType((String) claims.get(CLAIM_TYPE));
             userDetails.setAccessId((String) claims.get(CLAIM_ACCESS_ID));
             userDetails.setRefreshId((String) claims.get(CLAIM_REFRESH_ID));
-            userDetails.setSessionId((String) claims.get(CLAIM_SESSION_ID));
+            userDetails.setDeviceId((String) claims.get(CLAIM_DEVICE_ID));
             // tenant
             userDetails.setTenantId(claims.get(CLAIM_TENANT_ID));
             userDetails.setTenantCode((String) claims.get(CLAIM_TENANT_CODE));

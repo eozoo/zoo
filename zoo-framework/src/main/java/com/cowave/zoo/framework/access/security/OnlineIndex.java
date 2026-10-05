@@ -30,9 +30,9 @@ public class OnlineIndex {
     private String userAccount;
 
     /**
-     * 登录会话id
+     * 登录设备标识
      */
-    private String sessionId;
+    private String deviceId;
 
     /**
      * 当前租户编码
@@ -44,15 +44,15 @@ public class OnlineIndex {
      */
     private Date loginTime;
 
-    public OnlineIndex(String userAccount, String sessionId, Date loginTime) {
+    public OnlineIndex(String userAccount, String deviceId, Date loginTime) {
         this.userAccount = userAccount;
-        this.sessionId = sessionId;
+        this.deviceId = deviceId;
         this.loginTime = loginTime;
     }
 
-    public OnlineIndex(String userAccount, String sessionId, String tenantCode, Date loginTime) {
+    public OnlineIndex(String userAccount, String deviceId, String tenantCode, Date loginTime) {
         this.userAccount = userAccount;
-        this.sessionId = sessionId;
+        this.deviceId = deviceId;
         this.tenantCode = tenantCode;
         this.loginTime = loginTime;
     }
